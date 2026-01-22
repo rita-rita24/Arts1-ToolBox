@@ -1,0 +1,2133 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSV/TSV エディタ</title>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --danger: #dc2626;
+      --danger-hover: #b91c1c;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --header-bg: #f1f5f9;
+      --highlight: #fef08a;
+    }
+
+    [data-theme="dark"] {
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --danger: #ef4444;
+      --danger-hover: #f87171;
+      --success: #22c55e;
+      --warning: #fbbf24;
+      --bg: #000000;
+      --surface: #121212;
+      --border: #404040;
+      --text: #ffffff;
+      --text-muted: #a3a3a3;
+      --header-bg: #262626;
+      --highlight: #854d0e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Material Symbols Base Style */
+    .material-symbols-outlined {
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24;
+      font-size: 1.25em;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    /* アイコン配置の調整 */
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .header h1 .material-symbols-outlined {
+      font-size: 2rem;
+      color: var(--primary);
+    }
+
+    /* ボタン内のアイコンサイズ調整 */
+    /* ボタン内のアイコンサイズ調整 */
+    .btn .material-symbols-outlined {
+      font-size: 1.15rem;
+    }
+
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* ヘッダー */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 16px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      background: var(--surface);
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .stats span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .stats .value {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* ダークモードトグル */
+    .theme-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .theme-toggle:hover {
+      background: var(--header-bg);
+    }
+
+    /* ツールバー */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      /* グループ間の間隔 */
+      margin-bottom: 16px;
+      padding: 8px 12px;
+      background: var(--surface);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      align-items: center;
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      /* グループ内のボタン間隔 */
+      position: relative;
+    }
+
+    .toolbar-group:not(:last-child)::after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      margin-left: 8px;
+    }
+
+    .ml-auto {
+      margin-left: auto;
+    }
+
+    .ml-auto::after {
+      display: none !important;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      min-height: 36px;
+      background: var(--header-bg);
+      color: var(--text);
+    }
+
+    .btn:hover {
+      background: var(--border);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: var(--danger-hover);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+
+
+    /* ヘッダー切り替え */
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      height: 36px;
+      /* ボタンと同じ高さに固定 */
+      background: var(--header-bg);
+      border-radius: 6px;
+      border: 1px solid transparent;
+      /* ボーダー分の高さ調整 */
+    }
+
+    .toggle-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .toggle {
+      position: relative;
+      width: 42px;
+      height: 24px;
+      background: var(--border);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .toggle.active {
+      background: var(--primary);
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle.active::after {
+      transform: translateX(20px);
+    }
+
+    /* 検索バー */
+    .search-bar {
+      display: none;
+      padding: 12px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .search-bar.show {
+      display: flex;
+    }
+
+    .search-bar input {
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      background: var(--bg);
+      color: var(--text);
+      min-width: 200px;
+      height: 36px;
+    }
+
+    .search-bar input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .search-info {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .search-nav {
+      display: flex;
+      gap: 4px;
+    }
+
+    .search-nav button {
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .search-nav button:hover {
+      background: var(--header-bg);
+    }
+
+    .search-close {
+      margin-left: auto;
+    }
+
+    /* ペーストエリア */
+    .paste-area {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .paste-zone {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      background: var(--surface);
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .paste-zone:hover,
+    .paste-zone.dragover {
+      border-color: var(--primary);
+      background: var(--header-bg);
+    }
+
+    .paste-zone h2 {
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .paste-zone p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .paste-zone.has-data {
+      display: none;
+    }
+
+    /* 検出バナー */
+    .detection-banner {
+      display: none;
+      padding: 12px 16px;
+      background: #fef3c7;
+      border: 1px solid var(--warning);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    [data-theme="dark"] .detection-banner {
+      background: #262626;
+    }
+
+    .detection-banner.show {
+      display: flex;
+    }
+
+    .detection-banner .message {
+      flex: 1;
+      font-size: 0.9rem;
+    }
+
+    .detection-banner .actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* テーブルコンテナ */
+    .table-container {
+      display: none;
+      background: var(--surface);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .table-container.show {
+      display: block;
+    }
+
+    .table-scroll {
+      overflow: auto;
+      max-height: 70vh;
+    }
+
+    /* テーブル */
+    table {
+      width: max-content;
+      /* min-width: 100%; removed to prevent stretching */
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      text-align: left;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* thのパディングを削除（ラッパーに移動するため） */
+    th {
+      padding: 0;
+      background: var(--header-bg);
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      user-select: none;
+    }
+
+    td {
+      padding: 10px 12px;
+    }
+
+    th:hover {
+      background: var(--border);
+    }
+
+    /* 列リサイズハンドル */
+    .resize-handle {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      cursor: col-resize;
+      background: transparent;
+      z-index: 100;
+    }
+
+    .resize-handle:hover,
+    .resize-handle.resizing {
+      background: var(--primary);
+    }
+
+    .th-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+    }
+
+    .th-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+      padding: 10px 12px;
+      /* thから移動 */
+      flex: 1;
+      width: 100%;
+    }
+
+    .th-text {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .th-menu-btn {
+      padding: 4px;
+      border-radius: 4px;
+      opacity: 0.5;
+      transition: opacity 0.15s;
+    }
+
+    th:hover .th-menu-btn {
+      opacity: 1;
+    }
+
+    .row-num {
+      background: var(--header-bg);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      text-align: center;
+      width: 70px !important;
+      min-width: 70px !important;
+      max-width: 70px !important;
+      font-weight: normal;
+      padding: 0 !important;
+      /* wrapperでpadding制御 */
+      position: sticky;
+      left: 0;
+      z-index: 20;
+      border-right: 1px solid var(--border);
+      /* overflow: hidden; Removed to allow menu overflow if needed, but wrapper handles it */
+    }
+
+    .row-num-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      /* 番号とメニューボタンを配置 */
+      width: 100%;
+      height: 100%;
+      padding: 0 4px;
+      position: relative;
+    }
+
+    .row-num-text {
+      flex: 1;
+      text-align: center;
+    }
+
+    .row-menu-btn {
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.5;
+      /* デフォルトで半透明表示 */
+      transition: all 0.15s;
+    }
+
+    .row-num:hover .row-menu-btn,
+    .row-menu-btn:focus-visible {
+      opacity: 1;
+      /* ホバー時に強調 */
+    }
+
+    .row-menu-btn:hover {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    th.row-num {
+      z-index: 30;
+      /* ヘッダー扱いなので手前に */
+      padding: 10px 0 !important;
+      /* ヘッダーは通常padding */
+    }
+
+    td {
+      background: var(--surface);
+    }
+
+    tr:hover td:not(.row-num) {
+      background: var(--header-bg);
+    }
+
+    td[contenteditable] {
+      outline: none;
+    }
+
+    td[contenteditable]:focus,
+    td.selected {
+      background: var(--header-bg);
+      box-shadow: inset 0 0 0 2px var(--primary);
+    }
+
+    td.highlight {
+      background: var(--highlight) !important;
+    }
+
+    td.current-match {
+      background: var(--warning) !important;
+    }
+
+    /* 列メニュー */
+    .column-menu {
+      display: none;
+      position: absolute;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      min-width: 200px;
+      overflow: hidden;
+    }
+
+    .column-menu.show {
+      display: block;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.1s;
+    }
+
+    .menu-item:hover {
+      background: var(--header-bg);
+    }
+
+    .menu-item.danger {
+      color: var(--danger);
+    }
+
+    .menu-item.danger:hover {
+      background: #fee2e2;
+    }
+
+    [data-theme="dark"] .menu-item.danger:hover {
+      background: #262626;
+    }
+
+    .menu-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+
+    /* トースト */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      padding: 14px 24px;
+      background: var(--text);
+      color: var(--bg);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 1.2s forwards;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.success {
+      background: var(--success);
+      color: white;
+    }
+
+    .toast.error {
+      background: var(--danger);
+      color: white;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes toastOut {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
+    }
+
+    /* モーダル */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 3000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--surface);
+      border-radius: 16px;
+      max-width: 400px;
+      width: 100%;
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal h3 {
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+    }
+
+    .modal p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    /* 復元バナー */
+    .restore-banner {
+      display: none;
+      padding: 12px 16px;
+      background: #dbeafe;
+      border: 1px solid var(--primary);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      align-items: center;
+      gap: 12px;
+    }
+
+    [data-theme="dark"] .restore-banner {
+      background: #262626;
+    }
+
+    .restore-banner.show {
+      display: flex;
+    }
+
+    .restore-banner .message {
+      flex: 1;
+      font-size: 0.9rem;
+    }
+
+    /* ショートカットヒント */
+    .shortcut-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-left: 4px;
+    }
+
+    /* レスポンシブ */
+    @media (max-width: 768px) {
+      .container {
+        padding: 12px;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .stats {
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .toolbar {
+        padding: 12px;
+      }
+
+      .btn {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+      }
+
+      .paste-zone {
+        padding: 24px;
+      }
+
+      th,
+      td {
+        padding: 8px;
+      }
+
+      .shortcut-hint {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- ヘッダー -->
+    <header class="header">
+      <h1><span class="material-symbols-outlined">table_chart</span> CSV/TSV エディタ</h1>
+      <div class="header-right">
+        <div class="stats" id="stats">
+          <span>行: <span class="value" id="rowCount">0</span></span>
+          <span>列: <span class="value" id="colCount">0</span></span>
+          <span>サイズ: <span class="value" id="dataSize">0 KB</span></span>
+          <span>形式: <span class="value" id="dataFormat">-</span></span>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()" title="ダークモード切替">
+          <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 復元バナー -->
+    <div class="restore-banner" id="restoreBanner">
+      <span class="material-symbols-outlined">restore</span>
+      <span class="message">前回の作業データが見つかりました</span>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="restoreData()">復元する</button>
+        <button class="btn" onclick="dismissRestore()">破棄</button>
+      </div>
+    </div>
+
+    <!-- 検出バナー -->
+    <div class="detection-banner" id="detectionBanner">
+      <span class="material-symbols-outlined">lightbulb</span>
+      <span class="message" id="detectionMessage"></span>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="confirmDetection()">そのまま使う</button>
+        <button class="btn" onclick="toggleHeader()">切り替える</button>
+      </div>
+    </div>
+
+    <!-- 検索バー -->
+    <div class="search-bar" id="searchBar">
+      <input type="text" id="searchInput" placeholder="検索..." oninput="performSearch()">
+      <input type="text" id="replaceInput" placeholder="置換...">
+      <button class="btn" onclick="replaceNext()">置換</button>
+      <button class="btn" onclick="replaceAll()">すべて置換</button>
+      <div class="search-nav">
+        <button onclick="navigateMatch(-1)" title="前へ"><span
+            class="material-symbols-outlined">expand_less</span></button>
+        <button onclick="navigateMatch(1)" title="次へ"><span
+            class="material-symbols-outlined">expand_more</span></button>
+      </div>
+      <span class="search-info" id="searchInfo"></span>
+      <button class="btn search-close" onclick="closeSearch()"><span
+          class="material-symbols-outlined">close</span></button>
+    </div>
+
+    <!-- ツールバー -->
+    <div class="toolbar">
+      <!-- 履歴グループ -->
+      <div class="toolbar-group">
+        <button class="btn" id="undoBtn" onclick="undo()" disabled title="元に戻す">
+          <span class="material-symbols-outlined">undo</span>
+        </button>
+        <button class="btn" id="redoBtn" onclick="redo()" disabled title="やり直し">
+          <span class="material-symbols-outlined">redo</span>
+        </button>
+      </div>
+
+      <!-- 編集グループ -->
+      <div class="toolbar-group">
+        <button class="btn" onclick="triggerPaste()" title="データを貼り付け">
+          <span class="material-symbols-outlined">content_paste</span> 貼り付け
+        </button>
+        <button class="btn" onclick="addRow()" title="行を追加">
+          <span class="material-symbols-outlined">add_box</span> 行追加
+        </button>
+        <button class="btn" onclick="addColumn()" title="列を追加">
+          <span class="material-symbols-outlined">add_box</span> 列追加
+        </button>
+      </div>
+
+      <!-- 表示・検索グループ -->
+      <div class="toolbar-group">
+        <button class="btn" onclick="openSearch()" title="検索・置換">
+          <span class="material-symbols-outlined">search</span> 検索 <span class="shortcut-hint">Ctrl+F</span>
+        </button>
+        <div class="toggle-group" title="ヘッダー行の有無を切り替え">
+          <span class="toggle-label">ヘッダー</span>
+          <div class="toggle" id="headerToggle" onclick="toggleHeader()"></div>
+        </div>
+      </div>
+
+      <!-- エクスポートグループ -->
+      <div class="toolbar-group">
+        <button class="btn" onclick="copyAsCSV()" title="CSVとしてコピー">
+          <span class="material-symbols-outlined">content_copy</span> CSVコピー
+        </button>
+        <button class="btn" onclick="copyAsTSV()" title="TSVとしてコピー">
+          <span class="material-symbols-outlined">content_copy</span> TSVコピー
+        </button>
+        <button class="btn" onclick="downloadCSV()" title="CSVダウンロード">
+          <span class="material-symbols-outlined">save</span> CSV保存
+        </button>
+        <button class="btn" onclick="downloadTSV()" title="TSVダウンロード">
+          <span class="material-symbols-outlined">save</span> TSV保存
+        </button>
+      </div>
+
+      <!-- 削除グループ -->
+      <div class="toolbar-group ml-auto">
+        <button class="btn btn-danger" onclick="confirmClearAll()" title="すべてクリア">
+          <span class="material-symbols-outlined">delete</span> クリア
+        </button>
+      </div>
+    </div>
+
+    <!-- ペーストエリア -->
+    <div class="paste-area">
+      <div class="paste-zone" id="pasteZone" tabindex="0">
+        <span class="material-symbols-outlined"
+          style="font-size: 48px; color: var(--text-muted); margin-bottom: 16px;">content_paste_go</span>
+        <h2>ここにCSV/TSVデータを貼り付け</h2>
+        <p>Ctrl+V または クリックしてペースト</p>
+        <p style="margin-top: 8px; font-size: 0.8rem;">カンマ区切り(CSV)・タブ区切り(TSV) 自動判定</p>
+      </div>
+    </div>
+
+    <!-- テーブル -->
+    <div class="table-container" id="tableContainer">
+      <div class="table-scroll" id="tableScroll">
+        <table id="dataTable">
+          <thead id="tableHead"></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 列メニュー -->
+  <div class="column-menu" id="columnMenu">
+    <div class="menu-item" onclick="sortColumn('asc')"><span class="material-symbols-outlined">arrow_upward</span>
+      昇順に並び替え</div>
+    <div class="menu-item" onclick="sortColumn('desc')"><span class="material-symbols-outlined">arrow_downward</span>
+      降順に並び替え</div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" onclick="removeEmptyCells()"><span class="material-symbols-outlined">cleaning_services</span>
+      空白セルを削除</div>
+    <div class="menu-item" onclick="duplicateColumn()"><span class="material-symbols-outlined">content_copy</span> 列を複製
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item danger" onclick="confirmDeleteColumn()"><span class="material-symbols-outlined">delete</span>
+      列を削除</div>
+  </div>
+
+  <!-- 行メニュー -->
+  <div class="column-menu" id="rowMenu">
+    <div class="menu-item danger" onclick="confirmDeleteRowFromMenu()">
+      <span class="material-symbols-outlined">delete</span>
+      行を削除
+    </div>
+  </div>
+
+  <!-- トースト -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- 確認モーダル -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h3 id="modalTitle">確認</h3>
+      <p id="modalMessage"></p>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeModal()">キャンセル</button>
+        <button class="btn btn-danger" id="modalConfirmBtn">削除</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== 状態管理 =====
+    let state = {
+      data: [],
+      hasHeader: false,
+      delimiter: ',',
+      originalText: '',
+      columnWidths: {}
+    };
+
+    let undoStack = [];
+    let redoStack = [];
+    const MAX_HISTORY = 20;
+    let activeColumnIndex = -1;
+
+    // 検索
+    let searchMatches = [];
+    let currentMatchIndex = -1;
+
+    // 列リサイズ
+    let isResizing = false;
+    let resizeColumnIndex = -1;
+    let resizeStartX = 0;
+    let resizeStartWidth = 0;
+
+    // ===== 初期化 =====
+    document.addEventListener('DOMContentLoaded', () => {
+      initEventListeners();
+      checkStoredData();
+      initTheme();
+    });
+
+    function initEventListeners() {
+      document.addEventListener('paste', handlePaste);
+      document.addEventListener('keydown', handleKeyDown);
+
+      const pasteZone = document.getElementById('pasteZone');
+      pasteZone.addEventListener('click', triggerPaste);
+      pasteZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        pasteZone.classList.add('dragover');
+      });
+      pasteZone.addEventListener('dragleave', () => {
+        pasteZone.classList.remove('dragover');
+      });
+      pasteZone.addEventListener('drop', handleDrop);
+
+      document.addEventListener('click', (e) => {
+        const menu = document.getElementById('columnMenu');
+        if (!menu.contains(e.target) && !e.target.closest('.th-menu-btn')) {
+          menu.classList.remove('show');
+        }
+      });
+
+      document.addEventListener('mousemove', handleResizeMove);
+      document.addEventListener('mouseup', handleResizeEnd);
+    }
+
+    // ===== キーボード操作 =====
+    function handleKeyDown(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+        return;
+      }
+
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        e.preventDefault();
+        redo();
+        return;
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        openSearch();
+        return;
+      }
+
+      if (e.key === 'Escape') {
+        closeSearch();
+        return;
+      }
+
+      const activeElement = document.activeElement;
+      if (activeElement.tagName === 'TD' && activeElement.isContentEditable) {
+        handleCellNavigation(e, activeElement);
+      }
+    }
+
+    function handleCellNavigation(e, cell) {
+      const row = parseInt(cell.dataset.row);
+      const col = parseInt(cell.dataset.col);
+      let newRow = row;
+      let newCol = col;
+      let shouldMove = false;
+
+      switch (e.key) {
+        case 'Tab':
+          e.preventDefault();
+          if (e.shiftKey) {
+            newCol = col - 1;
+            if (newCol < 0) {
+              newCol = state.data[0].length - 1;
+              newRow = row - 1;
+            }
+          } else {
+            newCol = col + 1;
+            if (newCol >= state.data[0].length) {
+              newCol = 0;
+              newRow = row + 1;
+            }
+          }
+          shouldMove = true;
+          break;
+        case 'Enter':
+          if (!e.shiftKey) {
+            e.preventDefault();
+            newRow = row + 1;
+            shouldMove = true;
+          }
+          break;
+        case 'ArrowUp':
+          if (e.altKey) {
+            e.preventDefault();
+            newRow = row - 1;
+            shouldMove = true;
+          }
+          break;
+        case 'ArrowDown':
+          if (e.altKey) {
+            e.preventDefault();
+            newRow = row + 1;
+            shouldMove = true;
+          }
+          break;
+        case 'ArrowLeft':
+          if (e.altKey) {
+            e.preventDefault();
+            newCol = col - 1;
+            shouldMove = true;
+          }
+          break;
+        case 'ArrowRight':
+          if (e.altKey) {
+            e.preventDefault();
+            newCol = col + 1;
+            shouldMove = true;
+          }
+          break;
+      }
+
+      if (shouldMove) {
+        const dataStartIndex = state.hasHeader ? 1 : 0;
+        if (newRow >= dataStartIndex && newRow < state.data.length && newCol >= 0 && newCol < state.data[0].length) {
+          const newCell = document.querySelector(`td[data-row="${newRow}"][data-col="${newCol}"]`);
+          if (newCell) {
+            newCell.focus();
+          }
+        }
+      }
+    }
+
+    // ===== テーマ =====
+    function initTheme() {
+      const saved = localStorage.getItem('csvEditor_theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      setTheme(theme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      setTheme(next);
+      localStorage.setItem('csvEditor_theme', next);
+    }
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      document.getElementById('themeIcon').textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+    }
+
+    // ===== ペースト処理 =====
+    function handlePaste(e) {
+      const target = e.target;
+      if (target.tagName === 'TD' && target.isContentEditable) return;
+      if (target.tagName === 'INPUT') return;
+
+      const text = e.clipboardData?.getData('text');
+      if (text) {
+        e.preventDefault();
+        processData(text);
+      }
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      document.getElementById('pasteZone').classList.remove('dragover');
+
+      const file = e.dataTransfer?.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          processData(event.target.result);
+        };
+        reader.readAsText(file);
+      }
+    }
+
+    async function triggerPaste() {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          processData(text);
+        }
+      } catch (err) {
+        showToast('クリップボードにアクセスできません', 'error');
+      }
+    }
+
+    // ===== データ解析 =====
+    function processData(text) {
+      if (!text.trim()) {
+        showToast('データが空です', 'error');
+        return;
+      }
+
+      state.originalText = text;
+      state.delimiter = detectDelimiter(text);
+      state.data = parseCSV(text, state.delimiter);
+
+      if (state.data.length === 0) {
+        showToast('データを解析できませんでした', 'error');
+        return;
+      }
+
+      const headerProbability = estimateHeaderProbability(state.data);
+      state.hasHeader = headerProbability > 0.5;
+      state.columnWidths = {};
+
+      showDetectionBanner(headerProbability);
+
+      undoStack = [];
+      redoStack = [];
+      updateHistoryButtons();
+
+      renderTable();
+      updateStats();
+      saveToStorage();
+
+      showToast(`${state.data.length}行のデータを読み込みました`, 'success');
+    }
+
+    function detectDelimiter(text) {
+      const firstLines = text.split('\n').slice(0, 5).join('\n');
+      const commaCount = (firstLines.match(/,/g) || []).length;
+      const tabCount = (firstLines.match(/\t/g) || []).length;
+      return tabCount > commaCount ? '\t' : ',';
+    }
+
+    function parseCSV(text, delimiter) {
+      const rows = [];
+      let currentRow = [];
+      let currentCell = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+
+        if (inQuotes) {
+          if (char === '"') {
+            if (nextChar === '"') {
+              currentCell += '"';
+              i++;
+            } else {
+              inQuotes = false;
+            }
+          } else {
+            currentCell += char;
+          }
+        } else {
+          if (char === '"') {
+            inQuotes = true;
+          } else if (char === delimiter) {
+            currentRow.push(currentCell);
+            currentCell = '';
+          } else if (char === '\n' || (char === '\r' && nextChar === '\n')) {
+            currentRow.push(currentCell);
+            if (currentRow.some(cell => cell.trim())) {
+              rows.push(currentRow);
+            }
+            currentRow = [];
+            currentCell = '';
+            if (char === '\r') i++;
+          } else if (char !== '\r') {
+            currentCell += char;
+          }
+        }
+      }
+
+      currentRow.push(currentCell);
+      if (currentRow.some(cell => cell.trim())) {
+        rows.push(currentRow);
+      }
+
+      const maxCols = Math.max(...rows.map(r => r.length));
+      return rows.map(row => {
+        while (row.length < maxCols) row.push('');
+        return row;
+      });
+    }
+
+    function estimateHeaderProbability(data) {
+      if (data.length < 2) return 0.5;
+
+      const firstRow = data[0];
+      const otherRows = data.slice(1, Math.min(6, data.length));
+
+      let score = 0;
+
+      const firstRowAllStrings = firstRow.every(cell => isNaN(parseFloat(cell)));
+      if (firstRowAllStrings) score += 0.3;
+
+      let numericCells = 0;
+      let totalCells = 0;
+      otherRows.forEach(row => {
+        row.forEach(cell => {
+          totalCells++;
+          if (!isNaN(parseFloat(cell)) && cell.trim() !== '') {
+            numericCells++;
+          }
+        });
+      });
+      if (totalCells > 0 && numericCells / totalCells > 0.3) score += 0.3;
+
+      const firstRowPattern = firstRow.map(cell => isNaN(parseFloat(cell)) ? 'S' : 'N').join('');
+      const secondRowPattern = otherRows[0]?.map(cell => isNaN(parseFloat(cell)) ? 'S' : 'N').join('') || '';
+      if (firstRowPattern !== secondRowPattern) score += 0.2;
+
+      return Math.min(1, score + 0.2);
+    }
+
+    function showDetectionBanner(probability) {
+      const banner = document.getElementById('detectionBanner');
+      const message = document.getElementById('detectionMessage');
+
+      if (probability > 0.5) {
+        message.textContent = `このデータは「ヘッダーあり」の可能性が高いです`;
+        banner.classList.add('show');
+      }
+    }
+
+    function confirmDetection() {
+      document.getElementById('detectionBanner').classList.remove('show');
+    }
+
+    // ===== テーブル表示 =====
+    function renderTable() {
+      const tableHead = document.getElementById('tableHead');
+      const tableBody = document.getElementById('tableBody');
+      const container = document.getElementById('tableContainer');
+      const pasteZone = document.getElementById('pasteZone');
+
+      if (state.data.length === 0) {
+        container.classList.remove('show');
+        pasteZone.classList.remove('has-data');
+        return;
+      }
+
+      container.classList.add('show');
+      pasteZone.classList.add('has-data');
+
+      const colCount = state.data[0]?.length || 0;
+      const dataStartIndex = state.hasHeader ? 1 : 0;
+      const headers = state.hasHeader ? state.data[0] : Array.from({ length: colCount }, (_, i) => `${i + 1}`);
+
+      let headHTML = '<tr><th class="row-num">#</th>';
+      headers.forEach((header, i) => {
+        const width = state.columnWidths[i] || 150;
+        const textStyle = state.hasHeader ? '' : 'color: var(--text-muted);';
+
+        headHTML += `
+          <th style="width: ${width}px; min-width: ${width}px;" data-col="${i}">
+            <div class="th-wrapper">
+              <div class="th-content" onclick="openColumnMenu(event, ${i})">
+                <span class="th-text" style="${textStyle}">${escapeHTML(header)}</span>
+                <span class="th-menu-btn material-symbols-outlined" style="font-size: 1.1rem;">more_vert</span>
+              </div>
+              <div class="resize-handle" onmousedown="startResize(event, ${i})"></div>
+            </div>
+          </th>
+        `;
+      });
+      headHTML += '</tr>';
+      tableHead.innerHTML = headHTML;
+
+      let bodyHTML = '';
+      for (let i = dataStartIndex; i < state.data.length; i++) {
+        const row = state.data[i];
+        const rowNum = state.hasHeader ? i : i + 1;
+
+        bodyHTML += `<tr data-row="${i}">
+          <td class="row-num">
+            <div class="row-num-wrapper">
+              <span class="row-num-text">${rowNum}</span>
+              <button class="row-menu-btn" onclick="openRowMenu(event, ${i})" title="行メニュー">
+                <span class="material-symbols-outlined" style="font-size: 1.0rem;">more_vert</span>
+              </button>
+            </div>
+          </td>`;
+        row.forEach((cell, j) => {
+          const width = state.columnWidths[j] || 150;
+          bodyHTML += `<td contenteditable="true" data-row="${i}" data-col="${j}"
+            style="width: ${width}px; min-width: ${width}px;"
+            onblur="handleCellBlur(this)">${escapeHTML(cell)}</td>`;
+        });
+        bodyHTML += `</tr>`;
+      }
+      tableBody.innerHTML = bodyHTML;
+
+      updateHeaderToggle();
+
+      if (document.getElementById('searchBar').classList.contains('show')) {
+        performSearch();
+      }
+    }
+
+    function escapeHTML(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function updateHeaderToggle() {
+      const toggle = document.getElementById('headerToggle');
+      toggle.classList.toggle('active', state.hasHeader);
+    }
+
+    function toggleHeader() {
+      saveToHistory();
+      state.hasHeader = !state.hasHeader;
+      renderTable();
+      updateStats();
+      saveToStorage();
+      showToast(state.hasHeader ? 'ヘッダーを有効にしました' : 'ヘッダーを無効にしました');
+    }
+
+    // ===== 列リサイズ =====
+    function startResize(e, colIndex) {
+      e.stopPropagation();
+      isResizing = true;
+      resizeColumnIndex = colIndex;
+      resizeStartX = e.clientX;
+      const th = document.querySelector(`th[data-col="${colIndex}"]`);
+      resizeStartWidth = th.offsetWidth;
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    }
+
+    function handleResizeMove(e) {
+      if (!isResizing) return;
+
+      const diff = e.clientX - resizeStartX;
+      const newWidth = Math.max(60, resizeStartWidth + diff);
+
+      state.columnWidths[resizeColumnIndex] = newWidth;
+
+      const ths = document.querySelectorAll(`th[data-col="${resizeColumnIndex}"]`);
+      ths.forEach(th => {
+        th.style.width = `${newWidth}px`;
+        th.style.minWidth = `${newWidth}px`;
+      });
+
+      const cells = document.querySelectorAll(`td[data-col="${resizeColumnIndex}"]`);
+      cells.forEach(cell => {
+        cell.style.width = `${newWidth}px`;
+        cell.style.minWidth = `${newWidth}px`;
+      });
+    }
+
+    function handleResizeEnd() {
+      if (isResizing) {
+        isResizing = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        saveToStorage();
+      }
+    }
+
+    // ===== セル編集 =====
+    function handleCellBlur(cell) {
+      const row = parseInt(cell.dataset.row);
+      const col = parseInt(cell.dataset.col);
+      const newValue = cell.textContent;
+
+      if (state.data[row] && state.data[row][col] !== newValue) {
+        saveToHistory();
+        state.data[row][col] = newValue;
+        updateStats();
+        saveToStorage();
+      }
+    }
+
+    // ===== 検索・置換 =====
+    function openSearch() {
+      document.getElementById('searchBar').classList.add('show');
+      document.getElementById('searchInput').focus();
+    }
+
+    function closeSearch() {
+      document.getElementById('searchBar').classList.remove('show');
+      document.getElementById('searchInput').value = '';
+      document.getElementById('replaceInput').value = '';
+      clearHighlights();
+      searchMatches = [];
+      currentMatchIndex = -1;
+      updateSearchInfo();
+    }
+
+    function performSearch() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      clearHighlights();
+      searchMatches = [];
+      currentMatchIndex = -1;
+
+      if (!query) {
+        updateSearchInfo();
+        return;
+      }
+
+      const dataStartIndex = state.hasHeader ? 1 : 0;
+
+      for (let i = dataStartIndex; i < state.data.length; i++) {
+        for (let j = 0; j < state.data[i].length; j++) {
+          if (state.data[i][j].toLowerCase().includes(query)) {
+            searchMatches.push({ row: i, col: j });
+            const cell = document.querySelector(`td[data-row="${i}"][data-col="${j}"]`);
+            if (cell) {
+              cell.classList.add('highlight');
+            }
+          }
+        }
+      }
+
+      if (searchMatches.length > 0) {
+        currentMatchIndex = 0;
+        highlightCurrentMatch();
+      }
+
+      updateSearchInfo();
+    }
+
+    function navigateMatch(direction) {
+      if (searchMatches.length === 0) return;
+
+      currentMatchIndex += direction;
+      if (currentMatchIndex < 0) currentMatchIndex = searchMatches.length - 1;
+      if (currentMatchIndex >= searchMatches.length) currentMatchIndex = 0;
+
+      highlightCurrentMatch();
+      updateSearchInfo();
+    }
+
+    function highlightCurrentMatch() {
+      document.querySelectorAll('td.current-match').forEach(el => el.classList.remove('current-match'));
+
+      if (currentMatchIndex >= 0 && currentMatchIndex < searchMatches.length) {
+        const match = searchMatches[currentMatchIndex];
+        const cell = document.querySelector(`td[data-row="${match.row}"][data-col="${match.col}"]`);
+        if (cell) {
+          cell.classList.add('current-match');
+          cell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }
+
+    function clearHighlights() {
+      document.querySelectorAll('td.highlight, td.current-match').forEach(el => {
+        el.classList.remove('highlight', 'current-match');
+      });
+    }
+
+    function updateSearchInfo() {
+      const info = document.getElementById('searchInfo');
+      if (searchMatches.length === 0) {
+        const query = document.getElementById('searchInput').value;
+        info.textContent = query ? '一致なし' : '';
+      } else {
+        info.textContent = `${currentMatchIndex + 1} / ${searchMatches.length}件`;
+      }
+    }
+
+    function replaceNext() {
+      if (currentMatchIndex < 0 || searchMatches.length === 0) return;
+
+      const replaceValue = document.getElementById('replaceInput').value;
+      const searchValue = document.getElementById('searchInput').value;
+      const match = searchMatches[currentMatchIndex];
+
+      saveToHistory();
+
+      state.data[match.row][match.col] = state.data[match.row][match.col].replace(
+        new RegExp(escapeRegExp(searchValue), 'i'),
+        replaceValue
+      );
+
+      renderTable();
+      saveToStorage();
+      performSearch();
+
+      showToast('1件置換しました', 'success');
+    }
+
+    function replaceAll() {
+      const replaceValue = document.getElementById('replaceInput').value;
+      const searchValue = document.getElementById('searchInput').value;
+
+      if (!searchValue) return;
+
+      saveToHistory();
+
+      let count = 0;
+      const regex = new RegExp(escapeRegExp(searchValue), 'gi');
+      const dataStartIndex = state.hasHeader ? 1 : 0;
+
+      for (let i = dataStartIndex; i < state.data.length; i++) {
+        for (let j = 0; j < state.data[i].length; j++) {
+          const original = state.data[i][j];
+          const replaced = original.replace(regex, replaceValue);
+          if (original !== replaced) {
+            state.data[i][j] = replaced;
+            count++;
+          }
+        }
+      }
+
+      renderTable();
+      saveToStorage();
+      performSearch();
+
+      showToast(`${count}件置換しました`, 'success');
+    }
+
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    // ===== 列操作 =====
+    function openColumnMenu(e, colIndex) {
+      e.stopPropagation();
+      activeColumnIndex = colIndex;
+
+      const menu = document.getElementById('columnMenu');
+      const rect = e.target.closest('th').getBoundingClientRect();
+
+      menu.style.top = `${rect.bottom + window.scrollY + 4}px`;
+      menu.style.left = `${Math.min(rect.left, window.innerWidth - 220)}px`;
+      menu.classList.add('show');
+    }
+
+    function sortColumn(direction) {
+      if (activeColumnIndex < 0) return;
+
+      saveToHistory();
+
+      const dataStartIndex = state.hasHeader ? 1 : 0;
+      const sortableData = state.data.slice(dataStartIndex);
+
+      sortableData.sort((a, b) => {
+        const valA = a[activeColumnIndex] || '';
+        const valB = b[activeColumnIndex] || '';
+
+        const numA = parseFloat(valA);
+        const numB = parseFloat(valB);
+
+        if (!isNaN(numA) && !isNaN(numB)) {
+          return direction === 'asc' ? numA - numB : numB - numA;
+        }
+
+        return direction === 'asc'
+          ? valA.localeCompare(valB, 'ja')
+          : valB.localeCompare(valA, 'ja');
+      });
+
+      state.data = state.hasHeader
+        ? [state.data[0], ...sortableData]
+        : sortableData;
+
+      renderTable();
+      saveToStorage();
+      closeColumnMenu();
+
+      const colName = state.hasHeader ? state.data[0][activeColumnIndex] : `列${activeColumnIndex + 1}`;
+      showToast(`📌 「${colName}」を${direction === 'asc' ? '昇順' : '降順'}に並び替えました`, 'success');
+    }
+
+    function removeEmptyCells() {
+      if (activeColumnIndex < 0) return;
+
+      saveToHistory();
+
+      const dataStartIndex = state.hasHeader ? 1 : 0;
+      let removedCount = 0;
+
+      state.data = state.data.filter((row, i) => {
+        if (i < dataStartIndex) return true;
+        if (!row[activeColumnIndex] || row[activeColumnIndex].trim() === '') {
+          removedCount++;
+          return false;
+        }
+        return true;
+      });
+
+      renderTable();
+      updateStats();
+      saveToStorage();
+      closeColumnMenu();
+
+      showToast(`${removedCount}行の空白セルを削除しました`, 'success');
+    }
+
+    function duplicateColumn() {
+      if (activeColumnIndex < 0) return;
+
+      saveToHistory();
+
+      state.data = state.data.map(row => {
+        const newRow = [...row];
+        newRow.splice(activeColumnIndex + 1, 0, row[activeColumnIndex]);
+        return newRow;
+      });
+
+      const newWidths = {};
+      Object.keys(state.columnWidths).forEach(key => {
+        const idx = parseInt(key);
+        if (idx <= activeColumnIndex) {
+          newWidths[idx] = state.columnWidths[idx];
+        } else {
+          newWidths[idx + 1] = state.columnWidths[idx];
+        }
+      });
+      newWidths[activeColumnIndex + 1] = state.columnWidths[activeColumnIndex] || 150;
+      state.columnWidths = newWidths;
+
+      renderTable();
+      updateStats();
+      saveToStorage();
+      closeColumnMenu();
+
+      showToast('列を複製しました', 'success');
+    }
+
+    function confirmDeleteColumn() {
+      const colName = state.hasHeader
+        ? state.data[0][activeColumnIndex]
+        : `列${activeColumnIndex + 1}`;
+
+      openModal(
+        '列を削除',
+        `「${colName}」を削除しますか？この操作は元に戻せます。`,
+        deleteColumn
+      );
+      closeColumnMenu();
+    }
+
+    function deleteColumn() {
+      if (activeColumnIndex < 0) return;
+
+      saveToHistory();
+
+      state.data = state.data.map(row => {
+        const newRow = [...row];
+        newRow.splice(activeColumnIndex, 1);
+        return newRow;
+      });
+
+      const newWidths = {};
+      Object.keys(state.columnWidths).forEach(key => {
+        const idx = parseInt(key);
+        if (idx < activeColumnIndex) {
+          newWidths[idx] = state.columnWidths[idx];
+        } else if (idx > activeColumnIndex) {
+          newWidths[idx - 1] = state.columnWidths[idx];
+        }
+      });
+      state.columnWidths = newWidths;
+
+      renderTable();
+      updateStats();
+      saveToStorage();
+      closeModal();
+
+      showToast('列を削除しました', 'success');
+    }
+
+    function closeColumnMenu() {
+      document.getElementById('columnMenu').classList.remove('show');
+    }
+
+    // ===== 行操作 =====
+    let activeRowIndex = -1;
+
+    function openRowMenu(e, rowIndex) {
+      e.stopPropagation();
+      activeRowIndex = rowIndex;
+
+      const menu = document.getElementById('rowMenu');
+      const rect = e.target.getBoundingClientRect();
+
+      menu.style.top = `${rect.bottom + window.scrollY + 4}px`;
+      menu.style.left = `${Math.min(rect.left, window.innerWidth - 220)}px`;
+      menu.classList.add('show');
+    }
+
+    function confirmDeleteRowFromMenu() {
+      closeRowMenu();
+      if (activeRowIndex < 0) return;
+      confirmDeleteRow(activeRowIndex);
+    }
+
+    function closeRowMenu() {
+      document.getElementById('rowMenu').classList.remove('show');
+    }
+
+    // クリックでメニューを閉じる処理に追加
+    document.addEventListener('click', () => {
+      closeColumnMenu();
+      closeRowMenu();
+      if (document.getElementById('searchBar')) {
+        // search bar usually stays open until closed explicitly
+      }
+    });
+
+    function addRow() {
+      saveToHistory();
+
+      const colCount = state.data[0]?.length || 1;
+      state.data.push(Array(colCount).fill(''));
+
+      renderTable();
+      updateStats();
+      saveToStorage();
+
+      showToast('行を追加しました', 'success');
+    }
+
+    function addColumn() {
+      saveToHistory();
+
+      state.data = state.data.map(row => {
+        return [...row, ''];
+      });
+
+      renderTable();
+      updateStats();
+      saveToStorage();
+
+      showToast('列を追加しました', 'success');
+    }
+
+    function confirmDeleteRow(rowIndex) {
+      openModal(
+        '行を削除',
+        `${state.hasHeader ? rowIndex : rowIndex + 1}行目を削除しますか？`,
+        () => deleteRow(rowIndex)
+      );
+    }
+
+    function deleteRow(rowIndex) {
+      saveToHistory();
+
+      state.data.splice(rowIndex, 1);
+
+      renderTable();
+      updateStats();
+      saveToStorage();
+      closeModal();
+
+      showToast('行を削除しました', 'success');
+    }
+
+    // ===== コピー =====
+    function copyAsCSV() {
+      copyData(',');
+    }
+
+    function copyAsTSV() {
+      copyData('\t');
+    }
+
+    function copyData(delimiter) {
+      if (state.data.length === 0) {
+        showToast('コピーするデータがありません', 'error');
+        return;
+      }
+
+      const text = generateOutput(delimiter);
+
+      navigator.clipboard.writeText(text)
+        .then(() => {
+          const format = delimiter === ',' ? 'CSV' : 'TSV';
+          showToast(`📋 ${format}としてコピーしました`, 'success');
+        })
+        .catch(() => {
+          showToast('コピーに失敗しました', 'error');
+        });
+    }
+
+    function generateOutput(delimiter) {
+      return state.data.map(row =>
+        row.map(cell => {
+          if (cell.includes(delimiter) || cell.includes('"') || cell.includes('\n')) {
+            return `"${cell.replace(/"/g, '""')}"`;
+          }
+          return cell;
+        }).join(delimiter)
+      ).join('\n');
+    }
+
+    // ===== ダウンロード =====
+    function downloadCSV() {
+      downloadData(',', 'csv');
+    }
+
+    function downloadTSV() {
+      downloadData('\t', 'tsv');
+    }
+
+    function downloadData(delimiter, extension) {
+      if (state.data.length === 0) {
+        showToast('ダウンロードするデータがありません', 'error');
+        return;
+      }
+
+      const text = generateOutput(delimiter);
+      const bom = '\uFEFF';
+      const blob = new Blob([bom + text], { type: 'text/plain; charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `data_${new Date().toISOString().slice(0, 10)}.${extension}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast(`💾 ${extension.toUpperCase()}ファイルをダウンロードしました`, 'success');
+    }
+
+    // ===== Undo / Redo =====
+    function saveToHistory() {
+      undoStack.push(structuredClone(state));
+      if (undoStack.length > MAX_HISTORY) {
+        undoStack.shift();
+      }
+      redoStack = [];
+      updateHistoryButtons();
+    }
+
+    function undo() {
+      if (undoStack.length === 0) return;
+
+      redoStack.push(structuredClone(state));
+      state = undoStack.pop();
+
+      renderTable();
+      updateStats();
+      saveToStorage();
+      updateHistoryButtons();
+
+      showToast('↩ 元に戻しました');
+    }
+
+    function redo() {
+      if (redoStack.length === 0) return;
+
+      undoStack.push(structuredClone(state));
+      state = redoStack.pop();
+
+      renderTable();
+      updateStats();
+      saveToStorage();
+      updateHistoryButtons();
+
+      showToast('↪ やり直しました');
+    }
+
+    function updateHistoryButtons() {
+      document.getElementById('undoBtn').disabled = undoStack.length === 0;
+      document.getElementById('redoBtn').disabled = redoStack.length === 0;
+    }
+
+    // ===== 統計 =====
+    function updateStats() {
+      const rowCount = state.hasHeader ? state.data.length - 1 : state.data.length;
+      const colCount = state.data[0]?.length || 0;
+
+      const text = state.data.map(row => row.join(state.delimiter)).join('\n');
+      const bytes = new Blob([text]).size;
+      const sizeStr = bytes < 1024
+        ? `${bytes} B`
+        : bytes < 1024 * 1024
+          ? `${(bytes / 1024).toFixed(1)} KB`
+          : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+
+      document.getElementById('rowCount').textContent = rowCount.toLocaleString();
+      document.getElementById('colCount').textContent = colCount;
+      document.getElementById('dataSize').textContent = sizeStr;
+      document.getElementById('dataFormat').textContent = state.delimiter === '\t' ? 'TSV' : 'CSV';
+    }
+
+    // ===== ストレージ =====
+    function saveToStorage() {
+      try {
+        localStorage.setItem('csvEditor_state', JSON.stringify(state));
+      } catch (e) {
+        console.warn('LocalStorage save failed:', e);
+      }
+    }
+
+    function checkStoredData() {
+      try {
+        const stored = localStorage.getItem('csvEditor_state');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed.data && parsed.data.length > 0) {
+            document.getElementById('restoreBanner').classList.add('show');
+          }
+        }
+      } catch (e) {
+        console.warn('LocalStorage read failed:', e);
+      }
+    }
+
+    function restoreData() {
+      try {
+        const stored = localStorage.getItem('csvEditor_state');
+        if (stored) {
+          state = JSON.parse(stored);
+          renderTable();
+          updateStats();
+          showToast('💾 前回の作業を復元しました', 'success');
+        }
+      } catch (e) {
+        showToast('復元に失敗しました', 'error');
+      }
+      document.getElementById('restoreBanner').classList.remove('show');
+    }
+
+    function dismissRestore() {
+      document.getElementById('restoreBanner').classList.remove('show');
+      localStorage.removeItem('csvEditor_state');
+    }
+
+    // ===== クリア =====
+    function confirmClearAll() {
+      if (state.data.length === 0) return;
+
+      openModal(
+        'データをクリア',
+        'すべてのデータを削除しますか？この操作は元に戻せます。',
+        clearAll
+      );
+    }
+
+    function clearAll() {
+      saveToHistory();
+      state.data = [];
+      state.hasHeader = false;
+      state.columnWidths = {};
+      renderTable();
+      updateStats();
+      localStorage.removeItem('csvEditor_state');
+      closeModal();
+      showToast('🗑 すべてのデータをクリアしました');
+    }
+
+    // ===== UI =====
+    function showToast(message, type = '') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+
+      setTimeout(() => toast.remove(), 1500);
+    }
+
+    function openModal(title, message, onConfirm) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalMessage').textContent = message;
+      document.getElementById('modalConfirmBtn').onclick = onConfirm;
+      document.getElementById('modalOverlay').classList.add('show');
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('show');
+    }
+  </script>
+</body>
+
+</html>
