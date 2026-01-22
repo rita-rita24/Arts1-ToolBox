@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>タスク管理</title>
+  <link id="favicon" rel="icon" type="image/svg+xml" href="">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --surface-hover: #1a1a1a;
+      --border: #333;
+      --text: #ffffff;
+      --text-muted: #aaa;
+      --text-dim: #777;
+      --accent: #fff;
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 48px 24px 24px;
+    }
+
+    /* ===== Input Area ===== */
+    .input-container {
+      position: relative;
+      margin-bottom: 48px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 20px 24px;
+      font-size: 20px;
+      font-family: inherit;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      color: var(--text);
+      transition: all 0.2s ease;
+    }
+
+    .input-field::placeholder {
+      color: var(--text-muted);
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--text-muted);
+      background: var(--surface-hover);
+    }
+
+    /* Animated placeholder hint */
+    .input-hint {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      color: var(--text-dim);
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 0.2s;
+    }
+
+    .input-field:focus~.input-hint,
+    .input-field:not(:placeholder-shown)~.input-hint {
+      opacity: 0;
+    }
+
+    /* ===== Counter ===== */
+    .counter {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .counter-num {
+      font-size: 48px;
+      font-weight: 200;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .counter-label {
+      font-size: 14px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* ===== Task List ===== */
+    .task-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .task-list::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .task-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .task-list::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    /* ===== Task Item ===== */
+    .task {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .task:hover {
+      background: var(--surface-hover);
+      border-color: var(--text-dim);
+      transform: translateX(4px);
+    }
+
+    .task:active {
+      transform: translateX(2px);
+    }
+
+    /* Checkbox */
+    .task-check {
+      width: 22px;
+      height: 22px;
+      border: 2px solid var(--text-dim);
+      border-radius: 6px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .task:hover .task-check {
+      border-color: var(--text-muted);
+    }
+
+    .task-check svg {
+      width: 12px;
+      height: 12px;
+      stroke: var(--text);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.15s ease;
+    }
+
+    /* Text */
+    .task-text {
+      flex: 1;
+      font-size: 16px;
+      color: var(--text);
+      word-break: break-word;
+      transition: all 0.15s ease;
+    }
+
+    /* Completed */
+    .task.done {
+      opacity: 0.4;
+    }
+
+    .task.done .task-check {
+      background: var(--text-dim);
+      border-color: var(--text-dim);
+    }
+
+    .task.done .task-check svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .task.done .task-text {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .task.done:hover {
+      opacity: 0.6;
+    }
+
+    /* ===== Empty ===== */
+    .empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--text-dim);
+      gap: 8px;
+    }
+
+    .empty-icon {
+      font-size: 64px;
+      opacity: 0.3;
+      margin-bottom: 8px;
+    }
+
+    .empty-text {
+      font-size: 18px;
+      color: var(--text-muted);
+    }
+
+    .empty-sub {
+      font-size: 14px;
+    }
+
+    /* ===== Animations ===== */
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    .task.new {
+      animation: slideUp 0.25s ease;
+    }
+
+    .task.complete-anim .task-check {
+      animation: pulse 0.3s ease;
+    }
+
+    /* ===== Footer ===== */
+    .footer {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-text {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .clear-btn {
+      font-family: inherit;
+      font-size: 12px;
+      color: var(--text-dim);
+      background: transparent;
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .clear-btn:hover {
+      color: var(--text-muted);
+      border-color: var(--text-dim);
+    }
+
+    .clear-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 480px) {
+      .app {
+        padding: 32px 16px 16px;
+      }
+
+      .input-field {
+        padding: 16px 20px;
+        font-size: 18px;
+      }
+
+      .counter-num {
+        font-size: 36px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <!-- Input -->
+    <div class="input-container">
+      <input type="text" class="input-field" id="input" placeholder="やることを入力..." autocomplete="off" autofocus>
+      <span class="input-hint">Enter ↵</span>
+    </div>
+
+    <!-- Counter -->
+    <div class="counter">
+      <span class="counter-num" id="count">0</span>
+      <span class="counter-label">件のタスク</span>
+    </div>
+
+    <!-- Tasks -->
+    <div class="task-list" id="list"></div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <span class="footer-text">@arinko</span>
+      <button class="clear-btn" id="clearBtn">完了を削除</button>
+    </div>
+  </div>
+
+  <script>
+    const KEY = 'tabfocus_v3';
+    let tasks = [];
+
+    const input = document.getElementById('input');
+    const list = document.getElementById('list');
+    const count = document.getElementById('count');
+    const clearBtn = document.getElementById('clearBtn');
+    const favicon = document.getElementById('favicon');
+
+    // Init
+    function init() {
+      tasks = JSON.parse(localStorage.getItem(KEY) || '[]');
+      render();
+      focus();
+    }
+
+    // Save
+    function save() {
+      localStorage.setItem(KEY, JSON.stringify(tasks));
+    }
+
+    // Add
+    function add(text) {
+      if (!text.trim()) return;
+      tasks.unshift({ id: Date.now(), text: text.trim(), done: false });
+      save();
+      render(tasks[0].id);
+    }
+
+    // Toggle
+    function toggle(id) {
+      const t = tasks.find(x => x.id === id);
+      if (t) {
+        t.done = !t.done;
+        save();
+        render(id, true);
+      }
+    }
+
+    // Clear completed
+    function clear() {
+      tasks = tasks.filter(t => !t.done);
+      save();
+      render();
+    }
+
+    // Render
+    function render(animId = null, isToggle = false) {
+      const pending = tasks.filter(t => !t.done);
+      const done = tasks.filter(t => t.done);
+      const all = [...pending, ...done];
+
+      count.textContent = pending.length;
+      updateTab(pending.length);
+      clearBtn.disabled = done.length === 0;
+
+      if (all.length === 0) {
+        list.innerHTML = `
+          <div class="empty">
+            <div class="empty-icon">□</div>
+            <p class="empty-text">タスクなし</p>
+            <p class="empty-sub">上の入力欄に入力してEnter</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = all.map(t => {
+        const cls = [
+          'task',
+          t.done ? 'done' : '',
+          animId === t.id ? (isToggle ? 'complete-anim' : 'new') : ''
+        ].filter(Boolean).join(' ');
+
+        return `
+          <div class="${cls}" data-id="${t.id}">
+            <div class="task-check">
+              <svg viewBox="0 0 24 24"><polyline points="4 12 9 17 20 6"/></svg>
+            </div>
+            <span class="task-text">${esc(t.text)}</span>
+          </div>
+        `;
+      }).join('');
+
+      // Bind clicks
+      list.querySelectorAll('.task').forEach(el => {
+        el.addEventListener('click', () => toggle(+el.dataset.id));
+      });
+    }
+
+    function esc(s) {
+      return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+    }
+
+    // Tab & Favicon
+    function updateTab(n) {
+      document.title = n > 0 ? `(${n}) TabFocus` : 'TabFocus';
+
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = 32;
+      const ctx = canvas.getContext('2d');
+
+      // Background (rounded rect)
+      const r = 6;
+      ctx.beginPath();
+      ctx.roundRect(0, 0, 32, 32, r);
+      ctx.fillStyle = '#111';
+      ctx.fill();
+
+      // Text or checkmark
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 20px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      if (n > 0) {
+        ctx.fillText(n > 99 ? '99' : n, 16, 17);
+      } else {
+        ctx.fillText('✓', 16, 17);
+      }
+
+      // Update favicon
+      let link = document.querySelector("link[rel='icon']") || document.createElement('link');
+      link.rel = 'icon';
+      link.href = canvas.toDataURL();
+      document.head.appendChild(link);
+    }
+
+    // Focus
+    function focus() {
+      input.focus();
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') setTimeout(() => input.focus(), 50);
+      });
+      window.addEventListener('focus', () => setTimeout(() => input.focus(), 50));
+      document.addEventListener('click', e => {
+        if (!e.target.closest('.task') && !e.target.closest('.clear-btn')) {
+          setTimeout(() => input.focus(), 10);
+        } else {
+          setTimeout(() => input.focus(), 150);
+        }
+      });
+    }
+
+    // Events
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.isComposing) {
+        e.preventDefault();
+        add(input.value);
+        input.value = '';
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      if (confirm('完了済みタスクを削除しますか？')) clear();
+    });
+
+    init();
+  </script>
+</body>
+
+</html>
