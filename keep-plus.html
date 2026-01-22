@@ -1,0 +1,2713 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Keep+</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #5f6368;
+      --primary-dark: #202124;
+      --accent: #1a73e8;
+      --bg: #ffffff;
+      --bg-secondary: #f1f3f4;
+      --sidebar-bg: #ffffff;
+      --card-bg: #ffffff;
+      --text: #202124;
+      --text-secondary: #5f6368;
+      --border: #e0e0e0;
+      --shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+      --shadow-hover: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+      --header-height: 64px;
+      --sidebar-width: 280px;
+    }
+
+    [data-theme="dark"] {
+      --primary: #9aa0a6;
+      --primary-dark: #e8eaed;
+      --bg: #202124;
+      --bg-secondary: #292a2d;
+      --sidebar-bg: #202124;
+      --card-bg: #292a2d;
+      --text: #e8eaed;
+      --text-secondary: #9aa0a6;
+      --border: #5f6368;
+      --shadow: 0 1px 2px 0 rgba(0,0,0,0.6), 0 1px 3px 1px rgba(0,0,0,0.3);
+      --shadow-hover: 0 1px 3px 0 rgba(0,0,0,0.6), 0 4px 8px 3px rgba(0,0,0,0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Google Sans', Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      overflow: hidden;
+    }
+
+    /* ===== ヘッダー ===== */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      z-index: 100;
+      gap: 8px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .menu-btn {
+      width: 48px;
+      height: 48px;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      transition: background 0.2s;
+    }
+
+    .menu-btn:hover {
+      background: var(--bg-secondary);
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--primary);
+      margin-left: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-icon {
+      color: #fbbc04;
+    }
+
+    .header-center {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .new-note-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .new-note-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: var(--bg);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: box-shadow 0.2s, background 0.2s;
+      white-space: nowrap;
+      min-width: 500px;
+      max-width: 600px;
+    }
+
+    .new-note-btn:hover {
+      box-shadow: var(--shadow);
+      background: var(--bg);
+    }
+
+    .new-note-btn:focus {
+      box-shadow: var(--shadow-hover);
+    }
+
+    .search-container {
+      flex: 1;
+      position: relative;
+      max-width: 720px;
+    }
+
+    .search-box {
+      width: 100%;
+      height: 48px;
+      padding: 0 48px;
+      border: none;
+      border-radius: 8px;
+      background: var(--bg-secondary);
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    .search-box:focus {
+      background: var(--bg);
+      box-shadow: var(--shadow);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--primary);
+      pointer-events: none;
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+    }
+
+    .search-clear.show {
+      display: flex;
+    }
+
+    .search-clear:hover {
+      background: var(--bg-secondary);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      transition: background 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: var(--bg-secondary);
+    }
+
+    /* ===== サイドバー ===== */
+    .sidebar {
+      position: fixed;
+      top: var(--header-height);
+      left: 0;
+      width: var(--sidebar-width);
+      height: calc(100vh - var(--header-height));
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      transition: transform 0.2s, width 0.2s;
+      z-index: 50;
+    }
+
+    .sidebar.collapsed {
+      transform: translateX(-100%);
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 0 24px;
+      height: 48px;
+      cursor: pointer;
+      border-radius: 0 25px 25px 0;
+      margin-right: 12px;
+      transition: background 0.2s;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .sidebar-item:hover {
+      background: var(--bg-secondary);
+    }
+
+    .sidebar-item.active {
+      background: #feefc3;
+      color: #202124;
+    }
+
+    [data-theme="dark"] .sidebar-item.active {
+      background: #41331c;
+      color: #e8eaed;
+    }
+
+    .sidebar-item .material-icons {
+      font-size: 20px;
+      color: var(--primary);
+    }
+
+    .sidebar-item.active .material-icons {
+      color: inherit;
+    }
+
+    .sidebar-section {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-section:last-child {
+      border-bottom: none;
+    }
+
+    .sidebar-section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px 4px;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .label-list {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .label-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 0 24px;
+      height: 40px;
+      cursor: pointer;
+      border-radius: 0 25px 25px 0;
+      margin-right: 12px;
+      transition: background 0.2s;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .label-item:hover {
+      background: var(--bg-secondary);
+    }
+
+    .label-item.active {
+      background: #feefc3;
+    }
+
+    [data-theme="dark"] .label-item.active {
+      background: #41331c;
+    }
+
+    .label-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .add-label-btn {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 0 24px;
+      height: 40px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 13px;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+
+    .add-label-btn:hover {
+      background: var(--bg-secondary);
+    }
+
+    /* ===== メインエリア ===== */
+    .main {
+      margin-left: var(--sidebar-width);
+      margin-top: var(--header-height);
+      padding: 24px;
+      min-height: calc(100vh - var(--header-height));
+      transition: margin-left 0.2s;
+      overflow-y: auto;
+      height: calc(100vh - var(--header-height));
+    }
+
+    .main.expanded {
+      margin-left: 0;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      padding-left: 8px;
+    }
+
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    /* ===== カード ===== */
+    .note-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: box-shadow 0.2s, border-color 0.2s;
+      position: relative;
+      min-height: 60px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .note-card:hover {
+      box-shadow: var(--shadow-hover);
+    }
+
+    .note-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .note-card-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .note-card-pin {
+      color: var(--primary);
+      font-size: 18px;
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+
+    .note-card-content {
+      font-size: 14px;
+      color: var(--text);
+      word-break: break-word;
+      flex: 1;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 8;
+      -webkit-box-orient: vertical;
+    }
+
+    .note-card-content mark {
+      background: #fff475;
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+
+    [data-theme="dark"] .note-card-content mark {
+      background: #9a7b10;
+    }
+
+    .note-card-checklist {
+      margin: 8px 0;
+    }
+
+    .check-item-preview {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text);
+      padding: 2px 0;
+    }
+
+    .check-item-preview.checked {
+      color: var(--text-secondary);
+      text-decoration: line-through;
+    }
+
+    .check-item-preview .material-icons {
+      font-size: 18px;
+      color: var(--primary);
+    }
+
+    .note-card-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 8px;
+    }
+
+    .note-link-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      background: var(--bg-secondary);
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .note-link-chip:hover {
+      background: var(--border);
+    }
+
+    .note-card-footer {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 12px;
+    }
+
+    .label-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      background: var(--bg-secondary);
+      color: var(--text);
+    }
+
+    .label-chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .note-card-actions {
+      display: none;
+    }
+
+    /* ===== モーダル ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--card-bg);
+      border-radius: 8px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12), 0 11px 15px -7px rgba(0,0,0,0.2);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .modal-body {
+      padding: 16px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .modal-btn {
+      padding: 8px 24px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .modal-btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .modal-btn-primary:hover {
+      background: #1557b0;
+    }
+
+    .modal-btn-secondary {
+      background: transparent;
+      color: var(--accent);
+    }
+
+    .modal-btn-secondary:hover {
+      background: var(--bg-secondary);
+    }
+
+    /* ===== メモ編集フォーム ===== */
+    .note-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .note-title-input {
+      width: 100%;
+      border: none;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text);
+      background: transparent;
+      outline: none;
+      padding: 8px 0;
+    }
+
+    .note-title-input::placeholder {
+      color: var(--text-secondary);
+    }
+
+    .note-content-input {
+      width: 100%;
+      border: none;
+      font-size: 14px;
+      color: var(--text);
+      background: transparent;
+      outline: none;
+      resize: none;
+      min-height: 120px;
+      line-height: 1.6;
+    }
+
+    .note-content-input::placeholder {
+      color: var(--text-secondary);
+    }
+
+    /* チェックリスト編集 */
+    .checklist-editor {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .check-item-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .check-item-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .check-item-row input[type="text"] {
+      flex: 1;
+      border: none;
+      border-bottom: 1px solid transparent;
+      padding: 8px 0;
+      font-size: 14px;
+      color: var(--text);
+      background: transparent;
+      outline: none;
+    }
+
+    .check-item-row input[type="text"]:focus {
+      border-bottom-color: var(--accent);
+    }
+
+    .check-item-row.checked input[type="text"] {
+      color: var(--text-secondary);
+      text-decoration: line-through;
+    }
+
+    .check-item-delete {
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .check-item-row:hover .check-item-delete {
+      opacity: 1;
+    }
+
+    .add-check-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .add-check-item:hover {
+      color: var(--text);
+    }
+
+    /* 色選択 */
+    .color-picker {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      padding: 8px 0;
+    }
+
+    .color-option {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .color-option:hover {
+      border-color: var(--primary);
+    }
+
+    .color-option.selected {
+      border-color: var(--accent);
+      transform: scale(1.1);
+    }
+
+    .color-option.default {
+      border: 2px solid var(--border);
+    }
+
+    /* ラベル選択 */
+    .label-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 8px 0;
+    }
+
+    .label-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .label-option:hover {
+      background: var(--bg-secondary);
+    }
+
+    .label-option input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* バックリンク */
+    .backlinks-section {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .backlinks-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .backlink-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-size: 13px;
+      color: var(--accent);
+    }
+
+    .backlink-item:hover {
+      background: var(--bg-secondary);
+    }
+
+    /* リンクオートコンプリート */
+    .autocomplete-dropdown {
+      position: absolute;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      box-shadow: var(--shadow);
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 300;
+      display: none;
+    }
+
+    .autocomplete-dropdown.show {
+      display: block;
+    }
+
+    .autocomplete-item {
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .autocomplete-item:hover,
+    .autocomplete-item.selected {
+      background: var(--bg-secondary);
+    }
+
+    /* ===== 設定モーダル ===== */
+    .settings-section {
+      margin-bottom: 24px;
+    }
+
+    .settings-section-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .settings-row:last-child {
+      border-bottom: none;
+    }
+
+    .theme-toggle {
+      display: flex;
+      gap: 8px;
+    }
+
+    .theme-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: transparent;
+      cursor: pointer;
+      color: var(--text);
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .theme-btn:hover {
+      background: var(--bg-secondary);
+    }
+
+    .theme-btn.active {
+      border-color: var(--accent);
+      background: var(--bg-secondary);
+    }
+
+    .data-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: transparent;
+      cursor: pointer;
+      color: var(--text);
+      transition: background 0.2s;
+      font-size: 14px;
+    }
+
+    .data-btn:hover {
+      background: var(--bg-secondary);
+    }
+
+    .data-btn.danger {
+      color: #d93025;
+      border-color: #d93025;
+    }
+
+    .data-btn.danger:hover {
+      background: #fce8e6;
+    }
+
+    [data-theme="dark"] .data-btn.danger:hover {
+      background: #5c2b29;
+    }
+
+    /* ===== ラベル編集モーダル ===== */
+    .label-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .label-name-input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+    }
+
+    .label-name-input:focus {
+      border-color: var(--accent);
+    }
+
+    .label-color-picker {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .label-color-option {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .label-color-option:hover {
+      transform: scale(1.1);
+    }
+
+    .label-color-option.selected {
+      border-color: var(--text);
+    }
+
+    /* ===== ヘルプモーダル ===== */
+    .help-content {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .help-section {
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .help-section:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .help-section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .help-section-title .material-icons {
+      font-size: 20px;
+      color: var(--accent);
+    }
+
+    .help-item {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      padding-left: 28px;
+      line-height: 1.6;
+    }
+
+    .help-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .help-item strong {
+      color: var(--text);
+    }
+
+    .help-item code {
+      background: var(--bg-secondary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 13px;
+      color: var(--accent);
+    }
+
+    /* ===== 空状態 ===== */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 64px 24px;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    .empty-state .material-icons {
+      font-size: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-state-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .empty-state-text {
+      font-size: 14px;
+    }
+
+    /* ===== ドラッグ&ドロップ ===== */
+    .drop-zone {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(26, 115, 232, 0.1);
+      border: 3px dashed var(--accent);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .drop-zone.show {
+      display: flex;
+    }
+
+    .drop-zone-content {
+      background: var(--card-bg);
+      padding: 32px 48px;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .drop-zone-content .material-icons {
+      font-size: 48px;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    /* ===== トースト通知 ===== */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #323232;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 14px;
+      z-index: 400;
+      opacity: 0;
+      transition: transform 0.3s, opacity 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast-action {
+      color: #8ab4f8;
+      font-weight: 500;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: 14px;
+    }
+
+    /* ===== レスポンシブ ===== */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .main {
+        margin-left: 0;
+      }
+
+      .new-note-btn {
+        min-width: auto;
+        width: 100%;
+      }
+    }
+
+    /* 隠しファイル入力 */
+    #fileInput {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-left">
+      <button class="menu-btn" id="menuBtn" title="メニュー">
+        <span class="material-icons">menu</span>
+      </button>
+      <div class="logo">
+        <span class="material-icons logo-icon">lightbulb</span>
+        Keep+
+      </div>
+    </div>
+    
+    <div class="header-center">
+      <div class="search-container">
+        <span class="material-icons search-icon">search</span>
+        <input type="text" class="search-box" id="searchBox" placeholder="メモを検索...">
+        <button class="search-clear" id="searchClear">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <button class="icon-btn" id="helpBtn" title="使い方ガイド">
+        <span class="material-icons">help_outline</span>
+      </button>
+      <button class="icon-btn" id="settingsBtn" title="設定">
+        <span class="material-icons">settings</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- サイドバー -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-item active" data-filter="all">
+        <span class="material-icons">notes</span>
+        すべてのメモ
+      </div>
+      <div class="sidebar-item" data-filter="pinned">
+        <span class="material-icons">push_pin</span>
+        ピン留め
+      </div>
+    </div>
+    
+    <div class="sidebar-section">
+      <div class="sidebar-section-title" id="labelsToggle">
+        ラベル
+        <span class="material-icons">expand_more</span>
+      </div>
+      <div class="label-list" id="labelList"></div>
+      <button class="add-label-btn" id="addLabelBtn">
+        <span class="material-icons">add</span>
+        新しいラベルを作成
+      </button>
+    </div>
+    
+    <div class="sidebar-section">
+      <div class="sidebar-item" data-filter="archived">
+        <span class="material-icons">archive</span>
+        アーカイブ
+      </div>
+    </div>
+  </aside>
+
+  <!-- メインエリア -->
+  <main class="main" id="main">
+    <div class="new-note-container">
+      <button class="new-note-btn" id="newNoteBtn">
+        <span class="material-icons">add</span>
+        <span>新規メモ</span>
+      </button>
+    </div>
+    
+    <div id="pinnedSection" style="display: none;">
+      <div class="section-title">ピン留め</div>
+      <div class="notes-grid" id="pinnedGrid"></div>
+    </div>
+    
+    <div id="otherSection">
+      <div class="section-title" id="otherSectionTitle">その他</div>
+      <div class="notes-grid" id="notesGrid"></div>
+    </div>
+    
+    <div class="empty-state" id="emptyState" style="display: none;">
+      <span class="material-icons">lightbulb</span>
+      <div class="empty-state-title">メモがありません</div>
+      <div class="empty-state-text">新規メモボタンをクリックして、最初のメモを作成しましょう</div>
+    </div>
+  </main>
+
+  <!-- メモ編集モーダル -->
+  <div class="modal-overlay" id="noteModal">
+    <div class="modal" id="noteModalContent">
+      <div class="modal-body">
+        <div class="note-form">
+          <input type="text" class="note-title-input" id="noteTitle" placeholder="タイトル">
+          
+          <div id="noteContentArea">
+            <textarea class="note-content-input" id="noteContent" placeholder="メモを入力..."></textarea>
+          </div>
+          
+          <div id="checklistArea" style="display: none;">
+            <div class="checklist-editor" id="checklistEditor"></div>
+            <div class="add-check-item" id="addCheckItem">
+              <span class="material-icons">add</span>
+              リストアイテムを追加
+            </div>
+          </div>
+          
+          <div class="backlinks-section" id="backlinksSection" style="display: none;">
+            <div class="backlinks-title">
+              <span class="material-icons" style="font-size: 16px;">link</span>
+              バックリンク
+            </div>
+            <div id="backlinksList"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <div class="modal-actions">
+          <button class="icon-btn" id="toggleChecklistBtn" title="チェックリスト">
+            <span class="material-icons">checklist</span>
+          </button>
+          <button class="icon-btn" id="colorPickerBtn" title="色を変更">
+            <span class="material-icons">palette</span>
+          </button>
+          <button class="icon-btn" id="labelPickerBtn" title="ラベル">
+            <span class="material-icons">label</span>
+          </button>
+          <button class="icon-btn" id="pinNoteBtn" title="ピン留め">
+            <span class="material-icons">push_pin</span>
+          </button>
+          <button class="icon-btn" id="archiveNoteBtn" title="アーカイブ">
+            <span class="material-icons">archive</span>
+          </button>
+          <button class="icon-btn" id="deleteNoteBtn" title="削除" style="color: #d93025;">
+            <span class="material-icons">delete</span>
+          </button>
+        </div>
+        <button class="modal-btn modal-btn-secondary" id="closeNoteModal">閉じる</button>
+      </div>
+    </div>
+    
+    <!-- オートコンプリート -->
+    <div class="autocomplete-dropdown" id="autocomplete"></div>
+  </div>
+  
+  <!-- 色選択ドロップダウン -->
+  <div class="modal-overlay" id="colorDropdown" style="background: transparent;">
+    <div class="modal" style="max-width: 280px; padding: 12px;">
+      <div class="color-picker" id="colorPicker"></div>
+    </div>
+  </div>
+  
+  <!-- ラベル選択ドロップダウン -->
+  <div class="modal-overlay" id="labelDropdown" style="background: transparent;">
+    <div class="modal" style="max-width: 280px;">
+      <div class="modal-header">
+        <span class="modal-title">ラベル</span>
+        <button class="icon-btn" id="closeLabelDropdown">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="label-selector" id="labelSelector"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 設定モーダル -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal" style="max-width: 480px;">
+      <div class="modal-header">
+        <span class="modal-title">設定</span>
+        <button class="icon-btn" id="closeSettingsModal">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-section">
+          <div class="settings-section-title">テーマ</div>
+          <div class="theme-toggle">
+            <button class="theme-btn" data-theme="light">
+              <span class="material-icons">light_mode</span>
+              ライト
+            </button>
+            <button class="theme-btn" data-theme="dark">
+              <span class="material-icons">dark_mode</span>
+              ダーク
+            </button>
+          </div>
+        </div>
+        
+        <div class="settings-section">
+          <div class="settings-section-title">データ管理</div>
+          <div class="settings-row">
+            <span>JSONファイルを読み込む</span>
+            <button class="data-btn" id="importBtn">
+              <span class="material-icons">file_upload</span>
+              読み込み
+            </button>
+          </div>
+          <div class="settings-row">
+            <span>JSONファイルに書き出す</span>
+            <button class="data-btn" id="exportBtn">
+              <span class="material-icons">file_download</span>
+              書き出し
+            </button>
+          </div>
+          <div class="settings-row">
+            <span>すべてのデータを削除</span>
+            <button class="data-btn danger" id="resetBtn">
+              <span class="material-icons">delete_forever</span>
+              リセット
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ラベル編集モーダル -->
+  <div class="modal-overlay" id="labelModal">
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-header">
+        <span class="modal-title" id="labelModalTitle">新しいラベル</span>
+        <button class="icon-btn" id="closeLabelModal">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="label-form">
+          <input type="text" class="label-name-input" id="labelNameInput" placeholder="ラベル名">
+          <div class="label-color-picker" id="labelColorPicker"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn modal-btn-secondary" id="deleteLabelBtn" style="color: #d93025; display: none;">
+          削除
+        </button>
+        <button class="modal-btn modal-btn-primary" id="saveLabelBtn">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 確認ダイアログ -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal" style="max-width: 360px;">
+      <div class="modal-body" style="text-align: center; padding: 24px;">
+        <span class="material-icons" style="font-size: 48px; color: #d93025; margin-bottom: 16px;">delete</span>
+        <div style="font-size: 16px; margin-bottom: 8px;">このメモを削除しますか？</div>
+        <div style="font-size: 14px; color: var(--text-secondary);">この操作は取り消せません</div>
+      </div>
+      <div class="modal-footer" style="justify-content: center; gap: 12px;">
+        <button class="modal-btn modal-btn-secondary" id="confirmCancel">キャンセル</button>
+        <button class="modal-btn" id="confirmDelete" style="background: #d93025; color: white;">削除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ヘルプモーダル -->
+  <div class="modal-overlay" id="helpModal">
+    <div class="modal" style="max-width: 560px;">
+      <div class="modal-header">
+        <span class="modal-title">使い方ガイド</span>
+        <button class="icon-btn" id="closeHelpModal">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="help-content">
+          <div class="help-section">
+            <div class="help-section-title">
+              <span class="material-icons">edit_note</span>
+              基本操作
+            </div>
+            <div class="help-item">
+              <strong>メモ作成</strong>：画面上部の「新規メモ」をクリック
+            </div>
+            <div class="help-item">
+              <strong>メモ編集</strong>：カードをクリックして編集
+            </div>
+            <div class="help-item">
+              <strong>色を変更</strong>：編集画面でパレットアイコンをクリック
+            </div>
+          </div>
+          
+          <div class="help-section">
+            <div class="help-section-title">
+              <span class="material-icons">checklist</span>
+              チェックリスト
+            </div>
+            <div class="help-item">
+              編集画面でチェックリストアイコンをクリックするとリストモードに切り替わります。
+            </div>
+          </div>
+          
+          <div class="help-section">
+            <div class="help-section-title">
+              <span class="material-icons">link</span>
+              メモをリンクする
+            </div>
+            <div class="help-item">
+              本文中に <code>[[メモのタイトル]]</code> と入力すると、他のメモへのリンクを作成できます。
+            </div>
+            <div class="help-item">
+              <code>[[</code> を入力すると候補が表示されます。
+            </div>
+            <div class="help-item">
+              リンクされたメモには「バックリンク」として参照元が表示されます。
+            </div>
+          </div>
+          
+          <div class="help-section">
+            <div class="help-section-title">
+              <span class="material-icons">label</span>
+              ラベル
+            </div>
+            <div class="help-item">
+              サイドバーの「新しいラベルを作成」からラベルを追加できます。
+            </div>
+            <div class="help-item">
+              メモ編集画面でラベルアイコンをクリックして、ラベルを付与できます。
+            </div>
+            <div class="help-item">
+              サイドバーのラベルをダブルクリックで編集できます。
+            </div>
+          </div>
+          
+          <div class="help-section">
+            <div class="help-section-title">
+              <span class="material-icons">keyboard</span>
+              ショートカット
+            </div>
+            <div class="help-item">
+              <code>Ctrl + N</code>：新規メモ作成
+            </div>
+            <div class="help-item">
+              <code>Esc</code>：モーダルを閉じる
+            </div>
+          </div>
+          
+          <div class="help-section">
+            <div class="help-section-title">
+              <span class="material-icons">save</span>
+              データ管理
+            </div>
+            <div class="help-item">
+              データは自動的にブラウザに保存されます。
+            </div>
+            <div class="help-item">
+              設定画面からJSONファイルとして書き出し・読み込みができます。
+            </div>
+            <div class="help-item">
+              JSONファイルをドラッグ&ドロップでも読み込めます。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ドラッグ&ドロップゾーン -->
+  <div class="drop-zone" id="dropZone">
+    <div class="drop-zone-content">
+      <span class="material-icons">file_upload</span>
+      <div>JSONファイルをドロップして読み込み</div>
+    </div>
+  </div>
+
+  <!-- トースト -->
+  <div class="toast" id="toast">
+    <span id="toastMessage"></span>
+    <button class="toast-action" id="toastAction" style="display: none;"></button>
+  </div>
+
+  <!-- 隠しファイル入力 -->
+  <input type="file" id="fileInput" accept=".json">
+
+  <script>
+    // ===== データ管理 =====
+    const STORAGE_KEY = 'keepplus_data';
+    const COLORS = [
+      { id: 'default', value: '#ffffff', darkValue: '#292a2d' },
+      { id: 'red', value: '#f28b82', darkValue: '#5c2b29' },
+      { id: 'orange', value: '#fbbc04', darkValue: '#614a19' },
+      { id: 'yellow', value: '#fff475', darkValue: '#635d19' },
+      { id: 'green', value: '#ccff90', darkValue: '#345920' },
+      { id: 'teal', value: '#a7ffeb', darkValue: '#16504b' },
+      { id: 'blue', value: '#cbf0f8', darkValue: '#2d555e' },
+      { id: 'purple', value: '#d7aefb', darkValue: '#42275e' },
+      { id: 'pink', value: '#fdcfe8', darkValue: '#5b2245' },
+      { id: 'gray', value: '#e8eaed', darkValue: '#3c3f43' }
+    ];
+
+    const LABEL_COLORS = [
+      '#4285f4', '#34a853', '#fbbc04', '#ea4335',
+      '#9c27b0', '#00bcd4', '#ff9800', '#795548',
+      '#607d8b', '#e91e63'
+    ];
+
+    let data = {
+      version: '1.0.0',
+      notes: [],
+      labels: [],
+      settings: {
+        theme: 'light',
+        sidebarOpen: true
+      }
+    };
+
+    let currentFilter = 'all';
+    let currentLabelFilter = null;
+    let searchQuery = '';
+    let editingNoteId = null;
+    let editingLabelId = null;
+
+    // ===== 初期化 =====
+    function init() {
+      loadData();
+      applyTheme();
+      renderLabels();
+      renderNotes();
+      setupEventListeners();
+      updateSidebarState();
+    }
+
+    // ===== データ読み込み/保存 =====
+    function loadData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          data = JSON.parse(saved);
+        } catch (e) {
+          console.error('データの読み込みに失敗しました', e);
+        }
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function exportData() {
+      const exportData = {
+        ...data,
+        exportedAt: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `keepplus_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('データを書き出しました');
+    }
+
+    function importData(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported.notes && imported.labels) {
+            data = imported;
+            saveData();
+            renderLabels();
+            renderNotes();
+            showToast('データを読み込みました');
+          } else {
+            showToast('無効なファイル形式です');
+          }
+        } catch (err) {
+          showToast('ファイルの読み込みに失敗しました');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetData() {
+      if (confirm('すべてのデータを削除しますか？この操作は取り消せません。')) {
+        data = {
+          version: '1.0.0',
+          notes: [],
+          labels: [],
+          settings: { theme: data.settings.theme, sidebarOpen: true }
+        };
+        saveData();
+        renderLabels();
+        renderNotes();
+        showToast('データを削除しました');
+      }
+    }
+
+    // ===== テーマ =====
+    function applyTheme() {
+      document.documentElement.setAttribute('data-theme', data.settings.theme);
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.theme === data.settings.theme);
+      });
+    }
+
+    function setTheme(theme) {
+      data.settings.theme = theme;
+      saveData();
+      applyTheme();
+    }
+
+    // ===== サイドバー =====
+    function updateSidebarState() {
+      const sidebar = document.getElementById('sidebar');
+      const main = document.getElementById('main');
+      if (data.settings.sidebarOpen) {
+        sidebar.classList.remove('collapsed');
+        main.classList.remove('expanded');
+      } else {
+        sidebar.classList.add('collapsed');
+        main.classList.add('expanded');
+      }
+    }
+
+    function toggleSidebar() {
+      data.settings.sidebarOpen = !data.settings.sidebarOpen;
+      saveData();
+      updateSidebarState();
+    }
+
+    // ===== ラベル管理 =====
+    function renderLabels() {
+      const list = document.getElementById('labelList');
+      list.innerHTML = data.labels.map(label => `
+        <div class="label-item ${currentLabelFilter === label.id ? 'active' : ''}" 
+             data-label-id="${label.id}">
+          <span class="label-dot" style="background: ${label.color}"></span>
+          ${escapeHtml(label.name)}
+        </div>
+      `).join('');
+
+      // ラベルクリックイベント
+      list.querySelectorAll('.label-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const labelId = item.dataset.labelId;
+          setLabelFilter(labelId);
+        });
+        item.addEventListener('dblclick', () => {
+          const labelId = item.dataset.labelId;
+          openLabelModal(labelId);
+        });
+      });
+    }
+
+    function setLabelFilter(labelId) {
+      currentFilter = 'label';
+      currentLabelFilter = labelId;
+      updateSidebarActive();
+      renderNotes();
+    }
+
+    function openLabelModal(labelId = null) {
+      editingLabelId = labelId;
+      const modal = document.getElementById('labelModal');
+      const titleEl = document.getElementById('labelModalTitle');
+      const nameInput = document.getElementById('labelNameInput');
+      const deleteBtn = document.getElementById('deleteLabelBtn');
+      
+      if (labelId) {
+        const label = data.labels.find(l => l.id === labelId);
+        titleEl.textContent = 'ラベルを編集';
+        nameInput.value = label.name;
+        deleteBtn.style.display = 'block';
+        renderLabelColorPicker(label.color);
+      } else {
+        titleEl.textContent = '新しいラベル';
+        nameInput.value = '';
+        deleteBtn.style.display = 'none';
+        renderLabelColorPicker(LABEL_COLORS[0]);
+      }
+      
+      modal.classList.add('show');
+      nameInput.focus();
+    }
+
+    function renderLabelColorPicker(selectedColor) {
+      const picker = document.getElementById('labelColorPicker');
+      picker.innerHTML = LABEL_COLORS.map(color => `
+        <div class="label-color-option ${color === selectedColor ? 'selected' : ''}"
+             style="background: ${color}" data-color="${color}"></div>
+      `).join('');
+      
+      picker.querySelectorAll('.label-color-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+          picker.querySelectorAll('.label-color-option').forEach(o => o.classList.remove('selected'));
+          opt.classList.add('selected');
+        });
+      });
+    }
+
+    function saveLabel() {
+      const name = document.getElementById('labelNameInput').value.trim();
+      const colorEl = document.querySelector('#labelColorPicker .selected');
+      const color = colorEl ? colorEl.dataset.color : LABEL_COLORS[0];
+      
+      if (!name) {
+        showToast('ラベル名を入力してください');
+        return;
+      }
+      
+      if (editingLabelId) {
+        const label = data.labels.find(l => l.id === editingLabelId);
+        label.name = name;
+        label.color = color;
+      } else {
+        data.labels.push({
+          id: 'label_' + Date.now(),
+          name,
+          color
+        });
+      }
+      
+      saveData();
+      renderLabels();
+      document.getElementById('labelModal').classList.remove('show');
+      showToast(editingLabelId ? 'ラベルを更新しました' : 'ラベルを作成しました');
+    }
+
+    function deleteLabel() {
+      if (!editingLabelId) return;
+      if (!confirm('このラベルを削除しますか？')) return;
+      
+      data.labels = data.labels.filter(l => l.id !== editingLabelId);
+      data.notes.forEach(note => {
+        note.labels = note.labels.filter(id => id !== editingLabelId);
+      });
+      
+      saveData();
+      renderLabels();
+      renderNotes();
+      document.getElementById('labelModal').classList.remove('show');
+      showToast('ラベルを削除しました');
+    }
+
+    // ===== メモ管理 =====
+    function renderNotes() {
+      let notes = [...data.notes];
+      
+      // フィルター適用
+      if (currentFilter === 'pinned') {
+        notes = notes.filter(n => n.pinned && !n.archived);
+      } else if (currentFilter === 'archived') {
+        notes = notes.filter(n => n.archived);
+      } else if (currentFilter === 'label' && currentLabelFilter) {
+        notes = notes.filter(n => n.labels.includes(currentLabelFilter) && !n.archived);
+      } else {
+        notes = notes.filter(n => !n.archived);
+      }
+      
+      // 検索適用
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        notes = notes.filter(n => 
+          n.title.toLowerCase().includes(query) ||
+          n.content.toLowerCase().includes(query) ||
+          n.checkItems.some(item => item.text.toLowerCase().includes(query))
+        );
+      }
+      
+      // ピン留め分離
+      const pinned = notes.filter(n => n.pinned);
+      const others = notes.filter(n => !n.pinned);
+      
+      const pinnedSection = document.getElementById('pinnedSection');
+      const pinnedGrid = document.getElementById('pinnedGrid');
+      const otherSection = document.getElementById('otherSection');
+      const otherTitle = document.getElementById('otherSectionTitle');
+      const notesGrid = document.getElementById('notesGrid');
+      const emptyState = document.getElementById('emptyState');
+      
+      // ピン留めセクション
+      if (pinned.length > 0 && currentFilter !== 'archived') {
+        pinnedSection.style.display = 'block';
+        pinnedGrid.innerHTML = pinned.map(note => renderNoteCard(note)).join('');
+        otherTitle.textContent = 'その他';
+      } else {
+        pinnedSection.style.display = 'none';
+        otherTitle.textContent = currentFilter === 'archived' ? 'アーカイブ' : 'メモ';
+      }
+      
+      // その他セクション
+      if (others.length > 0) {
+        otherSection.style.display = 'block';
+        notesGrid.innerHTML = others.map(note => renderNoteCard(note)).join('');
+        emptyState.style.display = 'none';
+      } else if (pinned.length === 0) {
+        otherSection.style.display = 'none';
+        emptyState.style.display = 'flex';
+      } else {
+        otherSection.style.display = 'none';
+        emptyState.style.display = 'none';
+      }
+      
+      // カードクリックイベント
+      document.querySelectorAll('.note-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('.note-link-chip')) return;
+          openNoteModal(card.dataset.noteId);
+        });
+      });
+      
+      // リンクチップクリック
+      document.querySelectorAll('.note-link-chip').forEach(chip => {
+        chip.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openNoteModal(chip.dataset.noteId);
+        });
+      });
+    }
+
+    function renderNoteCard(note) {
+      const isDark = data.settings.theme === 'dark';
+      const colorObj = COLORS.find(c => c.id === note.color) || COLORS[0];
+      const bgColor = isDark ? colorObj.darkValue : colorObj.value;
+      
+      const labels = note.labels.map(labelId => {
+        const label = data.labels.find(l => l.id === labelId);
+        if (!label) return '';
+        return `<span class="label-chip">
+          <span class="label-chip-dot" style="background: ${label.color}"></span>
+          ${escapeHtml(label.name)}
+        </span>`;
+      }).join('');
+      
+      // リンク抽出
+      const links = extractLinks(note.content);
+      const linkChips = links.map(link => {
+        const linkedNote = data.notes.find(n => n.title.toLowerCase() === link.toLowerCase());
+        if (!linkedNote) return '';
+        return `<a class="note-link-chip" data-note-id="${linkedNote.id}">
+          <span class="material-icons" style="font-size: 14px;">link</span>
+          ${escapeHtml(linkedNote.title)}
+        </a>`;
+      }).filter(Boolean).join('');
+      
+      let contentHtml = '';
+      if (note.type === 'checklist' && note.checkItems.length > 0) {
+        const visibleItems = note.checkItems.slice(0, 5);
+        const remainingCount = note.checkItems.length - 5;
+        contentHtml = `
+          <div class="note-card-checklist">
+            ${visibleItems.map(item => `
+              <div class="check-item-preview ${item.checked ? 'checked' : ''}">
+                <span class="material-icons">${item.checked ? 'check_box' : 'check_box_outline_blank'}</span>
+                ${highlightSearch(escapeHtml(item.text))}
+              </div>
+            `).join('')}
+            ${remainingCount > 0 ? `<div style="font-size: 12px; color: var(--text-secondary);">+${remainingCount}件</div>` : ''}
+          </div>
+        `;
+      } else {
+        contentHtml = `<div class="note-card-content">${highlightSearch(escapeHtml(note.content))}</div>`;
+      }
+      
+      return `
+        <div class="note-card" data-note-id="${note.id}" style="background: ${bgColor}">
+          <div class="note-card-header">
+            <div class="note-card-title">${highlightSearch(escapeHtml(note.title)) || 'タイトルなし'}</div>
+            ${note.pinned ? '<span class="material-icons note-card-pin">push_pin</span>' : ''}
+          </div>
+          ${contentHtml}
+          ${linkChips ? `<div class="note-card-links">${linkChips}</div>` : ''}
+          ${labels ? `<div class="note-card-footer">${labels}</div>` : ''}
+        </div>
+      `;
+    }
+
+    function highlightSearch(text) {
+      if (!searchQuery) return text;
+      const regex = new RegExp(`(${escapeRegex(searchQuery)})`, 'gi');
+      return text.replace(regex, '<mark>$1</mark>');
+    }
+
+    function escapeRegex(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function extractLinks(content) {
+      const regex = /\[\[([^\]]+)\]\]/g;
+      const links = [];
+      let match;
+      while ((match = regex.exec(content)) !== null) {
+        links.push(match[1]);
+      }
+      return links;
+    }
+
+    function handleCardAction(noteId, action) {
+      const note = data.notes.find(n => n.id === noteId);
+      if (!note) return;
+      
+      switch (action) {
+        case 'pin':
+          note.pinned = !note.pinned;
+          note.updatedAt = new Date().toISOString();
+          break;
+        case 'archive':
+          note.archived = !note.archived;
+          note.updatedAt = new Date().toISOString();
+          showToast(note.archived ? 'アーカイブしました' : '復元しました');
+          break;
+        case 'color':
+          openNoteModal(noteId);
+          setTimeout(() => {
+            document.getElementById('colorDropdown').classList.add('show');
+          }, 100);
+          return;
+      }
+      
+      saveData();
+      renderNotes();
+    }
+
+    // ===== メモ編集モーダル =====
+    function openNoteModal(noteId = null) {
+      editingNoteId = noteId;
+      const modal = document.getElementById('noteModal');
+      const modalContent = document.getElementById('noteModalContent');
+      const titleInput = document.getElementById('noteTitle');
+      const contentInput = document.getElementById('noteContent');
+      const contentArea = document.getElementById('noteContentArea');
+      const checklistArea = document.getElementById('checklistArea');
+      const pinBtn = document.getElementById('pinNoteBtn');
+      const deleteBtn = document.getElementById('deleteNoteBtn');
+      const archiveBtn = document.getElementById('archiveNoteBtn');
+      
+      if (noteId) {
+        const note = data.notes.find(n => n.id === noteId);
+        titleInput.value = note.title;
+        contentInput.value = note.content;
+        
+        if (note.type === 'checklist') {
+          contentArea.style.display = 'none';
+          checklistArea.style.display = 'block';
+          renderChecklistEditor(note.checkItems);
+        } else {
+          contentArea.style.display = 'block';
+          checklistArea.style.display = 'none';
+        }
+        
+        const colorObj = COLORS.find(c => c.id === note.color) || COLORS[0];
+        const isDark = data.settings.theme === 'dark';
+        modalContent.style.background = isDark ? colorObj.darkValue : colorObj.value;
+        
+        pinBtn.querySelector('.material-icons').style.color = note.pinned ? '#fbbc04' : '';
+        archiveBtn.querySelector('.material-icons').textContent = note.archived ? 'unarchive' : 'archive';
+        deleteBtn.style.display = 'flex';
+        
+        renderBacklinks(noteId);
+      } else {
+        titleInput.value = '';
+        contentInput.value = '';
+        contentArea.style.display = 'block';
+        checklistArea.style.display = 'none';
+        modalContent.style.background = '';
+        pinBtn.querySelector('.material-icons').style.color = '';
+        deleteBtn.style.display = 'none';
+        document.getElementById('backlinksSection').style.display = 'none';
+      }
+      
+      renderColorPicker();
+      modal.classList.add('show');
+      // ドロップダウンを確実に閉じる
+      document.getElementById('colorDropdown').classList.remove('show');
+      document.getElementById('labelDropdown').classList.remove('show');
+      titleInput.focus();
+    }
+
+    function closeNoteModal(shouldSave = true) {
+      const modal = document.getElementById('noteModal');
+      
+      // 既に閉じている場合は何もしない
+      if (!modal.classList.contains('show')) return;
+      
+      if (shouldSave) {
+        const titleInput = document.getElementById('noteTitle');
+        const contentInput = document.getElementById('noteContent');
+        
+        const title = titleInput.value.trim();
+        const content = contentInput.value.trim();
+        const checkItems = getChecklistItems();
+        
+        if (editingNoteId) {
+          // 既存メモの更新
+          const note = data.notes.find(n => n.id === editingNoteId);
+          if (note) {
+            note.title = title;
+            note.content = content;
+            note.checkItems = checkItems;
+            note.updatedAt = new Date().toISOString();
+          }
+        } else if (title || content || checkItems.length > 0) {
+          // 新規メモの作成
+          const checklistArea = document.getElementById('checklistArea');
+          data.notes.unshift({
+            id: 'note_' + Date.now(),
+            title,
+            content,
+            type: checklistArea.style.display !== 'none' ? 'checklist' : 'note',
+            checkItems,
+            color: 'default',
+            labels: [],
+            pinned: false,
+            archived: false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          });
+        }
+        
+        saveData();
+        renderNotes();
+      }
+      
+      // モーダルを閉じる
+      modal.classList.remove('show');
+      document.getElementById('colorDropdown').classList.remove('show');
+      document.getElementById('labelDropdown').classList.remove('show');
+      document.getElementById('autocomplete').classList.remove('show');
+      
+      // 状態をリセット
+      editingNoteId = null;
+    }
+
+    function renderColorPicker() {
+      const picker = document.getElementById('colorPicker');
+      const note = editingNoteId ? data.notes.find(n => n.id === editingNoteId) : null;
+      const currentColor = note ? note.color : 'default';
+      const isDark = data.settings.theme === 'dark';
+      
+      picker.innerHTML = COLORS.map(color => `
+        <div class="color-option ${color.id === currentColor ? 'selected' : ''} ${color.id === 'default' ? 'default' : ''}"
+             style="background: ${isDark ? color.darkValue : color.value}"
+             data-color-id="${color.id}"></div>
+      `).join('');
+      
+      picker.querySelectorAll('.color-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+          const colorId = opt.dataset.colorId;
+          if (editingNoteId) {
+            const note = data.notes.find(n => n.id === editingNoteId);
+            note.color = colorId;
+            note.updatedAt = new Date().toISOString();
+            saveData();
+            
+            const colorObj = COLORS.find(c => c.id === colorId);
+            document.getElementById('noteModalContent').style.background = isDark ? colorObj.darkValue : colorObj.value;
+          }
+          picker.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+          opt.classList.add('selected');
+          document.getElementById('colorDropdown').classList.remove('show');
+          renderNotes();
+        });
+      });
+    }
+
+    function renderLabelSelector() {
+      const selector = document.getElementById('labelSelector');
+      const note = editingNoteId ? data.notes.find(n => n.id === editingNoteId) : null;
+      const selectedLabels = note ? note.labels : [];
+      
+      selector.innerHTML = data.labels.map(label => `
+        <label class="label-option">
+          <input type="checkbox" ${selectedLabels.includes(label.id) ? 'checked' : ''} data-label-id="${label.id}">
+          <span class="label-dot" style="background: ${label.color}"></span>
+          ${escapeHtml(label.name)}
+        </label>
+      `).join('');
+      
+      if (data.labels.length === 0) {
+        selector.innerHTML = '<div style="color: var(--text-secondary); padding: 8px;">ラベルがありません</div>';
+      }
+      
+      selector.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', () => {
+          if (!editingNoteId) return;
+          const note = data.notes.find(n => n.id === editingNoteId);
+          const labelId = cb.dataset.labelId;
+          
+          if (cb.checked) {
+            if (!note.labels.includes(labelId)) {
+              note.labels.push(labelId);
+            }
+          } else {
+            note.labels = note.labels.filter(id => id !== labelId);
+          }
+          
+          note.updatedAt = new Date().toISOString();
+          saveData();
+          renderNotes();
+        });
+      });
+    }
+
+    function renderBacklinks(noteId) {
+      const section = document.getElementById('backlinksSection');
+      const list = document.getElementById('backlinksList');
+      const note = data.notes.find(n => n.id === noteId);
+      
+      if (!note) {
+        section.style.display = 'none';
+        return;
+      }
+      
+      const backlinks = data.notes.filter(n => {
+        if (n.id === noteId) return false;
+        const links = extractLinks(n.content);
+        return links.some(link => link.toLowerCase() === note.title.toLowerCase());
+      });
+      
+      if (backlinks.length === 0) {
+        section.style.display = 'none';
+        return;
+      }
+      
+      section.style.display = 'block';
+      list.innerHTML = backlinks.map(bl => `
+        <div class="backlink-item" data-note-id="${bl.id}">
+          <span class="material-icons" style="font-size: 16px;">description</span>
+          ${escapeHtml(bl.title) || 'タイトルなし'}
+        </div>
+      `).join('');
+      
+      list.querySelectorAll('.backlink-item').forEach(item => {
+        item.addEventListener('click', () => {
+          openNoteModal(item.dataset.noteId);
+        });
+      });
+    }
+
+    // ===== チェックリスト =====
+    function renderChecklistEditor(items = []) {
+      const editor = document.getElementById('checklistEditor');
+      editor.innerHTML = items.map((item, index) => `
+        <div class="check-item-row ${item.checked ? 'checked' : ''}" data-index="${index}">
+          <input type="checkbox" ${item.checked ? 'checked' : ''}>
+          <input type="text" value="${escapeHtml(item.text)}" placeholder="リストアイテム">
+          <button class="check-item-delete">
+            <span class="material-icons" style="font-size: 18px;">close</span>
+          </button>
+        </div>
+      `).join('');
+      
+      setupChecklistEvents();
+    }
+
+    function setupChecklistEvents() {
+      const editor = document.getElementById('checklistEditor');
+      
+      editor.querySelectorAll('.check-item-row').forEach(row => {
+        const checkbox = row.querySelector('input[type="checkbox"]');
+        const textInput = row.querySelector('input[type="text"]');
+        const deleteBtn = row.querySelector('.check-item-delete');
+        
+        checkbox.addEventListener('change', () => {
+          row.classList.toggle('checked', checkbox.checked);
+          saveChecklistToNote();
+        });
+        
+        textInput.addEventListener('input', () => {
+          saveChecklistToNote();
+        });
+        
+        textInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            addCheckItem();
+          }
+        });
+        
+        deleteBtn.addEventListener('click', () => {
+          row.remove();
+          saveChecklistToNote();
+        });
+      });
+    }
+
+    function addCheckItem() {
+      const editor = document.getElementById('checklistEditor');
+      const row = document.createElement('div');
+      row.className = 'check-item-row';
+      row.innerHTML = `
+        <input type="checkbox">
+        <input type="text" placeholder="リストアイテム">
+        <button class="check-item-delete">
+          <span class="material-icons" style="font-size: 18px;">close</span>
+        </button>
+      `;
+      editor.appendChild(row);
+      setupChecklistEvents();
+      row.querySelector('input[type="text"]').focus();
+      saveChecklistToNote();
+    }
+
+    function getChecklistItems() {
+      const rows = document.querySelectorAll('#checklistEditor .check-item-row');
+      return Array.from(rows).map(row => ({
+        id: 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        text: row.querySelector('input[type="text"]').value,
+        checked: row.querySelector('input[type="checkbox"]').checked
+      })).filter(item => item.text.trim());
+    }
+
+    function saveChecklistToNote() {
+      if (!editingNoteId) return;
+      const note = data.notes.find(n => n.id === editingNoteId);
+      if (!note) return;
+      note.checkItems = getChecklistItems();
+      note.updatedAt = new Date().toISOString();
+      saveData();
+    }
+
+    function toggleChecklist() {
+      const contentArea = document.getElementById('noteContentArea');
+      const checklistArea = document.getElementById('checklistArea');
+      
+      if (checklistArea.style.display === 'none') {
+        contentArea.style.display = 'none';
+        checklistArea.style.display = 'block';
+        if (editingNoteId) {
+          const note = data.notes.find(n => n.id === editingNoteId);
+          note.type = 'checklist';
+          renderChecklistEditor(note.checkItems);
+        } else {
+          renderChecklistEditor([]);
+        }
+      } else {
+        contentArea.style.display = 'block';
+        checklistArea.style.display = 'none';
+        if (editingNoteId) {
+          const note = data.notes.find(n => n.id === editingNoteId);
+          note.type = 'note';
+        }
+      }
+      
+      if (editingNoteId) saveData();
+    }
+
+    // ===== メモ操作 =====
+    function togglePin() {
+      if (!editingNoteId) return;
+      const note = data.notes.find(n => n.id === editingNoteId);
+      note.pinned = !note.pinned;
+      note.updatedAt = new Date().toISOString();
+      saveData();
+      
+      const pinBtn = document.getElementById('pinNoteBtn');
+      pinBtn.querySelector('.material-icons').style.color = note.pinned ? '#fbbc04' : '';
+      renderNotes();
+    }
+
+    function archiveNote() {
+      if (!editingNoteId) return;
+      
+      const note = data.notes.find(n => n.id === editingNoteId);
+      if (!note) return;
+      
+      note.archived = !note.archived;
+      note.updatedAt = new Date().toISOString();
+      saveData();
+      
+      const wasArchived = note.archived;
+      
+      // モーダルを閉じる
+      const modal = document.getElementById('noteModal');
+      modal.classList.remove('show');
+      document.getElementById('colorDropdown').classList.remove('show');
+      document.getElementById('labelDropdown').classList.remove('show');
+      document.getElementById('autocomplete').classList.remove('show');
+      editingNoteId = null;
+      
+      renderNotes();
+      showToast(wasArchived ? 'アーカイブしました' : '復元しました');
+    }
+
+    function deleteNote() {
+      if (!editingNoteId) return;
+      
+      // カスタム確認ダイアログを表示
+      document.getElementById('confirmModal').classList.add('show');
+    }
+    
+    function confirmDeleteNote() {
+      const noteIdToDelete = editingNoteId;
+      
+      if (!noteIdToDelete) return;
+      
+      // 確認ダイアログを閉じる
+      document.getElementById('confirmModal').classList.remove('show');
+      
+      // モーダルを閉じる
+      const modal = document.getElementById('noteModal');
+      modal.classList.remove('show');
+      document.getElementById('colorDropdown').classList.remove('show');
+      document.getElementById('labelDropdown').classList.remove('show');
+      document.getElementById('autocomplete').classList.remove('show');
+      editingNoteId = null;
+      
+      // メモを削除
+      data.notes = data.notes.filter(n => n.id !== noteIdToDelete);
+      saveData();
+      renderNotes();
+      showToast('メモを削除しました');
+    }
+    
+    function cancelDeleteNote() {
+      document.getElementById('confirmModal').classList.remove('show');
+    }
+
+    // ===== 検索 =====
+    function handleSearch(query) {
+      searchQuery = query;
+      const clearBtn = document.getElementById('searchClear');
+      clearBtn.classList.toggle('show', query.length > 0);
+      renderNotes();
+    }
+
+    // ===== オートコンプリート =====
+    function setupAutocomplete() {
+      const contentInput = document.getElementById('noteContent');
+      const dropdown = document.getElementById('autocomplete');
+      
+      let lastPos = 0;
+      let isAutocompleting = false;
+      let selectedIndex = 0;
+      
+      contentInput.addEventListener('input', (e) => {
+        const text = contentInput.value;
+        const cursorPos = contentInput.selectionStart;
+        
+        // [[ の検出
+        const beforeCursor = text.substring(0, cursorPos);
+        const match = beforeCursor.match(/\[\[([^\]]*?)$/);
+        
+        if (match) {
+          isAutocompleting = true;
+          lastPos = cursorPos - match[1].length;
+          const query = match[1].toLowerCase();
+          
+          const suggestions = data.notes
+            .filter(n => n.id !== editingNoteId && n.title.toLowerCase().includes(query))
+            .slice(0, 10);
+          
+          if (suggestions.length > 0) {
+            dropdown.innerHTML = suggestions.map((note, i) => `
+              <div class="autocomplete-item ${i === selectedIndex ? 'selected' : ''}" data-note-id="${note.id}">
+                <span class="material-icons" style="font-size: 16px;">description</span>
+                ${escapeHtml(note.title) || 'タイトルなし'}
+              </div>
+            `).join('');
+            
+            // ポジション計算
+            const rect = contentInput.getBoundingClientRect();
+            dropdown.style.top = (rect.bottom + 4) + 'px';
+            dropdown.style.left = rect.left + 'px';
+            dropdown.style.width = rect.width + 'px';
+            dropdown.classList.add('show');
+            
+            dropdown.querySelectorAll('.autocomplete-item').forEach(item => {
+              item.addEventListener('click', () => {
+                insertLink(item.dataset.noteId);
+              });
+            });
+          } else {
+            dropdown.classList.remove('show');
+          }
+        } else {
+          isAutocompleting = false;
+          dropdown.classList.remove('show');
+        }
+      });
+      
+      contentInput.addEventListener('keydown', (e) => {
+        if (!isAutocompleting || !dropdown.classList.contains('show')) return;
+        
+        const items = dropdown.querySelectorAll('.autocomplete-item');
+        
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+          updateSelectedItem(items);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          selectedIndex = Math.max(selectedIndex - 1, 0);
+          updateSelectedItem(items);
+        } else if (e.key === 'Enter' && items[selectedIndex]) {
+          e.preventDefault();
+          insertLink(items[selectedIndex].dataset.noteId);
+        } else if (e.key === 'Escape') {
+          dropdown.classList.remove('show');
+          isAutocompleting = false;
+        }
+      });
+      
+      function updateSelectedItem(items) {
+        items.forEach((item, i) => {
+          item.classList.toggle('selected', i === selectedIndex);
+        });
+      }
+      
+      function insertLink(noteId) {
+        const note = data.notes.find(n => n.id === noteId);
+        if (!note) return;
+        
+        const text = contentInput.value;
+        const cursorPos = contentInput.selectionStart;
+        const beforeCursor = text.substring(0, cursorPos);
+        const afterCursor = text.substring(cursorPos);
+        
+        const match = beforeCursor.match(/\[\[([^\]]*?)$/);
+        if (match) {
+          const start = cursorPos - match[0].length;
+          const newText = text.substring(0, start) + `[[${note.title}]]` + afterCursor;
+          contentInput.value = newText;
+          
+          const newCursorPos = start + note.title.length + 4;
+          contentInput.setSelectionRange(newCursorPos, newCursorPos);
+        }
+        
+        dropdown.classList.remove('show');
+        isAutocompleting = false;
+        selectedIndex = 0;
+        contentInput.focus();
+      }
+    }
+
+    // ===== サイドバーアクティブ状態 =====
+    function updateSidebarActive() {
+      document.querySelectorAll('.sidebar-item').forEach(item => {
+        const filter = item.dataset.filter;
+        item.classList.toggle('active', filter === currentFilter && !currentLabelFilter);
+      });
+      document.querySelectorAll('.label-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.labelId === currentLabelFilter);
+      });
+    }
+
+    // ===== ユーティリティ =====
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function showToast(message, action = null, actionText = null) {
+      const toast = document.getElementById('toast');
+      const msgEl = document.getElementById('toastMessage');
+      const actionBtn = document.getElementById('toastAction');
+      
+      msgEl.textContent = message;
+      
+      if (action && actionText) {
+        actionBtn.textContent = actionText;
+        actionBtn.onclick = action;
+        actionBtn.style.display = 'block';
+      } else {
+        actionBtn.style.display = 'none';
+      }
+      
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // ===== イベントリスナー設定 =====
+    function setupEventListeners() {
+      // メニューボタン
+      document.getElementById('menuBtn').addEventListener('click', toggleSidebar);
+      
+      // 新規メモ
+      document.getElementById('newNoteBtn').addEventListener('click', () => openNoteModal());
+      
+      // 検索
+      const searchBox = document.getElementById('searchBox');
+      searchBox.addEventListener('input', (e) => handleSearch(e.target.value));
+      document.getElementById('searchClear').addEventListener('click', () => {
+        searchBox.value = '';
+        handleSearch('');
+      });
+      
+      // サイドバーフィルター
+      document.querySelectorAll('.sidebar-item[data-filter]').forEach(item => {
+        item.addEventListener('click', () => {
+          currentFilter = item.dataset.filter;
+          currentLabelFilter = null;
+          updateSidebarActive();
+          renderNotes();
+        });
+      });
+      
+      // ラベル追加
+      document.getElementById('addLabelBtn').addEventListener('click', () => openLabelModal());
+      
+      // 設定
+      document.getElementById('settingsBtn').addEventListener('click', () => {
+        document.getElementById('settingsModal').classList.add('show');
+      });
+      document.getElementById('closeSettingsModal').addEventListener('click', () => {
+        document.getElementById('settingsModal').classList.remove('show');
+      });
+      
+      // テーマ切り替え
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.addEventListener('click', () => setTheme(btn.dataset.theme));
+      });
+      
+      // データ管理
+      document.getElementById('importBtn').addEventListener('click', () => {
+        document.getElementById('fileInput').click();
+      });
+      document.getElementById('fileInput').addEventListener('change', (e) => {
+        if (e.target.files[0]) {
+          importData(e.target.files[0]);
+          e.target.value = '';
+        }
+      });
+      document.getElementById('exportBtn').addEventListener('click', exportData);
+      document.getElementById('resetBtn').addEventListener('click', resetData);
+      
+      // メモモーダル
+      document.getElementById('closeNoteModal').addEventListener('click', () => closeNoteModal());
+      
+      // メモ操作
+      document.getElementById('toggleChecklistBtn').addEventListener('click', toggleChecklist);
+      document.getElementById('colorPickerBtn').addEventListener('click', () => {
+        document.getElementById('colorDropdown').classList.toggle('show');
+        document.getElementById('labelDropdown').classList.remove('show');
+      });
+      document.getElementById('labelPickerBtn').addEventListener('click', () => {
+        renderLabelSelector();
+        document.getElementById('labelDropdown').classList.toggle('show');
+        document.getElementById('colorDropdown').classList.remove('show');
+      });
+      document.getElementById('pinNoteBtn').addEventListener('click', togglePin);
+      document.getElementById('archiveNoteBtn').addEventListener('click', archiveNote);
+      document.getElementById('deleteNoteBtn').addEventListener('click', deleteNote);
+      
+      // 削除確認ダイアログ
+      document.getElementById('confirmDelete').addEventListener('click', confirmDeleteNote);
+      document.getElementById('confirmCancel').addEventListener('click', cancelDeleteNote);
+      
+      // ドロップダウン閉じる
+      document.getElementById('colorDropdown').addEventListener('click', (e) => {
+        if (e.target.id === 'colorDropdown') {
+          document.getElementById('colorDropdown').classList.remove('show');
+        }
+      });
+      document.getElementById('closeLabelDropdown').addEventListener('click', () => {
+        document.getElementById('labelDropdown').classList.remove('show');
+      });
+      document.getElementById('labelDropdown').addEventListener('click', (e) => {
+        if (e.target.id === 'labelDropdown') {
+          document.getElementById('labelDropdown').classList.remove('show');
+        }
+      });
+      
+      // チェックリスト追加
+      document.getElementById('addCheckItem').addEventListener('click', addCheckItem);
+      
+      // ラベルモーダル
+      document.getElementById('closeLabelModal').addEventListener('click', () => {
+        document.getElementById('labelModal').classList.remove('show');
+      });
+      document.getElementById('saveLabelBtn').addEventListener('click', saveLabel);
+      document.getElementById('deleteLabelBtn').addEventListener('click', deleteLabel);
+      
+      // ヘルプモーダル
+      document.getElementById('helpBtn').addEventListener('click', () => {
+        document.getElementById('helpModal').classList.add('show');
+      });
+      document.getElementById('closeHelpModal').addEventListener('click', () => {
+        document.getElementById('helpModal').classList.remove('show');
+      });
+      
+      // オートコンプリート
+      setupAutocomplete();
+      
+      // ドラッグ&ドロップ
+      const dropZone = document.getElementById('dropZone');
+      
+      document.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('show');
+      });
+      
+      document.addEventListener('dragleave', (e) => {
+        if (e.relatedTarget === null) {
+          dropZone.classList.remove('show');
+        }
+      });
+      
+      document.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('show');
+        
+        const file = e.dataTransfer.files[0];
+        if (file && file.name.endsWith('.json')) {
+          importData(file);
+        } else {
+          showToast('JSONファイルをドロップしてください');
+        }
+      });
+      
+      // キーボードショートカット
+      document.addEventListener('keydown', (e) => {
+        // Ctrl/Cmd + N: 新規メモ
+        if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+          e.preventDefault();
+          openNoteModal();
+        }
+        // Escape: モーダル閉じる
+        if (e.key === 'Escape') {
+          const noteModal = document.getElementById('noteModal');
+          if (noteModal.classList.contains('show')) {
+            closeNoteModal();
+            return;
+          }
+          document.querySelectorAll('.modal-overlay.show').forEach(modal => {
+            modal.classList.remove('show');
+          });
+        }
+      });
+      
+      // モーダル外クリックで閉じる
+      document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) {
+            if (overlay.id === 'noteModal') {
+              closeNoteModal();
+            } else if (overlay.id !== 'colorDropdown' && overlay.id !== 'labelDropdown') {
+              overlay.classList.remove('show');
+            }
+          }
+        });
+      });
+    }
+
+    // ===== 起動 =====
+    init();
+  </script>
+</body>
+</html>
