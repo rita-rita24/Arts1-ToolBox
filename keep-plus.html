@@ -1160,6 +1160,72 @@
       }
     }
 
+    /* トグルスイッチ */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--border);
+      transition: 0.3s;
+      border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background-color: var(--accent);
+    }
+
+    .toggle-switch input:checked + .toggle-slider:before {
+      transform: translateX(24px);
+    }
+
+    /* 保存状態表示 */
+    .save-status {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      padding: 4px 12px;
+      border-radius: 4px;
+      background: var(--bg-secondary);
+    }
+
+    .save-status.saving {
+      color: var(--accent);
+    }
+
+    .save-status.saved {
+      color: #34a853;
+    }
+
     /* 隠しファイル入力 */
     #fileInput {
       display: none;
@@ -1190,6 +1256,10 @@
     </div>
     
     <div class="header-right">
+      <div class="save-status" id="saveStatus" style="display: none;">
+        <span class="material-icons" style="font-size: 14px;">cloud_done</span>
+        <span id="saveStatusText">保存済み</span>
+      </div>
       <button class="icon-btn" id="helpBtn" title="使い方ガイド">
         <span class="material-icons">help_outline</span>
       </button>
@@ -1376,6 +1446,18 @@
             <button class="data-btn" id="clearJsonPathBtn" style="padding: 4px 12px;">
               <span class="material-icons" style="font-size: 18px;">close</span>
             </button>
+          </div>
+          <div class="settings-row">
+            <span>自動保存</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="autoSaveToggle">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <span style="font-size: 12px; color: var(--text-secondary);">
+              有効にすると、データ変更後5秒で自動的に固定JSONファイルに保存されます
+            </span>
           </div>
           <div class="settings-row">
             <span>最新データを取得</span>
@@ -1611,11 +1693,13 @@
       settings: {
         theme: 'light',
         sidebarOpen: true,
-        fixedJsonPath: null
+        fixedJsonPath: null,
+        autoSave: false
       }
     };
 
     let fileHandle = null;
+    let autoSaveTimer = null;
 
     let currentFilter = 'all';
     let currentLabelFilter = null;
@@ -1632,6 +1716,7 @@
       setupEventListeners();
       updateSidebarState();
       updateJsonPathDisplay();
+      updateAutoSaveToggle();
     }
 
     // ===== データ読み込み/保存 =====
@@ -1648,6 +1733,7 @@
 
     function saveData() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      triggerAutoSave();
     }
 
     function exportData() {
@@ -2666,6 +2752,59 @@
         loadBtn.disabled = true;
         saveBtn.disabled = true;
       }
+
+      updateAutoSaveToggle();
+    }
+
+    // ===== 自動保存 =====
+    function triggerAutoSave() {
+      if (!data.settings.autoSave || !fileHandle) return;
+
+      // 既存のタイマーをクリア
+      if (autoSaveTimer) {
+        clearTimeout(autoSaveTimer);
+      }
+
+      // 保存中状態を表示
+      showSaveStatus('saving');
+
+      // 5秒後に保存
+      autoSaveTimer = setTimeout(async () => {
+        await saveToFixedPath();
+        showSaveStatus('saved');
+        setTimeout(() => hideSaveStatus(), 2000);
+      }, 5000);
+    }
+
+    function showSaveStatus(status) {
+      const statusEl = document.getElementById('saveStatus');
+      const textEl = document.getElementById('saveStatusText');
+      const icon = statusEl.querySelector('.material-icons');
+
+      statusEl.style.display = 'flex';
+      statusEl.classList.remove('saving', 'saved');
+
+      if (status === 'saving') {
+        statusEl.classList.add('saving');
+        icon.textContent = 'sync';
+        textEl.textContent = '保存中...';
+      } else if (status === 'saved') {
+        statusEl.classList.add('saved');
+        icon.textContent = 'cloud_done';
+        textEl.textContent = '保存済み';
+      }
+    }
+
+    function hideSaveStatus() {
+      document.getElementById('saveStatus').style.display = 'none';
+    }
+
+    function updateAutoSaveToggle() {
+      const toggle = document.getElementById('autoSaveToggle');
+      if (toggle) {
+        toggle.checked = data.settings.autoSave && fileHandle !== null;
+        toggle.disabled = !fileHandle;
+      }
     }
 
     // ===== ユーティリティ =====
@@ -2758,7 +2897,18 @@
       document.getElementById('loadFromFixedPathBtn').addEventListener('click', loadFromFixedPath);
       document.getElementById('saveToFixedPathBtn').addEventListener('click', saveToFixedPath);
       document.getElementById('clearJsonPathBtn').addEventListener('click', clearJsonPath);
-      
+
+      // 自動保存トグル
+      document.getElementById('autoSaveToggle').addEventListener('change', (e) => {
+        data.settings.autoSave = e.target.checked;
+        saveData();
+        if (e.target.checked) {
+          showToast('自動保存を有効にしました');
+        } else {
+          showToast('自動保存を無効にしました');
+        }
+      });
+
       // メモモーダル
       document.getElementById('closeNoteModal').addEventListener('click', () => closeNoteModal());
       
