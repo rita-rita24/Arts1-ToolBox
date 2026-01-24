@@ -469,7 +469,7 @@
       background: var(--header-bg);
       font-weight: 600;
       position: sticky;
-      top: 0;
+      top: -1px;
       z-index: 10;
       user-select: none;
     }
@@ -548,7 +548,7 @@
       padding: 0 !important;
       /* wrapperでpadding制御 */
       position: sticky;
-      left: 0;
+      left: -1px;
       z-index: 20;
       border-right: 1px solid var(--border);
       /* overflow: hidden; Removed to allow menu overflow if needed, but wrapper handles it */
@@ -995,8 +995,8 @@
     <div class="menu-item" onclick="sortColumn('desc')"><span class="material-symbols-outlined">arrow_downward</span>
       降順に並び替え</div>
     <div class="menu-divider"></div>
-    <div class="menu-item" onclick="removeEmptyCells()"><span class="material-symbols-outlined">cleaning_services</span>
-      空白セルを削除</div>
+    <div class="menu-item" onclick="copyColumn()"><span class="material-symbols-outlined">content_copy</span> 列をコピー
+    </div>
     <div class="menu-item" onclick="duplicateColumn()"><span class="material-symbols-outlined">content_copy</span> 列を複製
     </div>
     <div class="menu-divider"></div>
@@ -1006,6 +1006,11 @@
 
   <!-- 行メニュー -->
   <div class="column-menu" id="rowMenu">
+    <div class="menu-item" onclick="copyRow()">
+      <span class="material-symbols-outlined">content_copy</span>
+      行をコピー
+    </div>
+    <div class="menu-divider"></div>
     <div class="menu-item danger" onclick="confirmDeleteRowFromMenu()">
       <span class="material-symbols-outlined">delete</span>
       行を削除
@@ -1680,6 +1685,8 @@
       e.stopPropagation();
       activeColumnIndex = colIndex;
 
+      closeRowMenu(); // 行メニューを閉じる
+
       const menu = document.getElementById('columnMenu');
       const rect = e.target.closest('th').getBoundingClientRect();
 
@@ -1724,29 +1731,24 @@
       showToast(`📌 「${colName}」を${direction === 'asc' ? '昇順' : '降順'}に並び替えました`, 'success');
     }
 
-    function removeEmptyCells() {
+    function copyColumn() {
       if (activeColumnIndex < 0) return;
 
-      saveToHistory();
+      const columnData = state.data.map(row => row[activeColumnIndex] || '');
+      const text = columnData.join('\n');
 
-      const dataStartIndex = state.hasHeader ? 1 : 0;
-      let removedCount = 0;
+      navigator.clipboard.writeText(text)
+        .then(() => {
+          const colName = state.hasHeader
+            ? state.data[0][activeColumnIndex]
+            : `列${activeColumnIndex + 1}`;
+          showToast(`📋 「${colName}」をコピーしました`, 'success');
+        })
+        .catch(() => {
+          showToast('コピーに失敗しました', 'error');
+        });
 
-      state.data = state.data.filter((row, i) => {
-        if (i < dataStartIndex) return true;
-        if (!row[activeColumnIndex] || row[activeColumnIndex].trim() === '') {
-          removedCount++;
-          return false;
-        }
-        return true;
-      });
-
-      renderTable();
-      updateStats();
-      saveToStorage();
       closeColumnMenu();
-
-      showToast(`${removedCount}行の空白セルを削除しました`, 'success');
     }
 
     function duplicateColumn() {
@@ -1834,12 +1836,37 @@
       e.stopPropagation();
       activeRowIndex = rowIndex;
 
+      closeColumnMenu(); // 列メニューを閉じる
+
       const menu = document.getElementById('rowMenu');
       const rect = e.target.getBoundingClientRect();
 
       menu.style.top = `${rect.bottom + window.scrollY + 4}px`;
       menu.style.left = `${Math.min(rect.left, window.innerWidth - 220)}px`;
       menu.classList.add('show');
+    }
+
+    function copyRow() {
+      if (activeRowIndex < 0) return;
+
+      const rowData = state.data[activeRowIndex];
+      const text = rowData.map(cell => {
+        if (cell.includes('\t') || cell.includes('"') || cell.includes('\n')) {
+          return `"${cell.replace(/"/g, '""')}"`;
+        }
+        return cell;
+      }).join('\t');
+
+      navigator.clipboard.writeText(text)
+        .then(() => {
+          const rowNum = state.hasHeader ? activeRowIndex : activeRowIndex + 1;
+          showToast(`📋 ${rowNum}行目をコピーしました`, 'success');
+        })
+        .catch(() => {
+          showToast('コピーに失敗しました', 'error');
+        });
+
+      closeRowMenu();
     }
 
     function confirmDeleteRowFromMenu() {
