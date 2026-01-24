@@ -395,37 +395,6 @@
       display: none;
     }
 
-    /* 検出バナー */
-    .detection-banner {
-      display: none;
-      padding: 12px 16px;
-      background: #fef3c7;
-      border: 1px solid var(--warning);
-      border-radius: 8px;
-      margin-bottom: 16px;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    [data-theme="dark"] .detection-banner {
-      background: #262626;
-    }
-
-    .detection-banner.show {
-      display: flex;
-    }
-
-    .detection-banner .message {
-      flex: 1;
-      font-size: 0.9rem;
-    }
-
-    .detection-banner .actions {
-      display: flex;
-      gap: 8px;
-    }
-
     /* テーブルコンテナ */
     .table-container {
       display: none;
@@ -469,7 +438,7 @@
       background: var(--header-bg);
       font-weight: 600;
       position: sticky;
-      top: 0;
+      top: -1px;
       z-index: 10;
       user-select: none;
     }
@@ -548,7 +517,7 @@
       padding: 0 !important;
       /* wrapperでpadding制御 */
       position: sticky;
-      left: 0;
+      left: -1px;
       z-index: 20;
       border-right: 1px solid var(--border);
       /* overflow: hidden; Removed to allow menu overflow if needed, but wrapper handles it */
@@ -879,16 +848,6 @@
       </div>
     </div>
 
-    <!-- 検出バナー -->
-    <div class="detection-banner" id="detectionBanner">
-      <span class="material-symbols-outlined">lightbulb</span>
-      <span class="message" id="detectionMessage"></span>
-      <div class="actions">
-        <button class="btn btn-primary" onclick="confirmDetection()">そのまま使う</button>
-        <button class="btn" onclick="toggleHeader()">切り替える</button>
-      </div>
-    </div>
-
     <!-- 検索バー -->
     <div class="search-bar" id="searchBar">
       <input type="text" id="searchInput" placeholder="検索..." oninput="performSearch()">
@@ -995,8 +954,8 @@
     <div class="menu-item" onclick="sortColumn('desc')"><span class="material-symbols-outlined">arrow_downward</span>
       降順に並び替え</div>
     <div class="menu-divider"></div>
-    <div class="menu-item" onclick="removeEmptyCells()"><span class="material-symbols-outlined">cleaning_services</span>
-      空白セルを削除</div>
+    <div class="menu-item" onclick="copyColumn()"><span class="material-symbols-outlined">content_copy</span> 列をコピー
+    </div>
     <div class="menu-item" onclick="duplicateColumn()"><span class="material-symbols-outlined">content_copy</span> 列を複製
     </div>
     <div class="menu-divider"></div>
@@ -1006,6 +965,11 @@
 
   <!-- 行メニュー -->
   <div class="column-menu" id="rowMenu">
+    <div class="menu-item" onclick="copyRow()">
+      <span class="material-symbols-outlined">content_copy</span>
+      行をコピー
+    </div>
+    <div class="menu-divider"></div>
     <div class="menu-item danger" onclick="confirmDeleteRowFromMenu()">
       <span class="material-symbols-outlined">delete</span>
       行を削除
@@ -1263,11 +1227,8 @@
         return;
       }
 
-      const headerProbability = estimateHeaderProbability(state.data);
-      state.hasHeader = headerProbability > 0.5;
+      state.hasHeader = false;
       state.columnWidths = {};
-
-      showDetectionBanner(headerProbability);
 
       undoStack = [];
       redoStack = [];
@@ -1338,50 +1299,6 @@
         while (row.length < maxCols) row.push('');
         return row;
       });
-    }
-
-    function estimateHeaderProbability(data) {
-      if (data.length < 2) return 0.5;
-
-      const firstRow = data[0];
-      const otherRows = data.slice(1, Math.min(6, data.length));
-
-      let score = 0;
-
-      const firstRowAllStrings = firstRow.every(cell => isNaN(parseFloat(cell)));
-      if (firstRowAllStrings) score += 0.3;
-
-      let numericCells = 0;
-      let totalCells = 0;
-      otherRows.forEach(row => {
-        row.forEach(cell => {
-          totalCells++;
-          if (!isNaN(parseFloat(cell)) && cell.trim() !== '') {
-            numericCells++;
-          }
-        });
-      });
-      if (totalCells > 0 && numericCells / totalCells > 0.3) score += 0.3;
-
-      const firstRowPattern = firstRow.map(cell => isNaN(parseFloat(cell)) ? 'S' : 'N').join('');
-      const secondRowPattern = otherRows[0]?.map(cell => isNaN(parseFloat(cell)) ? 'S' : 'N').join('') || '';
-      if (firstRowPattern !== secondRowPattern) score += 0.2;
-
-      return Math.min(1, score + 0.2);
-    }
-
-    function showDetectionBanner(probability) {
-      const banner = document.getElementById('detectionBanner');
-      const message = document.getElementById('detectionMessage');
-
-      if (probability > 0.5) {
-        message.textContent = `このデータは「ヘッダーあり」の可能性が高いです`;
-        banner.classList.add('show');
-      }
-    }
-
-    function confirmDetection() {
-      document.getElementById('detectionBanner').classList.remove('show');
     }
 
     // ===== テーブル表示 =====
@@ -1680,6 +1597,8 @@
       e.stopPropagation();
       activeColumnIndex = colIndex;
 
+      closeRowMenu(); // 行メニューを閉じる
+
       const menu = document.getElementById('columnMenu');
       const rect = e.target.closest('th').getBoundingClientRect();
 
@@ -1724,29 +1643,24 @@
       showToast(`📌 「${colName}」を${direction === 'asc' ? '昇順' : '降順'}に並び替えました`, 'success');
     }
 
-    function removeEmptyCells() {
+    function copyColumn() {
       if (activeColumnIndex < 0) return;
 
-      saveToHistory();
+      const columnData = state.data.map(row => row[activeColumnIndex] || '');
+      const text = columnData.join('\n');
 
-      const dataStartIndex = state.hasHeader ? 1 : 0;
-      let removedCount = 0;
+      navigator.clipboard.writeText(text)
+        .then(() => {
+          const colName = state.hasHeader
+            ? state.data[0][activeColumnIndex]
+            : `列${activeColumnIndex + 1}`;
+          showToast(`📋 「${colName}」をコピーしました`, 'success');
+        })
+        .catch(() => {
+          showToast('コピーに失敗しました', 'error');
+        });
 
-      state.data = state.data.filter((row, i) => {
-        if (i < dataStartIndex) return true;
-        if (!row[activeColumnIndex] || row[activeColumnIndex].trim() === '') {
-          removedCount++;
-          return false;
-        }
-        return true;
-      });
-
-      renderTable();
-      updateStats();
-      saveToStorage();
       closeColumnMenu();
-
-      showToast(`${removedCount}行の空白セルを削除しました`, 'success');
     }
 
     function duplicateColumn() {
@@ -1834,12 +1748,37 @@
       e.stopPropagation();
       activeRowIndex = rowIndex;
 
+      closeColumnMenu(); // 列メニューを閉じる
+
       const menu = document.getElementById('rowMenu');
       const rect = e.target.getBoundingClientRect();
 
       menu.style.top = `${rect.bottom + window.scrollY + 4}px`;
       menu.style.left = `${Math.min(rect.left, window.innerWidth - 220)}px`;
       menu.classList.add('show');
+    }
+
+    function copyRow() {
+      if (activeRowIndex < 0) return;
+
+      const rowData = state.data[activeRowIndex];
+      const text = rowData.map(cell => {
+        if (cell.includes('\t') || cell.includes('"') || cell.includes('\n')) {
+          return `"${cell.replace(/"/g, '""')}"`;
+        }
+        return cell;
+      }).join('\t');
+
+      navigator.clipboard.writeText(text)
+        .then(() => {
+          const rowNum = state.hasHeader ? activeRowIndex : activeRowIndex + 1;
+          showToast(`📋 ${rowNum}行目をコピーしました`, 'success');
+        })
+        .catch(() => {
+          showToast('コピーに失敗しました', 'error');
+        });
+
+      closeRowMenu();
     }
 
     function confirmDeleteRowFromMenu() {
