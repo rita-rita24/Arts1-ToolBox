@@ -398,8 +398,8 @@
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 12px 16px;
-      cursor: pointer;
-      transition: box-shadow 0.2s, border-color 0.2s;
+      cursor: grab;
+      transition: box-shadow 0.2s, border-color 0.2s, opacity 0.2s;
       position: relative;
       aspect-ratio: 1 / 1;
       display: flex;
@@ -409,6 +409,19 @@
 
     .note-card:hover {
       box-shadow: var(--shadow-hover);
+    }
+
+    .note-card:active {
+      cursor: grabbing;
+    }
+
+    .note-card.dragging {
+      opacity: 0.5;
+      cursor: grabbing;
+    }
+
+    .note-card.drag-over {
+      border: 2px dashed var(--accent);
     }
 
     .note-card-header {
@@ -474,39 +487,6 @@
     .check-item-preview .material-icons {
       font-size: 18px;
       color: var(--primary);
-    }
-
-    .note-card-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-top: 8px;
-    }
-
-    .note-link-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 2px 8px;
-      background: var(--bg-secondary);
-      border-radius: 4px;
-      font-size: 12px;
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    .note-link-chip:hover {
-      background: var(--border);
-    }
-
-    .url-link {
-      color: var(--accent);
-      text-decoration: underline;
-      cursor: pointer;
-    }
-
-    .url-link:hover {
-      color: #1557b0;
     }
 
     .note-card-footer {
@@ -795,71 +775,6 @@
     .label-option input[type="checkbox"] {
       width: 18px;
       height: 18px;
-    }
-
-    /* バックリンク */
-    .backlinks-section {
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
-
-    .backlinks-title {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .backlink-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background 0.2s;
-      font-size: 13px;
-      color: var(--accent);
-    }
-
-    .backlink-item:hover {
-      background: var(--bg-secondary);
-    }
-
-    /* リンクオートコンプリート */
-    .autocomplete-dropdown {
-      position: absolute;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      box-shadow: var(--shadow);
-      max-height: 200px;
-      overflow-y: auto;
-      z-index: 300;
-      display: none;
-    }
-
-    .autocomplete-dropdown.show {
-      display: block;
-    }
-
-    .autocomplete-item {
-      padding: 8px 12px;
-      cursor: pointer;
-      font-size: 14px;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .autocomplete-item:hover,
-    .autocomplete-item.selected {
-      background: var(--bg-secondary);
     }
 
     /* ===== 設定モーダル ===== */
@@ -1346,14 +1261,6 @@
               リストアイテムを追加
             </div>
           </div>
-          
-          <div class="backlinks-section" id="backlinksSection" style="display: none;">
-            <div class="backlinks-title">
-              <span class="material-icons" style="font-size: 16px;">link</span>
-              バックリンク
-            </div>
-            <div id="backlinksList"></div>
-          </div>
         </div>
       </div>
       
@@ -1381,9 +1288,6 @@
         <button class="modal-btn modal-btn-secondary" id="closeNoteModal">閉じる</button>
       </div>
     </div>
-    
-    <!-- オートコンプリート -->
-    <div class="autocomplete-dropdown" id="autocomplete"></div>
   </div>
   
   <!-- 色選択ドロップダウン -->
@@ -1581,23 +1485,17 @@
           
           <div class="help-section">
             <div class="help-section-title">
-              <span class="material-icons">link</span>
-              メモをリンクする
+              <span class="material-icons">open_with</span>
+              メモの並び替え
             </div>
             <div class="help-item">
-              本文中に <code>[[メモのタイトル]]</code> と入力すると、他のメモへのリンクを作成できます。
+              メモカードをドラッグ&ドロップすることで、自由に並び替えができます。
             </div>
             <div class="help-item">
-              <code>[[</code> を入力すると候補が表示されます。
-            </div>
-            <div class="help-item">
-              リンクされたメモには「バックリンク」として参照元が表示されます。
-            </div>
-            <div class="help-item">
-              <strong>URLリンク:</strong> <code>[表示名](https://example.com)</code> の形式でURLリンクを作成できます。クリックすると新しいタブで開きます。
+              ピン留めメモとその他のメモは別々に並び替えられます。
             </div>
           </div>
-          
+
           <div class="help-section">
             <div class="help-section-title">
               <span class="material-icons">label</span>
@@ -1959,17 +1857,17 @@
         );
       }
       
-      // ピン留め分離
-      const pinned = notes.filter(n => n.pinned);
-      const others = notes.filter(n => !n.pinned);
-      
+      // ピン留め分離とorder順にソート
+      const pinned = sortNotesByOrder(notes.filter(n => n.pinned));
+      const others = sortNotesByOrder(notes.filter(n => !n.pinned));
+
       const pinnedSection = document.getElementById('pinnedSection');
       const pinnedGrid = document.getElementById('pinnedGrid');
       const otherSection = document.getElementById('otherSection');
       const otherTitle = document.getElementById('otherSectionTitle');
       const notesGrid = document.getElementById('notesGrid');
       const emptyState = document.getElementById('emptyState');
-      
+
       // ピン留めセクション
       if (pinned.length > 0 && currentFilter !== 'archived') {
         pinnedSection.style.display = 'block';
@@ -1979,7 +1877,7 @@
         pinnedSection.style.display = 'none';
         otherTitle.textContent = currentFilter === 'archived' ? 'アーカイブ' : 'メモ';
       }
-      
+
       // その他セクション
       if (others.length > 0) {
         otherSection.style.display = 'block';
@@ -1992,22 +1890,16 @@
         otherSection.style.display = 'none';
         emptyState.style.display = 'none';
       }
-      
+
       // カードクリックイベント
       document.querySelectorAll('.note-card').forEach(card => {
         card.addEventListener('click', (e) => {
-          if (e.target.closest('.note-link-chip') || e.target.closest('.url-link')) return;
           openNoteModal(card.dataset.noteId);
         });
       });
-      
-      // リンクチップクリック
-      document.querySelectorAll('.note-link-chip').forEach(chip => {
-        chip.addEventListener('click', (e) => {
-          e.stopPropagation();
-          openNoteModal(chip.dataset.noteId);
-        });
-      });
+
+      // ドラッグ&ドロップ設定
+      setupDragAndDrop();
     }
 
     function renderNoteCard(note) {
@@ -2023,18 +1915,7 @@
           ${escapeHtml(label.name)}
         </span>`;
       }).join('');
-      
-      // リンク抽出
-      const links = extractLinks(note.content);
-      const linkChips = links.map(link => {
-        const linkedNote = data.notes.find(n => n.title.toLowerCase() === link.toLowerCase());
-        if (!linkedNote) return '';
-        return `<a class="note-link-chip" data-note-id="${linkedNote.id}">
-          <span class="material-icons" style="font-size: 14px;">link</span>
-          ${escapeHtml(linkedNote.title)}
-        </a>`;
-      }).filter(Boolean).join('');
-      
+
       let contentHtml = '';
       if (note.type === 'checklist' && note.checkItems.length > 0) {
         const visibleItems = note.checkItems.slice(0, 5);
@@ -2051,11 +1932,10 @@
           </div>
         `;
       } else {
-        // URLリンクを含むコンテンツをレンダリング
-        const renderedContent = renderContentWithLinks(note.content);
+        const renderedContent = escapeHtml(note.content).replace(/\n/g, '<br>');
         contentHtml = `<div class="note-card-content">${highlightSearch(renderedContent)}</div>`;
       }
-      
+
       return `
         <div class="note-card" data-note-id="${note.id}" style="background: ${bgColor}">
           <div class="note-card-header">
@@ -2063,7 +1943,6 @@
             ${note.pinned ? '<span class="material-icons note-card-pin">push_pin</span>' : ''}
           </div>
           ${contentHtml}
-          ${linkChips ? `<div class="note-card-links">${linkChips}</div>` : ''}
           ${labels ? `<div class="note-card-footer">${labels}</div>` : ''}
         </div>
       `;
@@ -2079,31 +1958,115 @@
       return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
-    function extractLinks(content) {
-      const regex = /\[\[([^\]]+)\]\]/g;
-      const links = [];
-      let match;
-      while ((match = regex.exec(content)) !== null) {
-        links.push(match[1]);
-      }
-      return links;
+    function sortNotesByOrder(notes) {
+      return notes.sort((a, b) => {
+        const orderA = a.order !== undefined ? a.order : Infinity;
+        const orderB = b.order !== undefined ? b.order : Infinity;
+        return orderA - orderB;
+      });
     }
 
-    function renderContentWithLinks(content) {
-      if (!content) return '';
+    function setupDragAndDrop() {
+      const cards = document.querySelectorAll('.note-card');
 
-      let rendered = escapeHtml(content);
+      cards.forEach(card => {
+        card.setAttribute('draggable', 'true');
 
-      // [表示名](URL) 形式のURLリンクを変換
-      rendered = rendered.replace(
-        /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
-        '<a href="$2" class="url-link" target="_blank" rel="noopener noreferrer">$1</a>'
-      );
+        card.addEventListener('dragstart', (e) => {
+          card.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/html', card.innerHTML);
+          e.dataTransfer.setData('note-id', card.dataset.noteId);
+        });
 
-      // 改行をbrタグに変換
-      rendered = rendered.replace(/\n/g, '<br>');
+        card.addEventListener('dragend', (e) => {
+          card.classList.remove('dragging');
+        });
 
-      return rendered;
+        card.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          const dragging = document.querySelector('.dragging');
+          if (dragging && dragging !== card) {
+            card.classList.add('drag-over');
+          }
+        });
+
+        card.addEventListener('dragleave', (e) => {
+          card.classList.remove('drag-over');
+        });
+
+        card.addEventListener('drop', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          card.classList.remove('drag-over');
+
+          const draggedNoteId = e.dataTransfer.getData('note-id');
+          const targetNoteId = card.dataset.noteId;
+
+          if (draggedNoteId !== targetNoteId) {
+            reorderNotes(draggedNoteId, targetNoteId);
+          }
+        });
+      });
+    }
+
+    function reorderNotes(draggedId, targetId) {
+      const draggedNote = data.notes.find(n => n.id === draggedId);
+      const targetNote = data.notes.find(n => n.id === targetId);
+
+      if (!draggedNote || !targetNote) return;
+
+      // 同じピン状態の場合のみ並び替え可能
+      if (draggedNote.pinned !== targetNote.pinned) {
+        showToast('ピン留めメモとその他のメモは別々に並び替えられます');
+        return;
+      }
+
+      // 同じアーカイブ状態の場合のみ
+      if (draggedNote.archived !== targetNote.archived) return;
+
+      // 現在のフィルタに合致するメモのみ取得
+      let relevantNotes = data.notes.filter(n => {
+        if (currentFilter === 'archived') return n.archived;
+        if (currentFilter === 'pinned') return n.pinned && !n.archived;
+        if (currentFilter === 'label' && currentLabelFilter) {
+          return n.labels.includes(currentLabelFilter) && !n.archived;
+        }
+        return !n.archived;
+      });
+
+      // ピン留めで分割
+      relevantNotes = relevantNotes.filter(n => n.pinned === draggedNote.pinned);
+
+      // 検索フィルタ適用
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        relevantNotes = relevantNotes.filter(n =>
+          n.title.toLowerCase().includes(query) ||
+          n.content.toLowerCase().includes(query) ||
+          n.checkItems.some(item => item.text.toLowerCase().includes(query))
+        );
+      }
+
+      // order順にソート
+      relevantNotes = sortNotesByOrder(relevantNotes);
+
+      // 新しいorder値を計算
+      relevantNotes.forEach((note, index) => {
+        note.order = index;
+      });
+
+      // ドラッグされたメモとターゲットメモの順序を入れ替え
+      const draggedIndex = relevantNotes.findIndex(n => n.id === draggedId);
+      const targetIndex = relevantNotes.findIndex(n => n.id === targetId);
+
+      const temp = relevantNotes[draggedIndex].order;
+      relevantNotes[draggedIndex].order = relevantNotes[targetIndex].order;
+      relevantNotes[targetIndex].order = temp;
+
+      saveData();
+      renderNotes();
     }
 
     function handleCardAction(noteId, action) {
@@ -2166,8 +2129,6 @@
         pinBtn.querySelector('.material-icons').style.color = note.pinned ? '#fbbc04' : '';
         archiveBtn.querySelector('.material-icons').textContent = note.archived ? 'unarchive' : 'archive';
         deleteBtn.style.display = 'flex';
-        
-        renderBacklinks(noteId);
       } else {
         titleInput.value = '';
         contentInput.value = '';
@@ -2176,7 +2137,6 @@
         modalContent.style.background = '';
         pinBtn.querySelector('.material-icons').style.color = '';
         deleteBtn.style.display = 'none';
-        document.getElementById('backlinksSection').style.display = 'none';
       }
       
       renderColorPicker();
@@ -2213,6 +2173,8 @@
         } else if (title || content || checkItems.length > 0) {
           // 新規メモの作成
           const checklistArea = document.getElementById('checklistArea');
+          // 最大order値を取得して+1
+          const maxOrder = Math.max(...data.notes.map(n => n.order !== undefined ? n.order : -1), -1);
           data.notes.unshift({
             id: 'note_' + Date.now(),
             title,
@@ -2224,7 +2186,8 @@
             pinned: false,
             archived: false,
             createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date().toISOString(),
+            order: maxOrder + 1
           });
         }
         
@@ -2236,8 +2199,7 @@
       modal.classList.remove('show');
       document.getElementById('colorDropdown').classList.remove('show');
       document.getElementById('labelDropdown').classList.remove('show');
-      document.getElementById('autocomplete').classList.remove('show');
-      
+
       // 状態をリセット
       editingNoteId = null;
     }
@@ -2308,42 +2270,6 @@
           note.updatedAt = new Date().toISOString();
           saveData();
           renderNotes();
-        });
-      });
-    }
-
-    function renderBacklinks(noteId) {
-      const section = document.getElementById('backlinksSection');
-      const list = document.getElementById('backlinksList');
-      const note = data.notes.find(n => n.id === noteId);
-      
-      if (!note) {
-        section.style.display = 'none';
-        return;
-      }
-      
-      const backlinks = data.notes.filter(n => {
-        if (n.id === noteId) return false;
-        const links = extractLinks(n.content);
-        return links.some(link => link.toLowerCase() === note.title.toLowerCase());
-      });
-      
-      if (backlinks.length === 0) {
-        section.style.display = 'none';
-        return;
-      }
-      
-      section.style.display = 'block';
-      list.innerHTML = backlinks.map(bl => `
-        <div class="backlink-item" data-note-id="${bl.id}">
-          <span class="material-icons" style="font-size: 16px;">description</span>
-          ${escapeHtml(bl.title) || 'タイトルなし'}
-        </div>
-      `).join('');
-      
-      list.querySelectorAll('.backlink-item').forEach(item => {
-        item.addEventListener('click', () => {
-          openNoteModal(item.dataset.noteId);
         });
       });
     }
@@ -2533,115 +2459,6 @@
       const clearBtn = document.getElementById('searchClear');
       clearBtn.classList.toggle('show', query.length > 0);
       renderNotes();
-    }
-
-    // ===== オートコンプリート =====
-    function setupAutocomplete() {
-      const contentInput = document.getElementById('noteContent');
-      const dropdown = document.getElementById('autocomplete');
-      
-      let lastPos = 0;
-      let isAutocompleting = false;
-      let selectedIndex = 0;
-      
-      contentInput.addEventListener('input', (e) => {
-        const text = contentInput.value;
-        const cursorPos = contentInput.selectionStart;
-        
-        // [[ の検出
-        const beforeCursor = text.substring(0, cursorPos);
-        const match = beforeCursor.match(/\[\[([^\]]*?)$/);
-        
-        if (match) {
-          isAutocompleting = true;
-          lastPos = cursorPos - match[1].length;
-          const query = match[1].toLowerCase();
-          
-          const suggestions = data.notes
-            .filter(n => n.id !== editingNoteId && n.title.toLowerCase().includes(query))
-            .slice(0, 10);
-          
-          if (suggestions.length > 0) {
-            dropdown.innerHTML = suggestions.map((note, i) => `
-              <div class="autocomplete-item ${i === selectedIndex ? 'selected' : ''}" data-note-id="${note.id}">
-                <span class="material-icons" style="font-size: 16px;">description</span>
-                ${escapeHtml(note.title) || 'タイトルなし'}
-              </div>
-            `).join('');
-            
-            // ポジション計算
-            const rect = contentInput.getBoundingClientRect();
-            dropdown.style.top = (rect.bottom + 4) + 'px';
-            dropdown.style.left = rect.left + 'px';
-            dropdown.style.width = rect.width + 'px';
-            dropdown.classList.add('show');
-            
-            dropdown.querySelectorAll('.autocomplete-item').forEach(item => {
-              item.addEventListener('click', () => {
-                insertLink(item.dataset.noteId);
-              });
-            });
-          } else {
-            dropdown.classList.remove('show');
-          }
-        } else {
-          isAutocompleting = false;
-          dropdown.classList.remove('show');
-        }
-      });
-      
-      contentInput.addEventListener('keydown', (e) => {
-        if (!isAutocompleting || !dropdown.classList.contains('show')) return;
-        
-        const items = dropdown.querySelectorAll('.autocomplete-item');
-        
-        if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
-          updateSelectedItem(items);
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          selectedIndex = Math.max(selectedIndex - 1, 0);
-          updateSelectedItem(items);
-        } else if (e.key === 'Enter' && items[selectedIndex]) {
-          e.preventDefault();
-          insertLink(items[selectedIndex].dataset.noteId);
-        } else if (e.key === 'Escape') {
-          dropdown.classList.remove('show');
-          isAutocompleting = false;
-        }
-      });
-      
-      function updateSelectedItem(items) {
-        items.forEach((item, i) => {
-          item.classList.toggle('selected', i === selectedIndex);
-        });
-      }
-      
-      function insertLink(noteId) {
-        const note = data.notes.find(n => n.id === noteId);
-        if (!note) return;
-        
-        const text = contentInput.value;
-        const cursorPos = contentInput.selectionStart;
-        const beforeCursor = text.substring(0, cursorPos);
-        const afterCursor = text.substring(cursorPos);
-        
-        const match = beforeCursor.match(/\[\[([^\]]*?)$/);
-        if (match) {
-          const start = cursorPos - match[0].length;
-          const newText = text.substring(0, start) + `[[${note.title}]]` + afterCursor;
-          contentInput.value = newText;
-          
-          const newCursorPos = start + note.title.length + 4;
-          contentInput.setSelectionRange(newCursorPos, newCursorPos);
-        }
-        
-        dropdown.classList.remove('show');
-        isAutocompleting = false;
-        selectedIndex = 0;
-        contentInput.focus();
-      }
     }
 
     // ===== サイドバーアクティブ状態 =====
@@ -2963,10 +2780,7 @@
       document.getElementById('closeHelpModal').addEventListener('click', () => {
         document.getElementById('helpModal').classList.remove('show');
       });
-      
-      // オートコンプリート
-      setupAutocomplete();
-      
+
       // ドラッグ&ドロップ
       const dropZone = document.getElementById('dropZone');
       
