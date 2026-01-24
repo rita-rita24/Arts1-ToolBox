@@ -133,8 +133,6 @@
       cursor: pointer;
       transition: box-shadow 0.2s, background 0.2s;
       white-space: nowrap;
-      min-width: 500px;
-      max-width: 600px;
     }
 
     .new-note-btn:hover {
@@ -389,7 +387,7 @@
 
     .notes-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      grid-template-columns: repeat(5, 1fr);
       gap: 16px;
       margin-bottom: 32px;
     }
@@ -403,9 +401,10 @@
       cursor: pointer;
       transition: box-shadow 0.2s, border-color 0.2s;
       position: relative;
-      min-height: 60px;
+      aspect-ratio: 1 / 1;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
 
     .note-card:hover {
@@ -500,6 +499,16 @@
       background: var(--border);
     }
 
+    .url-link {
+      color: var(--accent);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .url-link:hover {
+      color: #1557b0;
+    }
+
     .note-card-footer {
       display: flex;
       align-items: center;
@@ -553,7 +562,7 @@
       background: var(--card-bg);
       border-radius: 8px;
       width: 100%;
-      max-width: 600px;
+      max-width: 75vw;
       max-height: 90vh;
       overflow: hidden;
       display: flex;
@@ -651,7 +660,7 @@
       background: transparent;
       outline: none;
       resize: none;
-      min-height: 120px;
+      min-height: 400px;
       line-height: 1.6;
     }
 
@@ -1354,6 +1363,37 @@
         </div>
         
         <div class="settings-section">
+          <div class="settings-section-title">JSONファイルの自動読み書き設定</div>
+          <div class="settings-row">
+            <span>固定JSONファイルパス</span>
+            <button class="data-btn" id="selectJsonPathBtn">
+              <span class="material-icons">folder_open</span>
+              ファイルを選択
+            </button>
+          </div>
+          <div class="settings-row" id="jsonPathDisplay" style="display: none;">
+            <span style="font-size: 12px; color: var(--text-secondary); word-break: break-all;" id="jsonPathText"></span>
+            <button class="data-btn" id="clearJsonPathBtn" style="padding: 4px 12px;">
+              <span class="material-icons" style="font-size: 18px;">close</span>
+            </button>
+          </div>
+          <div class="settings-row">
+            <span>最新データを取得</span>
+            <button class="data-btn" id="loadFromFixedPathBtn" disabled>
+              <span class="material-icons">refresh</span>
+              取得
+            </button>
+          </div>
+          <div class="settings-row">
+            <span>最新データを出力</span>
+            <button class="data-btn" id="saveToFixedPathBtn" disabled>
+              <span class="material-icons">save</span>
+              出力
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-section">
           <div class="settings-section-title">データ管理</div>
           <div class="settings-row">
             <span>JSONファイルを読み込む</span>
@@ -1471,6 +1511,9 @@
             <div class="help-item">
               リンクされたメモには「バックリンク」として参照元が表示されます。
             </div>
+            <div class="help-item">
+              <strong>URLリンク:</strong> <code>[表示名](https://example.com)</code> の形式でURLリンクを作成できます。クリックすると新しいタブで開きます。
+            </div>
           </div>
           
           <div class="help-section">
@@ -1567,9 +1610,12 @@
       labels: [],
       settings: {
         theme: 'light',
-        sidebarOpen: true
+        sidebarOpen: true,
+        fixedJsonPath: null
       }
     };
+
+    let fileHandle = null;
 
     let currentFilter = 'all';
     let currentLabelFilter = null;
@@ -1585,6 +1631,7 @@
       renderNotes();
       setupEventListeners();
       updateSidebarState();
+      updateJsonPathDisplay();
     }
 
     // ===== データ読み込み/保存 =====
@@ -1863,7 +1910,7 @@
       // カードクリックイベント
       document.querySelectorAll('.note-card').forEach(card => {
         card.addEventListener('click', (e) => {
-          if (e.target.closest('.note-link-chip')) return;
+          if (e.target.closest('.note-link-chip') || e.target.closest('.url-link')) return;
           openNoteModal(card.dataset.noteId);
         });
       });
@@ -1918,7 +1965,9 @@
           </div>
         `;
       } else {
-        contentHtml = `<div class="note-card-content">${highlightSearch(escapeHtml(note.content))}</div>`;
+        // URLリンクを含むコンテンツをレンダリング
+        const renderedContent = renderContentWithLinks(note.content);
+        contentHtml = `<div class="note-card-content">${highlightSearch(renderedContent)}</div>`;
       }
       
       return `
@@ -1952,6 +2001,23 @@
         links.push(match[1]);
       }
       return links;
+    }
+
+    function renderContentWithLinks(content) {
+      if (!content) return '';
+
+      let rendered = escapeHtml(content);
+
+      // [表示名](URL) 形式のURLリンクを変換
+      rendered = rendered.replace(
+        /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
+        '<a href="$2" class="url-link" target="_blank" rel="noopener noreferrer">$1</a>'
+      );
+
+      // 改行をbrタグに変換
+      rendered = rendered.replace(/\n/g, '<br>');
+
+      return rendered;
     }
 
     function handleCardAction(noteId, action) {
@@ -2503,6 +2569,105 @@
       });
     }
 
+    // ===== 固定JSONパス設定 =====
+    async function selectJsonPath() {
+      try {
+        if ('showOpenFilePicker' in window) {
+          const [handle] = await window.showOpenFilePicker({
+            types: [{
+              description: 'JSON Files',
+              accept: { 'application/json': ['.json'] }
+            }],
+            multiple: false
+          });
+          fileHandle = handle;
+          const file = await handle.getFile();
+          data.settings.fixedJsonPath = file.name;
+          saveData();
+          updateJsonPathDisplay();
+          showToast('固定JSONファイルを設定しました');
+        } else {
+          showToast('このブラウザはFile System Access APIをサポートしていません');
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error('ファイル選択エラー:', err);
+          showToast('ファイル選択に失敗しました');
+        }
+      }
+    }
+
+    async function loadFromFixedPath() {
+      if (!fileHandle) {
+        showToast('先にファイルを選択してください');
+        return;
+      }
+      try {
+        const file = await fileHandle.getFile();
+        const text = await file.text();
+        const imported = JSON.parse(text);
+        if (imported.notes && imported.labels) {
+          data = imported;
+          saveData();
+          renderLabels();
+          renderNotes();
+          showToast('データを読み込みました');
+        } else {
+          showToast('無効なファイル形式です');
+        }
+      } catch (err) {
+        console.error('読み込みエラー:', err);
+        showToast('データの読み込みに失敗しました');
+      }
+    }
+
+    async function saveToFixedPath() {
+      if (!fileHandle) {
+        showToast('先にファイルを選択してください');
+        return;
+      }
+      try {
+        const writable = await fileHandle.createWritable();
+        const exportData = {
+          ...data,
+          exportedAt: new Date().toISOString()
+        };
+        await writable.write(JSON.stringify(exportData, null, 2));
+        await writable.close();
+        showToast('データを出力しました');
+      } catch (err) {
+        console.error('書き込みエラー:', err);
+        showToast('データの出力に失敗しました');
+      }
+    }
+
+    function clearJsonPath() {
+      fileHandle = null;
+      data.settings.fixedJsonPath = null;
+      saveData();
+      updateJsonPathDisplay();
+      showToast('固定JSONファイル設定を解除しました');
+    }
+
+    function updateJsonPathDisplay() {
+      const display = document.getElementById('jsonPathDisplay');
+      const text = document.getElementById('jsonPathText');
+      const loadBtn = document.getElementById('loadFromFixedPathBtn');
+      const saveBtn = document.getElementById('saveToFixedPathBtn');
+
+      if (data.settings.fixedJsonPath) {
+        display.style.display = 'flex';
+        text.textContent = data.settings.fixedJsonPath;
+        loadBtn.disabled = false;
+        saveBtn.disabled = false;
+      } else {
+        display.style.display = 'none';
+        text.textContent = '';
+        loadBtn.disabled = true;
+        saveBtn.disabled = true;
+      }
+    }
+
     // ===== ユーティリティ =====
     function escapeHtml(text) {
       if (!text) return '';
@@ -2587,6 +2752,12 @@
       });
       document.getElementById('exportBtn').addEventListener('click', exportData);
       document.getElementById('resetBtn').addEventListener('click', resetData);
+
+      // 固定JSONパス設定
+      document.getElementById('selectJsonPathBtn').addEventListener('click', selectJsonPath);
+      document.getElementById('loadFromFixedPathBtn').addEventListener('click', loadFromFixedPath);
+      document.getElementById('saveToFixedPathBtn').addEventListener('click', saveToFixedPath);
+      document.getElementById('clearJsonPathBtn').addEventListener('click', clearJsonPath);
       
       // メモモーダル
       document.getElementById('closeNoteModal').addEventListener('click', () => closeNoteModal());
