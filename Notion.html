@@ -1,1230 +1,2252 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Clone</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Serif+JP:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <style>
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f7f6f3;
-            --bg-sidebar: #f7f6f3;
-            --bg-hover: rgba(55, 53, 47, 0.08);
-            --bg-active: rgba(55, 53, 47, 0.16);
-            --text-primary: #37352f;
-            --text-secondary: rgba(55, 53, 47, 0.65);
-            --text-tertiary: rgba(55, 53, 47, 0.5);
-            --border-color: rgba(55, 53, 47, 0.09);
-            --blue: #2eaadc;
-            --callout-bg: rgba(241, 241, 239, 1);
-            --code-bg: rgba(135, 131, 120, 0.15);
-            --quote-border: #37352f;
-            --shadow: rgba(15, 15, 15, 0.05);
-            --font-default: 'Noto Sans JP', sans-serif;
-            --font-serif: 'Noto Serif JP', serif;
-            --font-mono: 'Source Code Pro', monospace;
-        }
-        .dark-mode {
-            --bg-primary: #191919;
-            --bg-secondary: #202020;
-            --bg-sidebar: #202020;
-            --bg-hover: rgba(255, 255, 255, 0.055);
-            --bg-active: rgba(255, 255, 255, 0.1);
-            --text-primary: rgba(255, 255, 255, 0.9);
-            --text-secondary: rgba(255, 255, 255, 0.6);
-            --text-tertiary: rgba(255, 255, 255, 0.4);
-            --border-color: rgba(255, 255, 255, 0.094);
-            --callout-bg: rgba(255, 255, 255, 0.055);
-            --quote-border: rgba(255, 255, 255, 0.6);
-            --shadow: rgba(0, 0, 0, 0.2);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: var(--font-default);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-size: 16px;
-            line-height: 1.5;
-            overflow: hidden;
-        }
-        body.font-serif { font-family: var(--font-serif); }
-        body.font-mono { font-family: var(--font-mono); }
-        body.small-text { font-size: 14px; }
-        .material-icons { font-size: 20px; vertical-align: middle; }
-        .app { display: flex; height: 100vh; width: 100vw; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notion Clone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Serif+JP:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f7f6f3;
+      --bg-sidebar: #f7f6f3;
+      --bg-hover: rgba(55, 53, 47, 0.08);
+      --bg-active: rgba(55, 53, 47, 0.16);
+      --text-primary: #37352f;
+      --text-secondary: rgba(55, 53, 47, 0.65);
+      --text-tertiary: rgba(55, 53, 47, 0.5);
+      --border-color: rgba(55, 53, 47, 0.09);
+      --blue: #2eaadc;
+      --callout-bg: rgba(241, 241, 239, 1);
+      --code-bg: rgba(135, 131, 120, 0.15);
+      --quote-border: #37352f;
+      --shadow: rgba(15, 15, 15, 0.05);
+      --font-default: 'Noto Sans JP', sans-serif;
+      --font-serif: 'Noto Serif JP', serif;
+      --font-mono: 'Source Code Pro', monospace;
+    }
 
-        /* Sidebar */
-        .sidebar {
-            width: 240px; min-width: 240px;
-            background: var(--bg-sidebar);
-            border-right: 1px solid var(--border-color);
-            display: flex; flex-direction: column;
-            transition: transform 0.2s, width 0.2s, min-width 0.2s;
-            z-index: 100;
-        }
-        .sidebar.collapsed { width: 0; min-width: 0; transform: translateX(-240px); }
-        .sidebar-header {
-            padding: 12px 12px 8px;
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        .workspace-name {
-            display: flex; align-items: center; gap: 8px;
-            padding: 4px 8px; border-radius: 4px;
-            cursor: pointer; font-weight: 500; font-size: 14px;
-        }
-        .workspace-name:hover { background: var(--bg-hover); }
-        .workspace-icon {
-            width: 22px; height: 22px;
-            background: linear-gradient(135deg, #e8e8e8, #d0d0d0);
-            border-radius: 4px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 14px;
-        }
-        .dark-mode .workspace-icon { background: linear-gradient(135deg, #404040, #303030); }
-        .icon-btn {
-            width: 28px; height: 28px; border: none;
-            background: transparent; cursor: pointer;
-            border-radius: 4px;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--text-secondary);
-        }
-        .icon-btn:hover { background: var(--bg-hover); }
-        .sidebar-actions { padding: 4px 12px; }
-        .sidebar-action {
-            display: flex; align-items: center; gap: 8px;
-            padding: 4px 8px; border-radius: 4px;
-            cursor: pointer; font-size: 14px; color: var(--text-secondary);
-        }
-        .sidebar-action:hover { background: var(--bg-hover); }
-        .sidebar-action .material-icons { font-size: 18px; opacity: 0.8; }
-        .sidebar-section { padding: 8px 12px 4px; }
-        .sidebar-section-title {
-            font-size: 12px; font-weight: 500; color: var(--text-tertiary);
-            padding: 4px 8px;
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        .sidebar-section-title:hover { background: var(--bg-hover); border-radius: 4px; cursor: pointer; }
-        .page-list { padding: 0 4px; overflow-y: auto; flex: 1; }
-        .page-item {
-            display: flex; align-items: center;
-            padding: 4px 8px; border-radius: 4px;
-            cursor: pointer; font-size: 14px;
-            user-select: none; min-height: 28px;
-        }
-        .page-item:hover { background: var(--bg-hover); }
-        .page-item.active { background: var(--bg-active); }
-        .page-toggle {
-            width: 20px; height: 20px;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 4px; flex-shrink: 0;
-            transition: transform 0.1s;
-        }
-        .page-toggle:hover { background: var(--bg-active); }
-        .page-toggle.expanded { transform: rotate(90deg); }
-        .page-toggle.hidden { visibility: hidden; }
-        .page-icon {
-            width: 20px; height: 20px;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0; margin-right: 4px;
-        }
-        .page-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .page-actions { display: none; gap: 2px; }
-        .page-item:hover .page-actions { display: flex; }
-        .page-action {
-            width: 20px; height: 20px;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 4px; color: var(--text-secondary);
-        }
-        .page-action:hover { background: var(--bg-active); }
-        .page-action .material-icons { font-size: 16px; }
-        .nested-pages { margin-left: 12px; display: none; }
-        .nested-pages.expanded { display: block; }
-        .new-page-btn {
-            display: flex; align-items: center; gap: 8px;
-            padding: 8px 12px; margin: 8px 12px;
-            border-radius: 4px; cursor: pointer;
-            font-size: 14px; color: var(--text-secondary);
-            border: 1px dashed var(--border-color);
-        }
-        .new-page-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+    .dark-mode {
+      --bg-primary: #191919;
+      --bg-secondary: #202020;
+      --bg-sidebar: #202020;
+      --bg-hover: rgba(255, 255, 255, 0.055);
+      --bg-active: rgba(255, 255, 255, 0.1);
+      --text-primary: rgba(255, 255, 255, 0.9);
+      --text-secondary: rgba(255, 255, 255, 0.6);
+      --text-tertiary: rgba(255, 255, 255, 0.4);
+      --border-color: rgba(255, 255, 255, 0.094);
+      --callout-bg: rgba(255, 255, 255, 0.055);
+      --quote-border: rgba(255, 255, 255, 0.6);
+      --shadow: rgba(0, 0, 0, 0.2);
+    }
 
-        /* Main */
-        .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .topbar {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 8px 16px; min-height: 45px;
-            border-bottom: 1px solid transparent;
-        }
-        .topbar:hover { border-bottom-color: var(--border-color); }
-        .topbar-left { display: flex; align-items: center; gap: 4px; }
-        .breadcrumb {
-            display: flex; align-items: center; gap: 4px;
-            font-size: 14px; color: var(--text-secondary);
-        }
-        .breadcrumb-item {
-            display: flex; align-items: center; gap: 4px;
-            padding: 4px 6px; border-radius: 4px; cursor: pointer;
-        }
-        .breadcrumb-item:hover { background: var(--bg-hover); }
-        .topbar-right { display: flex; align-items: center; gap: 4px; }
-        .topbar-btn {
-            display: flex; align-items: center; gap: 6px;
-            padding: 4px 8px; border: none; background: transparent;
-            cursor: pointer; border-radius: 4px;
-            font-size: 14px; color: var(--text-secondary);
-        }
-        .topbar-btn:hover { background: var(--bg-hover); }
-        .editor-container { flex: 1; overflow-y: auto; display: flex; justify-content: center; }
-        .editor { width: 100%; max-width: 900px; padding: 48px 96px 200px; }
-        .editor.full-width { max-width: none; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        /* Page Header */
-        .page-header { margin-bottom: 16px; position: relative; }
-        .page-header-actions { display: none; gap: 8px; margin-bottom: 8px; }
-        .page-header:hover .page-header-actions { display: flex; }
-        .page-header-action {
-            display: flex; align-items: center; gap: 4px;
-            padding: 4px 6px; border-radius: 4px;
-            cursor: pointer; font-size: 14px; color: var(--text-tertiary);
-        }
-        .page-header-action:hover { background: var(--bg-hover); color: var(--text-secondary); }
-        .page-header-action .material-icons { font-size: 16px; }
-        .page-icon-container { margin-bottom: 8px; }
-        .page-icon-large {
-            font-size: 72px; line-height: 1;
-            cursor: pointer; display: inline-block;
-            padding: 4px; border-radius: 4px;
-        }
-        .page-icon-large:hover { background: var(--bg-hover); }
-        .page-icon-large.hidden { display: none; }
-        .page-title-input {
-            font-size: 40px; font-weight: 700;
-            border: none; outline: none; background: transparent;
-            width: 100%; color: var(--text-primary);
-            font-family: inherit; line-height: 1.2;
-        }
-        .page-title-input::placeholder { color: var(--text-tertiary); }
+    body {
+      font-family: var(--font-default);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 16px;
+      line-height: 1.5;
+      overflow: hidden;
+    }
 
-        /* Blocks */
-        .blocks { position: relative; counter-reset: block-counter; }
-        .block { position: relative; padding: 3px 0; display: flex; align-items: flex-start; }
-        .block-handle {
-            position: absolute; left: -24px; top: 3px;
-            width: 18px; height: 24px;
-            display: none; align-items: center; justify-content: center;
-            cursor: grab; color: var(--text-tertiary); border-radius: 4px;
-        }
-        .block:hover .block-handle { display: flex; }
-        .block-handle:hover { background: var(--bg-hover); color: var(--text-secondary); }
-        .block-add {
-            position: absolute; left: -48px; top: 3px;
-            width: 18px; height: 24px;
-            display: none; align-items: center; justify-content: center;
-            cursor: pointer; color: var(--text-tertiary); border-radius: 4px;
-        }
-        .block:hover .block-add { display: flex; }
-        .block-add:hover { background: var(--bg-hover); color: var(--text-secondary); }
-        .block-content { flex: 1; min-height: 1.5em; outline: none; word-break: break-word; }
-        .block-content:empty::before { content: attr(data-placeholder); color: var(--text-tertiary); }
-        .block-content:focus:empty::before { content: "'/'を入力してコマンドを使用..."; }
+    body.font-serif {
+      font-family: var(--font-serif);
+    }
 
-        /* Block Types */
-        .block.heading1 .block-content { font-size: 30px; font-weight: 600; margin: 16px 0 4px; line-height: 1.3; }
-        .block.heading2 .block-content { font-size: 24px; font-weight: 600; margin: 14px 0 4px; line-height: 1.3; }
-        .block.heading3 .block-content { font-size: 20px; font-weight: 600; margin: 12px 0 4px; line-height: 1.3; }
-        .block.bullet { padding-left: 24px; }
-        .block.bullet::before { content: "•"; position: absolute; left: 8px; color: var(--text-primary); }
-        .block.numbered { padding-left: 24px; counter-increment: block-counter; }
-        .block.numbered::before { content: counter(block-counter) "."; position: absolute; left: 0; color: var(--text-primary); font-size: 14px; }
-        .block.todo { padding-left: 28px; }
-        .block.todo .todo-checkbox {
-            position: absolute; left: 0; top: 6px;
-            width: 16px; height: 16px;
-            border: 2px solid var(--text-secondary);
-            border-radius: 3px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .block.todo.checked .todo-checkbox { background: var(--blue); border-color: var(--blue); }
-        .block.todo.checked .todo-checkbox .material-icons { display: block; }
-        .block.todo .todo-checkbox .material-icons { display: none; font-size: 12px; color: white; }
-        .block.todo.checked .block-content { text-decoration: line-through; color: var(--text-tertiary); }
-        .block.toggle { padding-left: 24px; }
-        .block.toggle .toggle-icon {
-            position: absolute; left: 0; top: 4px;
-            width: 20px; height: 20px;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 4px; transition: transform 0.1s;
-        }
-        .block.toggle .toggle-icon:hover { background: var(--bg-hover); }
-        .block.toggle.expanded .toggle-icon { transform: rotate(90deg); }
-        .block.toggle .toggle-content { display: none; margin-left: 24px; margin-top: 4px; }
-        .block.toggle.expanded .toggle-content { display: block; }
-        .block.quote { padding-left: 16px; border-left: 3px solid var(--quote-border); }
-        .block.callout {
-            background: var(--callout-bg); border-radius: 4px;
-            padding: 16px 16px 16px 48px; position: relative;
-        }
-        .block.callout .callout-icon { position: absolute; left: 16px; top: 16px; font-size: 20px; cursor: pointer; }
-        .block.divider { padding: 12px 0; }
-        .block.divider hr { border: none; border-top: 1px solid var(--border-color); }
-        .block.code {
-            background: var(--code-bg); border-radius: 4px;
-            padding: 16px; font-family: var(--font-mono);
-            font-size: 14px; overflow-x: auto;
-        }
-        .block.code .block-content { white-space: pre-wrap; }
+    body.font-mono {
+      font-family: var(--font-mono);
+    }
 
-        /* Slash Menu */
-        .slash-menu {
-            position: fixed; background: var(--bg-primary);
-            border: 1px solid var(--border-color); border-radius: 8px;
-            box-shadow: 0 4px 24px var(--shadow);
-            width: 320px; max-height: 400px; overflow-y: auto;
-            z-index: 1000; display: none;
-        }
-        .slash-menu.visible { display: block; animation: fadeIn 0.15s ease; }
-        .slash-menu-header {
-            padding: 8px 12px; font-size: 12px;
-            color: var(--text-tertiary); font-weight: 500;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .slash-menu-item { display: flex; align-items: center; gap: 12px; padding: 8px 12px; cursor: pointer; }
-        .slash-menu-item:hover, .slash-menu-item.selected { background: var(--bg-hover); }
-        .slash-menu-icon {
-            width: 46px; height: 46px;
-            background: var(--bg-primary); border: 1px solid var(--border-color);
-            border-radius: 4px;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0; color: var(--text-primary);
-        }
-        .slash-menu-icon .material-icons { font-size: 24px; }
-        .slash-menu-icon span.text-icon { font-size: 18px; font-weight: 500; }
-        .slash-menu-icon.emoji { font-size: 24px; }
-        .slash-menu-text { flex: 1; }
-        .slash-menu-title { font-size: 14px; font-weight: 500; }
-        .slash-menu-desc { font-size: 12px; color: var(--text-secondary); }
+    body.small-text {
+      font-size: 14px;
+    }
 
-        /* Search Modal */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.4);
-            display: none; align-items: flex-start; justify-content: center;
-            padding-top: 100px; z-index: 2000;
-        }
-        .modal-overlay.visible { display: flex; }
-        .search-container {
-            width: 600px; max-width: 90vw;
-            background: var(--bg-primary); border-radius: 8px;
-            box-shadow: 0 8px 32px var(--shadow); overflow: hidden;
-        }
-        .search-input-wrapper {
-            display: flex; align-items: center;
-            padding: 12px 16px; border-bottom: 1px solid var(--border-color); gap: 12px;
-        }
-        .search-input-wrapper .material-icons { color: var(--text-tertiary); }
-        .search-input {
-            flex: 1; border: none; outline: none;
-            font-size: 16px; background: transparent;
-            color: var(--text-primary); font-family: inherit;
-        }
-        .search-input::placeholder { color: var(--text-tertiary); }
-        .search-results { max-height: 400px; overflow-y: auto; }
-        .search-result-item {
-            display: flex; align-items: center; gap: 12px;
-            padding: 12px 16px; cursor: pointer;
-        }
-        .search-result-item:hover { background: var(--bg-hover); }
-        .search-result-item .result-icon { font-size: 18px; }
-        .search-result-title { font-size: 14px; }
-        .search-empty { padding: 24px; text-align: center; color: var(--text-tertiary); font-size: 14px; }
+    .material-icons {
+      font-size: 20px;
+      vertical-align: middle;
+    }
 
-        /* Settings */
-        .settings-menu {
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color); border-radius: 8px;
-            box-shadow: 0 8px 32px var(--shadow);
-            width: 400px; z-index: 2001; display: none;
-        }
-        .settings-menu.visible { display: block; }
-        .settings-header {
-            padding: 16px; border-bottom: 1px solid var(--border-color);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .settings-title { font-size: 16px; font-weight: 600; }
-        .settings-content { padding: 16px; }
-        .settings-item {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 0; border-bottom: 1px solid var(--border-color);
-        }
-        .settings-item:last-child { border-bottom: none; }
-        .settings-label { font-size: 14px; }
-        .settings-toggle {
-            width: 40px; height: 24px;
-            background: var(--bg-active); border-radius: 12px;
-            cursor: pointer; position: relative; transition: background 0.2s;
-        }
-        .settings-toggle.active { background: var(--blue); }
-        .settings-toggle::after {
-            content: ""; position: absolute;
-            width: 18px; height: 18px;
-            background: white; border-radius: 50%;
-            top: 3px; left: 3px; transition: transform 0.2s;
-        }
-        .settings-toggle.active::after { transform: translateX(16px); }
-        .font-options { display: flex; gap: 8px; }
-        .font-option {
-            padding: 8px 16px;
-            border: 1px solid var(--border-color); border-radius: 4px;
-            cursor: pointer; font-size: 14px;
-        }
-        .font-option:hover { background: var(--bg-hover); }
-        .font-option.active { border-color: var(--blue); background: rgba(46, 170, 220, 0.1); }
+    .app {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+    }
 
-        /* Emoji Picker */
-        .emoji-picker {
-            position: fixed; background: var(--bg-primary);
-            border: 1px solid var(--border-color); border-radius: 8px;
-            box-shadow: 0 4px 24px var(--shadow);
-            padding: 8px; z-index: 1000;
-            display: none; max-width: 320px;
-        }
-        .emoji-picker.visible { display: block; animation: fadeIn 0.15s ease; }
-        .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
-        .emoji-item {
-            width: 32px; height: 32px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; border-radius: 4px; font-size: 20px;
-        }
-        .emoji-item:hover { background: var(--bg-hover); }
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      min-width: 240px;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, width 0.2s, min-width 0.2s;
+      z-index: 100;
+    }
 
-        /* Selection Toolbar */
-        .selection-toolbar {
-            position: fixed; background: var(--bg-primary);
-            border: 1px solid var(--border-color); border-radius: 6px;
-            box-shadow: 0 2px 12px var(--shadow);
-            display: none; padding: 4px; z-index: 1000;
-        }
-        .selection-toolbar.visible { display: flex; }
-        .toolbar-btn {
-            width: 28px; height: 28px; border: none;
-            background: transparent; cursor: pointer; border-radius: 4px;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--text-primary);
-        }
-        .toolbar-btn:hover { background: var(--bg-hover); }
-        .toolbar-btn .material-icons { font-size: 18px; }
-        .toolbar-divider { width: 1px; height: 24px; background: var(--border-color); margin: 0 4px; }
+    .sidebar.collapsed {
+      width: 0;
+      min-width: 0;
+      transform: translateX(-240px);
+    }
 
-        ::-webkit-scrollbar { width: 10px; height: 10px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--text-tertiary); border-radius: 5px; border: 2px solid transparent; background-clip: padding-box; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); border: 2px solid transparent; background-clip: padding-box; }
+    .sidebar-header {
+      padding: 12px 12px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-        @media (max-width: 768px) {
-            .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 200; }
-            .sidebar.collapsed { transform: translateX(-100%); }
-            .editor { padding: 24px 16px 100px; }
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+    .workspace-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .workspace-name:hover {
+      background: var(--bg-hover);
+    }
+
+    .workspace-icon {
+      width: 22px;
+      height: 22px;
+      background: linear-gradient(135deg, #e8e8e8, #d0d0d0);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .dark-mode .workspace-icon {
+      background: linear-gradient(135deg, #404040, #303030);
+    }
+
+    .icon-btn {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+    }
+
+    .icon-btn:hover {
+      background: var(--bg-hover);
+    }
+
+    .sidebar-actions {
+      padding: 4px 12px;
+    }
+
+    .sidebar-action {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .sidebar-action:hover {
+      background: var(--bg-hover);
+    }
+
+    .sidebar-action .material-icons {
+      font-size: 18px;
+      opacity: 0.8;
+    }
+
+    .sidebar-section {
+      padding: 8px 12px 4px;
+    }
+
+    .sidebar-section-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-section-title:hover {
+      background: var(--bg-hover);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .page-list {
+      padding: 0 4px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .page-item {
+      display: flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      user-select: none;
+      min-height: 28px;
+    }
+
+    .page-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .page-item.active {
+      background: var(--bg-active);
+    }
+
+    .page-toggle {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      flex-shrink: 0;
+      transition: transform 0.1s;
+    }
+
+    .page-toggle:hover {
+      background: var(--bg-active);
+    }
+
+    .page-toggle.expanded {
+      transform: rotate(90deg);
+    }
+
+    .page-toggle.hidden {
+      visibility: hidden;
+    }
+
+    .page-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-right: 4px;
+    }
+
+    .page-title {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .page-actions {
+      display: none;
+      gap: 2px;
+    }
+
+    .page-item:hover .page-actions {
+      display: flex;
+    }
+
+    .page-action {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      color: var(--text-secondary);
+    }
+
+    .page-action:hover {
+      background: var(--bg-active);
+    }
+
+    .page-action .material-icons {
+      font-size: 16px;
+    }
+
+    .nested-pages {
+      margin-left: 12px;
+      display: none;
+    }
+
+    .nested-pages.expanded {
+      display: block;
+    }
+
+    .new-page-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      margin: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-secondary);
+      border: 1px dashed var(--border-color);
+    }
+
+    .new-page-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    /* Main */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      min-height: 45px;
+      border-bottom: 1px solid transparent;
+    }
+
+    .topbar:hover {
+      border-bottom-color: var(--border-color);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .breadcrumb-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .breadcrumb-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .topbar-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .topbar-btn:hover {
+      background: var(--bg-hover);
+    }
+
+    .editor-container {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .editor {
+      width: 100%;
+      max-width: 900px;
+      padding: 48px 96px 200px;
+    }
+
+    .editor.full-width {
+      max-width: none;
+    }
+
+    /* Page Header */
+    .page-header {
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .page-header-actions {
+      display: none;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .page-header:hover .page-header-actions {
+      display: flex;
+    }
+
+    .page-header-action {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-tertiary);
+    }
+
+    .page-header-action:hover {
+      background: var(--bg-hover);
+      color: var(--text-secondary);
+    }
+
+    .page-header-action .material-icons {
+      font-size: 16px;
+    }
+
+    .page-icon-container {
+      margin-bottom: 8px;
+    }
+
+    .page-icon-large {
+      font-size: 72px;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-block;
+      padding: 4px;
+      border-radius: 4px;
+    }
+
+    .page-icon-large:hover {
+      background: var(--bg-hover);
+    }
+
+    .page-icon-large.hidden {
+      display: none;
+    }
+
+    .page-title-input {
+      font-size: 40px;
+      font-weight: 700;
+      border: none;
+      outline: none;
+      background: transparent;
+      width: 100%;
+      color: var(--text-primary);
+      font-family: inherit;
+      line-height: 1.2;
+    }
+
+    .page-title-input::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    /* Blocks */
+    .blocks {
+      position: relative;
+      counter-reset: block-counter;
+    }
+
+    .block {
+      position: relative;
+      padding: 3px 0;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .block-handle {
+      position: absolute;
+      left: -24px;
+      top: 3px;
+      width: 18px;
+      height: 24px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      color: var(--text-tertiary);
+      border-radius: 4px;
+    }
+
+    .block:hover .block-handle {
+      display: flex;
+    }
+
+    .block-handle:hover {
+      background: var(--bg-hover);
+      color: var(--text-secondary);
+    }
+
+    .block-add {
+      position: absolute;
+      left: -48px;
+      top: 3px;
+      width: 18px;
+      height: 24px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-tertiary);
+      border-radius: 4px;
+    }
+
+    .block:hover .block-add {
+      display: flex;
+    }
+
+    .block-add:hover {
+      background: var(--bg-hover);
+      color: var(--text-secondary);
+    }
+
+    .block-content {
+      flex: 1;
+      min-height: 1.5em;
+      outline: none;
+      word-break: break-word;
+    }
+
+    .block-content:empty::before {
+      content: attr(data-placeholder);
+      color: var(--text-tertiary);
+    }
+
+    .block-content:focus:empty::before {
+      content: "'/'を入力してコマンドを使用...";
+    }
+
+    /* Block Types */
+    .block.heading1 .block-content {
+      font-size: 30px;
+      font-weight: 600;
+      margin: 16px 0 4px;
+      line-height: 1.3;
+    }
+
+    .block.heading2 .block-content {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 14px 0 4px;
+      line-height: 1.3;
+    }
+
+    .block.heading3 .block-content {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 12px 0 4px;
+      line-height: 1.3;
+    }
+
+    .block.bullet {
+      padding-left: 24px;
+    }
+
+    .block.bullet::before {
+      content: "•";
+      position: absolute;
+      left: 8px;
+      color: var(--text-primary);
+    }
+
+    .block.numbered {
+      padding-left: 24px;
+      counter-increment: block-counter;
+    }
+
+    .block.numbered::before {
+      content: counter(block-counter) ".";
+      position: absolute;
+      left: 0;
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+
+    .block.todo {
+      padding-left: 28px;
+    }
+
+    .block.todo .todo-checkbox {
+      position: absolute;
+      left: 0;
+      top: 6px;
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--text-secondary);
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .block.todo.checked .todo-checkbox {
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .block.todo.checked .todo-checkbox .material-icons {
+      display: block;
+    }
+
+    .block.todo .todo-checkbox .material-icons {
+      display: none;
+      font-size: 12px;
+      color: white;
+    }
+
+    .block.todo.checked .block-content {
+      text-decoration: line-through;
+      color: var(--text-tertiary);
+    }
+
+    .block.toggle {
+      padding-left: 24px;
+    }
+
+    .block.toggle .toggle-icon {
+      position: absolute;
+      left: 0;
+      top: 4px;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: transform 0.1s;
+    }
+
+    .block.toggle .toggle-icon:hover {
+      background: var(--bg-hover);
+    }
+
+    .block.toggle.expanded .toggle-icon {
+      transform: rotate(90deg);
+    }
+
+    .block.toggle .toggle-content {
+      display: none;
+      margin-left: 24px;
+      margin-top: 4px;
+    }
+
+    .block.toggle.expanded .toggle-content {
+      display: block;
+    }
+
+    .block.quote {
+      padding-left: 16px;
+      border-left: 3px solid var(--quote-border);
+    }
+
+    .block.callout {
+      background: var(--callout-bg);
+      border-radius: 4px;
+      padding: 16px 16px 16px 48px;
+      position: relative;
+    }
+
+    .block.callout .callout-icon {
+      position: absolute;
+      left: 16px;
+      top: 16px;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .block.divider {
+      padding: 12px 0;
+    }
+
+    .block.divider hr {
+      border: none;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .block.code {
+      background: var(--code-bg);
+      border-radius: 4px;
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      overflow-x: auto;
+    }
+
+    .block.code .block-content {
+      white-space: pre-wrap;
+    }
+
+    /* Slash Menu */
+    .slash-menu {
+      position: fixed;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 0 4px 24px var(--shadow);
+      width: 320px;
+      max-height: 400px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+    }
+
+    .slash-menu.visible {
+      display: block;
+      animation: fadeIn 0.15s ease;
+    }
+
+    .slash-menu-header {
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--text-tertiary);
+      font-weight: 500;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .slash-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    .slash-menu-item:hover,
+    .slash-menu-item.selected {
+      background: var(--bg-hover);
+    }
+
+    .slash-menu-icon {
+      width: 46px;
+      height: 46px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--text-primary);
+    }
+
+    .slash-menu-icon .material-icons {
+      font-size: 24px;
+    }
+
+    .slash-menu-icon span.text-icon {
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .slash-menu-icon.emoji {
+      font-size: 24px;
+    }
+
+    .slash-menu-text {
+      flex: 1;
+    }
+
+    .slash-menu-title {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .slash-menu-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* Search Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 100px;
+      z-index: 2000;
+    }
+
+    .modal-overlay.visible {
+      display: flex;
+    }
+
+    .modal-overlay.centered {
+      align-items: center;
+      padding-top: 0;
+    }
+
+    .search-container {
+      width: 600px;
+      max-width: 90vw;
+      background: var(--bg-primary);
+      border-radius: 8px;
+      box-shadow: 0 8px 32px var(--shadow);
+      overflow: hidden;
+    }
+
+    .search-input-wrapper {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      gap: 12px;
+    }
+
+    .search-input-wrapper .material-icons {
+      color: var(--text-tertiary);
+    }
+
+    .search-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      background: transparent;
+      color: var(--text-primary);
+      font-family: inherit;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .search-results {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .search-result-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+    }
+
+    .search-result-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .search-result-item .result-icon {
+      font-size: 18px;
+    }
+
+    .search-result-title {
+      font-size: 14px;
+    }
+
+    .search-empty {
+      padding: 24px;
+      text-align: center;
+      color: var(--text-tertiary);
+      font-size: 14px;
+    }
+
+    /* Settings */
+    .settings-menu {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 0 8px 32px var(--shadow);
+      width: 400px;
+      z-index: 2001;
+      display: none;
+    }
+
+    .settings-menu.visible {
+      display: block;
+    }
+
+    .settings-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .settings-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .settings-content {
+      padding: 16px;
+    }
+
+    .settings-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .settings-item:last-child {
+      border-bottom: none;
+    }
+
+    .settings-label {
+      font-size: 14px;
+    }
+
+    .settings-toggle {
+      width: 40px;
+      height: 24px;
+      background: var(--bg-active);
+      border-radius: 12px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .settings-toggle.active {
+      background: var(--blue);
+    }
+
+    .settings-toggle::after {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: white;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s;
+    }
+
+    .settings-toggle.active::after {
+      transform: translateX(16px);
+    }
+
+    .font-options {
+      display: flex;
+      gap: 8px;
+    }
+
+    .font-option {
+      padding: 8px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .font-option:hover {
+      background: var(--bg-hover);
+    }
+
+    .font-option.active {
+      border-color: var(--blue);
+      background: rgba(46, 170, 220, 0.1);
+    }
+
+    /* Emoji Picker */
+    .emoji-picker {
+      position: fixed;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 0 4px 24px var(--shadow);
+      padding: 8px;
+      z-index: 1000;
+      display: none;
+      max-width: 320px;
+    }
+
+    .emoji-picker.visible {
+      display: block;
+      animation: fadeIn 0.15s ease;
+    }
+
+    .emoji-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 4px;
+    }
+
+    .emoji-item {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 20px;
+    }
+
+    .emoji-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .color-picker-row {
+      display: flex;
+      gap: 6px;
+      padding: 8px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .color-option {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.1s;
+    }
+
+    .color-option:hover {
+      transform: scale(1.1);
+    }
+
+    .color-option.selected {
+      border-color: var(--text-primary);
+    }
+
+    /* Selection Toolbar */
+    .selection-toolbar {
+      position: fixed;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      box-shadow: 0 2px 12px var(--shadow);
+      display: none;
+      padding: 4px;
+      z-index: 1000;
+    }
+
+    .selection-toolbar.visible {
+      display: flex;
+    }
+
+    .toolbar-btn {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-primary);
+    }
+
+    .toolbar-btn:hover {
+      background: var(--bg-hover);
+    }
+
+    .toolbar-btn .material-icons {
+      font-size: 18px;
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 24px;
+      background: var(--border-color);
+      margin: 0 4px;
+    }
+
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--text-tertiary);
+      border-radius: 5px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-secondary);
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 200;
+      }
+
+      .sidebar.collapsed {
+        transform: translateX(-100%);
+      }
+
+      .editor {
+        padding: 24px 16px 100px;
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <div class="app">
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="workspace-name">
-                    <div class="workspace-icon">📝</div>
-                    <span>My Workspace</span>
-                </div>
-                <button class="icon-btn" onclick="toggleSidebar()" title="サイドバーを閉じる">
-                    <span class="material-icons">chevron_left</span>
-                </button>
-            </div>
-            <div class="sidebar-actions">
-                <div class="sidebar-action" onclick="openSearch()">
-                    <span class="material-icons">search</span>
-                    <span>検索</span>
-                </div>
-                <div class="sidebar-action" onclick="openSettings()">
-                    <span class="material-icons">settings</span>
-                    <span>設定</span>
-                </div>
-            </div>
-            <div class="sidebar-section">
-                <div class="sidebar-section-title"><span>お気に入り</span></div>
-            </div>
-            <div class="page-list" id="favoritesList"></div>
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">
-                    <span>プライベート</span>
-                    <button class="page-action" onclick="addNewPage()" title="ページを追加">
-                        <span class="material-icons">add</span>
-                    </button>
-                </div>
-            </div>
-            <div class="page-list" id="pagesList"></div>
-            <div class="new-page-btn" onclick="addNewPage()">
-                <span class="material-icons">add</span>
-                <span>新規ページ</span>
-            </div>
-        </aside>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="workspace-name">
+          <div class="workspace-icon"><span class="material-icons">edit_note</span></div>
+          <span>My Workspace</span>
+        </div>
+        <button class="icon-btn" onclick="toggleSidebar()" title="サイドバーを閉じる">
+          <span class="material-icons">chevron_left</span>
+        </button>
+      </div>
+      <div class="sidebar-actions">
+        <div class="sidebar-action" onclick="openSearch()">
+          <span class="material-icons">search</span>
+          <span>検索</span>
+        </div>
+        <div class="sidebar-action" onclick="openSettings()">
+          <span class="material-icons">settings</span>
+          <span>設定</span>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection('favorites')">
+          <div style="display:flex; align-items:center;">
+            <span class="material-icons section-toggle" id="favToggleIcon"
+              style="font-size: 16px; margin-right: 4px; transition: transform 0.1s;">keyboard_arrow_down</span>
+            <span>お気に入り</span>
+          </div>
+        </div>
+      </div>
+      <div class="page-list" id="favoritesList"></div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection('all')">
+          <div style="display:flex; align-items:center;">
+            <span class="material-icons section-toggle" id="allToggleIcon"
+              style="font-size: 16px; margin-right: 4px; transition: transform 0.1s;">keyboard_arrow_down</span>
+            <span>全てのノート</span>
+          </div>
+          <button class="page-action" onclick="event.stopPropagation(); addNewPage()" title="ページを追加"
+            style="border: none; background: transparent; cursor: pointer;">
+            <span class="material-icons">add</span>
+          </button>
+        </div>
+      </div>
+      <div class="page-list" id="pagesList"></div>
+      <div class="new-page-btn" onclick="addNewPage()">
+        <span class="material-icons">add</span>
+        <span>新規ページ</span>
+      </div>
+    </aside>
 
-        <main class="main">
-            <div class="topbar">
-                <div class="topbar-left">
-                    <button class="icon-btn" onclick="toggleSidebar()" id="sidebarToggle" style="display: none;">
-                        <span class="material-icons">menu</span>
-                    </button>
-                    <div class="breadcrumb" id="breadcrumb">
-                        <div class="breadcrumb-item"><span>📄</span><span>無題</span></div>
-                    </div>
-                </div>
-                <div class="topbar-right">
-                    <button class="topbar-btn" onclick="toggleFavorite()" id="favoriteBtn">
-                        <span class="material-icons" id="favoriteIcon">star_border</span>
-                    </button>
-                    <button class="topbar-btn" onclick="openSettings()">
-                        <span class="material-icons">more_horiz</span>
-                    </button>
-                </div>
+    <main class="main">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="icon-btn" onclick="toggleSidebar()" id="sidebarToggle" style="display: none;">
+            <span class="material-icons">menu</span>
+          </button>
+          <div class="breadcrumb" id="breadcrumb">
+            <div class="breadcrumb-item"><span class="material-icons">description</span><span>無題</span></div>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <button class="topbar-btn" onclick="toggleFavorite()" id="favoriteBtn">
+            <span class="material-icons" id="favoriteIcon">star_border</span>
+          </button>
+        </div>
+      </div>
+      <div class="editor-container">
+        <div class="editor" id="editor">
+          <div class="page-header">
+            <div class="page-header-actions">
+              <div class="page-header-action" id="addIconBtn" onclick="showPageIconPicker(event)">
+                <span class="material-icons">mood</span>
+                <span>アイコンを追加</span>
+              </div>
             </div>
-            <div class="editor-container">
-                <div class="editor" id="editor">
-                    <div class="page-header">
-                        <div class="page-header-actions">
-                            <div class="page-header-action" id="addIconBtn" onclick="showPageIconPicker(event)">
-                                <span class="material-icons">mood</span>
-                                <span>アイコンを追加</span>
-                            </div>
-                        </div>
-                        <div class="page-icon-container">
-                            <div class="page-icon-large" id="pageIcon" onclick="showEmojiPicker(event, 'pageIcon')">📄</div>
-                        </div>
-                        <input type="text" class="page-title-input" id="pageTitle" placeholder="無題">
-                    </div>
-                    <div class="blocks" id="blocks"></div>
-                </div>
+            <div class="page-icon-container">
+              <div class="page-icon-large material-icons" id="pageIcon" onclick="showEmojiPicker(event, 'pageIcon')">
+                description</div>
             </div>
-        </main>
+            <input type="text" class="page-title-input" id="pageTitle" placeholder="無題">
+          </div>
+          <div class="blocks" id="blocks"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Search Modal -->
+  <div class="modal-overlay" id="searchModal" onclick="closeSearch(event)">
+    <div class="search-container" onclick="event.stopPropagation()">
+      <div class="search-input-wrapper">
+        <span class="material-icons">search</span>
+        <input type="text" class="search-input" id="searchInput" placeholder="検索...">
+      </div>
+      <div class="search-results" id="searchResults">
+        <div class="search-empty">検索キーワードを入力してください</div>
+      </div>
     </div>
+  </div>
 
-    <!-- Search Modal -->
-    <div class="modal-overlay" id="searchModal" onclick="closeSearch(event)">
-        <div class="search-container" onclick="event.stopPropagation()">
-            <div class="search-input-wrapper">
-                <span class="material-icons">search</span>
-                <input type="text" class="search-input" id="searchInput" placeholder="検索...">
-            </div>
-            <div class="search-results" id="searchResults">
-                <div class="search-empty">検索キーワードを入力してください</div>
-            </div>
-        </div>
+  <!-- Delete Modal -->
+  <div class="modal-overlay centered" id="deleteModal">
+    <div class="search-container" style="width: 400px; padding: 24px;">
+      <h3 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">ページを削除</h3>
+      <p id="deleteMessage" style="font-size: 14px; color: var(--text-secondary); margin-bottom: 24px;">
+        このページを削除してもよろしいですか？</p>
+      <div style="display: flex; justify-content: flex-end; gap: 12px;">
+        <button onclick="closeDeleteModal()"
+          style="padding: 6px 16px; border-radius: 4px; border: 1px solid var(--border-color); background: transparent; cursor: pointer; color: var(--text-primary);">キャンセル</button>
+        <button onclick="executeDelete()"
+          style="padding: 6px 16px; border-radius: 4px; border: none; background: #eb5757; color: white; cursor: pointer;">削除</button>
+      </div>
     </div>
+  </div>
 
-    <!-- Slash Menu -->
-    <div class="slash-menu" id="slashMenu">
-        <div class="slash-menu-header">基本ブロック</div>
-        <div class="slash-menu-item" data-type="text">
-            <div class="slash-menu-icon"><span class="material-icons">title</span></div>
-            <div class="slash-menu-text"><div class="slash-menu-title">テキスト</div><div class="slash-menu-desc">プレーンテキストで書き始める</div></div>
-        </div>
-        <div class="slash-menu-item" data-type="heading1">
-            <div class="slash-menu-icon"><span class="text-icon">H1</span></div>
-            <div class="slash-menu-text"><div class="slash-menu-title">見出し 1</div><div class="slash-menu-desc">大きい見出し</div></div>
-        </div>
-        <div class="slash-menu-item" data-type="heading2">
-            <div class="slash-menu-icon"><span class="text-icon">H2</span></div>
-            <div class="slash-menu-text"><div class="slash-menu-title">見出し 2</div><div class="slash-menu-desc">中くらいの見出し</div></div>
-        </div>
-        <div class="slash-menu-item" data-type="heading3">
-            <div class="slash-menu-icon"><span class="text-icon">H3</span></div>
-            <div class="slash-menu-text"><div class="slash-menu-title">見出し 3</div><div class="slash-menu-desc">小さい見出し</div></div>
-        </div>
-        <div class="slash-menu-item" data-type="bullet">
-            <div class="slash-menu-icon"><span class="material-icons">format_list_bulleted</span></div>
-            <div class="slash-menu-text"><div class="slash-menu-title">箇条書きリスト</div><div class="slash-menu-desc">シンプルな箇条書き</div></div>
-        </div>
-        <div class="slash-menu-item" data-type="numbered">
-            <div class="slash-menu-icon"><span class="material-icons">format_list_numbered</span></div>
-            <div class="slash-menu-text"><div class="slash-menu-title">番号付きリスト</div><div class="slash-menu-desc">番号付きのリスト</div></div>
-        </div>
-        <div class="slash-menu-item" data-type="todo">
-            <div class="slash-menu-icon"><span class="material-icons">check_box</span></div>
-            <div class="slash-menu-text"><div class="slash-menu-title">ToDoリスト</div><div class="slash-menu-desc">タスクのチェックリスト</div></div>
-        </div>
-        <div class="slash-menu-item" data-type="toggle">
-            <div class="slash-menu-icon"><span class="material-icons">expand_more</span></div>
-            <div class="slash-menu-text"><div class="slash-menu-title">トグル</div><div class="slash-menu-desc">折りたたみ可能なコンテンツ</div></div>
-        </div>
-        <div class="slash-menu-item" data-type="quote">
-            <div class="slash-menu-icon"><span class="material-icons">format_quote</span></div>
-            <div class="slash-menu-text"><div class="slash-menu-title">引用</div><div class="slash-menu-desc">引用テキスト</div></div>
-        </div>
-        <div class="slash-menu-item" data-type="callout">
-            <div class="slash-menu-icon emoji">💡</div>
-            <div class="slash-menu-text"><div class="slash-menu-title">コールアウト</div><div class="slash-menu-desc">目立つボックス</div></div>
-        </div>
-        <div class="slash-menu-item" data-type="divider">
-            <div class="slash-menu-icon"><span class="material-icons">horizontal_rule</span></div>
-            <div class="slash-menu-text"><div class="slash-menu-title">区切り線</div><div class="slash-menu-desc">コンテンツを分割</div></div>
-        </div>
-        <div class="slash-menu-item" data-type="code">
-            <div class="slash-menu-icon"><span class="material-icons">code</span></div>
-            <div class="slash-menu-text"><div class="slash-menu-title">コード</div><div class="slash-menu-desc">コードスニペット</div></div>
-        </div>
+  <!-- Slash Menu -->
+  <div class="slash-menu" id="slashMenu">
+    <div class="slash-menu-header">基本ブロック</div>
+    <div class="slash-menu-item" data-type="text">
+      <div class="slash-menu-icon"><span class="material-icons">title</span></div>
+      <div class="slash-menu-text">
+        <div class="slash-menu-title">テキスト</div>
+        <div class="slash-menu-desc">プレーンテキストで書き始める</div>
+      </div>
     </div>
-
-    <!-- Selection Toolbar -->
-    <div class="selection-toolbar" id="selectionToolbar">
-        <button class="toolbar-btn" onclick="formatText('bold')" title="太字"><span class="material-icons">format_bold</span></button>
-        <button class="toolbar-btn" onclick="formatText('italic')" title="斜体"><span class="material-icons">format_italic</span></button>
-        <button class="toolbar-btn" onclick="formatText('underline')" title="下線"><span class="material-icons">format_underlined</span></button>
-        <button class="toolbar-btn" onclick="formatText('strikethrough')" title="取り消し線"><span class="material-icons">strikethrough_s</span></button>
-        <div class="toolbar-divider"></div>
-        <button class="toolbar-btn" onclick="formatText('code')" title="コード"><span class="material-icons">code</span></button>
+    <div class="slash-menu-item" data-type="heading1">
+      <div class="slash-menu-icon"><span class="text-icon">H1</span></div>
+      <div class="slash-menu-text">
+        <div class="slash-menu-title">見出し 1</div>
+        <div class="slash-menu-desc">大きい見出し</div>
+      </div>
     </div>
+    <div class="slash-menu-item" data-type="heading2">
+      <div class="slash-menu-icon"><span class="text-icon">H2</span></div>
+      <div class="slash-menu-text">
+        <div class="slash-menu-title">見出し 2</div>
+        <div class="slash-menu-desc">中くらいの見出し</div>
+      </div>
+    </div>
+    <div class="slash-menu-item" data-type="heading3">
+      <div class="slash-menu-icon"><span class="text-icon">H3</span></div>
+      <div class="slash-menu-text">
+        <div class="slash-menu-title">見出し 3</div>
+        <div class="slash-menu-desc">小さい見出し</div>
+      </div>
+    </div>
+    <div class="slash-menu-item" data-type="bullet">
+      <div class="slash-menu-icon"><span class="material-icons">format_list_bulleted</span></div>
+      <div class="slash-menu-text">
+        <div class="slash-menu-title">箇条書きリスト</div>
+        <div class="slash-menu-desc">シンプルな箇条書き</div>
+      </div>
+    </div>
+    <div class="slash-menu-item" data-type="numbered">
+      <div class="slash-menu-icon"><span class="material-icons">format_list_numbered</span></div>
+      <div class="slash-menu-text">
+        <div class="slash-menu-title">番号付きリスト</div>
+        <div class="slash-menu-desc">番号付きのリスト</div>
+      </div>
+    </div>
+    <div class="slash-menu-item" data-type="todo">
+      <div class="slash-menu-icon"><span class="material-icons">check_box</span></div>
+      <div class="slash-menu-text">
+        <div class="slash-menu-title">ToDoリスト</div>
+        <div class="slash-menu-desc">タスクのチェックリスト</div>
+      </div>
+    </div>
+    <div class="slash-menu-item" data-type="toggle">
+      <div class="slash-menu-icon"><span class="material-icons">expand_more</span></div>
+      <div class="slash-menu-text">
+        <div class="slash-menu-title">トグル</div>
+        <div class="slash-menu-desc">折りたたみ可能なコンテンツ</div>
+      </div>
+    </div>
+    <div class="slash-menu-item" data-type="quote">
+      <div class="slash-menu-icon"><span class="material-icons">format_quote</span></div>
+      <div class="slash-menu-text">
+        <div class="slash-menu-title">引用</div>
+        <div class="slash-menu-desc">引用テキスト</div>
+      </div>
+    </div>
+    <div class="slash-menu-item" data-type="callout">
+      <div class="slash-menu-icon"><span class="material-icons">lightbulb</span></div>
+      <div class="slash-menu-text">
+        <div class="slash-menu-title">コールアウト</div>
+        <div class="slash-menu-desc">目立つボックス</div>
+      </div>
+    </div>
+    <div class="slash-menu-item" data-type="divider">
+      <div class="slash-menu-icon"><span class="material-icons">horizontal_rule</span></div>
+      <div class="slash-menu-text">
+        <div class="slash-menu-title">区切り線</div>
+        <div class="slash-menu-desc">コンテンツを分割</div>
+      </div>
+    </div>
+    <div class="slash-menu-item" data-type="code">
+      <div class="slash-menu-icon"><span class="material-icons">code</span></div>
+      <div class="slash-menu-text">
+        <div class="slash-menu-title">コード</div>
+        <div class="slash-menu-desc">コードスニペット</div>
+      </div>
+    </div>
+  </div>
 
-    <!-- Settings Modal -->
-    <div class="modal-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
-    <div class="settings-menu" id="settingsMenu">
-        <div class="settings-header">
-            <span class="settings-title">ページ設定</span>
-            <button class="icon-btn" onclick="closeSettings()"><span class="material-icons">close</span></button>
+  <!-- Selection Toolbar -->
+  <div class="selection-toolbar" id="selectionToolbar">
+    <button class="toolbar-btn" onclick="formatText('bold')" title="太字"><span
+        class="material-icons">format_bold</span></button>
+    <button class="toolbar-btn" onclick="formatText('italic')" title="斜体"><span
+        class="material-icons">format_italic</span></button>
+    <button class="toolbar-btn" onclick="formatText('underline')" title="下線"><span
+        class="material-icons">format_underlined</span></button>
+    <button class="toolbar-btn" onclick="formatText('strikethrough')" title="取り消し線"><span
+        class="material-icons">strikethrough_s</span></button>
+    <div class="toolbar-divider"></div>
+    <button class="toolbar-btn" onclick="formatText('code')" title="コード"><span
+        class="material-icons">code</span></button>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
+  <div class="settings-menu" id="settingsMenu">
+    <div class="settings-header">
+      <span class="settings-title">ページ設定</span>
+      <button class="icon-btn" onclick="closeSettings()"><span class="material-icons">close</span></button>
+    </div>
+    <div class="settings-content">
+      <div class="settings-item">
+        <span class="settings-label">ダークモード</span>
+        <div class="settings-toggle" id="darkModeToggle" onclick="toggleDarkMode()"></div>
+      </div>
+      <div class="settings-item">
+        <span class="settings-label">全幅</span>
+        <div class="settings-toggle" id="fullWidthToggle" onclick="toggleFullWidth()"></div>
+      </div>
+      <div class="settings-item">
+        <span class="settings-label">小さいテキスト</span>
+        <div class="settings-toggle" id="smallTextToggle" onclick="toggleSmallText()"></div>
+      </div>
+      <div class="settings-item" style="flex-direction: column; align-items: flex-start; gap: 12px;">
+        <span class="settings-label">フォント</span>
+        <div class="font-options">
+          <div class="font-option active" data-font="default" onclick="setFont('default')">デフォルト</div>
+          <div class="font-option" data-font="serif" onclick="setFont('serif')">Serif</div>
+          <div class="font-option" data-font="mono" onclick="setFont('mono')">Mono</div>
         </div>
-        <div class="settings-content">
-            <div class="settings-item">
-                <span class="settings-label">ダークモード</span>
-                <div class="settings-toggle" id="darkModeToggle" onclick="toggleDarkMode()"></div>
-            </div>
-            <div class="settings-item">
-                <span class="settings-label">全幅</span>
-                <div class="settings-toggle" id="fullWidthToggle" onclick="toggleFullWidth()"></div>
-            </div>
-            <div class="settings-item">
-                <span class="settings-label">小さいテキスト</span>
-                <div class="settings-toggle" id="smallTextToggle" onclick="toggleSmallText()"></div>
-            </div>
-            <div class="settings-item" style="flex-direction: column; align-items: flex-start; gap: 12px;">
-                <span class="settings-label">フォント</span>
-                <div class="font-options">
-                    <div class="font-option active" data-font="default" onclick="setFont('default')">デフォルト</div>
-                    <div class="font-option" data-font="serif" onclick="setFont('serif')">Serif</div>
-                    <div class="font-option" data-font="mono" onclick="setFont('mono')">Mono</div>
-                </div>
-            </div>
-        </div>
+      </div>
+      <div class="settings-item" style="flex-direction: column; align-items: flex-start; gap: 12px;">
+        <span class="settings-label">データ管理</span>
+        <button class="font-option" onclick="selectFile()" style="width:100%; text-align:center;">JSONファイルを開く /
+          保存先設定</button>
+        <div id="fileStatus" style="font-size:12px; color:var(--text-tertiary);">現在の保存先: Local Storage</div>
+      </div>
     </div>
+  </div>
 
-    <!-- Emoji Picker -->
-    <div class="emoji-picker" id="emojiPicker">
-        <div class="emoji-grid" id="emojiGrid"></div>
-    </div>
+  <!-- Emoji Picker -->
+  <div class="emoji-picker" id="emojiPicker">
+    <div class="emoji-grid" id="emojiGrid"></div>
+  </div>
 
-    <script>
-        // === State ===
-        let state = {
-            pages: [
-                { id: '1', title: 'はじめに', icon: '👋', favorite: false, children: [], blocks: [] },
-                { id: '2', title: 'プロジェクト', icon: '📁', favorite: true, children: [
-                    { id: '2-1', title: 'タスク一覧', icon: '✅', children: [], blocks: [] }
-                ], blocks: [] },
-                { id: '3', title: 'メモ', icon: '📝', favorite: false, children: [], blocks: [] }
-            ],
-            currentPage: null,
-            settings: { darkMode: false, fullWidth: false, smallText: false, font: 'default' }
-        };
-        let blockIdCounter = 100;
-        let slashMenuTarget = null;
-        let emojiTarget = null;
+  <script>
+    // === State ===
+    let state = {
+      pages: [
+        { id: '1', title: 'はじめに', icon: 'home', favorite: false, children: [], blocks: [] },
+        {
+          id: '2', title: 'プロジェクト', icon: 'folder', favorite: true, children: [
+            { id: '2-1', title: 'タスク一覧', icon: 'check_circle', children: [], blocks: [] }
+          ], blocks: []
+        },
+        { id: '3', title: 'メモ', icon: 'description', favorite: false, children: [], blocks: [] }
+      ],
+      currentPage: null,
+      settings: { darkMode: false, fullWidth: false, smallText: false, font: 'default' },
+      sectionExpanded: { favorites: true, all: true }
+    };
+    let blockIdCounter = 100;
+    let slashMenuTarget = null;
+    let emojiTarget = null;
+    let deleteTargetId = null;
 
-        const emojis = ['📄','📝','📁','📋','📌','📎','✏️','🔖','📚','📕','📗','📘','📙','📓','📔','📒','🗂️','🗃️','🗄️','💼','🎯','✅','⭐','💡','🔥','🚀','💪','🎨','🎬','🎵','📷','💻','🖥️','📱','⌨️','🖱️','🔧','⚙️','🔩','💎','🏠','🏢','🌍','🌐','🗺️','✈️','🚗','⏰','📅','🗓️','💰','📊','📈','📉','🏆','🎖️','👤','👥','💬','💭','❤️','💚','💙','💛'];
+    const emojis = [
+      // Document & Files
+      'description', 'article', 'folder', 'folder_open', 'task', 'note_add', 'post_add', 'file_copy', 'snippet_folder', 'topic', 'newspaper', 'inventory_2',
+      // Business & Status
+      'check_circle', 'schedule', 'event', 'today', 'pending', 'done', 'done_all', 'verified', 'error', 'warning', 'info', 'help', 'flag', 'bookmark', 'star', 'thumb_up', 'analytics', 'timeline', 'trending_up', 'trending_down',
+      // Places & Objects
+      'home', 'store', 'domain', 'school', 'local_cafe', 'restaurant', 'fitness_center', 'spa', 'local_florist', 'forest', 'landscape', 'dark_mode', 'light_mode', 'bolt', 'rocket', 'build', 'construction',
+      // Tech & Tools
+      'settings', 'search', 'language', 'code', 'terminal', 'developer_mode', 'devices', 'laptop', 'smartphone', 'mouse', 'keyboard', 'memory', 'router', 'wifi', 'security', 'lock', 'key',
+      // Communication
+      'chat', 'forum', 'comment', 'mail', 'send', 'call', 'contact_page', 'groups', 'person', 'face', 'support_agent', 'settings_accessibility',
+      // Media
+      'image', 'movie', 'mic', 'volume_up', 'music_note', 'camera_alt', 'videocam', 'brush', 'palette', 'format_paint', 'auto_stories',
+      // Travel & Map
+      'flight', 'directions_car', 'directions_boat', 'two_wheeler', 'train', 'map', 'pin_drop', 'navigation', 'explore',
+      // Misc
+      'emoji_events', 'savings', 'paid', 'shopping_cart', 'favorite', 'heart_broken', 'pets', 'recycling', 'water_drop', 'ac_unit'
+    ];
 
-        // === Init ===
-        document.addEventListener('DOMContentLoaded', () => {
-            loadState();
-            renderPagesList();
-            if (state.pages.length > 0) openPage(state.pages[0].id);
-            setupEventListeners();
-            initEmojiPicker();
+    const iconColors = [
+      { name: 'default', value: 'var(--text-primary)' },
+      { name: 'gray', value: '#787774' },
+      { name: 'brown', value: '#9f6b53' },
+      { name: 'orange', value: '#d9730d' },
+      { name: 'yellow', value: '#cb912f' },
+      { name: 'green', value: '#448361' },
+      { name: 'blue', value: '#337ea9' },
+      { name: 'purple', value: '#9065b0' },
+      { name: 'pink', value: '#c14c8a' },
+      { name: 'red', value: '#d44c47' }
+    ];
+
+    let selectedColor = 'default';
+
+    // === Init ===
+    document.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      renderPagesList();
+      if (state.pages.length > 0) openPage(state.pages[0].id);
+      setupEventListeners();
+      initEmojiPicker();
+      initStaticFavicon();
+    });
+
+    let fileHandle = null;
+    let saveTimeout = null;
+
+    // === State Management ===
+    function saveState() {
+      // Local Storage (Backup)
+      localStorage.setItem('notionCloneState', JSON.stringify(state));
+
+      // Auto-save to File
+      if (fileHandle) {
+        if (saveTimeout) clearTimeout(saveTimeout);
+        document.getElementById('fileStatus').textContent = "保存中...";
+        saveTimeout = setTimeout(async () => {
+          try {
+            const writable = await fileHandle.createWritable();
+            await writable.write(JSON.stringify(state, null, 2));
+            await writable.close();
+            const fileName = fileHandle.name;
+            document.getElementById('fileStatus').textContent = `現在の保存先: ${fileName} (保存完了)`;
+          } catch (e) {
+            console.error('Auto-save failed:', e);
+            document.getElementById('fileStatus').textContent = `保存エラー: ${e.message}`;
+          }
+        }, 1000); // Debounce 1s
+      }
+    }
+
+    function loadState() {
+      const saved = localStorage.getItem('notionCloneState');
+      if (saved) {
+        try { state = { ...state, ...JSON.parse(saved) }; applySettings(); }
+        catch (e) { console.error('Load failed:', e); }
+      }
+    }
+
+    async function selectFile() {
+      try {
+        const [handle] = await window.showOpenFilePicker({
+          types: [{ description: 'JSON Files', accept: { 'application/json': ['.json'] } }],
         });
+        fileHandle = handle;
+        const file = await fileHandle.getFile();
+        const content = await file.text();
+        state = { ...state, ...JSON.parse(content) }; // Merge to keep UI state if needed, or straight replace
+        applySettings();
+        renderPagesList();
+        if (state.pages.length > 0) openPage(state.pages[0].id);
+        document.getElementById('fileStatus').textContent = `現在の保存先: ${file.name}`;
+        alert(`ファイルを読み込みました: ${file.name}\nこれ以降の変更は自動的にこのファイルに保存されます。`);
+      } catch (err) {
+        console.error('File selection cancelled or failed:', err);
+      }
+    }
+    function applySettings() {
+      if (state.settings.darkMode) { document.body.classList.add('dark-mode'); document.getElementById('darkModeToggle').classList.add('active'); }
+      if (state.settings.fullWidth) { document.getElementById('editor').classList.add('full-width'); document.getElementById('fullWidthToggle').classList.add('active'); }
+      if (state.settings.smallText) { document.body.classList.add('small-text'); document.getElementById('smallTextToggle').classList.add('active'); }
+      setFont(state.settings.font);
+    }
 
-        // === State Management ===
-        function saveState() { localStorage.setItem('notionCloneState', JSON.stringify(state)); }
-        function loadState() {
-            const saved = localStorage.getItem('notionCloneState');
-            if (saved) {
-                try { state = { ...state, ...JSON.parse(saved) }; applySettings(); }
-                catch (e) { console.error('Load failed:', e); }
-            }
-        }
-        function applySettings() {
-            if (state.settings.darkMode) { document.body.classList.add('dark-mode'); document.getElementById('darkModeToggle').classList.add('active'); }
-            if (state.settings.fullWidth) { document.getElementById('editor').classList.add('full-width'); document.getElementById('fullWidthToggle').classList.add('active'); }
-            if (state.settings.smallText) { document.body.classList.add('small-text'); document.getElementById('smallTextToggle').classList.add('active'); }
-            setFont(state.settings.font);
-        }
+    // === Sidebar ===
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('collapsed');
+      document.getElementById('sidebarToggle').style.display = sidebar.classList.contains('collapsed') ? 'flex' : 'none';
+    }
 
-        // === Sidebar ===
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('collapsed');
-            document.getElementById('sidebarToggle').style.display = sidebar.classList.contains('collapsed') ? 'flex' : 'none';
-        }
+    // === Pages
+    function renderPagesList() {
+      const favoritesList = document.getElementById('favoritesList');
+      const pagesList = document.getElementById('pagesList');
+      favoritesList.innerHTML = '';
+      pagesList.innerHTML = '';
 
-        // === Pages ===
-        function renderPagesList() {
-            const favoritesList = document.getElementById('favoritesList');
-            const pagesList = document.getElementById('pagesList');
-            favoritesList.innerHTML = '';
-            pagesList.innerHTML = '';
-            state.pages.forEach(page => {
-                if (page.favorite) favoritesList.appendChild(createPageItem(page, 0));
-                pagesList.appendChild(createPageItem(page, 0));
-            });
-        }
+      // Toggle Sections
+      favoritesList.style.display = state.sectionExpanded?.favorites !== false ? 'block' : 'none';
+      pagesList.style.display = state.sectionExpanded?.all !== false ? 'block' : 'none';
+      if (document.getElementById('favToggleIcon')) document.getElementById('favToggleIcon').style.transform = state.sectionExpanded?.favorites !== false ? 'rotate(0deg)' : 'rotate(-90deg)';
+      if (document.getElementById('allToggleIcon')) document.getElementById('allToggleIcon').style.transform = state.sectionExpanded?.all !== false ? 'rotate(0deg)' : 'rotate(-90deg)';
 
-        function createPageItem(page, depth) {
-            const item = document.createElement('div');
-            item.className = `page-item${state.currentPage?.id === page.id ? ' active' : ''}`;
-            item.style.paddingLeft = `${8 + depth * 16}px`;
-            item.dataset.pageId = page.id;
-            const hasChildren = page.children && page.children.length > 0;
-            item.innerHTML = `
-                <div class="page-toggle ${hasChildren ? '' : 'hidden'}" onclick="event.stopPropagation(); togglePageExpand('${page.id}')">
+      state.pages.forEach(page => {
+        if (page.favorite) favoritesList.appendChild(createPageItem(page, 0, 'fav'));
+        pagesList.appendChild(createPageItem(page, 0, 'all'));
+      });
+    }
+
+    function toggleSection(section) {
+      if (!state.sectionExpanded) state.sectionExpanded = { favorites: true, all: true };
+      state.sectionExpanded[section] = !state.sectionExpanded[section];
+      renderPagesList();
+      saveState();
+    }
+
+    function createPageItem(page, depth, context) {
+      const item = document.createElement('div');
+      item.className = `page-item${state.currentPage?.id === page.id ? ' active' : ''}`;
+      item.style.paddingLeft = `${8 + depth * 16}px`;
+      item.dataset.pageId = page.id;
+      const hasChildren = page.children && page.children.length > 0;
+      const isExpanded = page.expandedContexts && page.expandedContexts[context];
+
+      item.innerHTML = `
+                <div class="page-toggle ${hasChildren ? '' : 'hidden'} ${isExpanded ? 'expanded' : ''}" onclick="event.stopPropagation(); togglePageExpand('${page.id}', '${context}')">
                     <span class="material-icons" style="font-size:16px">chevron_right</span>
                 </div>
-                <div class="page-icon">${page.icon || '📄'}</div>
+                <div class="page-icon"><span class="material-icons" style="font-size: 18px; color: ${getColorValue(page.iconColor)}">${page.icon || 'description'}</span></div>
                 <div class="page-title">${page.title || '無題'}</div>
                 <div class="page-actions">
-                    <div class="page-action" onclick="event.stopPropagation(); addSubPage('${page.id}')" title="サブページを追加"><span class="material-icons">add</span></div>
-                    <div class="page-action" onclick="event.stopPropagation(); deletePage('${page.id}')" title="削除"><span class="material-icons">delete_outline</span></div>
+                    <div class="page-action" onclick="event.stopPropagation(); addSubPage('${page.id}', '${context}')" title="サブページを追加"><span class="material-icons">add</span></div>
+                    <div class="page-action" onclick="event.stopPropagation(); confirmDeletePage('${page.id}')" title="削除"><span class="material-icons">delete_outline</span></div>
                 </div>`;
-            item.onclick = () => openPage(page.id);
-            if (hasChildren) {
-                const nested = document.createElement('div');
-                nested.className = 'nested-pages';
-                nested.id = `nested-${page.id}`;
-                page.children.forEach(child => nested.appendChild(createPageItem(child, depth + 1)));
-                const wrapper = document.createElement('div');
-                wrapper.appendChild(item);
-                wrapper.appendChild(nested);
-                return wrapper;
-            }
-            return item;
+      item.onclick = () => openPage(page.id);
+      if (hasChildren) {
+        const nested = document.createElement('div');
+        nested.className = `nested-pages ${isExpanded ? 'expanded' : ''}`;
+        nested.id = `nested-${page.id}-${context}`;
+        page.children.forEach(child => nested.appendChild(createPageItem(child, depth + 1, context)));
+        const wrapper = document.createElement('div');
+        wrapper.appendChild(item);
+        wrapper.appendChild(nested);
+        return wrapper;
+      }
+      return item;
+    }
+
+    function togglePageExpand(pageId, context) {
+      const page = findPage(pageId);
+      if (page) {
+        if (!page.expandedContexts) page.expandedContexts = {};
+        page.expandedContexts[context] = !page.expandedContexts[context];
+        saveState();
+        renderPagesList();
+      }
+    }
+
+    function findPage(pageId, pages = state.pages) {
+      for (const p of pages) {
+        if (p.id === pageId) return p;
+        if (p.children) { const f = findPage(pageId, p.children); if (f) return f; }
+      }
+      return null;
+    }
+
+    function getAllPages(pages = state.pages, result = []) {
+      for (const p of pages) { result.push(p); if (p.children) getAllPages(p.children, result); }
+      return result;
+    }
+
+    function openPage(pageId) {
+      const page = findPage(pageId);
+      if (!page) return;
+      state.currentPage = page;
+      document.querySelectorAll('.page-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.pageId === pageId) item.classList.add('active');
+      });
+      const pageIcon = document.getElementById('pageIcon');
+      const addIconBtn = document.getElementById('addIconBtn');
+      if (page.icon) {
+        pageIcon.textContent = page.icon;
+        pageIcon.style.color = getColorValue(page.iconColor);
+        pageIcon.classList.remove('hidden');
+        addIconBtn.style.display = 'none';
+      } else {
+        pageIcon.classList.add('hidden');
+        addIconBtn.style.display = 'flex';
+        pageIcon.style.color = '';
+      }
+      document.getElementById('pageTitle').value = page.title || '';
+      document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span class="material-icons" style="font-size: 16px; color: ${getColorValue(page.iconColor)}">${page.icon || 'description'}</span><span>${page.title || '無題'}</span></div>`;
+      document.getElementById('favoriteIcon').textContent = page.favorite ? 'star' : 'star_border';
+      renderBlocks(page);
+      saveState();
+    }
+
+    function addNewPage() {
+      const newPage = { id: Date.now().toString(), title: '', icon: 'description', favorite: false, children: [], blocks: [] };
+      state.pages.push(newPage);
+      renderPagesList();
+      openPage(newPage.id);
+      saveState();
+      setTimeout(() => document.getElementById('pageTitle').focus(), 100);
+    }
+
+    function addSubPage(parentId, context) {
+      const parent = findPage(parentId);
+      if (!parent) return;
+      const newPage = { id: Date.now().toString(), title: '', icon: 'description', children: [], blocks: [] };
+      if (!parent.children) parent.children = [];
+      parent.children.push(newPage);
+
+      // Decoupled logic
+      if (!parent.expandedContexts) parent.expandedContexts = {};
+      if (context) {
+        parent.expandedContexts[context] = true;
+      } else {
+        parent.expandedContexts['all'] = true;
+      }
+
+      renderPagesList();
+      openPage(newPage.id);
+      saveState();
+    }
+
+    function confirmDeletePage(pageId) {
+      deleteTargetId = pageId;
+      const page = findPage(pageId);
+      if (page) {
+        document.getElementById('deleteMessage').textContent = `「${page.title || '無題'}」を削除しますか？この操作は取り消せません。`;
+        document.getElementById('deleteModal').classList.add('visible');
+      }
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').classList.remove('visible');
+      deleteTargetId = null;
+    }
+
+    function executeDelete() {
+      if (!deleteTargetId) return;
+      const pageId = deleteTargetId;
+
+      function removeFromArray(arr) {
+        const idx = arr.findIndex(p => p.id === pageId);
+        if (idx !== -1) { arr.splice(idx, 1); return true; }
+        for (const p of arr) { if (p.children && removeFromArray(p.children)) return true; }
+        return false;
+      }
+      removeFromArray(state.pages);
+      if (state.currentPage?.id === pageId) { state.currentPage = null; if (state.pages.length > 0) openPage(state.pages[0].id); }
+      renderPagesList();
+      saveState();
+      closeDeleteModal();
+    }
+
+    function toggleFavorite() {
+      if (!state.currentPage) return;
+      state.currentPage.favorite = !state.currentPage.favorite;
+      document.getElementById('favoriteIcon').textContent = state.currentPage.favorite ? 'star' : 'star_border';
+      renderPagesList();
+      saveState();
+    }
+
+    document.getElementById('pageTitle').addEventListener('input', (e) => {
+      if (state.currentPage) {
+        state.currentPage.title = e.target.value;
+        renderPagesList();
+        document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span class="material-icons" style="font-size: 16px; color: ${getColorValue(state.currentPage.iconColor)}">${state.currentPage.icon || 'description'}</span><span>${state.currentPage.title || '無題'}</span></div>`;
+        saveState();
+      }
+    });
+
+    // === Blocks ===
+    function renderBlocks(page) {
+      const container = document.getElementById('blocks');
+      container.innerHTML = '';
+      if (!page.blocks || page.blocks.length === 0) page.blocks = [{ id: Date.now().toString(), type: 'text', content: '' }];
+      page.blocks.forEach(block => container.appendChild(createBlockElement(block)));
+    }
+
+    function createBlockElement(block) {
+      const div = document.createElement('div');
+      div.className = `block ${block.type}${block.checked ? ' checked' : ''}${block.expanded ? ' expanded' : ''}`;
+      div.dataset.id = block.id;
+      let extra = '';
+      if (block.type === 'todo') extra = `<div class="todo-checkbox" onclick="toggleTodo('${block.id}')"><span class="material-icons">check</span></div>`;
+      else if (block.type === 'toggle') extra = `<div class="toggle-icon" onclick="toggleToggle('${block.id}')"><span class="material-icons" style="font-size:18px">chevron_right</span></div>`;
+      else if (block.type === 'callout') extra = `<div class="callout-icon material-icons" onclick="showEmojiPicker(event, 'callout-${block.id}')">${block.icon || 'lightbulb'}</div>`;
+
+      if (block.type === 'divider') {
+        div.innerHTML = `<div class="block-add" onclick="showSlashMenu(event, this.parentElement)"><span class="material-icons" style="font-size:16px">add</span></div><div class="block-handle" draggable="true"><span class="material-icons" style="font-size:16px">drag_indicator</span></div><hr>`;
+      } else {
+        div.innerHTML = `<div class="block-add" onclick="showSlashMenu(event, this.parentElement)"><span class="material-icons" style="font-size:16px">add</span></div><div class="block-handle" draggable="true"><span class="material-icons" style="font-size:16px">drag_indicator</span></div>${extra}<div class="block-content" contenteditable="true" data-placeholder=""></div>`;
+        const contentEl = div.querySelector('.block-content');
+        if (contentEl && block.content) contentEl.textContent = block.content;
+      }
+      return div;
+    }
+
+    function addBlock(type, afterBlock, initialContent = '') {
+      const newBlock = { id: (++blockIdCounter).toString(), type, content: initialContent };
+      if (type === 'callout') newBlock.icon = 'lightbulb';
+      if (!state.currentPage.blocks) state.currentPage.blocks = [];
+      const idx = state.currentPage.blocks.findIndex(b => b.id === afterBlock.dataset.id);
+      if (idx !== -1) state.currentPage.blocks.splice(idx + 1, 0, newBlock);
+      else state.currentPage.blocks.push(newBlock);
+      const newEl = createBlockElement(newBlock);
+      afterBlock.after(newEl);
+      const content = newEl.querySelector('.block-content');
+      if (content) {
+        content.focus();
+        if (initialContent) {
+          const range = document.createRange();
+          range.selectNodeContents(content);
+          range.collapse(false);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
         }
+      }
+      saveState();
+      return newEl;
+    }
 
-        function togglePageExpand(pageId) {
-            const toggle = document.querySelector(`[data-page-id="${pageId}"] .page-toggle`);
-            const nested = document.getElementById(`nested-${pageId}`);
-            if (toggle && nested) { toggle.classList.toggle('expanded'); nested.classList.toggle('expanded'); }
+    function deleteBlock(block) {
+      const blocks = document.querySelectorAll('.block');
+      if (blocks.length <= 1) return;
+      const idx = state.currentPage.blocks.findIndex(b => b.id === block.dataset.id);
+      if (idx !== -1) state.currentPage.blocks.splice(idx, 1);
+      const prev = block.previousElementSibling;
+      block.remove();
+      if (prev) {
+        const content = prev.querySelector('.block-content');
+        if (content) {
+          content.focus();
+          const range = document.createRange();
+          range.selectNodeContents(content);
+          range.collapse(false);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
         }
+      }
+      saveState();
+    }
 
-        function findPage(pageId, pages = state.pages) {
-            for (const p of pages) {
-                if (p.id === pageId) return p;
-                if (p.children) { const f = findPage(pageId, p.children); if (f) return f; }
-            }
-            return null;
-        }
+    function toggleTodo(blockId) {
+      const block = findBlock(blockId);
+      if (block) { block.checked = !block.checked; document.querySelector(`[data-id="${blockId}"]`).classList.toggle('checked'); saveState(); }
+    }
 
-        function getAllPages(pages = state.pages, result = []) {
-            for (const p of pages) { result.push(p); if (p.children) getAllPages(p.children, result); }
-            return result;
-        }
+    function toggleToggle(blockId) {
+      const block = findBlock(blockId);
+      if (block) { block.expanded = !block.expanded; document.querySelector(`[data-id="${blockId}"]`).classList.toggle('expanded'); saveState(); }
+    }
 
-        function openPage(pageId) {
-            const page = findPage(pageId);
-            if (!page) return;
-            state.currentPage = page;
-            document.querySelectorAll('.page-item').forEach(item => {
-                item.classList.remove('active');
-                if (item.dataset.pageId === pageId) item.classList.add('active');
-            });
-            const pageIcon = document.getElementById('pageIcon');
-            const addIconBtn = document.getElementById('addIconBtn');
-            if (page.icon) { pageIcon.textContent = page.icon; pageIcon.classList.remove('hidden'); addIconBtn.style.display = 'none'; }
-            else { pageIcon.classList.add('hidden'); addIconBtn.style.display = 'flex'; }
-            document.getElementById('pageTitle').value = page.title || '';
-            document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span>${page.icon || '📄'}</span><span>${page.title || '無題'}</span></div>`;
-            document.getElementById('favoriteIcon').textContent = page.favorite ? 'star' : 'star_border';
-            renderBlocks(page);
-            saveState();
-        }
+    function findBlock(blockId) { return state.currentPage?.blocks?.find(b => b.id === blockId); }
 
-        function addNewPage() {
-            const newPage = { id: Date.now().toString(), title: '', icon: '📄', favorite: false, children: [], blocks: [] };
-            state.pages.push(newPage);
-            renderPagesList();
-            openPage(newPage.id);
-            saveState();
-            setTimeout(() => document.getElementById('pageTitle').focus(), 100);
-        }
+    // === Slash Menu ===
+    function showSlashMenu(event, targetBlock) {
+      event.preventDefault();
+      event.stopPropagation();
+      slashMenuTarget = targetBlock;
+      const menu = document.getElementById('slashMenu');
+      const rect = targetBlock.getBoundingClientRect();
+      menu.style.left = `${Math.min(rect.left, window.innerWidth - 340)}px`;
+      menu.style.top = `${Math.min(rect.bottom + 4, window.innerHeight - 420)}px`;
+      menu.classList.add('visible');
+    }
 
-        function addSubPage(parentId) {
-            const parent = findPage(parentId);
-            if (!parent) return;
-            const newPage = { id: Date.now().toString(), title: '', icon: '📄', children: [], blocks: [] };
-            if (!parent.children) parent.children = [];
-            parent.children.push(newPage);
-            renderPagesList();
-            togglePageExpand(parentId);
-            openPage(newPage.id);
-            saveState();
-        }
+    function hideSlashMenu() { document.getElementById('slashMenu').classList.remove('visible'); slashMenuTarget = null; }
 
-        function deletePage(pageId) {
-            if (!confirm('このページを削除しますか？')) return;
-            function removeFromArray(arr) {
-                const idx = arr.findIndex(p => p.id === pageId);
-                if (idx !== -1) { arr.splice(idx, 1); return true; }
-                for (const p of arr) { if (p.children && removeFromArray(p.children)) return true; }
-                return false;
-            }
-            removeFromArray(state.pages);
-            if (state.currentPage?.id === pageId) { state.currentPage = null; if (state.pages.length > 0) openPage(state.pages[0].id); }
-            renderPagesList();
-            saveState();
-        }
-
-        function toggleFavorite() {
-            if (!state.currentPage) return;
-            state.currentPage.favorite = !state.currentPage.favorite;
-            document.getElementById('favoriteIcon').textContent = state.currentPage.favorite ? 'star' : 'star_border';
-            renderPagesList();
-            saveState();
-        }
-
-        document.getElementById('pageTitle').addEventListener('input', (e) => {
-            if (state.currentPage) {
-                state.currentPage.title = e.target.value;
-                renderPagesList();
-                document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span>${state.currentPage.icon || '📄'}</span><span>${state.currentPage.title || '無題'}</span></div>`;
-                saveState();
-            }
-        });
-
-        // === Blocks ===
-        function renderBlocks(page) {
-            const container = document.getElementById('blocks');
-            container.innerHTML = '';
-            if (!page.blocks || page.blocks.length === 0) page.blocks = [{ id: Date.now().toString(), type: 'text', content: '' }];
-            page.blocks.forEach(block => container.appendChild(createBlockElement(block)));
-        }
-
-        function createBlockElement(block) {
-            const div = document.createElement('div');
-            div.className = `block ${block.type}${block.checked ? ' checked' : ''}${block.expanded ? ' expanded' : ''}`;
-            div.dataset.id = block.id;
-            let extra = '';
-            if (block.type === 'todo') extra = `<div class="todo-checkbox" onclick="toggleTodo('${block.id}')"><span class="material-icons">check</span></div>`;
-            else if (block.type === 'toggle') extra = `<div class="toggle-icon" onclick="toggleToggle('${block.id}')"><span class="material-icons" style="font-size:18px">chevron_right</span></div>`;
-            else if (block.type === 'callout') extra = `<div class="callout-icon" onclick="showEmojiPicker(event, 'callout-${block.id}')">${block.icon || '💡'}</div>`;
-
-            if (block.type === 'divider') {
-                div.innerHTML = `<div class="block-add" onclick="showSlashMenu(event, this.parentElement)"><span class="material-icons" style="font-size:16px">add</span></div><div class="block-handle" draggable="true"><span class="material-icons" style="font-size:16px">drag_indicator</span></div><hr>`;
-            } else {
-                div.innerHTML = `<div class="block-add" onclick="showSlashMenu(event, this.parentElement)"><span class="material-icons" style="font-size:16px">add</span></div><div class="block-handle" draggable="true"><span class="material-icons" style="font-size:16px">drag_indicator</span></div>${extra}<div class="block-content" contenteditable="true" data-placeholder=""></div>`;
-                const contentEl = div.querySelector('.block-content');
-                if (contentEl && block.content) contentEl.textContent = block.content;
-            }
-            return div;
-        }
-
-        function addBlock(type, afterBlock, initialContent = '') {
-            const newBlock = { id: (++blockIdCounter).toString(), type, content: initialContent };
-            if (type === 'callout') newBlock.icon = '💡';
-            if (!state.currentPage.blocks) state.currentPage.blocks = [];
-            const idx = state.currentPage.blocks.findIndex(b => b.id === afterBlock.dataset.id);
-            if (idx !== -1) state.currentPage.blocks.splice(idx + 1, 0, newBlock);
-            else state.currentPage.blocks.push(newBlock);
-            const newEl = createBlockElement(newBlock);
-            afterBlock.after(newEl);
+    document.querySelectorAll('.slash-menu-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const type = item.dataset.type;
+        if (slashMenuTarget) {
+          const blockId = slashMenuTarget.dataset.id;
+          const block = findBlock(blockId);
+          if (block) {
+            block.type = type;
+            block.content = '';
+            if (type === 'callout') block.icon = 'lightbulb';
+            const newEl = createBlockElement(block);
+            slashMenuTarget.replaceWith(newEl);
             const content = newEl.querySelector('.block-content');
-            if (content) {
-                content.focus();
-                if (initialContent) {
-                    const range = document.createRange();
-                    range.selectNodeContents(content);
-                    range.collapse(false);
-                    const sel = window.getSelection();
-                    sel.removeAllRanges();
-                    sel.addRange(range);
-                }
-            }
+            if (content) content.focus();
             saveState();
-            return newEl;
+          }
         }
+        hideSlashMenu();
+      });
+    });
 
-        function deleteBlock(block) {
-            const blocks = document.querySelectorAll('.block');
-            if (blocks.length <= 1) return;
-            const idx = state.currentPage.blocks.findIndex(b => b.id === block.dataset.id);
-            if (idx !== -1) state.currentPage.blocks.splice(idx, 1);
-            const prev = block.previousElementSibling;
-            block.remove();
-            if (prev) {
-                const content = prev.querySelector('.block-content');
-                if (content) {
-                    content.focus();
-                    const range = document.createRange();
-                    range.selectNodeContents(content);
-                    range.collapse(false);
-                    const sel = window.getSelection();
-                    sel.removeAllRanges();
-                    sel.addRange(range);
-                }
-            }
-            saveState();
-        }
+    // === Search ===
+    function openSearch() {
+      document.getElementById('searchModal').classList.add('visible');
+      const input = document.getElementById('searchInput');
+      input.value = '';
+      input.focus();
+      renderSearchResults('');
+    }
 
-        function toggleTodo(blockId) {
-            const block = findBlock(blockId);
-            if (block) { block.checked = !block.checked; document.querySelector(`[data-id="${blockId}"]`).classList.toggle('checked'); saveState(); }
-        }
+    function closeSearch(event) {
+      if (event && event.target !== event.currentTarget) return;
+      document.getElementById('searchModal').classList.remove('visible');
+    }
 
-        function toggleToggle(blockId) {
-            const block = findBlock(blockId);
-            if (block) { block.expanded = !block.expanded; document.querySelector(`[data-id="${blockId}"]`).classList.toggle('expanded'); saveState(); }
-        }
-
-        function findBlock(blockId) { return state.currentPage?.blocks?.find(b => b.id === blockId); }
-
-        // === Slash Menu ===
-        function showSlashMenu(event, targetBlock) {
-            event.preventDefault();
-            event.stopPropagation();
-            slashMenuTarget = targetBlock;
-            const menu = document.getElementById('slashMenu');
-            const rect = targetBlock.getBoundingClientRect();
-            menu.style.left = `${Math.min(rect.left, window.innerWidth - 340)}px`;
-            menu.style.top = `${Math.min(rect.bottom + 4, window.innerHeight - 420)}px`;
-            menu.classList.add('visible');
-        }
-
-        function hideSlashMenu() { document.getElementById('slashMenu').classList.remove('visible'); slashMenuTarget = null; }
-
-        document.querySelectorAll('.slash-menu-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const type = item.dataset.type;
-                if (slashMenuTarget) {
-                    const blockId = slashMenuTarget.dataset.id;
-                    const block = findBlock(blockId);
-                    if (block) {
-                        block.type = type;
-                        block.content = '';
-                        if (type === 'callout') block.icon = '💡';
-                        const newEl = createBlockElement(block);
-                        slashMenuTarget.replaceWith(newEl);
-                        const content = newEl.querySelector('.block-content');
-                        if (content) content.focus();
-                        saveState();
-                    }
-                }
-                hideSlashMenu();
-            });
-        });
-
-        // === Search ===
-        function openSearch() {
-            document.getElementById('searchModal').classList.add('visible');
-            const input = document.getElementById('searchInput');
-            input.value = '';
-            input.focus();
-            renderSearchResults('');
-        }
-
-        function closeSearch(event) {
-            if (event && event.target !== event.currentTarget) return;
-            document.getElementById('searchModal').classList.remove('visible');
-        }
-
-        function renderSearchResults(query) {
-            const container = document.getElementById('searchResults');
-            const allPages = getAllPages();
-            if (!query) {
-                container.innerHTML = '<div class="search-empty">検索キーワードを入力してください</div>';
-                return;
-            }
-            const q = query.toLowerCase();
-            const matched = allPages.filter(page => {
-                const titleMatch = (page.title || '無題').toLowerCase().includes(q);
-                const contentMatch = page.blocks?.some(b => (b.content || '').toLowerCase().includes(q));
-                return titleMatch || contentMatch;
-            });
-            if (matched.length === 0) {
-                container.innerHTML = `<div class="search-empty">「${query}」に一致する結果がありません</div>`;
-                return;
-            }
-            container.innerHTML = matched.map(p => `
+    function renderSearchResults(query) {
+      const container = document.getElementById('searchResults');
+      const allPages = getAllPages();
+      if (!query) {
+        container.innerHTML = '<div class="search-empty">検索キーワードを入力してください</div>';
+        return;
+      }
+      const q = query.toLowerCase();
+      const matched = allPages.filter(page => {
+        const titleMatch = (page.title || '無題').toLowerCase().includes(q);
+        const contentMatch = page.blocks?.some(b => (b.content || '').toLowerCase().includes(q));
+        return titleMatch || contentMatch;
+      });
+      if (matched.length === 0) {
+        container.innerHTML = `<div class="search-empty">「${query}」に一致する結果がありません</div>`;
+        return;
+      }
+      container.innerHTML = matched.map(p => `
                 <div class="search-result-item" onclick="openPageFromSearch('${p.id}')">
-                    <div class="result-icon">${p.icon || '📄'}</div>
+                    <div class="result-icon material-icons" style="font-size: 16px; color: ${getColorValue(p.iconColor)}">${p.icon || 'description'}</div>
                     <div class="search-result-title">${p.title || '無題'}</div>
                 </div>
             `).join('');
-        }
+    }
 
-        function openPageFromSearch(pageId) {
-            document.getElementById('searchModal').classList.remove('visible');
-            openPage(pageId);
-        }
+    function openPageFromSearch(pageId) {
+      document.getElementById('searchModal').classList.remove('visible');
+      openPage(pageId);
+    }
 
-        // 検索入力のイベントリスナー
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            renderSearchResults(e.target.value.trim());
-        });
+    // 検索入力のイベントリスナー
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      renderSearchResults(e.target.value.trim());
+    });
 
-        // === Settings ===
-        function openSettings() { document.getElementById('settingsOverlay').classList.add('visible'); document.getElementById('settingsMenu').classList.add('visible'); }
-        function closeSettings() { document.getElementById('settingsOverlay').classList.remove('visible'); document.getElementById('settingsMenu').classList.remove('visible'); }
-        function toggleDarkMode() { state.settings.darkMode = !state.settings.darkMode; document.body.classList.toggle('dark-mode'); document.getElementById('darkModeToggle').classList.toggle('active'); saveState(); }
-        function toggleFullWidth() { state.settings.fullWidth = !state.settings.fullWidth; document.getElementById('editor').classList.toggle('full-width'); document.getElementById('fullWidthToggle').classList.toggle('active'); saveState(); }
-        function toggleSmallText() { state.settings.smallText = !state.settings.smallText; document.body.classList.toggle('small-text'); document.getElementById('smallTextToggle').classList.toggle('active'); saveState(); }
-        function setFont(font) {
-            state.settings.font = font;
-            document.body.classList.remove('font-serif', 'font-mono');
-            if (font !== 'default') document.body.classList.add(`font-${font}`);
-            document.querySelectorAll('.font-option').forEach(opt => opt.classList.toggle('active', opt.dataset.font === font));
+    // === Settings ===
+    function openSettings() { document.getElementById('settingsOverlay').classList.add('visible'); document.getElementById('settingsMenu').classList.add('visible'); }
+    function closeSettings() { document.getElementById('settingsOverlay').classList.remove('visible'); document.getElementById('settingsMenu').classList.remove('visible'); }
+    function toggleDarkMode() { state.settings.darkMode = !state.settings.darkMode; document.body.classList.toggle('dark-mode'); document.getElementById('darkModeToggle').classList.toggle('active'); saveState(); }
+    function toggleFullWidth() { state.settings.fullWidth = !state.settings.fullWidth; document.getElementById('editor').classList.toggle('full-width'); document.getElementById('fullWidthToggle').classList.toggle('active'); saveState(); }
+    function toggleSmallText() { state.settings.smallText = !state.settings.smallText; document.body.classList.toggle('small-text'); document.getElementById('smallTextToggle').classList.toggle('active'); saveState(); }
+    function setFont(font) {
+      state.settings.font = font;
+      document.body.classList.remove('font-serif', 'font-mono');
+      if (font !== 'default') document.body.classList.add(`font-${font}`);
+      document.querySelectorAll('.font-option').forEach(opt => opt.classList.toggle('active', opt.dataset.font === font));
+      saveState();
+    }
+
+    // === Emoji Picker (Enhanced) ===
+    function initEmojiPicker() {
+      const picker = document.getElementById('emojiPicker');
+      // Clear
+      picker.innerHTML = '';
+
+      // Color Palette
+      const colorRow = document.createElement('div');
+      colorRow.className = 'color-picker-row';
+      iconColors.forEach(c => {
+        const dot = document.createElement('div');
+        dot.className = `color-option ${c.name === 'default' ? 'selected' : ''}`;
+        dot.style.background = c.value.startsWith('var') ? '#37352f' : c.value;
+        if (c.name === 'default') dot.style.background = '#37352f'; // fallback for display
+        dot.onclick = (e) => {
+          e.stopPropagation();
+          selectedColor = c.name;
+          document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
+          dot.classList.add('selected');
+          // If page icon is active, apply color immediately
+          if (emojiTarget === 'pageIcon' && state.currentPage) {
+            state.currentPage.iconColor = selectedColor;
+            renderPagesList();
+            document.getElementById('pageIcon').style.color = getColorValue(selectedColor);
+            document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span class="material-icons" style="font-size: 16px; color: ${getColorValue(selectedColor)}">${state.currentPage.icon || 'description'}</span><span>${state.currentPage.title || '無題'}</span></div>`;
             saveState();
+          }
+        };
+        colorRow.appendChild(dot);
+      });
+      picker.appendChild(colorRow);
+
+      // Grid
+      const grid = document.createElement('div');
+      grid.className = 'emoji-grid';
+      grid.id = 'emojiGrid';
+      emojis.forEach(emoji => {
+        const item = document.createElement('div');
+        item.className = 'emoji-item material-icons';
+        item.textContent = emoji;
+        item.onclick = () => selectEmoji(emoji);
+        grid.appendChild(item);
+      });
+      picker.appendChild(grid);
+    }
+
+    function getColorValue(colorName) {
+      if (!colorName) return 'var(--text-primary)';
+      const c = iconColors.find(ci => ci.name === colorName);
+      return c ? c.value : 'var(--text-primary)';
+    }
+
+    function showEmojiPicker(event, target) {
+      event.stopPropagation();
+      emojiTarget = target;
+
+      // Reset color selection based on current target
+      if (target === 'pageIcon' && state.currentPage) {
+        selectedColor = state.currentPage.iconColor || 'default';
+      } else {
+        selectedColor = 'default';
+      }
+      document.querySelectorAll('.color-option').forEach(opt => {
+        const isSelected = (selectedColor === 'default' && opt.style.background === 'rgb(55, 53, 47)') ||
+          (iconColors.find(c => c.name === selectedColor)?.value === opt.style.background);
+        // Simple re-selection visual update
+        opt.classList.toggle('selected', iconColors.indexOf(iconColors.find(c => c.name === selectedColor)) === Array.from(opt.parentNode.children).indexOf(opt));
+      });
+      // Proper fix for selection finding
+      document.querySelectorAll('.color-option').forEach((opt, idx) => {
+        opt.classList.toggle('selected', iconColors[idx].name === selectedColor);
+      });
+
+      const picker = document.getElementById('emojiPicker');
+      const rect = event.target.getBoundingClientRect();
+      picker.style.left = `${Math.min(rect.left, window.innerWidth - 340)}px`;
+      picker.style.top = `${rect.bottom + 4}px`;
+      picker.classList.add('visible');
+    }
+
+    function showPageIconPicker(event) {
+      document.getElementById('pageIcon').classList.remove('hidden');
+      document.getElementById('addIconBtn').style.display = 'none';
+      showEmojiPicker(event, 'pageIcon');
+    }
+
+    function hideEmojiPicker() { document.getElementById('emojiPicker').classList.remove('visible'); emojiTarget = null; }
+
+    function selectEmoji(emoji) {
+      if (emojiTarget === 'pageIcon') {
+        document.getElementById('pageIcon').textContent = emoji;
+        if (state.currentPage) {
+          state.currentPage.icon = emoji;
+          state.currentPage.iconColor = selectedColor; // Apply selected
+          renderPagesList();
+          document.getElementById('pageIcon').style.color = getColorValue(selectedColor);
+          document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span class="material-icons" style="font-size: 16px; color: ${getColorValue(selectedColor)}">${emoji}</span><span>${state.currentPage.title || '無題'}</span></div>`;
+          saveState();
         }
+      } else if (emojiTarget?.startsWith('callout-')) {
+        const blockId = emojiTarget.replace('callout-', '');
+        const block = findBlock(blockId);
+        if (block) { block.icon = emoji; document.querySelector(`[data-id="${blockId}"] .callout-icon`).textContent = emoji; saveState(); }
+      }
+      hideEmojiPicker();
+    }
 
-        // === Emoji Picker ===
-        function initEmojiPicker() {
-            const grid = document.getElementById('emojiGrid');
-            emojis.forEach(emoji => {
-                const item = document.createElement('div');
-                item.className = 'emoji-item';
-                item.textContent = emoji;
-                item.onclick = () => selectEmoji(emoji);
-                grid.appendChild(item);
-            });
+    // === Text Formatting ===
+    function formatText(command) {
+      if (command === 'code') {
+        const sel = window.getSelection();
+        if (sel.rangeCount > 0) {
+          const range = sel.getRangeAt(0);
+          const code = document.createElement('code');
+          code.style.cssText = 'background:var(--code-bg);padding:2px 4px;border-radius:3px;font-family:var(--font-mono);font-size:85%';
+          range.surroundContents(code);
         }
+      } else document.execCommand(command, false, null);
+    }
 
-        function showEmojiPicker(event, target) {
-            event.stopPropagation();
-            emojiTarget = target;
-            const picker = document.getElementById('emojiPicker');
-            const rect = event.target.getBoundingClientRect();
-            picker.style.left = `${Math.min(rect.left, window.innerWidth - 340)}px`;
-            picker.style.top = `${rect.bottom + 4}px`;
-            picker.classList.add('visible');
+    function showSelectionToolbar() {
+      const sel = window.getSelection();
+      if (sel.rangeCount === 0 || sel.isCollapsed) { hideSelectionToolbar(); return; }
+      const range = sel.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      const toolbar = document.getElementById('selectionToolbar');
+      toolbar.style.left = `${rect.left + rect.width / 2 - toolbar.offsetWidth / 2}px`;
+      toolbar.style.top = `${rect.top - toolbar.offsetHeight - 8}px`;
+      toolbar.classList.add('visible');
+    }
+
+    function hideSelectionToolbar() { document.getElementById('selectionToolbar').classList.remove('visible'); }
+
+    // === カーソル位置取得のヘルパー関数 ===
+    function getCaretPosition(element) {
+      const sel = window.getSelection();
+      if (sel.rangeCount === 0) return 0;
+      const range = sel.getRangeAt(0);
+      const preRange = range.cloneRange();
+      preRange.selectNodeContents(element);
+      preRange.setEnd(range.startContainer, range.startOffset);
+      return preRange.toString().length;
+    }
+
+    // === Event Listeners ===
+    function setupEventListeners() {
+      const blocksContainer = document.getElementById('blocks');
+
+      // Input: コンテンツ変更時に保存
+      blocksContainer.addEventListener('input', (e) => {
+        if (e.target.classList.contains('block-content')) {
+          const block = e.target.closest('.block');
+          const blockData = findBlock(block.dataset.id);
+          if (blockData) { blockData.content = e.target.textContent; saveState(); }
         }
+      });
 
-        function showPageIconPicker(event) {
-            document.getElementById('pageIcon').classList.remove('hidden');
-            document.getElementById('addIconBtn').style.display = 'none';
-            showEmojiPicker(event, 'pageIcon');
-        }
+      // Keydown: Enter, Backspace, スペース, スラッシュ
+      blocksContainer.addEventListener('keydown', (e) => {
+        if (!e.target.classList.contains('block-content')) return;
+        const block = e.target.closest('.block');
+        const blockData = findBlock(block.dataset.id);
 
-        function hideEmojiPicker() { document.getElementById('emojiPicker').classList.remove('visible'); emojiTarget = null; }
+        // === Enter キー処理（修正版）===
+        if (e.key === 'Enter' && !e.shiftKey) {
+          if (e.isComposing) return;
+          e.preventDefault();
 
-        function selectEmoji(emoji) {
-            if (emojiTarget === 'pageIcon') {
-                document.getElementById('pageIcon').textContent = emoji;
-                if (state.currentPage) {
-                    state.currentPage.icon = emoji;
-                    renderPagesList();
-                    document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span>${emoji}</span><span>${state.currentPage.title || '無題'}</span></div>`;
-                    saveState();
-                }
-            } else if (emojiTarget?.startsWith('callout-')) {
-                const blockId = emojiTarget.replace('callout-', '');
-                const block = findBlock(blockId);
-                if (block) { block.icon = emoji; document.querySelector(`[data-id="${blockId}"] .callout-icon`).textContent = emoji; saveState(); }
+          const fullText = e.target.textContent;
+          const cursorPos = getCaretPosition(e.target);
+          const textBefore = fullText.substring(0, cursorPos);
+          const textAfter = fullText.substring(cursorPos);
+
+          // 現在のブロックのテキストを更新
+          e.target.textContent = textBefore;
+          if (blockData) blockData.content = textBefore;
+
+          // 新しいブロックのタイプを決定
+          let newType = 'text';
+          if (block.classList.contains('bullet')) newType = 'bullet';
+          else if (block.classList.contains('numbered')) newType = 'numbered';
+          else if (block.classList.contains('todo')) newType = 'todo';
+
+          // 空のリスト項目の場合はテキストに変換
+          if (fullText.trim() === '' && (block.classList.contains('bullet') || block.classList.contains('numbered') || block.classList.contains('todo'))) {
+            if (blockData) {
+              blockData.type = 'text';
+              const newEl = createBlockElement(blockData);
+              block.replaceWith(newEl);
+              newEl.querySelector('.block-content')?.focus();
+              saveState();
             }
-            hideEmojiPicker();
+            return;
+          }
+
+          // 新しいブロックを追加
+          addBlock(newType, block, textAfter);
         }
 
-        // === Text Formatting ===
-        function formatText(command) {
-            if (command === 'code') {
-                const sel = window.getSelection();
-                if (sel.rangeCount > 0) {
-                    const range = sel.getRangeAt(0);
-                    const code = document.createElement('code');
-                    code.style.cssText = 'background:var(--code-bg);padding:2px 4px;border-radius:3px;font-family:var(--font-mono);font-size:85%';
-                    range.surroundContents(code);
-                }
-            } else document.execCommand(command, false, null);
+        // Backspace: 空ブロック削除
+        if (e.key === 'Backspace' && e.target.textContent === '') {
+          e.preventDefault();
+          deleteBlock(block);
         }
 
-        function showSelectionToolbar() {
-            const sel = window.getSelection();
-            if (sel.rangeCount === 0 || sel.isCollapsed) { hideSelectionToolbar(); return; }
-            const range = sel.getRangeAt(0);
-            const rect = range.getBoundingClientRect();
-            const toolbar = document.getElementById('selectionToolbar');
-            toolbar.style.left = `${rect.left + rect.width / 2 - toolbar.offsetWidth / 2}px`;
-            toolbar.style.top = `${rect.top - toolbar.offsetHeight - 8}px`;
-            toolbar.classList.add('visible');
+        // スペース: Markdownショートカット
+        if (e.key === ' ' && blockData) {
+          const text = e.target.textContent;
+          const shortcuts = { '#': 'heading1', '##': 'heading2', '###': 'heading3', '-': 'bullet', '*': 'bullet', '1.': 'numbered', '[]': 'todo', '>': 'toggle', '"': 'quote', '---': 'divider' };
+          if (shortcuts[text]) {
+            e.preventDefault();
+            blockData.type = shortcuts[text];
+            blockData.content = '';
+            const newEl = createBlockElement(blockData);
+            block.replaceWith(newEl);
+            if (blockData.type === 'divider') addBlock('text', newEl);
+            else newEl.querySelector('.block-content')?.focus();
+            saveState();
+          }
         }
 
-        function hideSelectionToolbar() { document.getElementById('selectionToolbar').classList.remove('visible'); }
-
-        // === カーソル位置取得のヘルパー関数 ===
-        function getCaretPosition(element) {
-            const sel = window.getSelection();
-            if (sel.rangeCount === 0) return 0;
-            const range = sel.getRangeAt(0);
-            const preRange = range.cloneRange();
-            preRange.selectNodeContents(element);
-            preRange.setEnd(range.startContainer, range.startOffset);
-            return preRange.toString().length;
+        // スラッシュ: メニュー表示
+        if (e.key === '/' && e.target.textContent === '') {
+          setTimeout(() => {
+            if (e.target.textContent === '/') {
+              e.target.textContent = '';
+              if (blockData) blockData.content = '';
+              showSlashMenu(e, block);
+            }
+          }, 0);
         }
+      });
 
-        // === Event Listeners ===
-        function setupEventListeners() {
-            const blocksContainer = document.getElementById('blocks');
+      // Selection toolbar
+      document.addEventListener('mouseup', () => setTimeout(showSelectionToolbar, 10));
 
-            // Input: コンテンツ変更時に保存
-            blocksContainer.addEventListener('input', (e) => {
-                if (e.target.classList.contains('block-content')) {
-                    const block = e.target.closest('.block');
-                    const blockData = findBlock(block.dataset.id);
-                    if (blockData) { blockData.content = e.target.textContent; saveState(); }
-                }
-            });
+      // Click outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.slash-menu') && !e.target.closest('.block-add')) hideSlashMenu();
+        if (!e.target.closest('.emoji-picker') && !e.target.closest('.page-icon-large') && !e.target.closest('.callout-icon') && !e.target.closest('.page-header-action')) hideEmojiPicker();
+        if (!window.getSelection().toString()) hideSelectionToolbar();
+      });
 
-            // Keydown: Enter, Backspace, スペース, スラッシュ
-            blocksContainer.addEventListener('keydown', (e) => {
-                if (!e.target.classList.contains('block-content')) return;
-                const block = e.target.closest('.block');
-                const blockData = findBlock(block.dataset.id);
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === '\\') { e.preventDefault(); toggleSidebar(); }
+        if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'p')) { e.preventDefault(); openSearch(); }
+        if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'L') { e.preventDefault(); toggleDarkMode(); }
+        if (e.key === 'Escape') { hideSlashMenu(); hideEmojiPicker(); closeSettings(); document.getElementById('searchModal').classList.remove('visible'); }
+      });
 
-                // === Enter キー処理（修正版）===
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    
-                    const fullText = e.target.textContent;
-                    const cursorPos = getCaretPosition(e.target);
-                    const textBefore = fullText.substring(0, cursorPos);
-                    const textAfter = fullText.substring(cursorPos);
-
-                    // 現在のブロックのテキストを更新
-                    e.target.textContent = textBefore;
-                    if (blockData) blockData.content = textBefore;
-
-                    // 新しいブロックのタイプを決定
-                    let newType = 'text';
-                    if (block.classList.contains('bullet')) newType = 'bullet';
-                    else if (block.classList.contains('numbered')) newType = 'numbered';
-                    else if (block.classList.contains('todo')) newType = 'todo';
-
-                    // 空のリスト項目の場合はテキストに変換
-                    if (fullText.trim() === '' && (block.classList.contains('bullet') || block.classList.contains('numbered') || block.classList.contains('todo'))) {
-                        if (blockData) {
-                            blockData.type = 'text';
-                            const newEl = createBlockElement(blockData);
-                            block.replaceWith(newEl);
-                            newEl.querySelector('.block-content')?.focus();
-                            saveState();
-                        }
-                        return;
-                    }
-
-                    // 新しいブロックを追加
-                    addBlock(newType, block, textAfter);
-                }
-
-                // Backspace: 空ブロック削除
-                if (e.key === 'Backspace' && e.target.textContent === '') {
-                    e.preventDefault();
-                    deleteBlock(block);
-                }
-
-                // スペース: Markdownショートカット
-                if (e.key === ' ' && blockData) {
-                    const text = e.target.textContent;
-                    const shortcuts = { '#': 'heading1', '##': 'heading2', '###': 'heading3', '-': 'bullet', '*': 'bullet', '1.': 'numbered', '[]': 'todo', '>': 'toggle', '"': 'quote', '---': 'divider' };
-                    if (shortcuts[text]) {
-                        e.preventDefault();
-                        blockData.type = shortcuts[text];
-                        blockData.content = '';
-                        const newEl = createBlockElement(blockData);
-                        block.replaceWith(newEl);
-                        if (blockData.type === 'divider') addBlock('text', newEl);
-                        else newEl.querySelector('.block-content')?.focus();
-                        saveState();
-                    }
-                }
-
-                // スラッシュ: メニュー表示
-                if (e.key === '/' && e.target.textContent === '') {
-                    setTimeout(() => {
-                        if (e.target.textContent === '/') {
-                            e.target.textContent = '';
-                            if (blockData) blockData.content = '';
-                            showSlashMenu(e, block);
-                        }
-                    }, 0);
-                }
-            });
-
-            // Selection toolbar
-            document.addEventListener('mouseup', () => setTimeout(showSelectionToolbar, 10));
-
-            // Click outside
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.slash-menu') && !e.target.closest('.block-add')) hideSlashMenu();
-                if (!e.target.closest('.emoji-picker') && !e.target.closest('.page-icon-large') && !e.target.closest('.callout-icon') && !e.target.closest('.page-header-action')) hideEmojiPicker();
-                if (!window.getSelection().toString()) hideSelectionToolbar();
-            });
-
-            // Keyboard shortcuts
-            document.addEventListener('keydown', (e) => {
-                if ((e.metaKey || e.ctrlKey) && e.key === '\\') { e.preventDefault(); toggleSidebar(); }
-                if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'p')) { e.preventDefault(); openSearch(); }
-                if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'L') { e.preventDefault(); toggleDarkMode(); }
-                if (e.key === 'Escape') { hideSlashMenu(); hideEmojiPicker(); closeSettings(); document.getElementById('searchModal').classList.remove('visible'); }
-            });
-
-            // Drag and drop
-            let draggedBlock = null;
-            blocksContainer.addEventListener('dragstart', (e) => {
-                if (e.target.classList.contains('block-handle')) {
-                    draggedBlock = e.target.closest('.block');
-                    draggedBlock.style.opacity = '0.5';
-                    e.dataTransfer.effectAllowed = 'move';
-                }
-            });
-            blocksContainer.addEventListener('dragend', () => {
-                if (draggedBlock) { draggedBlock.style.opacity = ''; draggedBlock = null; }
-            });
-            blocksContainer.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                if (!draggedBlock) return;
-                const afterEl = getDragAfterElement(e.clientY);
-                if (afterEl == null) blocksContainer.appendChild(draggedBlock);
-                else blocksContainer.insertBefore(draggedBlock, afterEl);
-            });
-            blocksContainer.addEventListener('drop', () => {
-                if (state.currentPage) {
-                    const newOrder = [];
-                    document.querySelectorAll('.block').forEach(b => {
-                        const bd = findBlock(b.dataset.id);
-                        if (bd) newOrder.push(bd);
-                    });
-                    state.currentPage.blocks = newOrder;
-                    saveState();
-                }
-            });
+      // Drag and drop
+      let draggedBlock = null;
+      blocksContainer.addEventListener('dragstart', (e) => {
+        if (e.target.classList.contains('block-handle')) {
+          draggedBlock = e.target.closest('.block');
+          draggedBlock.style.opacity = '0.5';
+          e.dataTransfer.effectAllowed = 'move';
         }
-
-        function getDragAfterElement(y) {
-            const blocks = [...document.querySelectorAll('.block:not([style*="opacity"])').values()];
-            return blocks.reduce((closest, child) => {
-                const box = child.getBoundingClientRect();
-                const offset = y - box.top - box.height / 2;
-                if (offset < 0 && offset > closest.offset) return { offset, element: child };
-                return closest;
-            }, { offset: Number.NEGATIVE_INFINITY }).element;
+      });
+      blocksContainer.addEventListener('dragend', () => {
+        if (draggedBlock) { draggedBlock.style.opacity = ''; draggedBlock = null; }
+      });
+      blocksContainer.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (!draggedBlock) return;
+        const afterEl = getDragAfterElement(e.clientY);
+        if (afterEl == null) blocksContainer.appendChild(draggedBlock);
+        else blocksContainer.insertBefore(draggedBlock, afterEl);
+      });
+      blocksContainer.addEventListener('drop', () => {
+        if (state.currentPage) {
+          const newOrder = [];
+          document.querySelectorAll('.block').forEach(b => {
+            const bd = findBlock(b.dataset.id);
+            if (bd) newOrder.push(bd);
+          });
+          state.currentPage.blocks = newOrder;
+          saveState();
         }
-    </script>
+      });
+    }
+
+    function getDragAfterElement(y) {
+      const blocks = [...document.querySelectorAll('.block:not([style*="opacity"])').values()];
+      return blocks.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) return { offset, element: child };
+        return closest;
+      }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    function initStaticFavicon() {
+      // Font loading check to ensure icon renders correctly
+      document.fonts.ready.then(() => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 64;
+        canvas.height = 64;
+        const ctx = canvas.getContext('2d');
+
+        // Background (Gradient like workspace icon)
+        const gradient = ctx.createLinearGradient(0, 0, 64, 64);
+        gradient.addColorStop(0, '#e8e8e8');
+        gradient.addColorStop(1, '#d0d0d0');
+        ctx.fillStyle = gradient;
+
+        ctx.beginPath();
+        ctx.roundRect(0, 0, 64, 64, 12); // Rounded corners
+        ctx.fill();
+
+        // Icon 'edit_note'
+        ctx.fillStyle = '#37352f';
+        ctx.font = '40px "Material Icons"';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('edit_note', 32, 32);
+
+        const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+        link.type = 'image/x-icon';
+        link.rel = 'shortcut icon';
+        link.href = canvas.toDataURL();
+        document.getElementsByTagName('head')[0].appendChild(link);
+      });
+    }
+  </script>
 </body>
+
 </html>

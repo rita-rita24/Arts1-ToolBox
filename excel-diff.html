@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Excel Diff Tool - 最強の差分確認</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <!-- SheetJS -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <!-- Material Symbols -->
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans JP', sans-serif;
+      background-color: #f3f4f6;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Excel-like Grid Styling */
+    .excel-grid {
+      border-collapse: separate;
+      /* Allows sticky headers to work better */
+      border-spacing: 0;
+      width: 100%;
+      font-size: 13px;
+      color: #1f2937;
+      background: white;
+    }
+
+    .excel-grid th,
+    .excel-grid td {
+      border-right: 1px solid #e5e7eb;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 4px 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      height: 24px;
+      min-width: 80px;
+      max-width: 300px;
+      position: relative;
+    }
+
+    .excel-grid th {
+      background-color: #f9fafb;
+      font-weight: 600;
+      color: #4b5563;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .excel-grid th:first-child {
+      left: 0;
+      z-index: 20;
+      /* Higher z-index for corner */
+      border-right: 2px solid #d1d5db;
+    }
+
+    .excel-grid td:first-child {
+      background-color: #f9fafb;
+      font-weight: 600;
+      color: #6b7280;
+      text-align: center;
+      position: sticky;
+      left: 0;
+      z-index: 5;
+      border-right: 2px solid #d1d5db;
+      user-select: none;
+    }
+
+    /* Diff Colors */
+    .diff-added {
+      background-color: #dcfce7 !important;
+      /* Green 100 */
+    }
+
+    .diff-deleted {
+      background-color: #fee2e2 !important;
+      /* Red 100 */
+      text-decoration: line-through;
+      color: #991b1b;
+    }
+
+    .diff-modified {
+      background-color: #fef9c3 !important;
+      /* Yellow 100 */
+    }
+
+    /* Tooltip for Old Value */
+    .tooltip-container:hover::after {
+      content: attr(data-old-value);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1f2937;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      white-space: pre;
+      z-index: 100;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      pointer-events: none;
+      min-width: 120px;
+      text-align: center;
+    }
+
+    /* Scroll Area */
+    #grid-container {
+      overflow: auto;
+      flex: 1;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    /* Dropzone Active State */
+    .dropzone.dragover {
+      border-color: #3b82f6;
+      background-color: #eff6ff;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b border-gray-200 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <h1 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+        <span class="material-symbols-outlined text-green-600">table_view</span>
+        Excel Diff Tool
+      </h1>
+      <div class="flex gap-4">
+        <button onclick="window.location.reload()" class="text-sm text-gray-500 hover:text-gray-700">リセット</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Controls / Drop Area -->
+  <div id="setup-area"
+    class="p-8 max-w-7xl mx-auto w-full flex-1 flex flex-col items-center justify-center gap-8 transition-all duration-300">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
+      <!-- Old File -->
+      <div
+        class="dropzone border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center bg-white hover:bg-gray-50 transition-colors cursor-pointer"
+        onclick="document.getElementById('file-old').click()" id="drop-old">
+        <input type="file" id="file-old" class="hidden" accept=".xlsx, .xls, .csv">
+        <span class="material-symbols-outlined text-4xl text-gray-400 mb-4">file_open</span>
+        <p class="text-gray-600 font-medium">変更前のファイル (Original)</p>
+        <p class="text-xs text-gray-400 mt-2">クリック または ドラッグ&ドロップ</p>
+        <div id="status-old" class="mt-4 text-sm font-semibold text-blue-600 hidden"></div>
+      </div>
+
+      <!-- New File -->
+      <div
+        class="dropzone border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center bg-white hover:bg-gray-50 transition-colors cursor-pointer"
+        onclick="document.getElementById('file-new').click()" id="drop-new">
+        <input type="file" id="file-new" class="hidden" accept=".xlsx, .xls, .csv">
+        <span class="material-symbols-outlined text-4xl text-gray-400 mb-4">note_add</span>
+        <p class="text-gray-600 font-medium">変更後のファイル (New)</p>
+        <p class="text-xs text-gray-400 mt-2">クリック または ドラッグ&ドロップ</p>
+        <div id="status-new" class="mt-4 text-sm font-semibold text-green-600 hidden"></div>
+      </div>
+    </div>
+
+    <button id="btn-compare"
+      class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-12 rounded-full shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105"
+      disabled>
+      比較開始
+    </button>
+  </div>
+
+  <!-- Main Comparison Interface (Hidden initially) -->
+  <div id="diff-interface" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+    <!-- Toolbar -->
+    <div class="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between shrink-0">
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <label for="sheet-select" class="text-sm font-medium text-gray-600">シート:</label>
+          <select id="sheet-select" class="text-sm border-gray-300 rounded-md shadow-sm border p-1"></select>
+        </div>
+
+        <div class="h-6 w-px bg-gray-300 mx-2"></div>
+
+        <div class="flex items-center gap-4 text-sm">
+          <div class="flex items-center gap-1">
+            <div class="w-3 h-3 bg-red-100 border border-red-300"></div>
+            <span>削除</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <div class="w-3 h-3 bg-green-100 border border-green-300"></div>
+            <span>追加</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <div class="w-3 h-3 bg-yellow-100 border border-yellow-300"></div>
+            <span>変更</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button id="toggle-diff-only"
+          class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded border border-gray-300 transition-colors">
+          変更箇所のみ表示: <span id="diff-only-status">OFF</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Grid Container -->
+    <div id="grid-container" class="bg-gray-100">
+      <!-- Table will be injected here -->
+    </div>
+  </div>
+
+  <script>
+    // State
+    let oldWorkbook = null;
+    let newWorkbook = null;
+    let oldFile = null;
+    let newFile = null;
+    let currentSheetName = null;
+    let isDiffOnly = false;
+
+    // Elements
+    const dropOld = document.getElementById('drop-old');
+    const dropNew = document.getElementById('drop-new');
+    const inputOld = document.getElementById('file-old');
+    const inputNew = document.getElementById('file-new');
+    const statusOld = document.getElementById('status-old');
+    const statusNew = document.getElementById('status-new');
+    const btnCompare = document.getElementById('btn-compare');
+    const setupArea = document.getElementById('setup-area');
+    const diffInterface = document.getElementById('diff-interface');
+    const sheetSelect = document.getElementById('sheet-select');
+    const gridContainer = document.getElementById('grid-container');
+    const toggleDiffOnly = document.getElementById('toggle-diff-only');
+
+    // Drag & Drop Handlers
+    function setupDragDrop(dropZone, input, statusElem, isOld) {
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+      });
+      dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+      });
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+          handleFile(e.dataTransfer.files[0], isOld, statusElem);
+        }
+      });
+      input.addEventListener('change', (e) => {
+        if (e.target.files.length) {
+          handleFile(e.target.files[0], isOld, statusElem);
+        }
+      });
+    }
+
+    function handleFile(file, isOld, statusElem) {
+      statusElem.textContent = file.name;
+      statusElem.classList.remove('hidden');
+      if (isOld) oldFile = file;
+      else newFile = file;
+
+      checkReady();
+    }
+
+    setupDragDrop(dropOld, inputOld, statusOld, true);
+    setupDragDrop(dropNew, inputNew, statusNew, false);
+
+    function checkReady() {
+      if (oldFile && newFile) {
+        btnCompare.disabled = false;
+        btnCompare.classList.add('animate-pulse');
+      }
+    }
+
+    // Comparison Start
+    btnCompare.addEventListener('click', async () => {
+      try {
+        btnCompare.textContent = "読み込み中...";
+        btnCompare.disabled = true;
+
+        // Read files
+        oldWorkbook = await readExcel(oldFile);
+        newWorkbook = await readExcel(newFile);
+
+        // Setup sheet selector
+        const sheets = [...new Set([...oldWorkbook.SheetNames, ...newWorkbook.SheetNames])];
+        sheetSelect.innerHTML = sheets.map(name => `<option value="${name}">${name}</option>`).join('');
+
+        // Switch View
+        setupArea.classList.add('hidden');
+        diffInterface.classList.remove('hidden');
+
+        // Initial Render
+        currentSheetName = sheets[0];
+        renderDiff(currentSheetName);
+
+        // Listeners
+        sheetSelect.addEventListener('change', (e) => {
+          currentSheetName = e.target.value;
+          renderDiff(currentSheetName);
+        });
+
+        toggleDiffOnly.addEventListener('click', () => {
+          isDiffOnly = !isDiffOnly;
+          document.getElementById('diff-only-status').textContent = isDiffOnly ? "ON" : "OFF";
+          renderDiff(currentSheetName);
+        });
+
+      } catch (error) {
+        alert("エラーが発生しました: " + error.message);
+        console.error(error);
+        btnCompare.textContent = "比較開始";
+        btnCompare.disabled = false;
+      }
+    });
+
+    function readExcel(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          resolve(workbook);
+        };
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    // Core Diff Logic & Rendering
+    function renderDiff(sheetName) {
+      gridContainer.innerHTML = '<div class="p-8 text-center text-gray-500">解析中...</div>';
+
+      // Wait for UI to update (loading state)
+      setTimeout(() => {
+        const oldSheet = oldWorkbook.Sheets[sheetName] || {};
+        const newSheet = newWorkbook.Sheets[sheetName] || {};
+
+        // Convert to simpler structure
+        // Use default sheet_to_json with header:1 to get raw arrays of rows
+        const oldData = XLSX.utils.sheet_to_json(oldSheet, { header: 1, defval: null });
+        const newData = XLSX.utils.sheet_to_json(newSheet, { header: 1, defval: null });
+
+        const maxRows = Math.max(oldData.length, newData.length);
+        let maxCols = 0;
+        oldData.forEach(r => maxCols = Math.max(maxCols, r.length));
+        newData.forEach(r => maxCols = Math.max(maxCols, r.length));
+
+        // Table Construction
+        const table = document.createElement('table');
+        table.className = 'excel-grid';
+
+        // Header Row (Column Letters: A, B, C...)
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        headerRow.innerHTML = '<th></th>'; // Corner
+        for (let c = 0; c < maxCols; c++) {
+          const th = document.createElement('th');
+          th.textContent = XLSX.utils.encode_col(c);
+          headerRow.appendChild(th);
+        }
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        // Body
+        const tbody = document.createElement('tbody');
+        let hasChanges = false;
+
+        for (let r = 0; r < maxRows; r++) {
+          const tr = document.createElement('tr');
+
+          // Row Number
+          const thRow = document.createElement('td'); // Using td for styling consistency as first child
+          thRow.textContent = (r + 1);
+          tr.appendChild(thRow);
+
+          const rowOld = oldData[r] || [];
+          const rowNew = newData[r] || [];
+
+          let rowHasDiff = false;
+
+          for (let c = 0; c < maxCols; c++) {
+            const td = document.createElement('td');
+            const valOld = rowOld[c];
+            const valNew = rowNew[c];
+
+            // Normalize values for comparison (undefined/null -> "")
+            const strOld = (valOld === undefined || valOld === null) ? "" : String(valOld);
+            const strNew = (valNew === undefined || valNew === null) ? "" : String(valNew);
+
+            td.textContent = strNew; // Default show New
+
+            if (strOld !== strNew) {
+              rowHasDiff = true;
+              hasChanges = true;
+
+              if (strOld === "" && strNew !== "") {
+                td.classList.add('diff-added');
+              } else if (strOld !== "" && strNew === "") {
+                td.classList.add('diff-deleted');
+                td.textContent = strOld; // For deleted, show what was there
+              } else {
+                td.classList.add('diff-modified');
+                td.classList.add('tooltip-container');
+                td.setAttribute('data-old-value', `前回: ${strOld}\n今回: ${strNew}`);
+              }
+            }
+
+            tr.appendChild(td);
+          }
+
+          if (isDiffOnly && !rowHasDiff) {
+            // Skip rendering this row or hide it
+            // Just not appending it is faster for large tables
+            continue;
+          }
+
+          tbody.appendChild(tr);
+        }
+
+        table.appendChild(tbody);
+        gridContainer.innerHTML = '';
+
+        if (isDiffOnly && tbody.children.length === 0) {
+          gridContainer.innerHTML = '<div class="p-8 text-center text-gray-400">変更点はありません</div>';
+        } else {
+          gridContainer.appendChild(table);
+        }
+
+      }, 10);
+    }
+
+  </script>
+</body>
+
+</html>
