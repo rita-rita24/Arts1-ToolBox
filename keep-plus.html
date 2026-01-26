@@ -544,7 +544,8 @@
       background: var(--card-bg);
       border-radius: 8px;
       width: 100%;
-      max-width: 75vw;
+      max-width: 90vw;
+      min-height: 70vh;
       max-height: 90vh;
       overflow: hidden;
       display: flex;
@@ -642,7 +643,7 @@
       background: transparent;
       outline: none;
       resize: none;
-      min-height: 400px;
+      min-height: 600px;
       line-height: 1.6;
     }
 
@@ -2443,7 +2444,6 @@
       modal.classList.remove('show');
       document.getElementById('colorDropdown').classList.remove('show');
       document.getElementById('labelDropdown').classList.remove('show');
-      document.getElementById('autocomplete').classList.remove('show');
       editingNoteId = null;
 
       // メモを削除
