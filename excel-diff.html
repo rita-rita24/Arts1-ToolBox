@@ -4,9 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Excel Diff Tool - 最強の差分確認</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Excel Diff Tool - サイドバイサイド比較</title>
   <!-- Google Fonts -->
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"
@@ -18,117 +16,451 @@
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
   <style>
+    :root {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --border-color: #e2e8f0;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --accent-blue: #3b82f6;
+      --diff-added-bg: #dcfce7;
+      --diff-added-border: #86efac;
+      --diff-deleted-bg: #fee2e2;
+      --diff-deleted-border: #fca5a5;
+      --diff-modified-bg: #fef3c7;
+      --diff-modified-border: #fcd34d;
+      --row-highlight: #f0f9ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Inter', 'Noto Sans JP', sans-serif;
-      background-color: #f3f4f6;
+      background-color: var(--bg-primary);
+      margin: 0;
       height: 100vh;
       display: flex;
       flex-direction: column;
+      color: var(--text-primary);
     }
 
-    /* Excel-like Grid Styling */
-    .excel-grid {
-      border-collapse: separate;
-      /* Allows sticky headers to work better */
-      border-spacing: 0;
+    /* Header */
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+    }
+
+    .header h1 .material-symbols-outlined {
+      color: #10b981;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      transition: all 0.15s ease;
+    }
+
+    .btn:hover {
+      background: var(--bg-primary);
+    }
+
+    .btn-primary {
+      background: var(--accent-blue);
+      color: white;
+      border-color: var(--accent-blue);
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Setup Area */
+    #setup-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      gap: 32px;
+    }
+
+    .dropzone-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .dropzone {
+      border: 2px dashed var(--border-color);
+      border-radius: 16px;
+      padding: 48px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .dropzone:hover {
+      border-color: var(--accent-blue);
+      background: #f8faff;
+    }
+
+    .dropzone.dragover {
+      border-color: var(--accent-blue);
+      background: #eff6ff;
+    }
+
+    .dropzone .material-symbols-outlined {
+      font-size: 48px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .dropzone-title {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .dropzone-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .dropzone-status {
+      margin-top: 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent-blue);
+      display: none;
+    }
+
+    .dropzone-status.visible {
+      display: block;
+    }
+
+    /* Diff Interface */
+    #diff-interface {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #diff-interface.active {
+      display: flex;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sheet-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sheet-selector label {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .sheet-selector select {
+      padding: 6px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 13px;
+      background: var(--bg-secondary);
+    }
+
+    .legend {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-color {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+    }
+
+    .legend-color.deleted {
+      background: var(--diff-deleted-bg);
+      border: 1px solid var(--diff-deleted-border);
+    }
+
+    .legend-color.added {
+      background: var(--diff-added-bg);
+      border: 1px solid var(--diff-added-border);
+    }
+
+    .legend-color.modified {
+      background: var(--diff-modified-bg);
+      border: 1px solid var(--diff-modified-border);
+    }
+
+    .nav-buttons {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .nav-btn:hover {
+      background: var(--bg-primary);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .diff-counter {
+      font-size: 13px;
+      color: var(--text-secondary);
+      min-width: 80px;
+      text-align: center;
+    }
+
+    /* Side by Side Container */
+    .diff-container {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: hidden;
+    }
+
+    .diff-panel {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-right: 1px solid var(--border-color);
+    }
+
+    .diff-panel:last-child {
+      border-right: none;
+    }
+
+    .panel-header {
+      padding: 12px 16px;
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 600;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .panel-header.old {
+      color: #dc2626;
+    }
+
+    .panel-header.new {
+      color: #16a34a;
+    }
+
+    .panel-scroll {
+      flex: 1;
+      overflow: auto;
+      background: var(--bg-secondary);
+    }
+
+    /* Excel-like Table */
+    .excel-table {
+      border-collapse: collapse;
       width: 100%;
       font-size: 13px;
-      color: #1f2937;
-      background: white;
+      table-layout: fixed;
     }
 
-    .excel-grid th,
-    .excel-grid td {
-      border-right: 1px solid #e5e7eb;
-      border-bottom: 1px solid #e5e7eb;
-      padding: 4px 8px;
+    .excel-table th,
+    .excel-table td {
+      border-right: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      padding: 6px 10px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      height: 24px;
       min-width: 80px;
-      max-width: 300px;
-      position: relative;
+      max-width: 200px;
+      height: 28px;
     }
 
-    .excel-grid th {
-      background-color: #f9fafb;
+    .excel-table th {
+      background: #f1f5f9;
       font-weight: 600;
-      color: #4b5563;
+      color: var(--text-secondary);
       text-align: center;
       position: sticky;
       top: 0;
       z-index: 10;
     }
 
-    .excel-grid th:first-child {
-      left: 0;
-      z-index: 20;
-      /* Higher z-index for corner */
-      border-right: 2px solid #d1d5db;
-    }
-
-    .excel-grid td:first-child {
-      background-color: #f9fafb;
+    .excel-table .row-num {
+      background: #f1f5f9;
       font-weight: 600;
-      color: #6b7280;
+      color: var(--text-secondary);
       text-align: center;
+      min-width: 50px;
+      max-width: 50px;
+      width: 50px;
       position: sticky;
       left: 0;
       z-index: 5;
-      border-right: 2px solid #d1d5db;
-      user-select: none;
     }
 
-    /* Diff Colors */
-    .diff-added {
-      background-color: #dcfce7 !important;
-      /* Green 100 */
+    .excel-table th.row-num {
+      z-index: 15;
     }
 
-    .diff-deleted {
-      background-color: #fee2e2 !important;
-      /* Red 100 */
+    /* Diff Row Styles */
+    .diff-row {
+      background: var(--row-highlight);
+    }
+
+    .diff-row .row-num {
+      background: #dbeafe !important;
+    }
+
+    .cell-added {
+      background: var(--diff-added-bg) !important;
+      border-left: 3px solid var(--diff-added-border) !important;
+    }
+
+    .cell-deleted {
+      background: var(--diff-deleted-bg) !important;
+      border-left: 3px solid var(--diff-deleted-border) !important;
       text-decoration: line-through;
       color: #991b1b;
     }
 
-    .diff-modified {
-      background-color: #fef9c3 !important;
-      /* Yellow 100 */
+    .cell-modified {
+      background: var(--diff-modified-bg) !important;
+      border-left: 3px solid var(--diff-modified-border) !important;
     }
 
-    /* Tooltip for Old Value */
-    .tooltip-container:hover::after {
-      content: attr(data-old-value);
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #1f2937;
-      color: white;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      white-space: pre;
-      z-index: 100;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-      pointer-events: none;
-      min-width: 120px;
-      text-align: center;
+    /* Empty state */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-secondary);
+      font-size: 14px;
     }
 
-    /* Scroll Area */
-    #grid-container {
-      overflow: auto;
-      flex: 1;
-      border-top: 1px solid #e5e7eb;
+    .empty-state .material-symbols-outlined {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
     }
 
-    /* Dropzone Active State */
-    .dropzone.dragover {
-      border-color: #3b82f6;
-      background-color: #eff6ff;
+    /* Responsive */
+    @media (max-width: 768px) {
+      .dropzone-container {
+        grid-template-columns: 1fr;
+      }
+
+      .diff-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 1fr;
+      }
+
+      .diff-panel {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .toolbar {
+        flex-wrap: wrap;
+        gap: 12px;
+      }
     }
   </style>
 </head>
@@ -136,91 +468,104 @@
 <body>
 
   <!-- Header -->
-  <header class="bg-white shadow-sm border-b border-gray-200 z-30">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <h1 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-        <span class="material-symbols-outlined text-green-600">table_view</span>
-        Excel Diff Tool
-      </h1>
-      <div class="flex gap-4">
-        <button onclick="window.location.reload()" class="text-sm text-gray-500 hover:text-gray-700">リセット</button>
-      </div>
+  <header class="header">
+    <h1>
+      <span class="material-symbols-outlined">compare</span>
+      Excel Diff Tool
+    </h1>
+    <div class="header-actions">
+      <button class="btn" onclick="location.reload()">
+        <span class="material-symbols-outlined" style="font-size: 18px;">refresh</span>
+        リセット
+      </button>
     </div>
   </header>
 
-  <!-- Controls / Drop Area -->
-  <div id="setup-area"
-    class="p-8 max-w-7xl mx-auto w-full flex-1 flex flex-col items-center justify-center gap-8 transition-all duration-300">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
+  <!-- Setup Area -->
+  <div id="setup-area">
+    <div class="dropzone-container">
       <!-- Old File -->
-      <div
-        class="dropzone border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center bg-white hover:bg-gray-50 transition-colors cursor-pointer"
-        onclick="document.getElementById('file-old').click()" id="drop-old">
-        <input type="file" id="file-old" class="hidden" accept=".xlsx, .xls, .csv">
-        <span class="material-symbols-outlined text-4xl text-gray-400 mb-4">file_open</span>
-        <p class="text-gray-600 font-medium">変更前のファイル (Original)</p>
-        <p class="text-xs text-gray-400 mt-2">クリック または ドラッグ&ドロップ</p>
-        <div id="status-old" class="mt-4 text-sm font-semibold text-blue-600 hidden"></div>
+      <div class="dropzone" id="drop-old" onclick="document.getElementById('file-old').click()">
+        <input type="file" id="file-old" hidden accept=".xlsx,.xls,.csv">
+        <span class="material-symbols-outlined">draft</span>
+        <div class="dropzone-title">変更前ファイル (Before)</div>
+        <div class="dropzone-subtitle">クリックまたはドラッグ&ドロップ</div>
+        <div class="dropzone-status" id="status-old"></div>
       </div>
 
       <!-- New File -->
-      <div
-        class="dropzone border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center bg-white hover:bg-gray-50 transition-colors cursor-pointer"
-        onclick="document.getElementById('file-new').click()" id="drop-new">
-        <input type="file" id="file-new" class="hidden" accept=".xlsx, .xls, .csv">
-        <span class="material-symbols-outlined text-4xl text-gray-400 mb-4">note_add</span>
-        <p class="text-gray-600 font-medium">変更後のファイル (New)</p>
-        <p class="text-xs text-gray-400 mt-2">クリック または ドラッグ&ドロップ</p>
-        <div id="status-new" class="mt-4 text-sm font-semibold text-green-600 hidden"></div>
+      <div class="dropzone" id="drop-new" onclick="document.getElementById('file-new').click()">
+        <input type="file" id="file-new" hidden accept=".xlsx,.xls,.csv">
+        <span class="material-symbols-outlined">note_add</span>
+        <div class="dropzone-title">変更後ファイル (After)</div>
+        <div class="dropzone-subtitle">クリックまたはドラッグ&ドロップ</div>
+        <div class="dropzone-status" id="status-new"></div>
       </div>
     </div>
 
-    <button id="btn-compare"
-      class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-12 rounded-full shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105"
-      disabled>
-      比較開始
+    <button id="btn-compare" class="btn btn-primary" disabled>
+      <span class="material-symbols-outlined" style="font-size: 18px;">difference</span>
+      比較を開始
     </button>
   </div>
 
-  <!-- Main Comparison Interface (Hidden initially) -->
-  <div id="diff-interface" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+  <!-- Diff Interface -->
+  <div id="diff-interface">
     <!-- Toolbar -->
-    <div class="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between shrink-0">
-      <div class="flex items-center gap-4">
-        <div class="flex items-center gap-2">
-          <label for="sheet-select" class="text-sm font-medium text-gray-600">シート:</label>
-          <select id="sheet-select" class="text-sm border-gray-300 rounded-md shadow-sm border p-1"></select>
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="sheet-selector">
+          <label>シート:</label>
+          <select id="sheet-select"></select>
         </div>
-
-        <div class="h-6 w-px bg-gray-300 mx-2"></div>
-
-        <div class="flex items-center gap-4 text-sm">
-          <div class="flex items-center gap-1">
-            <div class="w-3 h-3 bg-red-100 border border-red-300"></div>
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-color deleted"></div>
             <span>削除</span>
           </div>
-          <div class="flex items-center gap-1">
-            <div class="w-3 h-3 bg-green-100 border border-green-300"></div>
+          <div class="legend-item">
+            <div class="legend-color added"></div>
             <span>追加</span>
           </div>
-          <div class="flex items-center gap-1">
-            <div class="w-3 h-3 bg-yellow-100 border border-yellow-300"></div>
+          <div class="legend-item">
+            <div class="legend-color modified"></div>
             <span>変更</span>
           </div>
         </div>
       </div>
-
-      <div class="flex items-center gap-2">
-        <button id="toggle-diff-only"
-          class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded border border-gray-300 transition-colors">
-          変更箇所のみ表示: <span id="diff-only-status">OFF</span>
+      <div class="toolbar-right">
+        <div class="nav-buttons">
+          <button class="nav-btn" id="btn-prev" title="前の変更">
+            <span class="material-symbols-outlined" style="font-size: 18px;">keyboard_arrow_up</span>
+          </button>
+          <button class="nav-btn" id="btn-next" title="次の変更">
+            <span class="material-symbols-outlined" style="font-size: 18px;">keyboard_arrow_down</span>
+          </button>
+        </div>
+        <div class="diff-counter" id="diff-counter">0 / 0 件</div>
+        <button class="btn" id="btn-diff-only">
+          <span class="material-symbols-outlined" style="font-size: 18px;">filter_alt</span>
+          変更のみ表示
         </button>
       </div>
     </div>
 
-    <!-- Grid Container -->
-    <div id="grid-container" class="bg-gray-100">
-      <!-- Table will be injected here -->
+    <!-- Side by Side Panels -->
+    <div class="diff-container">
+      <div class="diff-panel">
+        <div class="panel-header old">
+          <span class="material-symbols-outlined" style="font-size: 18px;">remove_circle</span>
+          <span id="old-filename">変更前</span>
+        </div>
+        <div class="panel-scroll" id="panel-old"></div>
+      </div>
+      <div class="diff-panel">
+        <div class="panel-header new">
+          <span class="material-symbols-outlined" style="font-size: 18px;">add_circle</span>
+          <span id="new-filename">変更後</span>
+        </div>
+        <div class="panel-scroll" id="panel-new"></div>
+      </div>
     </div>
   </div>
 
@@ -232,6 +577,8 @@
     let newFile = null;
     let currentSheetName = null;
     let isDiffOnly = false;
+    let diffRows = []; // Array of row indices with changes
+    let currentDiffIndex = -1;
 
     // Elements
     const dropOld = document.getElementById('drop-old');
@@ -244,10 +591,14 @@
     const setupArea = document.getElementById('setup-area');
     const diffInterface = document.getElementById('diff-interface');
     const sheetSelect = document.getElementById('sheet-select');
-    const gridContainer = document.getElementById('grid-container');
-    const toggleDiffOnly = document.getElementById('toggle-diff-only');
+    const panelOld = document.getElementById('panel-old');
+    const panelNew = document.getElementById('panel-new');
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
+    const btnDiffOnly = document.getElementById('btn-diff-only');
+    const diffCounter = document.getElementById('diff-counter');
 
-    // Drag & Drop Handlers
+    // Drag & Drop Setup
     function setupDragDrop(dropZone, input, statusElem, isOld) {
       dropZone.addEventListener('dragover', (e) => {
         e.preventDefault();
@@ -272,10 +623,14 @@
 
     function handleFile(file, isOld, statusElem) {
       statusElem.textContent = file.name;
-      statusElem.classList.remove('hidden');
-      if (isOld) oldFile = file;
-      else newFile = file;
-
+      statusElem.classList.add('visible');
+      if (isOld) {
+        oldFile = file;
+        document.getElementById('old-filename').textContent = file.name;
+      } else {
+        newFile = file;
+        document.getElementById('new-filename').textContent = file.name;
+      }
       checkReady();
     }
 
@@ -283,54 +638,10 @@
     setupDragDrop(dropNew, inputNew, statusNew, false);
 
     function checkReady() {
-      if (oldFile && newFile) {
-        btnCompare.disabled = false;
-        btnCompare.classList.add('animate-pulse');
-      }
+      btnCompare.disabled = !(oldFile && newFile);
     }
 
-    // Comparison Start
-    btnCompare.addEventListener('click', async () => {
-      try {
-        btnCompare.textContent = "読み込み中...";
-        btnCompare.disabled = true;
-
-        // Read files
-        oldWorkbook = await readExcel(oldFile);
-        newWorkbook = await readExcel(newFile);
-
-        // Setup sheet selector
-        const sheets = [...new Set([...oldWorkbook.SheetNames, ...newWorkbook.SheetNames])];
-        sheetSelect.innerHTML = sheets.map(name => `<option value="${name}">${name}</option>`).join('');
-
-        // Switch View
-        setupArea.classList.add('hidden');
-        diffInterface.classList.remove('hidden');
-
-        // Initial Render
-        currentSheetName = sheets[0];
-        renderDiff(currentSheetName);
-
-        // Listeners
-        sheetSelect.addEventListener('change', (e) => {
-          currentSheetName = e.target.value;
-          renderDiff(currentSheetName);
-        });
-
-        toggleDiffOnly.addEventListener('click', () => {
-          isDiffOnly = !isDiffOnly;
-          document.getElementById('diff-only-status').textContent = isDiffOnly ? "ON" : "OFF";
-          renderDiff(currentSheetName);
-        });
-
-      } catch (error) {
-        alert("エラーが発生しました: " + error.message);
-        console.error(error);
-        btnCompare.textContent = "比較開始";
-        btnCompare.disabled = false;
-      }
-    });
-
+    // Read Excel File
     function readExcel(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -344,109 +655,234 @@
       });
     }
 
-    // Core Diff Logic & Rendering
-    function renderDiff(sheetName) {
-      gridContainer.innerHTML = '<div class="p-8 text-center text-gray-500">解析中...</div>';
+    // Start Comparison
+    btnCompare.addEventListener('click', async () => {
+      try {
+        btnCompare.disabled = true;
+        btnCompare.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px;">hourglass_empty</span> 読み込み中...';
 
-      // Wait for UI to update (loading state)
-      setTimeout(() => {
-        const oldSheet = oldWorkbook.Sheets[sheetName] || {};
-        const newSheet = newWorkbook.Sheets[sheetName] || {};
+        oldWorkbook = await readExcel(oldFile);
+        newWorkbook = await readExcel(newFile);
 
-        // Convert to simpler structure
-        // Use default sheet_to_json with header:1 to get raw arrays of rows
-        const oldData = XLSX.utils.sheet_to_json(oldSheet, { header: 1, defval: null });
-        const newData = XLSX.utils.sheet_to_json(newSheet, { header: 1, defval: null });
+        // Setup sheet selector
+        const sheets = [...new Set([...oldWorkbook.SheetNames, ...newWorkbook.SheetNames])];
+        sheetSelect.innerHTML = sheets.map(name => `<option value="${name}">${name}</option>`).join('');
 
-        const maxRows = Math.max(oldData.length, newData.length);
-        let maxCols = 0;
-        oldData.forEach(r => maxCols = Math.max(maxCols, r.length));
-        newData.forEach(r => maxCols = Math.max(maxCols, r.length));
+        // Switch view
+        setupArea.style.display = 'none';
+        diffInterface.classList.add('active');
 
-        // Table Construction
-        const table = document.createElement('table');
-        table.className = 'excel-grid';
+        // Initial render
+        currentSheetName = sheets[0];
+        renderDiff(currentSheetName);
 
-        // Header Row (Column Letters: A, B, C...)
-        const thead = document.createElement('thead');
-        const headerRow = document.createElement('tr');
-        headerRow.innerHTML = '<th></th>'; // Corner
-        for (let c = 0; c < maxCols; c++) {
-          const th = document.createElement('th');
-          th.textContent = XLSX.utils.encode_col(c);
-          headerRow.appendChild(th);
-        }
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
+        // Sheet change listener
+        sheetSelect.addEventListener('change', (e) => {
+          currentSheetName = e.target.value;
+          renderDiff(currentSheetName);
+        });
 
-        // Body
-        const tbody = document.createElement('tbody');
-        let hasChanges = false;
+      } catch (error) {
+        alert('エラーが発生しました: ' + error.message);
+        console.error(error);
+        btnCompare.disabled = false;
+        btnCompare.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px;">difference</span> 比較を開始';
+      }
+    });
 
-        for (let r = 0; r < maxRows; r++) {
-          const tr = document.createElement('tr');
+    // Sync Scroll
+    let isSyncing = false;
+    function setupSyncScroll() {
+      [panelOld, panelNew].forEach((panel, idx) => {
+        panel.addEventListener('scroll', () => {
+          if (isSyncing) return;
+          isSyncing = true;
+          const other = idx === 0 ? panelNew : panelOld;
+          other.scrollTop = panel.scrollTop;
+          other.scrollLeft = panel.scrollLeft;
+          requestAnimationFrame(() => { isSyncing = false; });
+        });
+      });
+    }
+    setupSyncScroll();
 
-          // Row Number
-          const thRow = document.createElement('td'); // Using td for styling consistency as first child
-          thRow.textContent = (r + 1);
-          tr.appendChild(thRow);
+    // Navigation
+    btnPrev.addEventListener('click', () => navigateDiff(-1));
+    btnNext.addEventListener('click', () => navigateDiff(1));
 
-          const rowOld = oldData[r] || [];
-          const rowNew = newData[r] || [];
+    function navigateDiff(direction) {
+      if (diffRows.length === 0) return;
 
-          let rowHasDiff = false;
+      currentDiffIndex += direction;
+      if (currentDiffIndex < 0) currentDiffIndex = diffRows.length - 1;
+      if (currentDiffIndex >= diffRows.length) currentDiffIndex = 0;
 
-          for (let c = 0; c < maxCols; c++) {
-            const td = document.createElement('td');
-            const valOld = rowOld[c];
-            const valNew = rowNew[c];
-
-            // Normalize values for comparison (undefined/null -> "")
-            const strOld = (valOld === undefined || valOld === null) ? "" : String(valOld);
-            const strNew = (valNew === undefined || valNew === null) ? "" : String(valNew);
-
-            td.textContent = strNew; // Default show New
-
-            if (strOld !== strNew) {
-              rowHasDiff = true;
-              hasChanges = true;
-
-              if (strOld === "" && strNew !== "") {
-                td.classList.add('diff-added');
-              } else if (strOld !== "" && strNew === "") {
-                td.classList.add('diff-deleted');
-                td.textContent = strOld; // For deleted, show what was there
-              } else {
-                td.classList.add('diff-modified');
-                td.classList.add('tooltip-container');
-                td.setAttribute('data-old-value', `前回: ${strOld}\n今回: ${strNew}`);
-              }
-            }
-
-            tr.appendChild(td);
-          }
-
-          if (isDiffOnly && !rowHasDiff) {
-            // Skip rendering this row or hide it
-            // Just not appending it is faster for large tables
-            continue;
-          }
-
-          tbody.appendChild(tr);
-        }
-
-        table.appendChild(tbody);
-        gridContainer.innerHTML = '';
-
-        if (isDiffOnly && tbody.children.length === 0) {
-          gridContainer.innerHTML = '<div class="p-8 text-center text-gray-400">変更点はありません</div>';
-        } else {
-          gridContainer.appendChild(table);
-        }
-
-      }, 10);
+      updateDiffCounter();
+      scrollToRow(diffRows[currentDiffIndex]);
     }
 
+    function scrollToRow(rowIndex) {
+      const rowOld = panelOld.querySelector(`tr[data-row="${rowIndex}"]`);
+      const rowNew = panelNew.querySelector(`tr[data-row="${rowIndex}"]`);
+
+      if (rowOld) {
+        rowOld.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function updateDiffCounter() {
+      if (diffRows.length === 0) {
+        diffCounter.textContent = '変更なし';
+      } else {
+        diffCounter.textContent = `${currentDiffIndex + 1} / ${diffRows.length} 件`;
+      }
+    }
+
+    // Toggle Diff Only
+    btnDiffOnly.addEventListener('click', () => {
+      isDiffOnly = !isDiffOnly;
+      btnDiffOnly.innerHTML = isDiffOnly
+        ? '<span class="material-symbols-outlined" style="font-size: 18px;">filter_alt_off</span> すべて表示'
+        : '<span class="material-symbols-outlined" style="font-size: 18px;">filter_alt</span> 変更のみ表示';
+      renderDiff(currentSheetName);
+    });
+
+    // Core Diff Rendering
+    function renderDiff(sheetName) {
+      const oldSheet = oldWorkbook.Sheets[sheetName] || {};
+      const newSheet = newWorkbook.Sheets[sheetName] || {};
+
+      const oldData = XLSX.utils.sheet_to_json(oldSheet, { header: 1, defval: null });
+      const newData = XLSX.utils.sheet_to_json(newSheet, { header: 1, defval: null });
+
+      const maxRows = Math.max(oldData.length, newData.length);
+      let maxCols = 0;
+      oldData.forEach(r => maxCols = Math.max(maxCols, r ? r.length : 0));
+      newData.forEach(r => maxCols = Math.max(maxCols, r ? r.length : 0));
+
+      // Reset diff tracking
+      diffRows = [];
+      currentDiffIndex = -1;
+
+      // Build diff map
+      const diffMap = [];
+      for (let r = 0; r < maxRows; r++) {
+        const rowOld = oldData[r] || [];
+        const rowNew = newData[r] || [];
+        const rowDiff = [];
+        let rowHasChanges = false;
+
+        for (let c = 0; c < maxCols; c++) {
+          const valOld = rowOld[c];
+          const valNew = rowNew[c];
+          const strOld = (valOld === undefined || valOld === null) ? '' : String(valOld);
+          const strNew = (valNew === undefined || valNew === null) ? '' : String(valNew);
+
+          if (strOld !== strNew) {
+            rowHasChanges = true;
+            if (strOld === '' && strNew !== '') {
+              rowDiff.push({ type: 'added', old: strOld, new: strNew });
+            } else if (strOld !== '' && strNew === '') {
+              rowDiff.push({ type: 'deleted', old: strOld, new: strNew });
+            } else {
+              rowDiff.push({ type: 'modified', old: strOld, new: strNew });
+            }
+          } else {
+            rowDiff.push({ type: 'unchanged', old: strOld, new: strNew });
+          }
+        }
+
+        if (rowHasChanges) {
+          diffRows.push(r);
+        }
+        diffMap.push({ rowDiff, hasChanges: rowHasChanges });
+      }
+
+      // Create tables
+      panelOld.innerHTML = createTable(diffMap, maxCols, 'old');
+      panelNew.innerHTML = createTable(diffMap, maxCols, 'new');
+
+      // Update counter
+      if (diffRows.length > 0) {
+        currentDiffIndex = 0;
+      }
+      updateDiffCounter();
+      updateNavButtons();
+    }
+
+    function createTable(diffMap, maxCols, side) {
+      const rows = [];
+
+      // Header
+      let headerCells = '<th class="row-num"></th>';
+      for (let c = 0; c < maxCols; c++) {
+        headerCells += `<th>${XLSX.utils.encode_col(c)}</th>`;
+      }
+      rows.push(`<tr>${headerCells}</tr>`);
+
+      // Data rows
+      for (let r = 0; r < diffMap.length; r++) {
+        const { rowDiff, hasChanges } = diffMap[r];
+
+        // Skip unchanged rows in diff-only mode
+        if (isDiffOnly && !hasChanges) continue;
+
+        const rowClass = hasChanges ? 'diff-row' : '';
+        let cells = `<td class="row-num">${r + 1}</td>`;
+
+        for (let c = 0; c < maxCols; c++) {
+          const cell = rowDiff[c] || { type: 'unchanged', old: '', new: '' };
+          const value = side === 'old' ? cell.old : cell.new;
+          let cellClass = '';
+
+          if (cell.type === 'added') {
+            cellClass = side === 'new' ? 'cell-added' : '';
+          } else if (cell.type === 'deleted') {
+            cellClass = side === 'old' ? 'cell-deleted' : '';
+          } else if (cell.type === 'modified') {
+            cellClass = 'cell-modified';
+          }
+
+          cells += `<td class="${cellClass}" title="${escapeHtml(value)}">${escapeHtml(value)}</td>`;
+        }
+
+        rows.push(`<tr class="${rowClass}" data-row="${r}">${cells}</tr>`);
+      }
+
+      if (rows.length === 1) {
+        // Only header, no data
+        return `<div class="empty-state">
+          <span class="material-symbols-outlined">check_circle</span>
+          <div>${isDiffOnly ? '変更点はありません' : 'データがありません'}</div>
+        </div>`;
+      }
+
+      return `<table class="excel-table"><thead>${rows[0]}</thead><tbody>${rows.slice(1).join('')}</tbody></table>`;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function updateNavButtons() {
+      btnPrev.disabled = diffRows.length === 0;
+      btnNext.disabled = diffRows.length === 0;
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (!diffInterface.classList.contains('active')) return;
+
+      if (e.key === 'ArrowUp' && e.ctrlKey) {
+        e.preventDefault();
+        navigateDiff(-1);
+      } else if (e.key === 'ArrowDown' && e.ctrlKey) {
+        e.preventDefault();
+        navigateDiff(1);
+      }
+    });
   </script>
 </body>
 
