@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pomodoro Timer</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    /* Dark Mode (default) */
+    :root,
+    [data-theme="dark"] {
+      --bg: #000000;
+      --surface: #111111;
+      --surface-hover: #1a1a1a;
+      --border: #333333;
+      --text: #ffffff;
+      --text-muted: #999999;
+      --accent: #58a6ff;
+      --accent-hover: #79b8ff;
+      --work-color: #f85149;
+      --work-bg: rgba(248, 81, 73, 0.15);
+      --break-color: #3fb950;
+      --break-bg: rgba(63, 185, 80, 0.15);
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      --radius: 16px;
+      --radius-sm: 8px;
+    }
+
+    /* Light Mode */
+    [data-theme="light"] {
+      --bg: #f5f5f5;
+      --surface: #ffffff;
+      --surface-hover: #f0f0f0;
+      --border: #e0e0e0;
+      --text: #1a1a1a;
+      --text-muted: #666666;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --work-color: #dc2626;
+      --work-bg: rgba(220, 38, 38, 0.1);
+      --break-color: #16a34a;
+      --break-bg: rgba(22, 163, 74, 0.1);
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* Header */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .logo .material-icons {
+      font-size: 28px;
+      color: var(--accent);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .session-count {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      color: var(--text-muted);
+      background: var(--bg);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+    }
+
+    .session-count .material-icons {
+      font-size: 18px;
+      color: var(--work-color);
+    }
+
+    .session-value {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Theme Toggle Button */
+    .theme-toggle {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+      color: var(--text);
+    }
+
+    .theme-toggle:hover {
+      background: var(--surface-hover);
+      border-color: var(--accent);
+    }
+
+    .theme-toggle .material-icons {
+      font-size: 22px;
+    }
+
+    .theme-toggle .icon-light {
+      display: none;
+    }
+
+    .theme-toggle .icon-dark {
+      display: block;
+    }
+
+    [data-theme="light"] .theme-toggle .icon-light {
+      display: block;
+    }
+
+    [data-theme="light"] .theme-toggle .icon-dark {
+      display: none;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    /* Mode Selector */
+    .mode-selector {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .mode-btn:hover {
+      border-color: var(--accent);
+      background: var(--surface-hover);
+    }
+
+    .mode-btn.active {
+      border-color: var(--accent);
+      background: rgba(88, 166, 255, 0.1);
+    }
+
+    .mode-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
+    .mode-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Timer Card */
+    .timer-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px 32px;
+      text-align: center;
+      margin-bottom: 24px;
+      transition: background 0.3s;
+    }
+
+    .timer-card.work-mode {
+      background: var(--work-bg);
+      border-color: var(--work-color);
+    }
+
+    .timer-card.break-mode {
+      background: var(--break-bg);
+      border-color: var(--break-color);
+    }
+
+    /* Phase Indicator */
+    .phase-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      border-radius: 24px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      background: var(--bg);
+    }
+
+    .timer-card.work-mode .phase-indicator {
+      background: var(--work-color);
+      color: #fff;
+    }
+
+    .timer-card.break-mode .phase-indicator {
+      background: var(--break-color);
+      color: #fff;
+    }
+
+    .phase-indicator .material-icons {
+      font-size: 20px;
+    }
+
+    /* Timer Display */
+    .timer-display {
+      font-size: 120px;
+      font-weight: 200;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -4px;
+      line-height: 1;
+      margin-bottom: 32px;
+      color: var(--text);
+    }
+
+    .timer-card.work-mode .timer-display {
+      color: var(--work-color);
+    }
+
+    .timer-card.break-mode .timer-display {
+      color: var(--break-color);
+    }
+
+    /* Progress Ring */
+    .progress-container {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      margin: 0 auto 32px;
+    }
+
+    .progress-ring {
+      transform: rotate(-90deg);
+    }
+
+    .progress-ring-bg {
+      fill: none;
+      stroke: var(--border);
+      stroke-width: 8;
+    }
+
+    .progress-ring-fill {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.5s ease;
+    }
+
+    .timer-card.work-mode .progress-ring-fill {
+      stroke: var(--work-color);
+    }
+
+    .timer-card.break-mode .progress-ring-fill {
+      stroke: var(--break-color);
+    }
+
+    .timer-inner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .timer-inner .timer-display {
+      font-size: 64px;
+      margin-bottom: 8px;
+    }
+
+    .timer-inner .phase-text {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .control-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px 32px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .control-btn .material-icons {
+      font-size: 24px;
+    }
+
+    .control-btn.primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .control-btn.primary:hover {
+      background: var(--accent-hover);
+      transform: scale(1.02);
+    }
+
+    .timer-card.work-mode .control-btn.primary {
+      background: var(--work-color);
+    }
+
+    .timer-card.work-mode .control-btn.primary:hover {
+      background: #ff6b6b;
+    }
+
+    .timer-card.break-mode .control-btn.primary {
+      background: var(--break-color);
+    }
+
+    .timer-card.break-mode .control-btn.primary:hover {
+      background: #4ade80;
+    }
+
+    .control-btn.secondary {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .control-btn.secondary:hover {
+      background: var(--surface-hover);
+      border-color: var(--text-muted);
+    }
+
+    .control-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Skip Button */
+    .skip-btn {
+      margin-top: 16px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+    }
+
+    .skip-btn:hover {
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .skip-btn .material-icons {
+      font-size: 18px;
+    }
+
+    /* Info Card */
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .info-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-muted);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .info-item {
+      text-align: center;
+    }
+
+    .info-value {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .info-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Notification Overlay */
+    .notification-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .notification-overlay.show {
+      display: flex;
+    }
+
+    .notification-content {
+      text-align: center;
+      animation: scaleIn 0.3s ease;
+    }
+
+    .notification-icon {
+      font-size: 80px;
+      margin-bottom: 24px;
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    .notification-overlay.work .notification-icon {
+      color: var(--work-color);
+    }
+
+    .notification-overlay.break .notification-icon {
+      color: var(--break-color);
+    }
+
+    .notification-title {
+      font-size: 36px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+
+    .notification-message {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 32px;
+    }
+
+    .notification-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 16px 48px;
+      font-size: 18px;
+      font-weight: 600;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .notification-overlay.work .notification-btn {
+      background: var(--work-color);
+    }
+
+    .notification-overlay.break .notification-btn {
+      background: var(--break-color);
+    }
+
+    .notification-btn:hover {
+      transform: scale(1.05);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    /* Flash animation for urgent notification */
+    .notification-overlay.flash {
+      animation: flash 0.5s ease-in-out 3;
+    }
+
+    @keyframes flash {
+      0%, 100% { background: rgba(0, 0, 0, 0.9); }
+      50% { background: rgba(255, 255, 255, 0.1); }
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 600px) {
+      .header {
+        padding: 12px 16px;
+      }
+
+      .logo {
+        font-size: 18px;
+      }
+
+      .logo .material-icons {
+        font-size: 24px;
+      }
+
+      .container {
+        padding: 20px 16px;
+      }
+
+      .mode-selector {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .timer-card {
+        padding: 32px 20px;
+      }
+
+      .progress-container {
+        width: 220px;
+        height: 220px;
+      }
+
+      .timer-inner .timer-display {
+        font-size: 48px;
+      }
+
+      .controls {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .control-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .info-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .info-value {
+        font-size: 20px;
+      }
+
+      .notification-icon {
+        font-size: 60px;
+      }
+
+      .notification-title {
+        font-size: 28px;
+      }
+
+      .notification-message {
+        font-size: 16px;
+      }
+    }
+
+    /* Favicon Canvas (hidden) */
+    #favicon-canvas {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="favicon-canvas" width="32" height="32"></canvas>
+
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <span class="material-icons">timer</span>
+        <span>Pomodoro Timer</span>
+      </div>
+      <div class="header-right">
+        <div class="session-count">
+          <span class="material-icons">local_fire_department</span>
+          <span>セッション:</span>
+          <span class="session-value" id="session-count">0</span>
+        </div>
+        <button class="theme-toggle" id="theme-toggle" title="テーマ切替">
+          <span class="material-icons icon-dark">light_mode</span>
+          <span class="material-icons icon-light">dark_mode</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Mode Selector -->
+    <div class="mode-selector">
+      <button class="mode-btn active" data-mode="short">
+        <div class="mode-title">ショート</div>
+        <div class="mode-desc">25分作業 / 5分休憩</div>
+      </button>
+      <button class="mode-btn" data-mode="long">
+        <div class="mode-title">ロング</div>
+        <div class="mode-desc">50分作業 / 10分休憩</div>
+      </button>
+    </div>
+
+    <!-- Timer Card -->
+    <div class="timer-card work-mode" id="timer-card">
+      <div class="phase-indicator" id="phase-indicator">
+        <span class="material-icons">work</span>
+        <span id="phase-text">作業時間</span>
+      </div>
+
+      <div class="progress-container">
+        <svg class="progress-ring" width="280" height="280" viewBox="0 0 280 280">
+          <circle class="progress-ring-bg" cx="140" cy="140" r="130" />
+          <circle class="progress-ring-fill" id="progress-ring" cx="140" cy="140" r="130"
+                  stroke-dasharray="816.81" stroke-dashoffset="0" />
+        </svg>
+        <div class="timer-inner">
+          <div class="timer-display" id="timer-display">25:00</div>
+          <div class="phase-text" id="timer-phase">作業に集中しましょう</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="control-btn primary" id="start-btn">
+          <span class="material-icons">play_arrow</span>
+          <span>スタート</span>
+        </button>
+        <button class="control-btn secondary" id="reset-btn">
+          <span class="material-icons">refresh</span>
+          <span>リセット</span>
+        </button>
+      </div>
+
+      <button class="skip-btn" id="skip-btn">
+        <span class="material-icons">skip_next</span>
+        <span>スキップ</span>
+      </button>
+    </div>
+
+    <!-- Info Card -->
+    <div class="info-card">
+      <div class="info-title">今日の統計</div>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-value" id="total-work-time">0分</div>
+          <div class="info-label">作業時間</div>
+        </div>
+        <div class="info-item">
+          <div class="info-value" id="total-break-time">0分</div>
+          <div class="info-label">休憩時間</div>
+        </div>
+        <div class="info-item">
+          <div class="info-value" id="completed-sessions">0回</div>
+          <div class="info-label">完了セッション</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Notification Overlay -->
+  <div class="notification-overlay" id="notification-overlay">
+    <div class="notification-content">
+      <div class="material-icons notification-icon" id="notification-icon">check_circle</div>
+      <div class="notification-title" id="notification-title">作業完了!</div>
+      <div class="notification-message" id="notification-message">5分間の休憩を取りましょう</div>
+      <button class="notification-btn" id="notification-btn">続ける</button>
+    </div>
+  </div>
+
+  <script>
+    // ==================== Constants ====================
+    const STORAGE_KEY = 'pomodoro_timer_v1';
+    const THEME_KEY = 'pomodoro_timer_theme';
+    const STATS_KEY = 'pomodoro_timer_stats';
+
+    const MODES = {
+      short: { work: 25, break: 5 },
+      long: { work: 50, break: 10 }
+    };
+
+    const PROGRESS_CIRCUMFERENCE = 2 * Math.PI * 130; // 816.81
+
+    // ==================== State ====================
+    let state = {
+      mode: 'short',
+      phase: 'work', // 'work' or 'break'
+      timeRemaining: MODES.short.work * 60,
+      totalTime: MODES.short.work * 60,
+      isRunning: false,
+      sessionCount: 0
+    };
+
+    let stats = {
+      date: new Date().toDateString(),
+      workTime: 0,
+      breakTime: 0,
+      completedSessions: 0
+    };
+
+    let timerInterval = null;
+    let audioContext = null;
+
+    // ==================== DOM Elements ====================
+    const timerCard = document.getElementById('timer-card');
+    const timerDisplay = document.getElementById('timer-display');
+    const timerPhase = document.getElementById('timer-phase');
+    const phaseIndicator = document.getElementById('phase-indicator');
+    const phaseText = document.getElementById('phase-text');
+    const progressRing = document.getElementById('progress-ring');
+    const startBtn = document.getElementById('start-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const skipBtn = document.getElementById('skip-btn');
+    const sessionCountEl = document.getElementById('session-count');
+    const modeBtns = document.querySelectorAll('.mode-btn');
+    const themeToggleBtn = document.getElementById('theme-toggle');
+
+    // Stats elements
+    const totalWorkTimeEl = document.getElementById('total-work-time');
+    const totalBreakTimeEl = document.getElementById('total-break-time');
+    const completedSessionsEl = document.getElementById('completed-sessions');
+
+    // Notification elements
+    const notificationOverlay = document.getElementById('notification-overlay');
+    const notificationIcon = document.getElementById('notification-icon');
+    const notificationTitle = document.getElementById('notification-title');
+    const notificationMessage = document.getElementById('notification-message');
+    const notificationBtn = document.getElementById('notification-btn');
+
+    // ==================== Theme ====================
+    function loadTheme() {
+      const savedTheme = localStorage.getItem(THEME_KEY);
+      const theme = savedTheme || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem(THEME_KEY, newTheme);
+    }
+
+    loadTheme();
+
+    // ==================== Initialize ====================
+    function init() {
+      loadState();
+      loadStats();
+      updateDisplay();
+      updateStatsDisplay();
+      setupEventListeners();
+      requestNotificationPermission();
+    }
+
+    // ==================== Storage ====================
+    function loadState() {
+      try {
+        const data = localStorage.getItem(STORAGE_KEY);
+        if (data) {
+          const saved = JSON.parse(data);
+          state.mode = saved.mode || 'short';
+          state.sessionCount = saved.sessionCount || 0;
+          // Don't restore timer state to avoid confusion
+          resetTimer();
+        }
+        updateModeButtons();
+      } catch (e) {
+        console.error('Failed to load state:', e);
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          mode: state.mode,
+          sessionCount: state.sessionCount
+        }));
+      } catch (e) {
+        console.error('Failed to save state:', e);
+      }
+    }
+
+    function loadStats() {
+      try {
+        const data = localStorage.getItem(STATS_KEY);
+        if (data) {
+          const saved = JSON.parse(data);
+          // Reset stats if it's a new day
+          if (saved.date === new Date().toDateString()) {
+            stats = saved;
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load stats:', e);
+      }
+    }
+
+    function saveStats() {
+      try {
+        stats.date = new Date().toDateString();
+        localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+      } catch (e) {
+        console.error('Failed to save stats:', e);
+      }
+    }
+
+    // ==================== Timer Logic ====================
+    function startTimer() {
+      if (state.isRunning) {
+        pauseTimer();
+        return;
+      }
+
+      state.isRunning = true;
+      updateStartButton();
+
+      timerInterval = setInterval(() => {
+        state.timeRemaining--;
+
+        // Track time
+        if (state.phase === 'work') {
+          stats.workTime++;
+        } else {
+          stats.breakTime++;
+        }
+
+        updateDisplay();
+
+        if (state.timeRemaining <= 0) {
+          completePhase();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      state.isRunning = false;
+      clearInterval(timerInterval);
+      timerInterval = null;
+      updateStartButton();
+      saveStats();
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      const modeConfig = MODES[state.mode];
+      state.phase = 'work';
+      state.timeRemaining = modeConfig.work * 60;
+      state.totalTime = modeConfig.work * 60;
+      updateDisplay();
+      updatePhaseUI();
+    }
+
+    function skipPhase() {
+      completePhase();
+    }
+
+    function completePhase() {
+      pauseTimer();
+      playNotificationSound();
+      showNotification();
+
+      if (state.phase === 'work') {
+        state.sessionCount++;
+        stats.completedSessions++;
+        sessionCountEl.textContent = state.sessionCount;
+        saveState();
+      }
+
+      saveStats();
+      updateStatsDisplay();
+    }
+
+    function switchPhase() {
+      const modeConfig = MODES[state.mode];
+
+      if (state.phase === 'work') {
+        state.phase = 'break';
+        state.timeRemaining = modeConfig.break * 60;
+        state.totalTime = modeConfig.break * 60;
+      } else {
+        state.phase = 'work';
+        state.timeRemaining = modeConfig.work * 60;
+        state.totalTime = modeConfig.work * 60;
+      }
+
+      updateDisplay();
+      updatePhaseUI();
+    }
+
+    function setMode(mode) {
+      if (state.isRunning) {
+        if (!confirm('タイマーをリセットしてモードを変更しますか？')) {
+          return;
+        }
+      }
+
+      state.mode = mode;
+      updateModeButtons();
+      resetTimer();
+      saveState();
+    }
+
+    // ==================== UI Updates ====================
+    function updateDisplay() {
+      const minutes = Math.floor(state.timeRemaining / 60);
+      const seconds = state.timeRemaining % 60;
+      const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      timerDisplay.textContent = display;
+
+      // Update progress ring
+      const progress = state.timeRemaining / state.totalTime;
+      const offset = PROGRESS_CIRCUMFERENCE * (1 - progress);
+      progressRing.style.strokeDashoffset = offset;
+
+      // Update page title
+      const phaseLabel = state.phase === 'work' ? '作業' : '休憩';
+      document.title = state.isRunning
+        ? `${display} - ${phaseLabel} | Pomodoro Timer`
+        : 'Pomodoro Timer';
+
+      updateFavicon();
+    }
+
+    function updatePhaseUI() {
+      if (state.phase === 'work') {
+        timerCard.classList.remove('break-mode');
+        timerCard.classList.add('work-mode');
+        phaseText.textContent = '作業時間';
+        timerPhase.textContent = '作業に集中しましょう';
+        phaseIndicator.querySelector('.material-icons').textContent = 'work';
+      } else {
+        timerCard.classList.remove('work-mode');
+        timerCard.classList.add('break-mode');
+        phaseText.textContent = '休憩時間';
+        timerPhase.textContent = 'リラックスしましょう';
+        phaseIndicator.querySelector('.material-icons').textContent = 'coffee';
+      }
+    }
+
+    function updateStartButton() {
+      const icon = startBtn.querySelector('.material-icons');
+      const text = startBtn.querySelector('span:last-child');
+
+      if (state.isRunning) {
+        icon.textContent = 'pause';
+        text.textContent = '一時停止';
+      } else {
+        icon.textContent = 'play_arrow';
+        text.textContent = 'スタート';
+      }
+    }
+
+    function updateModeButtons() {
+      modeBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === state.mode);
+      });
+    }
+
+    function updateStatsDisplay() {
+      totalWorkTimeEl.textContent = `${Math.floor(stats.workTime / 60)}分`;
+      totalBreakTimeEl.textContent = `${Math.floor(stats.breakTime / 60)}分`;
+      completedSessionsEl.textContent = `${stats.completedSessions}回`;
+    }
+
+    function updateFavicon() {
+      const canvas = document.getElementById('favicon-canvas');
+      const ctx = canvas.getContext('2d');
+
+      ctx.clearRect(0, 0, 32, 32);
+
+      // Background
+      ctx.beginPath();
+      ctx.arc(16, 16, 14, 0, Math.PI * 2);
+      ctx.fillStyle = state.phase === 'work' ? '#f85149' : '#3fb950';
+      ctx.fill();
+
+      // Time or icon
+      const minutes = Math.floor(state.timeRemaining / 60);
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.fillText(minutes.toString(), 16, 17);
+
+      // Update favicon
+      const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+      link.rel = 'icon';
+      link.href = canvas.toDataURL();
+      document.head.appendChild(link);
+    }
+
+    // ==================== Notifications ====================
+    function requestNotificationPermission() {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    }
+
+    function showNotification() {
+      const isWorkComplete = state.phase === 'work';
+      const modeConfig = MODES[state.mode];
+
+      // Update overlay content
+      notificationOverlay.className = 'notification-overlay show flash ' + (isWorkComplete ? 'work' : 'break');
+      notificationIcon.textContent = isWorkComplete ? 'emoji_events' : 'coffee';
+      notificationTitle.textContent = isWorkComplete ? '作業完了!' : '休憩終了!';
+      notificationMessage.textContent = isWorkComplete
+        ? `${modeConfig.break}分間の休憩を取りましょう`
+        : '次の作業セッションを始めましょう';
+
+      // Show browser notification
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(notificationTitle.textContent, {
+          body: notificationMessage.textContent,
+          icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="%23f85149"/></svg>'
+        });
+      }
+    }
+
+    function hideNotification() {
+      notificationOverlay.classList.remove('show', 'flash');
+      switchPhase();
+      startTimer();
+    }
+
+    // ==================== Audio ====================
+    function playNotificationSound() {
+      try {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+
+        // Play multiple beeps
+        setTimeout(() => playBeep(600), 600);
+        setTimeout(() => playBeep(1000), 1200);
+      } catch (e) {
+        console.error('Failed to play sound:', e);
+      }
+    }
+
+    function playBeep(frequency) {
+      if (!audioContext) return;
+
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      oscillator.frequency.value = frequency;
+      oscillator.type = 'sine';
+
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+    }
+
+    // ==================== Event Listeners ====================
+    function setupEventListeners() {
+      startBtn.addEventListener('click', startTimer);
+      resetBtn.addEventListener('click', resetTimer);
+      skipBtn.addEventListener('click', skipPhase);
+      themeToggleBtn.addEventListener('click', toggleTheme);
+      notificationBtn.addEventListener('click', hideNotification);
+
+      modeBtns.forEach(btn => {
+        btn.addEventListener('click', () => setMode(btn.dataset.mode));
+      });
+
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        if (notificationOverlay.classList.contains('show')) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            hideNotification();
+          }
+          return;
+        }
+
+        if (e.key === ' ') {
+          e.preventDefault();
+          startTimer();
+        } else if (e.key === 'r' || e.key === 'R') {
+          resetTimer();
+        } else if (e.key === 's' || e.key === 'S') {
+          skipPhase();
+        }
+      });
+
+      // Close notification on click outside
+      notificationOverlay.addEventListener('click', (e) => {
+        if (e.target === notificationOverlay) {
+          hideNotification();
+        }
+      });
+
+      // Save stats when leaving page
+      window.addEventListener('beforeunload', () => {
+        if (state.isRunning) {
+          pauseTimer();
+        }
+        saveStats();
+      });
+    }
+
+    // ==================== Start ====================
+    init();
+  </script>
+</body>
+</html>
