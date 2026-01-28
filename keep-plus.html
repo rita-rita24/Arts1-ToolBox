@@ -1483,18 +1483,18 @@
     }
 
     function resetData() {
-      if (confirm('すべてのデータを削除しますか？この操作は取り消せません。')) {
-        data = {
-          version: '1.0.0',
-          notes: [],
-          labels: [],
-          settings: { theme: data.settings.theme, sidebarOpen: true }
-        };
-        saveData();
-        renderLabels();
-        renderNotes();
-        showToast('データを削除しました');
-      }
+      data = {
+        version: '1.0.0',
+        notes: [],
+        labels: [],
+        settings: { theme: data.settings.theme, sidebarOpen: true, fixedJsonPath: null, autoSave: false }
+      };
+      fileHandle = null;
+      saveData();
+      renderLabels();
+      renderNotes();
+      updateJsonPathDisplay();
+      showToast('データを削除しました');
     }
 
     // ===== テーマ =====
@@ -1630,13 +1630,12 @@
 
     function deleteLabel() {
       if (!editingLabelId) return;
-      if (!confirm('このラベルを削除しますか？')) return;
-      
+
       data.labels = data.labels.filter(l => l.id !== editingLabelId);
       data.notes.forEach(note => {
         note.labels = note.labels.filter(id => id !== editingLabelId);
       });
-      
+
       saveData();
       renderLabels();
       renderNotes();
@@ -2155,16 +2154,9 @@
       if (data.settings.fixedJsonPath && !fileHandle) {
         // File System Access APIがサポートされている場合
         if ('showOpenFilePicker' in window) {
-          // ユーザーに通知
-          const shouldRestore = confirm(
-            `前回設定したJSONファイル「${data.settings.fixedJsonPath}」への\n` +
-            'アクセスを復元しますか？\n\n' +
-            '「OK」を押してファイルを選択してください。'
-          );
-
-          if (shouldRestore) {
-            await selectJsonPath();
-          }
+          // 自動でファイル選択画面を表示
+          showToast(`前回のJSONファイル「${data.settings.fixedJsonPath}」を再選択してください`);
+          await selectJsonPath();
         }
       }
     }
