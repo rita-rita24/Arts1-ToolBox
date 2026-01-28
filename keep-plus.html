@@ -466,29 +466,6 @@
       background: #9a7b10;
     }
 
-    .note-card-checklist {
-      margin: 8px 0;
-    }
-
-    .check-item-preview {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      color: var(--text);
-      padding: 2px 0;
-    }
-
-    .check-item-preview.checked {
-      color: var(--text-secondary);
-      text-decoration: line-through;
-    }
-
-    .check-item-preview .material-icons {
-      font-size: 18px;
-      color: var(--primary);
-    }
-
     .note-card-footer {
       display: flex;
       align-items: center;
@@ -646,78 +623,6 @@
 
     .note-content-input::placeholder {
       color: var(--text-secondary);
-    }
-
-    /* チェックリスト編集 */
-    .checklist-editor {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .check-item-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .check-item-row input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-    }
-
-    .check-item-row input[type="text"] {
-      flex: 1;
-      border: none;
-      border-bottom: 1px solid transparent;
-      padding: 8px 0;
-      font-size: 14px;
-      color: var(--text);
-      background: transparent;
-      outline: none;
-    }
-
-    .check-item-row input[type="text"]:focus {
-      border-bottom-color: var(--accent);
-    }
-
-    .check-item-row.checked input[type="text"] {
-      color: var(--text-secondary);
-      text-decoration: line-through;
-    }
-
-    .check-item-delete {
-      width: 24px;
-      height: 24px;
-      border: none;
-      background: transparent;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-secondary);
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-
-    .check-item-row:hover .check-item-delete {
-      opacity: 1;
-    }
-
-    .add-check-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 0;
-      color: var(--text-secondary);
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    .add-check-item:hover {
-      color: var(--text);
     }
 
     /* 色選択 */
@@ -989,39 +894,6 @@
     }
 
     /* ===== ドラッグ&ドロップ ===== */
-    .drop-zone {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(26, 115, 232, 0.1);
-      border: 3px dashed var(--accent);
-      z-index: 500;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-    }
-
-    .drop-zone.show {
-      display: flex;
-    }
-
-    .drop-zone-content {
-      background: var(--card-bg);
-      padding: 32px 48px;
-      border-radius: 8px;
-      text-align: center;
-      box-shadow: var(--shadow);
-    }
-
-    .drop-zone-content .material-icons {
-      font-size: 48px;
-      color: var(--accent);
-      margin-bottom: 16px;
-    }
-
     /* ===== トースト通知 ===== */
     .toast {
       position: fixed;
@@ -1253,22 +1125,11 @@
           <div id="noteContentArea">
             <textarea class="note-content-input" id="noteContent" placeholder="メモを入力..."></textarea>
           </div>
-          
-          <div id="checklistArea" style="display: none;">
-            <div class="checklist-editor" id="checklistEditor"></div>
-            <div class="add-check-item" id="addCheckItem">
-              <span class="material-icons">add</span>
-              リストアイテムを追加
-            </div>
-          </div>
         </div>
       </div>
       
       <div class="modal-footer">
         <div class="modal-actions">
-          <button class="icon-btn" id="toggleChecklistBtn" title="チェックリスト">
-            <span class="material-icons">checklist</span>
-          </button>
           <button class="icon-btn" id="colorPickerBtn" title="色を変更">
             <span class="material-icons">palette</span>
           </button>
@@ -1431,21 +1292,6 @@
     </div>
   </div>
 
-  <!-- 確認ダイアログ -->
-  <div class="modal-overlay" id="confirmModal">
-    <div class="modal" style="max-width: 360px;">
-      <div class="modal-body" style="text-align: center; padding: 24px;">
-        <span class="material-icons" style="font-size: 48px; color: #d93025; margin-bottom: 16px;">delete</span>
-        <div style="font-size: 16px; margin-bottom: 8px;">このメモを削除しますか？</div>
-        <div style="font-size: 14px; color: var(--text-secondary);">この操作は取り消せません</div>
-      </div>
-      <div class="modal-footer" style="justify-content: center; gap: 12px;">
-        <button class="modal-btn modal-btn-secondary" id="confirmCancel">キャンセル</button>
-        <button class="modal-btn" id="confirmDelete" style="background: #d93025; color: white;">削除</button>
-      </div>
-    </div>
-  </div>
-
   <!-- ヘルプモーダル -->
   <div class="modal-overlay" id="helpModal">
     <div class="modal" style="max-width: 560px;">
@@ -1472,17 +1318,7 @@
               <strong>色を変更</strong>：編集画面でパレットアイコンをクリック
             </div>
           </div>
-          
-          <div class="help-section">
-            <div class="help-section-title">
-              <span class="material-icons">checklist</span>
-              チェックリスト
-            </div>
-            <div class="help-item">
-              編集画面でチェックリストアイコンをクリックするとリストモードに切り替わります。
-            </div>
-          </div>
-          
+
           <div class="help-section">
             <div class="help-section-title">
               <span class="material-icons">open_with</span>
@@ -1511,20 +1347,7 @@
               サイドバーのラベルをダブルクリックで編集できます。
             </div>
           </div>
-          
-          <div class="help-section">
-            <div class="help-section-title">
-              <span class="material-icons">keyboard</span>
-              ショートカット
-            </div>
-            <div class="help-item">
-              <code>Ctrl + N</code>：新規メモ作成
-            </div>
-            <div class="help-item">
-              <code>Esc</code>：モーダルを閉じる
-            </div>
-          </div>
-          
+
           <div class="help-section">
             <div class="help-section-title">
               <span class="material-icons">save</span>
@@ -1536,20 +1359,9 @@
             <div class="help-item">
               設定画面からJSONファイルとして書き出し・読み込みができます。
             </div>
-            <div class="help-item">
-              JSONファイルをドラッグ&ドロップでも読み込めます。
-            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- ドラッグ&ドロップゾーン -->
-  <div class="drop-zone" id="dropZone">
-    <div class="drop-zone-content">
-      <span class="material-icons">file_upload</span>
-      <div>JSONファイルをドロップして読み込み</div>
     </div>
   </div>
 
@@ -1615,6 +1427,7 @@
       updateSidebarState();
       updateJsonPathDisplay();
       updateAutoSaveToggle();
+      restoreFileHandle();
     }
 
     // ===== データ読み込み/保存 =====
@@ -1646,7 +1459,6 @@
       a.download = `keepplus_${new Date().toISOString().split('T')[0]}.json`;
       a.click();
       URL.revokeObjectURL(url);
-      showToast('データを書き出しました');
     }
 
     function importData(file) {
@@ -1850,10 +1662,9 @@
       // 検索適用
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
-        notes = notes.filter(n => 
+        notes = notes.filter(n =>
           n.title.toLowerCase().includes(query) ||
-          n.content.toLowerCase().includes(query) ||
-          n.checkItems.some(item => item.text.toLowerCase().includes(query))
+          n.content.toLowerCase().includes(query)
         );
       }
       
@@ -1916,25 +1727,8 @@
         </span>`;
       }).join('');
 
-      let contentHtml = '';
-      if (note.type === 'checklist' && note.checkItems.length > 0) {
-        const visibleItems = note.checkItems.slice(0, 5);
-        const remainingCount = note.checkItems.length - 5;
-        contentHtml = `
-          <div class="note-card-checklist">
-            ${visibleItems.map(item => `
-              <div class="check-item-preview ${item.checked ? 'checked' : ''}">
-                <span class="material-icons">${item.checked ? 'check_box' : 'check_box_outline_blank'}</span>
-                ${highlightSearch(escapeHtml(item.text))}
-              </div>
-            `).join('')}
-            ${remainingCount > 0 ? `<div style="font-size: 12px; color: var(--text-secondary);">+${remainingCount}件</div>` : ''}
-          </div>
-        `;
-      } else {
-        const renderedContent = escapeHtml(note.content).replace(/\n/g, '<br>');
-        contentHtml = `<div class="note-card-content">${highlightSearch(renderedContent)}</div>`;
-      }
+      const renderedContent = escapeHtml(note.content).replace(/\n/g, '<br>');
+      const contentHtml = `<div class="note-card-content">${highlightSearch(renderedContent)}</div>`;
 
       return `
         <div class="note-card" data-note-id="${note.id}" style="background: ${bgColor}">
@@ -2044,8 +1838,7 @@
         const query = searchQuery.toLowerCase();
         relevantNotes = relevantNotes.filter(n =>
           n.title.toLowerCase().includes(query) ||
-          n.content.toLowerCase().includes(query) ||
-          n.checkItems.some(item => item.text.toLowerCase().includes(query))
+          n.content.toLowerCase().includes(query)
         );
       }
 
@@ -2102,38 +1895,25 @@
       const modalContent = document.getElementById('noteModalContent');
       const titleInput = document.getElementById('noteTitle');
       const contentInput = document.getElementById('noteContent');
-      const contentArea = document.getElementById('noteContentArea');
-      const checklistArea = document.getElementById('checklistArea');
       const pinBtn = document.getElementById('pinNoteBtn');
       const deleteBtn = document.getElementById('deleteNoteBtn');
       const archiveBtn = document.getElementById('archiveNoteBtn');
-      
+
       if (noteId) {
         const note = data.notes.find(n => n.id === noteId);
         titleInput.value = note.title;
         contentInput.value = note.content;
-        
-        if (note.type === 'checklist') {
-          contentArea.style.display = 'none';
-          checklistArea.style.display = 'block';
-          renderChecklistEditor(note.checkItems);
-        } else {
-          contentArea.style.display = 'block';
-          checklistArea.style.display = 'none';
-        }
-        
+
         const colorObj = COLORS.find(c => c.id === note.color) || COLORS[0];
         const isDark = data.settings.theme === 'dark';
         modalContent.style.background = isDark ? colorObj.darkValue : colorObj.value;
-        
+
         pinBtn.querySelector('.material-icons').style.color = note.pinned ? '#fbbc04' : '';
         archiveBtn.querySelector('.material-icons').textContent = note.archived ? 'unarchive' : 'archive';
         deleteBtn.style.display = 'flex';
       } else {
         titleInput.value = '';
         contentInput.value = '';
-        contentArea.style.display = 'block';
-        checklistArea.style.display = 'none';
         modalContent.style.background = '';
         pinBtn.querySelector('.material-icons').style.color = '';
         deleteBtn.style.display = 'none';
@@ -2156,31 +1936,26 @@
       if (shouldSave) {
         const titleInput = document.getElementById('noteTitle');
         const contentInput = document.getElementById('noteContent');
-        
+
         const title = titleInput.value.trim();
         const content = contentInput.value.trim();
-        const checkItems = getChecklistItems();
-        
+
         if (editingNoteId) {
           // 既存メモの更新
           const note = data.notes.find(n => n.id === editingNoteId);
           if (note) {
             note.title = title;
             note.content = content;
-            note.checkItems = checkItems;
             note.updatedAt = new Date().toISOString();
           }
-        } else if (title || content || checkItems.length > 0) {
+        } else if (title || content) {
           // 新規メモの作成
-          const checklistArea = document.getElementById('checklistArea');
           // 最大order値を取得して+1
           const maxOrder = Math.max(...data.notes.map(n => n.order !== undefined ? n.order : -1), -1);
           data.notes.unshift({
             id: 'note_' + Date.now(),
             title,
             content,
-            type: checklistArea.style.display !== 'none' ? 'checklist' : 'note',
-            checkItems,
             color: 'default',
             labels: [],
             pinned: false,
@@ -2190,7 +1965,7 @@
             order: maxOrder + 1
           });
         }
-        
+
         saveData();
         renderNotes();
       }
@@ -2274,114 +2049,6 @@
       });
     }
 
-    // ===== チェックリスト =====
-    function renderChecklistEditor(items = []) {
-      const editor = document.getElementById('checklistEditor');
-      editor.innerHTML = items.map((item, index) => `
-        <div class="check-item-row ${item.checked ? 'checked' : ''}" data-index="${index}">
-          <input type="checkbox" ${item.checked ? 'checked' : ''}>
-          <input type="text" value="${escapeHtml(item.text)}" placeholder="リストアイテム">
-          <button class="check-item-delete">
-            <span class="material-icons" style="font-size: 18px;">close</span>
-          </button>
-        </div>
-      `).join('');
-      
-      setupChecklistEvents();
-    }
-
-    function setupChecklistEvents() {
-      const editor = document.getElementById('checklistEditor');
-      
-      editor.querySelectorAll('.check-item-row').forEach(row => {
-        const checkbox = row.querySelector('input[type="checkbox"]');
-        const textInput = row.querySelector('input[type="text"]');
-        const deleteBtn = row.querySelector('.check-item-delete');
-        
-        checkbox.addEventListener('change', () => {
-          row.classList.toggle('checked', checkbox.checked);
-          saveChecklistToNote();
-        });
-        
-        textInput.addEventListener('input', () => {
-          saveChecklistToNote();
-        });
-        
-        textInput.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            addCheckItem();
-          }
-        });
-        
-        deleteBtn.addEventListener('click', () => {
-          row.remove();
-          saveChecklistToNote();
-        });
-      });
-    }
-
-    function addCheckItem() {
-      const editor = document.getElementById('checklistEditor');
-      const row = document.createElement('div');
-      row.className = 'check-item-row';
-      row.innerHTML = `
-        <input type="checkbox">
-        <input type="text" placeholder="リストアイテム">
-        <button class="check-item-delete">
-          <span class="material-icons" style="font-size: 18px;">close</span>
-        </button>
-      `;
-      editor.appendChild(row);
-      setupChecklistEvents();
-      row.querySelector('input[type="text"]').focus();
-      saveChecklistToNote();
-    }
-
-    function getChecklistItems() {
-      const rows = document.querySelectorAll('#checklistEditor .check-item-row');
-      return Array.from(rows).map(row => ({
-        id: 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-        text: row.querySelector('input[type="text"]').value,
-        checked: row.querySelector('input[type="checkbox"]').checked
-      })).filter(item => item.text.trim());
-    }
-
-    function saveChecklistToNote() {
-      if (!editingNoteId) return;
-      const note = data.notes.find(n => n.id === editingNoteId);
-      if (!note) return;
-      note.checkItems = getChecklistItems();
-      note.updatedAt = new Date().toISOString();
-      saveData();
-    }
-
-    function toggleChecklist() {
-      const contentArea = document.getElementById('noteContentArea');
-      const checklistArea = document.getElementById('checklistArea');
-      
-      if (checklistArea.style.display === 'none') {
-        contentArea.style.display = 'none';
-        checklistArea.style.display = 'block';
-        if (editingNoteId) {
-          const note = data.notes.find(n => n.id === editingNoteId);
-          note.type = 'checklist';
-          renderChecklistEditor(note.checkItems);
-        } else {
-          renderChecklistEditor([]);
-        }
-      } else {
-        contentArea.style.display = 'block';
-        checklistArea.style.display = 'none';
-        if (editingNoteId) {
-          const note = data.notes.find(n => n.id === editingNoteId);
-          note.type = 'note';
-        }
-      }
-      
-      if (editingNoteId) saveData();
-    }
-
     // ===== メモ操作 =====
     function togglePin() {
       if (!editingNoteId) return;
@@ -2412,7 +2079,6 @@
       modal.classList.remove('show');
       document.getElementById('colorDropdown').classList.remove('show');
       document.getElementById('labelDropdown').classList.remove('show');
-      document.getElementById('autocomplete').classList.remove('show');
       editingNoteId = null;
       
       renderNotes();
@@ -2421,36 +2087,21 @@
 
     function deleteNote() {
       if (!editingNoteId) return;
-      
-      // カスタム確認ダイアログを表示
-      document.getElementById('confirmModal').classList.add('show');
-    }
-    
-    function confirmDeleteNote() {
+
       const noteIdToDelete = editingNoteId;
-      
-      if (!noteIdToDelete) return;
-      
-      // 確認ダイアログを閉じる
-      document.getElementById('confirmModal').classList.remove('show');
-      
+
       // モーダルを閉じる
       const modal = document.getElementById('noteModal');
       modal.classList.remove('show');
       document.getElementById('colorDropdown').classList.remove('show');
       document.getElementById('labelDropdown').classList.remove('show');
-      document.getElementById('autocomplete').classList.remove('show');
       editingNoteId = null;
-      
+
       // メモを削除
       data.notes = data.notes.filter(n => n.id !== noteIdToDelete);
       saveData();
       renderNotes();
       showToast('メモを削除しました');
-    }
-    
-    function cancelDeleteNote() {
-      document.getElementById('confirmModal').classList.remove('show');
     }
 
     // ===== 検索 =====
@@ -2500,6 +2151,24 @@
       }
     }
 
+    async function restoreFileHandle() {
+      if (data.settings.fixedJsonPath && !fileHandle) {
+        // File System Access APIがサポートされている場合
+        if ('showOpenFilePicker' in window) {
+          // ユーザーに通知
+          const shouldRestore = confirm(
+            `前回設定したJSONファイル「${data.settings.fixedJsonPath}」への\n` +
+            'アクセスを復元しますか？\n\n' +
+            '「OK」を押してファイルを選択してください。'
+          );
+
+          if (shouldRestore) {
+            await selectJsonPath();
+          }
+        }
+      }
+    }
+
     async function loadFromFixedPath() {
       if (!fileHandle) {
         showToast('先にファイルを選択してください');
@@ -2537,7 +2206,6 @@
         };
         await writable.write(JSON.stringify(exportData, null, 2));
         await writable.close();
-        showToast('データを出力しました');
       } catch (err) {
         console.error('書き込みエラー:', err);
         showToast('データの出力に失敗しました');
@@ -2730,7 +2398,6 @@
       document.getElementById('closeNoteModal').addEventListener('click', () => closeNoteModal());
       
       // メモ操作
-      document.getElementById('toggleChecklistBtn').addEventListener('click', toggleChecklist);
       document.getElementById('colorPickerBtn').addEventListener('click', () => {
         document.getElementById('colorDropdown').classList.toggle('show');
         document.getElementById('labelDropdown').classList.remove('show');
@@ -2743,10 +2410,6 @@
       document.getElementById('pinNoteBtn').addEventListener('click', togglePin);
       document.getElementById('archiveNoteBtn').addEventListener('click', archiveNote);
       document.getElementById('deleteNoteBtn').addEventListener('click', deleteNote);
-      
-      // 削除確認ダイアログ
-      document.getElementById('confirmDelete').addEventListener('click', confirmDeleteNote);
-      document.getElementById('confirmCancel').addEventListener('click', cancelDeleteNote);
       
       // ドロップダウン閉じる
       document.getElementById('colorDropdown').addEventListener('click', (e) => {
@@ -2762,10 +2425,7 @@
           document.getElementById('labelDropdown').classList.remove('show');
         }
       });
-      
-      // チェックリスト追加
-      document.getElementById('addCheckItem').addEventListener('click', addCheckItem);
-      
+
       // ラベルモーダル
       document.getElementById('closeLabelModal').addEventListener('click', () => {
         document.getElementById('labelModal').classList.remove('show');
@@ -2782,31 +2442,6 @@
       });
 
       // ドラッグ&ドロップ
-      const dropZone = document.getElementById('dropZone');
-      
-      document.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.classList.add('show');
-      });
-      
-      document.addEventListener('dragleave', (e) => {
-        if (e.relatedTarget === null) {
-          dropZone.classList.remove('show');
-        }
-      });
-      
-      document.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('show');
-        
-        const file = e.dataTransfer.files[0];
-        if (file && file.name.endsWith('.json')) {
-          importData(file);
-        } else {
-          showToast('JSONファイルをドロップしてください');
-        }
-      });
-      
       // キーボードショートカット
       document.addEventListener('keydown', (e) => {
         // Ctrl/Cmd + N: 新規メモ
