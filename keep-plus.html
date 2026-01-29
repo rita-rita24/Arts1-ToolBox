@@ -896,6 +896,7 @@
       font-size: 14px;
     }
 
+    /* ===== ドラッグ&ドロップ ===== */
     /* ===== トースト通知 ===== */
     .toast {
       position: fixed;
@@ -1296,21 +1297,6 @@
     </div>
   </div>
 
-  <!-- 確認ダイアログ -->
-  <div class="modal-overlay" id="confirmModal">
-    <div class="modal" style="max-width: 360px;">
-      <div class="modal-body" style="text-align: center; padding: 24px;">
-        <span class="material-icons" style="font-size: 48px; color: #d93025; margin-bottom: 16px;">delete</span>
-        <div style="font-size: 16px; margin-bottom: 8px;">このメモを削除しますか？</div>
-        <div style="font-size: 14px; color: var(--text-secondary);">この操作は取り消せません</div>
-      </div>
-      <div class="modal-footer" style="justify-content: center; gap: 12px;">
-        <button class="modal-btn modal-btn-secondary" id="confirmCancel">キャンセル</button>
-        <button class="modal-btn" id="confirmDelete" style="background: #d93025; color: white;">削除</button>
-      </div>
-    </div>
-  </div>
-
   <!-- ヘルプモーダル -->
   <div class="modal-overlay" id="helpModal">
     <div class="modal" style="max-width: 560px;">
@@ -1446,6 +1432,7 @@
       updateSidebarState();
       updateJsonPathDisplay();
       updateAutoSaveToggle();
+      restoreFileHandle();
     }
 
     // ===== データ読み込み/保存 =====
@@ -1477,7 +1464,6 @@
       a.download = `keepplus_${new Date().toISOString().split('T')[0]}.json`;
       a.click();
       URL.revokeObjectURL(url);
-      showToast('データを書き出しました');
     }
 
     function importData(file) {
@@ -1502,18 +1488,18 @@
     }
 
     function resetData() {
-      if (confirm('すべてのデータを削除しますか？この操作は取り消せません。')) {
-        data = {
-          version: '1.0.0',
-          notes: [],
-          labels: [],
-          settings: { theme: data.settings.theme, sidebarOpen: true }
-        };
-        saveData();
-        renderLabels();
-        renderNotes();
-        showToast('データを削除しました');
-      }
+      data = {
+        version: '1.0.0',
+        notes: [],
+        labels: [],
+        settings: { theme: data.settings.theme, sidebarOpen: true, fixedJsonPath: null, autoSave: false }
+      };
+      fileHandle = null;
+      saveData();
+      renderLabels();
+      renderNotes();
+      updateJsonPathDisplay();
+      showToast('データを削除しました');
     }
 
     // ===== テーマ =====
@@ -1649,7 +1635,6 @@
 
     function deleteLabel() {
       if (!editingLabelId) return;
-      if (!confirm('このラベルを削除しますか？')) return;
 
       data.labels = data.labels.filter(l => l.id !== editingLabelId);
       data.notes.forEach(note => {
@@ -2098,7 +2083,6 @@
       modal.classList.remove('show');
       document.getElementById('colorDropdown').classList.remove('show');
       document.getElementById('labelDropdown').classList.remove('show');
-      document.getElementById('autocomplete').classList.remove('show');
       editingNoteId = null;
 
       renderNotes();
@@ -2108,17 +2092,7 @@
     function deleteNote() {
       if (!editingNoteId) return;
 
-      // カスタム確認ダイアログを表示
-      document.getElementById('confirmModal').classList.add('show');
-    }
-
-    function confirmDeleteNote() {
       const noteIdToDelete = editingNoteId;
-
-      if (!noteIdToDelete) return;
-
-      // 確認ダイアログを閉じる
-      document.getElementById('confirmModal').classList.remove('show');
 
       // モーダルを閉じる
       const modal = document.getElementById('noteModal');
@@ -2132,10 +2106,6 @@
       saveData();
       renderNotes();
       showToast('メモを削除しました');
-    }
-
-    function cancelDeleteNote() {
-      document.getElementById('confirmModal').classList.remove('show');
     }
 
     // ===== 検索 =====
@@ -2186,6 +2156,17 @@
         if (err.name !== 'AbortError') {
           console.error('ファイル選択エラー:', err);
           showToast('ファイル選択に失敗しました');
+        }
+      }
+    }
+
+    async function restoreFileHandle() {
+      if (data.settings.fixedJsonPath && !fileHandle) {
+        // File System Access APIがサポートされている場合
+        if ('showOpenFilePicker' in window) {
+          // 自動でファイル選択画面を表示
+          showToast(`前回のJSONファイル「${data.settings.fixedJsonPath}」を再選択してください`);
+          await selectJsonPath();
         }
       }
     }
@@ -2442,11 +2423,7 @@
       document.getElementById('pinNoteBtn').addEventListener('click', togglePin);
       document.getElementById('archiveNoteBtn').addEventListener('click', archiveNote);
       document.getElementById('deleteNoteBtn').addEventListener('click', deleteNote);
-
-      // 削除確認ダイアログ
-      document.getElementById('confirmDelete').addEventListener('click', confirmDeleteNote);
-      document.getElementById('confirmCancel').addEventListener('click', cancelDeleteNote);
-
+      
       // ドロップダウン閉じる
       document.getElementById('colorDropdown').addEventListener('click', (e) => {
         if (e.target.id === 'colorDropdown') {
@@ -2477,6 +2454,7 @@
         document.getElementById('helpModal').classList.remove('show');
       });
 
+      // ドラッグ&ドロップ
       // キーボードショートカット
       document.addEventListener('keydown', (e) => {
         // Ctrl/Cmd + N: 新規メモ
