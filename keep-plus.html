@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,8 +18,8 @@
       --text: #202124;
       --text-secondary: #5f6368;
       --border: #e0e0e0;
-      --shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
-      --shadow-hover: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+      --shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+      --shadow-hover: 0 1px 3px 0 rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15);
       --header-height: 64px;
       --sidebar-width: 280px;
     }
@@ -33,8 +34,8 @@
       --text: #e8eaed;
       --text-secondary: #9aa0a6;
       --border: #5f6368;
-      --shadow: 0 1px 2px 0 rgba(0,0,0,0.6), 0 1px 3px 1px rgba(0,0,0,0.3);
-      --shadow-hover: 0 1px 3px 0 rgba(0,0,0,0.6), 0 4px 8px 3px rgba(0,0,0,0.3);
+      --shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.6), 0 1px 3px 1px rgba(0, 0, 0, 0.3);
+      --shadow-hover: 0 1px 3px 0 rgba(0, 0, 0, 0.6), 0 4px 8px 3px rgba(0, 0, 0, 0.3);
     }
 
     * {
@@ -453,6 +454,7 @@
       overflow: hidden;
       display: -webkit-box;
       -webkit-line-clamp: 8;
+      line-clamp: 8;
       -webkit-box-orient: vertical;
     }
 
@@ -519,12 +521,13 @@
       background: var(--card-bg);
       border-radius: 8px;
       width: 100%;
-      max-width: 75vw;
+      max-width: 90vw;
+      min-height: 70vh;
       max-height: 90vh;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12), 0 11px 15px -7px rgba(0,0,0,0.2);
+      box-shadow: 0 24px 38px 3px rgba(0, 0, 0, 0.14), 0 9px 46px 8px rgba(0, 0, 0, 0.12), 0 11px 15px -7px rgba(0, 0, 0, 0.2);
     }
 
     .modal-header {
@@ -617,7 +620,7 @@
       background: transparent;
       outline: none;
       resize: none;
-      min-height: 400px;
+      min-height: 600px;
       line-height: 1.6;
     }
 
@@ -985,11 +988,11 @@
       border-radius: 50%;
     }
 
-    .toggle-switch input:checked + .toggle-slider {
+    .toggle-switch input:checked+.toggle-slider {
       background-color: var(--accent);
     }
 
-    .toggle-switch input:checked + .toggle-slider:before {
+    .toggle-switch input:checked+.toggle-slider:before {
       transform: translateX(24px);
     }
 
@@ -1019,6 +1022,7 @@
     }
   </style>
 </head>
+
 <body>
   <!-- ヘッダー -->
   <header class="header">
@@ -1031,7 +1035,7 @@
         Keep+
       </div>
     </div>
-    
+
     <div class="header-center">
       <div class="search-container">
         <span class="material-icons search-icon">search</span>
@@ -1041,7 +1045,7 @@
         </button>
       </div>
     </div>
-    
+
     <div class="header-right">
       <div class="save-status" id="saveStatus" style="display: none;">
         <span class="material-icons" style="font-size: 14px;">cloud_done</span>
@@ -1068,7 +1072,7 @@
         ピン留め
       </div>
     </div>
-    
+
     <div class="sidebar-section">
       <div class="sidebar-section-title" id="labelsToggle">
         ラベル
@@ -1080,7 +1084,7 @@
         新しいラベルを作成
       </button>
     </div>
-    
+
     <div class="sidebar-section">
       <div class="sidebar-item" data-filter="archived">
         <span class="material-icons">archive</span>
@@ -1097,17 +1101,17 @@
         <span>新規メモ</span>
       </button>
     </div>
-    
+
     <div id="pinnedSection" style="display: none;">
       <div class="section-title">ピン留め</div>
       <div class="notes-grid" id="pinnedGrid"></div>
     </div>
-    
+
     <div id="otherSection">
       <div class="section-title" id="otherSectionTitle">その他</div>
       <div class="notes-grid" id="notesGrid"></div>
     </div>
-    
+
     <div class="empty-state" id="emptyState" style="display: none;">
       <span class="material-icons">lightbulb</span>
       <div class="empty-state-title">メモがありません</div>
@@ -1121,13 +1125,13 @@
       <div class="modal-body">
         <div class="note-form">
           <input type="text" class="note-title-input" id="noteTitle" placeholder="タイトル">
-          
+
           <div id="noteContentArea">
             <textarea class="note-content-input" id="noteContent" placeholder="メモを入力..."></textarea>
           </div>
         </div>
       </div>
-      
+
       <div class="modal-footer">
         <div class="modal-actions">
           <button class="icon-btn" id="colorPickerBtn" title="色を変更">
@@ -1150,14 +1154,14 @@
       </div>
     </div>
   </div>
-  
+
   <!-- 色選択ドロップダウン -->
   <div class="modal-overlay" id="colorDropdown" style="background: transparent;">
     <div class="modal" style="max-width: 280px; padding: 12px;">
       <div class="color-picker" id="colorPicker"></div>
     </div>
   </div>
-  
+
   <!-- ラベル選択ドロップダウン -->
   <div class="modal-overlay" id="labelDropdown" style="background: transparent;">
     <div class="modal" style="max-width: 280px;">
@@ -1196,7 +1200,7 @@
             </button>
           </div>
         </div>
-        
+
         <div class="settings-section">
           <div class="settings-section-title">JSONファイルの自動読み書き設定</div>
           <div class="settings-row">
@@ -1207,7 +1211,8 @@
             </button>
           </div>
           <div class="settings-row" id="jsonPathDisplay" style="display: none;">
-            <span style="font-size: 12px; color: var(--text-secondary); word-break: break-all;" id="jsonPathText"></span>
+            <span style="font-size: 12px; color: var(--text-secondary); word-break: break-all;"
+              id="jsonPathText"></span>
             <button class="data-btn" id="clearJsonPathBtn" style="padding: 4px 12px;">
               <span class="material-icons" style="font-size: 18px;">close</span>
             </button>
@@ -1534,7 +1539,7 @@
     function renderLabels() {
       const list = document.getElementById('labelList');
       list.innerHTML = data.labels.map(label => `
-        <div class="label-item ${currentLabelFilter === label.id ? 'active' : ''}" 
+        <div class="label-item ${currentLabelFilter === label.id ? 'active' : ''}"
              data-label-id="${label.id}">
           <span class="label-dot" style="background: ${label.color}"></span>
           ${escapeHtml(label.name)}
@@ -1567,7 +1572,7 @@
       const titleEl = document.getElementById('labelModalTitle');
       const nameInput = document.getElementById('labelNameInput');
       const deleteBtn = document.getElementById('deleteLabelBtn');
-      
+
       if (labelId) {
         const label = data.labels.find(l => l.id === labelId);
         titleEl.textContent = 'ラベルを編集';
@@ -1580,7 +1585,7 @@
         deleteBtn.style.display = 'none';
         renderLabelColorPicker(LABEL_COLORS[0]);
       }
-      
+
       modal.classList.add('show');
       nameInput.focus();
     }
@@ -1591,7 +1596,7 @@
         <div class="label-color-option ${color === selectedColor ? 'selected' : ''}"
              style="background: ${color}" data-color="${color}"></div>
       `).join('');
-      
+
       picker.querySelectorAll('.label-color-option').forEach(opt => {
         opt.addEventListener('click', () => {
           picker.querySelectorAll('.label-color-option').forEach(o => o.classList.remove('selected'));
@@ -1604,12 +1609,12 @@
       const name = document.getElementById('labelNameInput').value.trim();
       const colorEl = document.querySelector('#labelColorPicker .selected');
       const color = colorEl ? colorEl.dataset.color : LABEL_COLORS[0];
-      
+
       if (!name) {
         showToast('ラベル名を入力してください');
         return;
       }
-      
+
       if (editingLabelId) {
         const label = data.labels.find(l => l.id === editingLabelId);
         label.name = name;
@@ -1621,7 +1626,7 @@
           color
         });
       }
-      
+
       saveData();
       renderLabels();
       document.getElementById('labelModal').classList.remove('show');
@@ -1646,7 +1651,7 @@
     // ===== メモ管理 =====
     function renderNotes() {
       let notes = [...data.notes];
-      
+
       // フィルター適用
       if (currentFilter === 'pinned') {
         notes = notes.filter(n => n.pinned && !n.archived);
@@ -1657,7 +1662,7 @@
       } else {
         notes = notes.filter(n => !n.archived);
       }
-      
+
       // 検索適用
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
@@ -1666,7 +1671,7 @@
           n.content.toLowerCase().includes(query)
         );
       }
-      
+
       // ピン留め分離とorder順にソート
       const pinned = sortNotesByOrder(notes.filter(n => n.pinned));
       const others = sortNotesByOrder(notes.filter(n => !n.pinned));
@@ -1716,7 +1721,7 @@
       const isDark = data.settings.theme === 'dark';
       const colorObj = COLORS.find(c => c.id === note.color) || COLORS[0];
       const bgColor = isDark ? colorObj.darkValue : colorObj.value;
-      
+
       const labels = note.labels.map(labelId => {
         const label = data.labels.find(l => l.id === labelId);
         if (!label) return '';
@@ -1864,7 +1869,7 @@
     function handleCardAction(noteId, action) {
       const note = data.notes.find(n => n.id === noteId);
       if (!note) return;
-      
+
       switch (action) {
         case 'pin':
           note.pinned = !note.pinned;
@@ -1882,7 +1887,7 @@
           }, 100);
           return;
       }
-      
+
       saveData();
       renderNotes();
     }
@@ -1917,7 +1922,7 @@
         pinBtn.querySelector('.material-icons').style.color = '';
         deleteBtn.style.display = 'none';
       }
-      
+
       renderColorPicker();
       modal.classList.add('show');
       // ドロップダウンを確実に閉じる
@@ -1928,10 +1933,10 @@
 
     function closeNoteModal(shouldSave = true) {
       const modal = document.getElementById('noteModal');
-      
+
       // 既に閉じている場合は何もしない
       if (!modal.classList.contains('show')) return;
-      
+
       if (shouldSave) {
         const titleInput = document.getElementById('noteTitle');
         const contentInput = document.getElementById('noteContent');
@@ -1968,7 +1973,7 @@
         saveData();
         renderNotes();
       }
-      
+
       // モーダルを閉じる
       modal.classList.remove('show');
       document.getElementById('colorDropdown').classList.remove('show');
@@ -1983,13 +1988,13 @@
       const note = editingNoteId ? data.notes.find(n => n.id === editingNoteId) : null;
       const currentColor = note ? note.color : 'default';
       const isDark = data.settings.theme === 'dark';
-      
+
       picker.innerHTML = COLORS.map(color => `
         <div class="color-option ${color.id === currentColor ? 'selected' : ''} ${color.id === 'default' ? 'default' : ''}"
              style="background: ${isDark ? color.darkValue : color.value}"
              data-color-id="${color.id}"></div>
       `).join('');
-      
+
       picker.querySelectorAll('.color-option').forEach(opt => {
         opt.addEventListener('click', () => {
           const colorId = opt.dataset.colorId;
@@ -1998,7 +2003,7 @@
             note.color = colorId;
             note.updatedAt = new Date().toISOString();
             saveData();
-            
+
             const colorObj = COLORS.find(c => c.id === colorId);
             document.getElementById('noteModalContent').style.background = isDark ? colorObj.darkValue : colorObj.value;
           }
@@ -2014,7 +2019,7 @@
       const selector = document.getElementById('labelSelector');
       const note = editingNoteId ? data.notes.find(n => n.id === editingNoteId) : null;
       const selectedLabels = note ? note.labels : [];
-      
+
       selector.innerHTML = data.labels.map(label => `
         <label class="label-option">
           <input type="checkbox" ${selectedLabels.includes(label.id) ? 'checked' : ''} data-label-id="${label.id}">
@@ -2022,17 +2027,17 @@
           ${escapeHtml(label.name)}
         </label>
       `).join('');
-      
+
       if (data.labels.length === 0) {
         selector.innerHTML = '<div style="color: var(--text-secondary); padding: 8px;">ラベルがありません</div>';
       }
-      
+
       selector.querySelectorAll('input[type="checkbox"]').forEach(cb => {
         cb.addEventListener('change', () => {
           if (!editingNoteId) return;
           const note = data.notes.find(n => n.id === editingNoteId);
           const labelId = cb.dataset.labelId;
-          
+
           if (cb.checked) {
             if (!note.labels.includes(labelId)) {
               note.labels.push(labelId);
@@ -2040,7 +2045,7 @@
           } else {
             note.labels = note.labels.filter(id => id !== labelId);
           }
-          
+
           note.updatedAt = new Date().toISOString();
           saveData();
           renderNotes();
@@ -2055,7 +2060,7 @@
       note.pinned = !note.pinned;
       note.updatedAt = new Date().toISOString();
       saveData();
-      
+
       const pinBtn = document.getElementById('pinNoteBtn');
       pinBtn.querySelector('.material-icons').style.color = note.pinned ? '#fbbc04' : '';
       renderNotes();
@@ -2063,23 +2068,23 @@
 
     function archiveNote() {
       if (!editingNoteId) return;
-      
+
       const note = data.notes.find(n => n.id === editingNoteId);
       if (!note) return;
-      
+
       note.archived = !note.archived;
       note.updatedAt = new Date().toISOString();
       saveData();
-      
+
       const wasArchived = note.archived;
-      
+
       // モーダルを閉じる
       const modal = document.getElementById('noteModal');
       modal.classList.remove('show');
       document.getElementById('colorDropdown').classList.remove('show');
       document.getElementById('labelDropdown').classList.remove('show');
       editingNoteId = null;
-      
+
       renderNotes();
       showToast(wasArchived ? 'アーカイブしました' : '復元しました');
     }
@@ -2135,10 +2140,15 @@
           });
           fileHandle = handle;
           const file = await handle.getFile();
+          const wasAutoSaveEnabled = data.settings.autoSave;
           data.settings.fixedJsonPath = file.name;
           saveData();
           updateJsonPathDisplay();
-          showToast('固定JSONファイルを設定しました');
+          if (wasAutoSaveEnabled) {
+            showToast('固定JSONファイルを設定しました（自動保存が有効です）');
+          } else {
+            showToast('固定JSONファイルを設定しました');
+          }
         } else {
           showToast('このブラウザはFile System Access APIをサポートしていません');
         }
@@ -2217,15 +2227,26 @@
       const text = document.getElementById('jsonPathText');
       const loadBtn = document.getElementById('loadFromFixedPathBtn');
       const saveBtn = document.getElementById('saveToFixedPathBtn');
+      const selectBtn = document.getElementById('selectJsonPathBtn');
 
       if (data.settings.fixedJsonPath) {
         display.style.display = 'flex';
-        text.textContent = data.settings.fixedJsonPath;
-        loadBtn.disabled = false;
-        saveBtn.disabled = false;
+        // ファイルハンドルがない場合は再選択が必要であることを表示
+        if (!fileHandle) {
+          text.textContent = data.settings.fixedJsonPath + '（再選択が必要）';
+          selectBtn.innerHTML = '<span class="material-icons">folder_open</span>ファイルを再選択';
+          loadBtn.disabled = true;
+          saveBtn.disabled = true;
+        } else {
+          text.textContent = data.settings.fixedJsonPath;
+          selectBtn.innerHTML = '<span class="material-icons">folder_open</span>ファイルを選択';
+          loadBtn.disabled = false;
+          saveBtn.disabled = false;
+        }
       } else {
         display.style.display = 'none';
         text.textContent = '';
+        selectBtn.innerHTML = '<span class="material-icons">folder_open</span>ファイルを選択';
         loadBtn.disabled = true;
         saveBtn.disabled = true;
       }
@@ -2296,9 +2317,9 @@
       const toast = document.getElementById('toast');
       const msgEl = document.getElementById('toastMessage');
       const actionBtn = document.getElementById('toastAction');
-      
+
       msgEl.textContent = message;
-      
+
       if (action && actionText) {
         actionBtn.textContent = actionText;
         actionBtn.onclick = action;
@@ -2306,9 +2327,9 @@
       } else {
         actionBtn.style.display = 'none';
       }
-      
+
       toast.classList.add('show');
-      
+
       setTimeout(() => {
         toast.classList.remove('show');
       }, 3000);
@@ -2318,10 +2339,10 @@
     function setupEventListeners() {
       // メニューボタン
       document.getElementById('menuBtn').addEventListener('click', toggleSidebar);
-      
+
       // 新規メモ
       document.getElementById('newNoteBtn').addEventListener('click', () => openNoteModal());
-      
+
       // 検索
       const searchBox = document.getElementById('searchBox');
       searchBox.addEventListener('input', (e) => handleSearch(e.target.value));
@@ -2329,7 +2350,7 @@
         searchBox.value = '';
         handleSearch('');
       });
-      
+
       // サイドバーフィルター
       document.querySelectorAll('.sidebar-item[data-filter]').forEach(item => {
         item.addEventListener('click', () => {
@@ -2339,10 +2360,10 @@
           renderNotes();
         });
       });
-      
+
       // ラベル追加
       document.getElementById('addLabelBtn').addEventListener('click', () => openLabelModal());
-      
+
       // 設定
       document.getElementById('settingsBtn').addEventListener('click', () => {
         document.getElementById('settingsModal').classList.add('show');
@@ -2350,12 +2371,12 @@
       document.getElementById('closeSettingsModal').addEventListener('click', () => {
         document.getElementById('settingsModal').classList.remove('show');
       });
-      
+
       // テーマ切り替え
       document.querySelectorAll('.theme-btn').forEach(btn => {
         btn.addEventListener('click', () => setTheme(btn.dataset.theme));
       });
-      
+
       // データ管理
       document.getElementById('importBtn').addEventListener('click', () => {
         document.getElementById('fileInput').click();
@@ -2388,7 +2409,7 @@
 
       // メモモーダル
       document.getElementById('closeNoteModal').addEventListener('click', () => closeNoteModal());
-      
+
       // メモ操作
       document.getElementById('colorPickerBtn').addEventListener('click', () => {
         document.getElementById('colorDropdown').classList.toggle('show');
@@ -2424,7 +2445,7 @@
       });
       document.getElementById('saveLabelBtn').addEventListener('click', saveLabel);
       document.getElementById('deleteLabelBtn').addEventListener('click', deleteLabel);
-      
+
       // ヘルプモーダル
       document.getElementById('helpBtn').addEventListener('click', () => {
         document.getElementById('helpModal').classList.add('show');
@@ -2453,7 +2474,7 @@
           });
         }
       });
-      
+
       // モーダル外クリックで閉じる
       document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', (e) => {
@@ -2472,4 +2493,5 @@
     init();
   </script>
 </body>
+
 </html>

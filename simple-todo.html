@@ -1,132 +1,315 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>タスク管理</title>
-  <link id="favicon" rel="icon" type="image/svg+xml" href="">
+  <title>Todo Board</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
+    /* Dark Mode (default) */
+    :root,
+    [data-theme="dark"] {
+      --bg: #000000;
+      --surface: #111111;
+      --surface-hover: #1a1a1a;
+      --border: #333333;
+      --text: #ffffff;
+      --text-muted: #999999;
+      --accent: #58a6ff;
+      --accent-hover: #79b8ff;
+      --success: #3fb950;
+      --success-bg: rgba(63, 185, 80, 0.1);
+      --danger: #f85149;
+      --danger-hover: #ff6b6b;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    /* Light Mode */
+    [data-theme="light"] {
+      --bg: #f5f5f5;
+      --surface: #ffffff;
+      --surface-hover: #f0f0f0;
+      --border: #e0e0e0;
+      --text: #1a1a1a;
+      --text-muted: #666666;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --success: #16a34a;
+      --success-bg: rgba(22, 163, 74, 0.1);
+      --danger: #dc2626;
+      --danger-hover: #b91c1c;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
 
-    :root {
-      --bg: #0a0a0a;
-      --surface: #141414;
-      --surface-hover: #1a1a1a;
-      --border: #333;
-      --text: #ffffff;
-      --text-muted: #aaa;
-      --text-dim: #777;
-      --accent: #fff;
-    }
-
-    html,
     body {
-      height: 100%;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", Helvetica, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
-      font-size: 16px;
+      min-height: 100vh;
       line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
     }
 
-    .app {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 48px 24px 24px;
-    }
-
-    /* ===== Input Area ===== */
-    .input-container {
-      position: relative;
-      margin-bottom: 48px;
-    }
-
-    .input-field {
-      width: 100%;
-      padding: 20px 24px;
-      font-size: 20px;
-      font-family: inherit;
+    /* Header */
+    .header {
       background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      color: var(--text);
-      transition: all 0.2s ease;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    .input-field::placeholder {
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .logo .material-icons {
+      font-size: 28px;
+      color: var(--accent);
+    }
+
+    .header-stats {
+      display: flex;
+      gap: 20px;
+      font-size: 14px;
       color: var(--text-muted);
     }
 
-    .input-field:focus {
-      outline: none;
-      border-color: var(--text-muted);
-      background: var(--surface-hover);
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    /* Animated placeholder hint */
-    .input-hint {
-      position: absolute;
-      right: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 13px;
-      color: var(--text-dim);
-      pointer-events: none;
-      opacity: 1;
-      transition: opacity 0.2s;
+    .stat-value {
+      font-weight: 600;
+      color: var(--text);
     }
 
-    .input-field:focus~.input-hint,
-    .input-field:not(:placeholder-shown)~.input-hint {
-      opacity: 0;
-    }
-
-    /* ===== Counter ===== */
-    .counter {
+    .header-right {
       display: flex;
       align-items: center;
       gap: 16px;
+    }
+
+    /* Theme Toggle Button */
+    .theme-toggle {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+      color: var(--text);
+    }
+
+    .theme-toggle:hover {
+      background: var(--surface-hover);
+      border-color: var(--accent);
+    }
+
+    .theme-toggle .material-icons {
+      font-size: 22px;
+    }
+
+    /* Show/hide icons based on theme */
+    .theme-toggle .icon-light {
+      display: none;
+    }
+
+    .theme-toggle .icon-dark {
+      display: block;
+    }
+
+    [data-theme="light"] .theme-toggle .icon-light {
+      display: block;
+    }
+
+    [data-theme="light"] .theme-toggle .icon-dark {
+      display: none;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* Input Section */
+    .input-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
       margin-bottom: 24px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--border);
     }
 
-    .counter-num {
-      font-size: 48px;
-      font-weight: 200;
-      line-height: 1;
-      letter-spacing: -0.02em;
+    .input-wrapper {
+      display: flex;
+      gap: 12px;
     }
 
-    .counter-label {
-      font-size: 14px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-
-    /* ===== Task List ===== */
-    .task-list {
+    .task-input {
       flex: 1;
-      overflow-y: auto;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .task-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
+    }
+
+    .task-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .add-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 14px 24px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .add-btn:hover {
+      background: var(--accent-hover);
+    }
+
+    .add-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Board Layout */
+    .board {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    /* Column */
+    .column {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       display: flex;
       flex-direction: column;
+      min-height: 400px;
+      max-height: calc(100vh - 280px);
+    }
+
+    .column-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .column-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .column-title .material-icons {
+      font-size: 22px;
+    }
+
+    .column.pending .column-title .material-icons {
+      color: var(--accent);
+    }
+
+    .column.completed .column-title .material-icons {
+      color: var(--success);
+    }
+
+    .column-count {
+      background: var(--bg);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .column-actions {
+      display: flex;
       gap: 8px;
     }
 
+    .column-action-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .column-action-btn:hover {
+      background: var(--surface-hover);
+      color: var(--danger);
+    }
+
+    .column-action-btn .material-icons {
+      font-size: 20px;
+    }
+
+    /* Task List */
+    .task-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+
     .task-list::-webkit-scrollbar {
-      width: 4px;
+      width: 8px;
     }
 
     .task-list::-webkit-scrollbar-track {
@@ -135,395 +318,654 @@
 
     .task-list::-webkit-scrollbar-thumb {
       background: var(--border);
-      border-radius: 2px;
+      border-radius: 4px;
     }
 
-    /* ===== Task Item ===== */
-    .task {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 16px 20px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      user-select: none;
+    .task-list::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
     }
 
-    .task:hover {
-      background: var(--surface-hover);
-      border-color: var(--text-dim);
-      transform: translateX(4px);
-    }
-
-    .task:active {
-      transform: translateX(2px);
-    }
-
-    /* Checkbox */
-    .task-check {
-      width: 22px;
-      height: 22px;
-      border: 2px solid var(--text-dim);
-      border-radius: 6px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s ease;
-    }
-
-    .task:hover .task-check {
-      border-color: var(--text-muted);
-    }
-
-    .task-check svg {
-      width: 12px;
-      height: 12px;
-      stroke: var(--text);
-      stroke-width: 3;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      fill: none;
-      opacity: 0;
-      transform: scale(0.5);
-      transition: all 0.15s ease;
-    }
-
-    /* Text */
-    .task-text {
-      flex: 1;
-      font-size: 16px;
-      color: var(--text);
-      word-break: break-word;
-      transition: all 0.15s ease;
-    }
-
-    /* Completed */
-    .task.done {
-      opacity: 0.4;
-    }
-
-    .task.done .task-check {
-      background: var(--text-dim);
-      border-color: var(--text-dim);
-    }
-
-    .task.done .task-check svg {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    .task.done .task-text {
-      text-decoration: line-through;
-      color: var(--text-muted);
-    }
-
-    .task.done:hover {
-      opacity: 0.6;
-    }
-
-    /* ===== Empty ===== */
-    .empty {
-      flex: 1;
+    /* Empty State */
+    .empty-state {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      text-align: center;
-      color: var(--text-dim);
-      gap: 8px;
-    }
-
-    .empty-icon {
-      font-size: 64px;
-      opacity: 0.3;
-      margin-bottom: 8px;
-    }
-
-    .empty-text {
-      font-size: 18px;
+      height: 100%;
       color: var(--text-muted);
+      text-align: center;
+      padding: 40px 20px;
     }
 
-    .empty-sub {
+    .empty-state .material-icons {
+      font-size: 48px;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    .empty-state p {
       font-size: 14px;
     }
 
-    /* ===== Animations ===== */
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(12px);
+    /* Task Card */
+    .task {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      cursor: grab;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .task:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow);
+    }
+
+    .task:active {
+      cursor: grabbing;
+    }
+
+    .task.dragging {
+      opacity: 0.5;
+      transform: rotate(3deg);
+    }
+
+    .task.completed-task {
+      opacity: 0.7;
+    }
+
+    .task.completed-task .task-text {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    /* Checkbox */
+    .task-checkbox {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+      margin-top: 1px;
+    }
+
+    .task-checkbox:hover {
+      border-color: var(--accent);
+    }
+
+    .task-checkbox.checked {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+    .task-checkbox .material-icons {
+      font-size: 16px;
+      color: #fff;
+      display: none;
+    }
+
+    .task-checkbox.checked .material-icons {
+      display: block;
+    }
+
+    /* Task Content */
+    .task-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .task-text {
+      font-size: 15px;
+      word-break: break-word;
+    }
+
+    .task-date {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* Task Actions */
+    .task-actions {
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .task:hover .task-actions {
+      opacity: 1;
+    }
+
+    .task-action-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .task-action-btn:hover {
+      background: var(--surface-hover);
+    }
+
+    .task-action-btn.delete:hover {
+      color: var(--danger);
+    }
+
+    .task-action-btn .material-icons {
+      font-size: 18px;
+    }
+
+    /* Drop Zone Indicator */
+    .task-list.drag-over {
+      background: rgba(88, 166, 255, 0.05);
+      border-radius: var(--radius-sm);
+    }
+
+    .drop-indicator {
+      height: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+      margin: 5px 0;
+      display: none;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .header {
+        padding: 12px 16px;
       }
 
+      .header-content {
+        flex-wrap: wrap;
+      }
+
+      .header-right {
+        order: 2;
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 12px;
+      }
+
+      .header-stats {
+        justify-content: flex-start;
+      }
+
+      .theme-toggle {
+        flex-shrink: 0;
+      }
+
+      .container {
+        padding: 16px;
+      }
+
+      .input-section {
+        padding: 16px;
+      }
+
+      .input-wrapper {
+        flex-direction: column;
+      }
+
+      .add-btn {
+        justify-content: center;
+      }
+
+      .board {
+        grid-template-columns: 1fr;
+      }
+
+      .column {
+        min-height: 300px;
+        max-height: none;
+      }
+
+      .task-actions {
+        opacity: 1;
+      }
+    }
+
+    /* Animations */
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
       to {
         opacity: 1;
         transform: translateY(0);
       }
     }
 
-    @keyframes pulse {
-
-      0%,
-      100% {
-        transform: scale(1);
-      }
-
-      50% {
-        transform: scale(1.05);
-      }
+    .task {
+      animation: slideIn 0.2s ease-out;
     }
 
-    .task.new {
-      animation: slideUp 0.25s ease;
-    }
-
-    .task.complete-anim .task-check {
-      animation: pulse 0.3s ease;
-    }
-
-    /* ===== Footer ===== */
-    .footer {
-      margin-top: 24px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .footer-text {
-      font-size: 12px;
-      color: var(--text-dim);
-    }
-
-    .clear-btn {
-      font-family: inherit;
-      font-size: 12px;
-      color: var(--text-dim);
-      background: transparent;
-      border: 1px solid var(--border);
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    .clear-btn:hover {
-      color: var(--text-muted);
-      border-color: var(--text-dim);
-    }
-
-    .clear-btn:disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
-    }
-
-    /* ===== Responsive ===== */
-    @media (max-width: 480px) {
-      .app {
-        padding: 32px 16px 16px;
-      }
-
-      .input-field {
-        padding: 16px 20px;
-        font-size: 18px;
-      }
-
-      .counter-num {
-        font-size: 36px;
-      }
+    /* Favicon Canvas (hidden) */
+    #favicon-canvas {
+      display: none;
     }
   </style>
 </head>
-
 <body>
-  <div class="app">
-    <!-- Input -->
-    <div class="input-container">
-      <input type="text" class="input-field" id="input" placeholder="やることを入力..." autocomplete="off" autofocus>
-      <span class="input-hint">Enter ↵</span>
-    </div>
+  <canvas id="favicon-canvas" width="32" height="32"></canvas>
 
-    <!-- Counter -->
-    <div class="counter">
-      <span class="counter-num" id="count">0</span>
-      <span class="counter-label">件のタスク</span>
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <span class="material-icons">check_circle</span>
+        <span>Todo Board</span>
+      </div>
+      <div class="header-right">
+        <div class="header-stats">
+          <div class="stat">
+            <span class="material-icons" style="font-size: 18px; color: var(--accent);">pending_actions</span>
+            <span>未完了:</span>
+            <span class="stat-value" id="pending-count">0</span>
+          </div>
+          <div class="stat">
+            <span class="material-icons" style="font-size: 18px; color: var(--success);">task_alt</span>
+            <span>完了:</span>
+            <span class="stat-value" id="completed-count">0</span>
+          </div>
+        </div>
+        <button class="theme-toggle" id="theme-toggle" title="テーマ切替">
+          <span class="material-icons icon-dark">light_mode</span>
+          <span class="material-icons icon-light">dark_mode</span>
+        </button>
+      </div>
     </div>
+  </header>
 
-    <!-- Tasks -->
-    <div class="task-list" id="list"></div>
+  <main class="container">
+    <section class="input-section">
+      <div class="input-wrapper">
+        <input
+          type="text"
+          class="task-input"
+          id="task-input"
+          placeholder="新しいタスクを入力..."
+          autocomplete="off"
+        >
+        <button class="add-btn" id="add-btn">
+          <span class="material-icons">add</span>
+          追加
+        </button>
+      </div>
+    </section>
 
-    <!-- Footer -->
-    <div class="footer">
-      <span class="footer-text">@arinko</span>
-      <button class="clear-btn" id="clearBtn">完了を削除</button>
+    <div class="board">
+      <!-- Pending Column -->
+      <div class="column pending">
+        <div class="column-header">
+          <div class="column-title">
+            <span class="material-icons">radio_button_unchecked</span>
+            未完了
+            <span class="column-count" id="pending-column-count">0</span>
+          </div>
+        </div>
+        <div class="task-list" id="pending-list" data-status="pending"></div>
+      </div>
+
+      <!-- Completed Column -->
+      <div class="column completed">
+        <div class="column-header">
+          <div class="column-title">
+            <span class="material-icons">check_circle</span>
+            完了
+            <span class="column-count" id="completed-column-count">0</span>
+          </div>
+          <div class="column-actions">
+            <button class="column-action-btn" id="clear-completed" title="完了済みをすべて削除">
+              <span class="material-icons">delete_sweep</span>
+            </button>
+          </div>
+        </div>
+        <div class="task-list" id="completed-list" data-status="completed"></div>
+      </div>
     </div>
-  </div>
+  </main>
 
   <script>
-    const KEY = 'tabfocus_v3';
+    // ==================== State ====================
+    const STORAGE_KEY = 'todo_board_v1';
+    const THEME_KEY = 'todo_board_theme';
     let tasks = [];
+    let draggedTask = null;
 
-    const input = document.getElementById('input');
-    const list = document.getElementById('list');
-    const count = document.getElementById('count');
-    const clearBtn = document.getElementById('clearBtn');
-    const favicon = document.getElementById('favicon');
+    // ==================== DOM Elements ====================
+    const taskInput = document.getElementById('task-input');
+    const addBtn = document.getElementById('add-btn');
+    const pendingList = document.getElementById('pending-list');
+    const completedList = document.getElementById('completed-list');
+    const pendingCount = document.getElementById('pending-count');
+    const completedCount = document.getElementById('completed-count');
+    const pendingColumnCount = document.getElementById('pending-column-count');
+    const completedColumnCount = document.getElementById('completed-column-count');
+    const clearCompletedBtn = document.getElementById('clear-completed');
+    const themeToggleBtn = document.getElementById('theme-toggle');
 
-    // Init
+    // ==================== Theme ====================
+    function loadTheme() {
+      const savedTheme = localStorage.getItem(THEME_KEY);
+      const theme = savedTheme || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem(THEME_KEY, newTheme);
+    }
+
+    // Load theme immediately to prevent flash
+    loadTheme();
+
+    // ==================== Initialize ====================
     function init() {
-      tasks = JSON.parse(localStorage.getItem(KEY) || '[]');
+      loadTasks();
       render();
-      focus();
+      setupEventListeners();
+      setupDragAndDrop();
     }
 
-    // Save
-    function save() {
-      localStorage.setItem(KEY, JSON.stringify(tasks));
-    }
-
-    // Add
-    function add(text) {
-      if (!text.trim()) return;
-      tasks.unshift({ id: Date.now(), text: text.trim(), done: false });
-      save();
-      render(tasks[0].id);
-    }
-
-    // Toggle
-    function toggle(id) {
-      const t = tasks.find(x => x.id === id);
-      if (t) {
-        t.done = !t.done;
-        save();
-        render(id, true);
+    // ==================== Storage ====================
+    function loadTasks() {
+      try {
+        const data = localStorage.getItem(STORAGE_KEY);
+        tasks = data ? JSON.parse(data) : [];
+      } catch (e) {
+        console.error('Failed to load tasks:', e);
+        tasks = [];
       }
     }
 
-    // Clear completed
-    function clear() {
-      tasks = tasks.filter(t => !t.done);
-      save();
+    function saveTasks() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+      } catch (e) {
+        console.error('Failed to save tasks:', e);
+      }
+    }
+
+    // ==================== Task Operations ====================
+    function addTask(text) {
+      const trimmed = text.trim();
+      if (!trimmed) return;
+
+      const task = {
+        id: Date.now().toString(),
+        text: trimmed,
+        completed: false,
+        createdAt: new Date().toISOString()
+      };
+
+      tasks.unshift(task);
+      saveTasks();
       render();
     }
 
-    // Render
-    function render(animId = null, isToggle = false) {
-      const pending = tasks.filter(t => !t.done);
-      const done = tasks.filter(t => t.done);
-      const all = [...pending, ...done];
+    function toggleTask(id) {
+      const task = tasks.find(t => t.id === id);
+      if (task) {
+        task.completed = !task.completed;
+        if (task.completed) {
+          task.completedAt = new Date().toISOString();
+        } else {
+          delete task.completedAt;
+        }
+        saveTasks();
+        render();
+      }
+    }
 
-      count.textContent = pending.length;
-      updateTab(pending.length);
-      clearBtn.disabled = done.length === 0;
+    function deleteTask(id) {
+      tasks = tasks.filter(t => t.id !== id);
+      saveTasks();
+      render();
+    }
 
-      if (all.length === 0) {
-        list.innerHTML = `
-          <div class="empty">
-            <div class="empty-icon">□</div>
-            <p class="empty-text">タスクなし</p>
-            <p class="empty-sub">上の入力欄に入力してEnter</p>
+    function clearCompleted() {
+      const completedTasks = tasks.filter(t => t.completed);
+      if (completedTasks.length === 0) return;
+
+      if (confirm(`完了済みのタスク ${completedTasks.length} 件を削除しますか？`)) {
+        tasks = tasks.filter(t => !t.completed);
+        saveTasks();
+        render();
+      }
+    }
+
+    // ==================== Render ====================
+    function render() {
+      const pendingTasks = tasks.filter(t => !t.completed);
+      const completedTasks = tasks.filter(t => t.completed);
+
+      // Update counts
+      pendingCount.textContent = pendingTasks.length;
+      completedCount.textContent = completedTasks.length;
+      pendingColumnCount.textContent = pendingTasks.length;
+      completedColumnCount.textContent = completedTasks.length;
+
+      // Render pending tasks
+      if (pendingTasks.length === 0) {
+        pendingList.innerHTML = `
+          <div class="empty-state">
+            <span class="material-icons">inbox</span>
+            <p>タスクがありません</p>
           </div>
         `;
-        return;
+      } else {
+        pendingList.innerHTML = pendingTasks.map(task => createTaskHTML(task)).join('');
       }
 
-      list.innerHTML = all.map(t => {
-        const cls = [
-          'task',
-          t.done ? 'done' : '',
-          animId === t.id ? (isToggle ? 'complete-anim' : 'new') : ''
-        ].filter(Boolean).join(' ');
-
-        return `
-          <div class="${cls}" data-id="${t.id}">
-            <div class="task-check">
-              <svg viewBox="0 0 24 24"><polyline points="4 12 9 17 20 6"/></svg>
-            </div>
-            <span class="task-text">${esc(t.text)}</span>
+      // Render completed tasks
+      if (completedTasks.length === 0) {
+        completedList.innerHTML = `
+          <div class="empty-state">
+            <span class="material-icons">check_circle_outline</span>
+            <p>完了したタスクがありません</p>
           </div>
         `;
-      }).join('');
+      } else {
+        completedList.innerHTML = completedTasks.map(task => createTaskHTML(task)).join('');
+      }
 
-      // Bind clicks
-      list.querySelectorAll('.task').forEach(el => {
-        el.addEventListener('click', () => toggle(+el.dataset.id));
-      });
+      // Update tab and favicon
+      updateTab(pendingTasks.length);
+
+      // Re-attach drag events to new task elements
+      attachDragEvents();
     }
 
-    function esc(s) {
-      return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+    function createTaskHTML(task) {
+      const date = task.completed && task.completedAt
+        ? formatDate(task.completedAt)
+        : formatDate(task.createdAt);
+      const dateLabel = task.completed ? '完了' : '作成';
+
+      return `
+        <div class="task ${task.completed ? 'completed-task' : ''}"
+             data-id="${task.id}"
+             draggable="true">
+          <div class="task-checkbox ${task.completed ? 'checked' : ''}"
+               onclick="toggleTask('${task.id}')">
+            <span class="material-icons">check</span>
+          </div>
+          <div class="task-content">
+            <div class="task-text">${escapeHTML(task.text)}</div>
+            <div class="task-date">${dateLabel}: ${date}</div>
+          </div>
+          <div class="task-actions">
+            <button class="task-action-btn delete" onclick="deleteTask('${task.id}')" title="削除">
+              <span class="material-icons">close</span>
+            </button>
+          </div>
+        </div>
+      `;
     }
 
-    // Tab & Favicon
-    function updateTab(n) {
-      document.title = n > 0 ? `(${n}) TabFocus` : 'TabFocus';
+    function formatDate(isoString) {
+      const date = new Date(isoString);
+      const now = new Date();
+      const isToday = date.toDateString() === now.toDateString();
 
-      const canvas = document.createElement('canvas');
-      canvas.width = canvas.height = 32;
+      if (isToday) {
+        return date.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+      }
+      return date.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' });
+    }
+
+    function escapeHTML(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // ==================== Tab & Favicon ====================
+    function updateTab(count) {
+      document.title = count > 0 ? `(${count}) Todo Board` : 'Todo Board';
+      updateFavicon(count);
+    }
+
+    function updateFavicon(count) {
+      const canvas = document.getElementById('favicon-canvas');
       const ctx = canvas.getContext('2d');
 
-      // Background (rounded rect)
-      const r = 6;
+      ctx.clearRect(0, 0, 32, 32);
+
+      // Background circle
       ctx.beginPath();
-      ctx.roundRect(0, 0, 32, 32, r);
-      ctx.fillStyle = '#111';
+      ctx.arc(16, 16, 14, 0, Math.PI * 2);
+      ctx.fillStyle = count > 0 ? '#58a6ff' : '#3fb950';
       ctx.fill();
 
       // Text or checkmark
       ctx.fillStyle = '#fff';
-      ctx.font = 'bold 20px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
-      if (n > 0) {
-        ctx.fillText(n > 99 ? '99' : n, 16, 17);
+      if (count > 0) {
+        ctx.font = 'bold 16px sans-serif';
+        ctx.fillText(count > 99 ? '99+' : count.toString(), 16, 17);
       } else {
+        ctx.font = '20px sans-serif';
         ctx.fillText('✓', 16, 17);
       }
 
       // Update favicon
-      let link = document.querySelector("link[rel='icon']") || document.createElement('link');
+      const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
       link.rel = 'icon';
       link.href = canvas.toDataURL();
       document.head.appendChild(link);
     }
 
-    // Focus
-    function focus() {
-      input.focus();
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') setTimeout(() => input.focus(), 50);
+    // ==================== Event Listeners ====================
+    function setupEventListeners() {
+      // Add task on button click
+      addBtn.addEventListener('click', () => {
+        addTask(taskInput.value);
+        taskInput.value = '';
+        taskInput.focus();
       });
-      window.addEventListener('focus', () => setTimeout(() => input.focus(), 50));
-      document.addEventListener('click', e => {
-        if (!e.target.closest('.task') && !e.target.closest('.clear-btn')) {
-          setTimeout(() => input.focus(), 10);
-        } else {
-          setTimeout(() => input.focus(), 150);
+
+      // Add task on Enter key
+      taskInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.isComposing) {
+          addTask(taskInput.value);
+          taskInput.value = '';
         }
+      });
+
+      // Clear completed tasks
+      clearCompletedBtn.addEventListener('click', clearCompleted);
+
+      // Theme toggle
+      themeToggleBtn.addEventListener('click', toggleTheme);
+    }
+
+    // ==================== Drag and Drop ====================
+    function setupDragAndDrop() {
+      const lists = [pendingList, completedList];
+
+      lists.forEach(list => {
+        list.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          list.classList.add('drag-over');
+        });
+
+        list.addEventListener('dragleave', (e) => {
+          if (!list.contains(e.relatedTarget)) {
+            list.classList.remove('drag-over');
+          }
+        });
+
+        list.addEventListener('drop', (e) => {
+          e.preventDefault();
+          list.classList.remove('drag-over');
+
+          if (draggedTask) {
+            const taskId = draggedTask.dataset.id;
+            const task = tasks.find(t => t.id === taskId);
+            const targetStatus = list.dataset.status;
+
+            if (task) {
+              const shouldBeCompleted = targetStatus === 'completed';
+              if (task.completed !== shouldBeCompleted) {
+                task.completed = shouldBeCompleted;
+                if (shouldBeCompleted) {
+                  task.completedAt = new Date().toISOString();
+                } else {
+                  delete task.completedAt;
+                }
+                saveTasks();
+                render();
+              }
+            }
+          }
+        });
       });
     }
 
-    // Events
-    input.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.isComposing) {
-        e.preventDefault();
-        add(input.value);
-        input.value = '';
-      }
-    });
+    function attachDragEvents() {
+      const taskElements = document.querySelectorAll('.task');
 
-    clearBtn.addEventListener('click', () => {
-      if (confirm('完了済みタスクを削除しますか？')) clear();
-    });
+      taskElements.forEach(task => {
+        task.addEventListener('dragstart', (e) => {
+          draggedTask = task;
+          task.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+        });
 
+        task.addEventListener('dragend', () => {
+          task.classList.remove('dragging');
+          draggedTask = null;
+          document.querySelectorAll('.task-list').forEach(list => {
+            list.classList.remove('drag-over');
+          });
+        });
+      });
+    }
+
+    // ==================== Start ====================
     init();
   </script>
 </body>
-
 </html>
