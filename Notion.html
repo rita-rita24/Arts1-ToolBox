@@ -494,6 +494,15 @@
       align-items: flex-start;
     }
 
+    .block::before {
+      content: '';
+      position: absolute;
+      left: -52px;
+      top: 0;
+      width: 52px;
+      height: 100%;
+    }
+
     .block-handle {
       position: absolute;
       left: -24px;
@@ -1163,7 +1172,7 @@
       <div class="sidebar-header">
         <div class="workspace-name">
           <div class="workspace-icon"><span class="material-icons">edit_note</span></div>
-          <span>My Workspace</span>
+          <span>Notion Plus</span>
         </div>
         <button class="icon-btn" onclick="toggleSidebar()" title="サイドバーを閉じる">
           <span class="material-icons">chevron_left</span>
@@ -1179,16 +1188,6 @@
           <span>設定</span>
         </div>
       </div>
-      <div class="sidebar-section">
-        <div class="sidebar-section-title" onclick="toggleSection('favorites')">
-          <div style="display:flex; align-items:center;">
-            <span class="material-icons section-toggle" id="favToggleIcon"
-              style="font-size: 16px; margin-right: 4px; transition: transform 0.1s;">keyboard_arrow_down</span>
-            <span>お気に入り</span>
-          </div>
-        </div>
-      </div>
-      <div class="page-list" id="favoritesList"></div>
       <div class="sidebar-section">
         <div class="sidebar-section-title" onclick="toggleSection('all')">
           <div style="display:flex; align-items:center;">
@@ -1220,9 +1219,6 @@
           </div>
         </div>
         <div class="topbar-right">
-          <button class="topbar-btn" onclick="toggleFavorite()" id="favoriteBtn">
-            <span class="material-icons" id="favoriteIcon">star_border</span>
-          </button>
         </div>
       </div>
       <div class="editor-container">
@@ -1554,19 +1550,14 @@
 
     // === Pages
     function renderPagesList() {
-      const favoritesList = document.getElementById('favoritesList');
       const pagesList = document.getElementById('pagesList');
-      favoritesList.innerHTML = '';
       pagesList.innerHTML = '';
 
       // Toggle Sections
-      favoritesList.style.display = state.sectionExpanded?.favorites !== false ? 'block' : 'none';
       pagesList.style.display = state.sectionExpanded?.all !== false ? 'block' : 'none';
-      if (document.getElementById('favToggleIcon')) document.getElementById('favToggleIcon').style.transform = state.sectionExpanded?.favorites !== false ? 'rotate(0deg)' : 'rotate(-90deg)';
       if (document.getElementById('allToggleIcon')) document.getElementById('allToggleIcon').style.transform = state.sectionExpanded?.all !== false ? 'rotate(0deg)' : 'rotate(-90deg)';
 
       state.pages.forEach(page => {
-        if (page.favorite) favoritesList.appendChild(createPageItem(page, 0, 'fav'));
         pagesList.appendChild(createPageItem(page, 0, 'all'));
       });
     }
@@ -1655,7 +1646,6 @@
       }
       document.getElementById('pageTitle').value = page.title || '';
       document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span class="material-icons" style="font-size: 16px; color: ${getColorValue(page.iconColor)}">${page.icon || 'description'}</span><span>${page.title || '無題'}</span></div>`;
-      document.getElementById('favoriteIcon').textContent = page.favorite ? 'star' : 'star_border';
       renderBlocks(page);
       saveState();
     }
@@ -1720,13 +1710,6 @@
       closeDeleteModal();
     }
 
-    function toggleFavorite() {
-      if (!state.currentPage) return;
-      state.currentPage.favorite = !state.currentPage.favorite;
-      document.getElementById('favoriteIcon').textContent = state.currentPage.favorite ? 'star' : 'star_border';
-      renderPagesList();
-      saveState();
-    }
 
     document.getElementById('pageTitle').addEventListener('input', (e) => {
       if (state.currentPage) {
