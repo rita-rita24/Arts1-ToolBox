@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text Changer</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    /* Dark Mode (default) */
+    :root,
+    [data-theme="dark"] {
+      --bg: #000000;
+      --surface: #111111;
+      --surface-hover: #1a1a1a;
+      --border: #333333;
+      --text: #ffffff;
+      --text-muted: #999999;
+      --accent: #58a6ff;
+      --accent-hover: #79b8ff;
+      --success: #3fb950;
+      --success-bg: rgba(63, 185, 80, 0.15);
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    /* Light Mode */
+    [data-theme="light"] {
+      --bg: #f5f5f5;
+      --surface: #ffffff;
+      --surface-hover: #f0f0f0;
+      --border: #e0e0e0;
+      --text: #1a1a1a;
+      --text-muted: #666666;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --success: #16a34a;
+      --success-bg: rgba(22, 163, 74, 0.15);
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* Header */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .logo .material-icons {
+      font-size: 28px;
+      color: var(--accent);
+    }
+
+    /* Theme Toggle */
+    .theme-toggle {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+      color: var(--text);
+    }
+
+    .theme-toggle:hover {
+      background: var(--surface-hover);
+      border-color: var(--accent);
+    }
+
+    .theme-toggle .material-icons {
+      font-size: 22px;
+    }
+
+    .theme-toggle .icon-light { display: none; }
+    .theme-toggle .icon-dark  { display: block; }
+    [data-theme="light"] .theme-toggle .icon-light { display: block; }
+    [data-theme="light"] .theme-toggle .icon-dark  { display: none; }
+
+    /* Main */
+    .main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Section Labels */
+    .section-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    /* Textarea */
+    .textarea-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
+
+    textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      color: var(--text);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+    }
+
+    textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    #input-area {
+      min-height: 180px;
+    }
+
+    /* Mode Selector */
+    .mode-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .mode-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mode-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 18px;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+
+    .mode-btn:hover {
+      background: var(--surface-hover);
+      color: var(--text);
+    }
+
+    .mode-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(88, 166, 255, 0.08);
+    }
+
+    [data-theme="light"] .mode-btn.active {
+      background: rgba(37, 99, 235, 0.06);
+    }
+
+    /* Output Section */
+    .output-section {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .output-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    #output-area {
+      min-height: 120px;
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    /* Copy Button */
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 8px 16px;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+    }
+
+    .copy-btn:hover {
+      background: var(--accent-hover);
+    }
+
+    .copy-btn.copied {
+      background: var(--success);
+    }
+
+    .copy-btn .material-icons {
+      font-size: 16px;
+    }
+
+    /* Empty State */
+    .empty-hint {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .main { padding: 20px 16px; }
+      .mode-buttons { flex-direction: column; }
+      .mode-btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-content">
+    <div class="logo">
+      <span class="material-icons">find_replace</span>
+      Text Changer
+    </div>
+    <button class="theme-toggle" id="theme-toggle" aria-label="テーマ切り替え">
+      <span class="material-icons icon-dark">light_mode</span>
+      <span class="material-icons icon-light">dark_mode</span>
+    </button>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- Input -->
+  <div class="textarea-wrapper">
+    <div class="section-label">入力（1行につき1つの値）</div>
+    <textarea id="input-area" placeholder="ここに値を入力してください（1行に1つ）&#10;例：&#10;apple&#10;banana&#10;cherry"></textarea>
+  </div>
+
+  <!-- Mode -->
+  <div class="mode-section">
+    <div class="section-label">変換モード</div>
+    <div class="mode-buttons">
+      <button class="mode-btn active" data-mode="a5sql">A5SQL用 Caption 変換</button>
+      <button class="mode-btn" data-mode="tsv">タブ区切り変換</button>
+      <button class="mode-btn" data-mode="sql-in">SQL の IN 句変換</button>
+    </div>
+  </div>
+
+  <!-- Output -->
+  <div class="output-section">
+    <div class="output-header">
+      <div class="section-label" style="margin-bottom:0;">出力</div>
+      <button class="copy-btn" id="copy-btn" aria-label="クリップボードにコピー">
+        <span class="material-icons">content_copy</span>
+        コピー
+      </button>
+    </div>
+    <textarea id="output-area" readonly placeholder="変換結果がここに表示されます"></textarea>
+  </div>
+
+</main>
+
+<script>
+  'use strict';
+
+  const STORAGE_KEY = 'textChanger_settings';
+  const THEME_KEY   = 'textChanger_theme';
+
+  // --- State ---
+  let currentMode = 'a5sql';
+
+  // --- Elements ---
+  const inputArea   = document.getElementById('input-area');
+  const outputArea  = document.getElementById('output-area');
+  const copyBtn     = document.getElementById('copy-btn');
+  const themeToggle = document.getElementById('theme-toggle');
+  const modeBtns    = document.querySelectorAll('.mode-btn');
+
+  // --- Theme ---
+  function initTheme() {
+    const saved = localStorage.getItem(THEME_KEY) || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+  }
+
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem(THEME_KEY, next);
+  }
+
+  // --- Conversion ---
+  function getLines(text) {
+    return text
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0);
+  }
+
+  function convertA5sql(lines) {
+    if (lines.length === 0) return '';
+    const quoted = lines.map(v => `'${v}'`).join(' ');
+    return `-- *Captions ${quoted}`;
+  }
+
+  function convertTsv(lines) {
+    if (lines.length === 0) return '';
+    return lines.map(v => `'${v}'`).join('\t');
+  }
+
+  function convertSqlIn(lines) {
+    if (lines.length === 0) return '';
+    const quoted = lines.map(v => `'${v}'`).join(',');
+    return `in (${quoted});`;
+  }
+
+  function convert() {
+    const lines = getLines(inputArea.value);
+    let result = '';
+
+    switch (currentMode) {
+      case 'a5sql':  result = convertA5sql(lines);  break;
+      case 'tsv':    result = convertTsv(lines);    break;
+      case 'sql-in': result = convertSqlIn(lines);  break;
+    }
+
+    outputArea.value = result;
+  }
+
+  // --- Mode Selection ---
+  function selectMode(mode) {
+    currentMode = mode;
+    modeBtns.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.mode === mode);
+    });
+    convert();
+    saveSettings();
+  }
+
+  // --- Copy ---
+  function copyOutput() {
+    const text = outputArea.value;
+    if (!text) return;
+
+    navigator.clipboard.writeText(text).then(() => {
+      copyBtn.classList.add('copied');
+      copyBtn.innerHTML = '<span class="material-icons">check</span> コピー済み';
+      setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        copyBtn.innerHTML = '<span class="material-icons">content_copy</span> コピー';
+      }, 2000);
+    }).catch(() => {
+      // Fallback for environments without clipboard API
+      outputArea.select();
+      document.execCommand('copy');
+    });
+  }
+
+  // --- Persistence ---
+  function saveSettings() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        mode: currentMode,
+        input: inputArea.value
+      }));
+    } catch (e) {
+      console.error('Storage error:', e);
+    }
+  }
+
+  function loadSettings() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (data.mode) {
+        currentMode = data.mode;
+        modeBtns.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.mode === currentMode);
+        });
+      }
+      if (data.input) {
+        inputArea.value = data.input;
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  // --- Auto-save (debounced) ---
+  let saveTimeout;
+  function autoSave() {
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(saveSettings, 500);
+  }
+
+  // --- Event Listeners ---
+  themeToggle.addEventListener('click', toggleTheme);
+
+  modeBtns.forEach(btn => {
+    btn.addEventListener('click', () => selectMode(btn.dataset.mode));
+  });
+
+  inputArea.addEventListener('input', () => {
+    convert();
+    autoSave();
+  });
+
+  copyBtn.addEventListener('click', copyOutput);
+
+  // --- Init ---
+  initTheme();
+  loadSettings();
+  convert();
+</script>
+</body>
+</html>
