@@ -464,10 +464,10 @@ JavaScript: アプリケーションロジック
   }
 
   // ===== タブ区切り変換（TSV形式） =====
-  // 出力形式: '値1'\t'値2'\t'値3' ...
+  // 出力形式: 値1\t値2\t値3 ...（クォートなし）
   function convertTsv(lines) {
     if (lines.length === 0) return '';
-    return lines.map(v => `'${v}'`).join('\t');
+    return lines.join('\t');
   }
 
   // ===== SQL の IN 句変換 =====
