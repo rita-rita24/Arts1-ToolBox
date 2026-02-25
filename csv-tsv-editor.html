@@ -397,8 +397,7 @@
       cursor: pointer;
     }
 
-    .paste-zone:hover,
-    .paste-zone.dragover {
+    .paste-zone:hover {
       border-color: var(--primary);
       background: var(--header-bg);
     }
@@ -867,6 +866,9 @@
 
       <!-- 編集グループ -->
       <div class="toolbar-group">
+        <button class="btn" onclick="triggerPaste()" title="クリップボードから貼り付け">
+          <span class="material-symbols-outlined">content_paste</span> 貼り付け
+        </button>
         <button class="btn" onclick="addRow()" title="行を追加">
           <span class="material-symbols-outlined">add_box</span> 行追加
         </button>
@@ -912,11 +914,11 @@
 
     <!-- ペーストエリア -->
     <div class="paste-area">
-      <div class="paste-zone" id="pasteZone" tabindex="0">
+      <div class="paste-zone" id="pasteZone" tabindex="0" onclick="triggerPaste()">
         <span class="material-symbols-outlined"
-          style="font-size: 48px; color: var(--text-muted); margin-bottom: 16px;">content_paste_go</span>
-        <h2>CSV/TSVファイルをここにドロップ</h2>
-        <p>ファイルをドラッグ&amp;ドロップ</p>
+          style="font-size: 48px; color: var(--text-muted); margin-bottom: 16px;">content_paste</span>
+        <h2>クリックしてCSV/TSVデータを貼り付け</h2>
+        <p>Ctrl+V でもペーストできます</p>
         <p style="margin-top: 8px; font-size: 0.8rem;">カンマ区切り(CSV)・タブ区切り(TSV) 自動判定</p>
       </div>
     </div>
@@ -1029,16 +1031,7 @@
      */
     function initEventListeners() {
       document.addEventListener('keydown', handleKeyDown);
-
-      const pasteZone = document.getElementById('pasteZone');
-      pasteZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        pasteZone.classList.add('dragover');
-      });
-      pasteZone.addEventListener('dragleave', () => {
-        pasteZone.classList.remove('dragover');
-      });
-      pasteZone.addEventListener('drop', handleDrop);
+      document.addEventListener('paste', handlePaste);
 
       document.addEventListener('click', (e) => {
         const menu = document.getElementById('columnMenu');
@@ -1193,31 +1186,17 @@
     // データ入力処理
     // ========================================
 
-    // ===== ペースト・ドラッグ&ドロップ処理 =====
-    // クリップボードやファイルからデータを読み込む
+    // ===== ペースト処理 =====
+    // クリップボードからデータを読み込む
     function handlePaste(e) {
-      const target = e.target;
-      if (target.tagName === 'TD' && target.isContentEditable) return;
-      if (target.tagName === 'INPUT') return;
+      // テーブルが表示されている場合は通常のペースト動作に任せる（セル編集を妨げない）
+      const pasteZone = document.getElementById('pasteZone');
+      if (pasteZone.classList.contains('has-data')) return;
 
       const text = e.clipboardData?.getData('text');
       if (text) {
         e.preventDefault();
         processData(text);
-      }
-    }
-
-    function handleDrop(e) {
-      e.preventDefault();
-      document.getElementById('pasteZone').classList.remove('dragover');
-
-      const file = e.dataTransfer?.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          processData(event.target.result);
-        };
-        reader.readAsText(file);
       }
     }
 
