@@ -770,31 +770,6 @@
       justify-content: flex-end;
     }
 
-    /* 復元バナー */
-    .restore-banner {
-      display: none;
-      padding: 12px 16px;
-      background: #dbeafe;
-      border: 1px solid var(--primary);
-      border-radius: 8px;
-      margin-bottom: 16px;
-      align-items: center;
-      gap: 12px;
-    }
-
-    [data-theme="dark"] .restore-banner {
-      background: #262626;
-    }
-
-    .restore-banner.show {
-      display: flex;
-    }
-
-    .restore-banner .message {
-      flex: 1;
-      font-size: 0.9rem;
-    }
-
     /* ショートカットヒント */
     .shortcut-hint {
       font-size: 0.75rem;
@@ -860,16 +835,6 @@
         </button>
       </div>
     </header>
-
-    <!-- 復元バナー -->
-    <div class="restore-banner" id="restoreBanner">
-      <span class="material-symbols-outlined">restore</span>
-      <span class="message">前回の作業データが見つかりました</span>
-      <div class="actions">
-        <button class="btn btn-primary" onclick="restoreData()">復元する</button>
-        <button class="btn" onclick="dismissRestore()">破棄</button>
-      </div>
-    </div>
 
     <!-- 検索バー -->
     <div class="search-bar" id="searchBar">
@@ -1055,7 +1020,6 @@
     // DOMContentLoaded: HTMLの読み込みが完了したときに実行される
     document.addEventListener('DOMContentLoaded', () => {
       initEventListeners();    // イベントリスナーを登録
-      checkStoredData();        // 保存済みデータがあるか確認
       initTheme();              // テーマ（ライト/ダーク）を初期化
     });
 
@@ -2140,40 +2104,6 @@
       } catch (e) {
         console.warn('LocalStorage save failed:', e);
       }
-    }
-
-    function checkStoredData() {
-      try {
-        const stored = localStorage.getItem('csvEditor_state');
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (parsed.data && parsed.data.length > 0) {
-            document.getElementById('restoreBanner').classList.add('show');
-          }
-        }
-      } catch (e) {
-        console.warn('LocalStorage read failed:', e);
-      }
-    }
-
-    function restoreData() {
-      try {
-        const stored = localStorage.getItem('csvEditor_state');
-        if (stored) {
-          state = JSON.parse(stored);
-          renderTable();
-          updateStats();
-          showToast('💾 前回の作業を復元しました', 'success');
-        }
-      } catch (e) {
-        showToast('復元に失敗しました', 'error');
-      }
-      document.getElementById('restoreBanner').classList.remove('show');
-    }
-
-    function dismissRestore() {
-      document.getElementById('restoreBanner').classList.remove('show');
-      localStorage.removeItem('csvEditor_state');
     }
 
     // ========================================
