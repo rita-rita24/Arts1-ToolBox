@@ -902,9 +902,6 @@
 
       <!-- 編集グループ -->
       <div class="toolbar-group">
-        <button class="btn" onclick="triggerPaste()" title="データを貼り付け">
-          <span class="material-symbols-outlined">content_paste</span> 貼り付け
-        </button>
         <button class="btn" onclick="addRow()" title="行を追加">
           <span class="material-symbols-outlined">add_box</span> 行追加
         </button>
@@ -953,8 +950,8 @@
       <div class="paste-zone" id="pasteZone" tabindex="0">
         <span class="material-symbols-outlined"
           style="font-size: 48px; color: var(--text-muted); margin-bottom: 16px;">content_paste_go</span>
-        <h2>ここにCSV/TSVデータを貼り付け</h2>
-        <p>Ctrl+V または クリックしてペースト</p>
+        <h2>CSV/TSVファイルをここにドロップ</h2>
+        <p>ファイルをドラッグ&amp;ドロップ</p>
         <p style="margin-top: 8px; font-size: 0.8rem;">カンマ区切り(CSV)・タブ区切り(TSV) 自動判定</p>
       </div>
     </div>
@@ -1067,11 +1064,9 @@
      * ユーザーの操作（ペースト、ドラッグ&ドロップ、クリックなど）を監視
      */
     function initEventListeners() {
-      document.addEventListener('paste', handlePaste);
       document.addEventListener('keydown', handleKeyDown);
 
       const pasteZone = document.getElementById('pasteZone');
-      pasteZone.addEventListener('click', triggerPaste);
       pasteZone.addEventListener('dragover', (e) => {
         e.preventDefault();
         pasteZone.classList.add('dragover');
@@ -1828,6 +1823,18 @@
         return newRow;
       });
 
+      if (state.data[0]?.length === 0) {
+        state.data = [];
+        state.hasHeader = false;
+        state.columnWidths = {};
+        renderTable();
+        updateStats();
+        localStorage.removeItem('csvEditor_state');
+        closeModal();
+        showToast('すべての列が削除されました。データをクリアしました', 'success');
+        return;
+      }
+
       const newWidths = {};
       Object.keys(state.columnWidths).forEach(key => {
         const idx = parseInt(key);
@@ -1953,6 +1960,17 @@
       saveToHistory();
 
       state.data.splice(rowIndex, 1);
+
+      if (state.data.length === 0) {
+        state.hasHeader = false;
+        state.columnWidths = {};
+        renderTable();
+        updateStats();
+        localStorage.removeItem('csvEditor_state');
+        closeModal();
+        showToast('すべての行が削除されました。データをクリアしました', 'success');
+        return;
+      }
 
       renderTable();
       updateStats();
