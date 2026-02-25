@@ -136,7 +136,11 @@
       font-size: 22px;
     }
 
-    /* Show/hide icons based on theme */
+    /*
+     * テーマに応じたアイコン切り替え
+     * icon-dark: ダークモード時に表示（light_mode アイコン → ライトモードへ切り替えるボタン）
+     * icon-light: ライトモード時に表示（dark_mode アイコン → ダークモードへ切り替えるボタン）
+     */
     .theme-toggle .icon-light {
       display: none;
     }
@@ -611,7 +615,7 @@
     </section>
 
     <div class="board">
-      <!-- Pending Column -->
+      <!-- 未完了カラム -->
       <div class="column pending">
         <div class="column-header">
           <div class="column-title">
@@ -623,7 +627,7 @@
         <div class="task-list" id="pending-list" data-status="pending"></div>
       </div>
 
-      <!-- Completed Column -->
+      <!-- 完了カラム -->
       <div class="column completed">
         <div class="column-header">
           <div class="column-title">
@@ -886,7 +890,7 @@
         taskInput.focus();
       });
 
-      // Add task on Enter key
+      // Add task on Enter key (ignore while IME is composing to support Japanese input)
       taskInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.isComposing) {
           addTask(taskInput.value);
