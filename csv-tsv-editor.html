@@ -770,31 +770,6 @@
       justify-content: flex-end;
     }
 
-    /* 復元バナー */
-    .restore-banner {
-      display: none;
-      padding: 12px 16px;
-      background: #dbeafe;
-      border: 1px solid var(--primary);
-      border-radius: 8px;
-      margin-bottom: 16px;
-      align-items: center;
-      gap: 12px;
-    }
-
-    [data-theme="dark"] .restore-banner {
-      background: #262626;
-    }
-
-    .restore-banner.show {
-      display: flex;
-    }
-
-    .restore-banner .message {
-      flex: 1;
-      font-size: 0.9rem;
-    }
-
     /* ショートカットヒント */
     .shortcut-hint {
       font-size: 0.75rem;
@@ -861,16 +836,6 @@
       </div>
     </header>
 
-    <!-- 復元バナー -->
-    <div class="restore-banner" id="restoreBanner">
-      <span class="material-symbols-outlined">restore</span>
-      <span class="message">前回の作業データが見つかりました</span>
-      <div class="actions">
-        <button class="btn btn-primary" onclick="restoreData()">復元する</button>
-        <button class="btn" onclick="dismissRestore()">破棄</button>
-      </div>
-    </div>
-
     <!-- 検索バー -->
     <div class="search-bar" id="searchBar">
       <input type="text" id="searchInput" placeholder="検索..." oninput="performSearch()">
@@ -902,9 +867,6 @@
 
       <!-- 編集グループ -->
       <div class="toolbar-group">
-        <button class="btn" onclick="triggerPaste()" title="データを貼り付け">
-          <span class="material-symbols-outlined">content_paste</span> 貼り付け
-        </button>
         <button class="btn" onclick="addRow()" title="行を追加">
           <span class="material-symbols-outlined">add_box</span> 行追加
         </button>
@@ -953,8 +915,8 @@
       <div class="paste-zone" id="pasteZone" tabindex="0">
         <span class="material-symbols-outlined"
           style="font-size: 48px; color: var(--text-muted); margin-bottom: 16px;">content_paste_go</span>
-        <h2>ここにCSV/TSVデータを貼り付け</h2>
-        <p>Ctrl+V または クリックしてペースト</p>
+        <h2>CSV/TSVファイルをここにドロップ</h2>
+        <p>ファイルをドラッグ&amp;ドロップ</p>
         <p style="margin-top: 8px; font-size: 0.8rem;">カンマ区切り(CSV)・タブ区切り(TSV) 自動判定</p>
       </div>
     </div>
@@ -1058,7 +1020,6 @@
     // DOMContentLoaded: HTMLの読み込みが完了したときに実行される
     document.addEventListener('DOMContentLoaded', () => {
       initEventListeners();    // イベントリスナーを登録
-      checkStoredData();        // 保存済みデータがあるか確認
       initTheme();              // テーマ（ライト/ダーク）を初期化
     });
 
@@ -1067,11 +1028,9 @@
      * ユーザーの操作（ペースト、ドラッグ&ドロップ、クリックなど）を監視
      */
     function initEventListeners() {
-      document.addEventListener('paste', handlePaste);
       document.addEventListener('keydown', handleKeyDown);
 
       const pasteZone = document.getElementById('pasteZone');
-      pasteZone.addEventListener('click', triggerPaste);
       pasteZone.addEventListener('dragover', (e) => {
         e.preventDefault();
         pasteZone.classList.add('dragover');
@@ -1828,6 +1787,18 @@
         return newRow;
       });
 
+      if (state.data[0]?.length === 0) {
+        state.data = [];
+        state.hasHeader = false;
+        state.columnWidths = {};
+        renderTable();
+        updateStats();
+        localStorage.removeItem('csvEditor_state');
+        closeModal();
+        showToast('すべての列が削除されました。データをクリアしました', 'success');
+        return;
+      }
+
       const newWidths = {};
       Object.keys(state.columnWidths).forEach(key => {
         const idx = parseInt(key);
@@ -1953,6 +1924,17 @@
       saveToHistory();
 
       state.data.splice(rowIndex, 1);
+
+      if (state.data.length === 0) {
+        state.hasHeader = false;
+        state.columnWidths = {};
+        renderTable();
+        updateStats();
+        localStorage.removeItem('csvEditor_state');
+        closeModal();
+        showToast('すべての行が削除されました。データをクリアしました', 'success');
+        return;
+      }
 
       renderTable();
       updateStats();
@@ -2122,40 +2104,6 @@
       } catch (e) {
         console.warn('LocalStorage save failed:', e);
       }
-    }
-
-    function checkStoredData() {
-      try {
-        const stored = localStorage.getItem('csvEditor_state');
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (parsed.data && parsed.data.length > 0) {
-            document.getElementById('restoreBanner').classList.add('show');
-          }
-        }
-      } catch (e) {
-        console.warn('LocalStorage read failed:', e);
-      }
-    }
-
-    function restoreData() {
-      try {
-        const stored = localStorage.getItem('csvEditor_state');
-        if (stored) {
-          state = JSON.parse(stored);
-          renderTable();
-          updateStats();
-          showToast('💾 前回の作業を復元しました', 'success');
-        }
-      } catch (e) {
-        showToast('復元に失敗しました', 'error');
-      }
-      document.getElementById('restoreBanner').classList.remove('show');
-    }
-
-    function dismissRestore() {
-      document.getElementById('restoreBanner').classList.remove('show');
-      localStorage.removeItem('csvEditor_state');
     }
 
     // ========================================
