@@ -1031,6 +1031,7 @@
      */
     function initEventListeners() {
       document.addEventListener('keydown', handleKeyDown);
+      document.addEventListener('paste', handlePaste);
 
       document.addEventListener('click', (e) => {
         const menu = document.getElementById('columnMenu');
@@ -1188,9 +1189,9 @@
     // ===== ペースト処理 =====
     // クリップボードからデータを読み込む
     function handlePaste(e) {
-      const target = e.target;
-      if (target.tagName === 'TD' && target.isContentEditable) return;
-      if (target.tagName === 'INPUT') return;
+      // テーブルが表示されている場合は通常のペースト動作に任せる（セル編集を妨げない）
+      const pasteZone = document.getElementById('pasteZone');
+      if (pasteZone.classList.contains('has-data')) return;
 
       const text = e.clipboardData?.getData('text');
       if (text) {
