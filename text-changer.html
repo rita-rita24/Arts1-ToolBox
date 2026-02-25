@@ -4,48 +4,68 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>テキスト変換</title>
+
+  <!-- Material Icons アイコンフォント -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <!-- ファビコン: Material Icons の text_fields アイコンを青背景のSVGで設定 -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%232563eb'/%3E%3Cpath fill='white' d='M2.5 4v3h5v12h3V7h5V4h-13zm19 5h-9v3h3v7h3v-7h3V9z'/%3E%3C/svg%3E">
+
+  <!--
+  ============================================================
+  CSS スタイル定義
+  ============================================================
+  -->
   <style>
-    /* Light Mode (default) */
+    /* ========================================
+       カラーテーマ設定
+       ======================================== */
+
+    /* ライトモード用カラーパレット（デフォルト） */
     :root,
     [data-theme="light"] {
-      --bg: #f5f5f5;
-      --surface: #ffffff;
-      --surface-hover: #f0f0f0;
-      --border: #e0e0e0;
-      --text: #1a1a1a;
-      --text-muted: #666666;
-      --accent: #2563eb;
-      --accent-hover: #1d4ed8;
-      --success: #16a34a;
-      --success-bg: rgba(22, 163, 74, 0.15);
-      --shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-      --radius: 12px;
-      --radius-sm: 8px;
+      --bg: #f5f5f5;                          /* ページ背景色 */
+      --surface: #ffffff;                     /* カード・入力欄の背景色 */
+      --surface-hover: #f0f0f0;              /* ホバー時の背景色 */
+      --border: #e0e0e0;                      /* ボーダー色 */
+      --text: #1a1a1a;                        /* 通常テキスト色 */
+      --text-muted: #666666;                  /* 補助テキスト色（薄め） */
+      --accent: #2563eb;                      /* アクセントカラー（青） */
+      --accent-hover: #1d4ed8;               /* アクセントカラーのホバー時 */
+      --success: #16a34a;                     /* 成功表示用（緑） */
+      --success-bg: rgba(22, 163, 74, 0.15); /* 成功表示の背景色 */
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.1); /* ドロップシャドウ */
+      --radius: 12px;                         /* 角丸（大） */
+      --radius-sm: 8px;                       /* 角丸（小） */
     }
 
-    /* Dark Mode */
+    /* ダークモード用カラーパレット */
     [data-theme="dark"] {
-      --bg: #000000;
-      --surface: #111111;
-      --surface-hover: #1a1a1a;
-      --border: #333333;
-      --text: #ffffff;
-      --text-muted: #999999;
-      --accent: #58a6ff;
-      --accent-hover: #79b8ff;
-      --success: #3fb950;
-      --success-bg: rgba(63, 185, 80, 0.15);
-      --shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      --bg: #000000;                          /* ページ背景色（黒） */
+      --surface: #111111;                     /* カード・入力欄の背景色 */
+      --surface-hover: #1a1a1a;              /* ホバー時の背景色 */
+      --border: #333333;                      /* ボーダー色 */
+      --text: #ffffff;                        /* 通常テキスト色（白） */
+      --text-muted: #999999;                  /* 補助テキスト色（グレー） */
+      --accent: #58a6ff;                      /* アクセントカラー（明るめの青） */
+      --accent-hover: #79b8ff;               /* アクセントカラーのホバー時 */
+      --success: #3fb950;                     /* 成功表示用（明るめの緑） */
+      --success-bg: rgba(63, 185, 80, 0.15); /* 成功表示の背景色 */
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.6); /* ドロップシャドウ（強め） */
     }
 
+    /* ========================================
+       ベーススタイル
+       ======================================== */
+
+    /* すべての要素に適用される基本設定 */
     * {
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
+      box-sizing: border-box; /* パディング・ボーダーを幅に含める */
     }
 
+    /* ページ全体のスタイル */
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", Helvetica, Arial, sans-serif;
       background: var(--bg);
@@ -54,16 +74,21 @@
       line-height: 1.5;
     }
 
-    /* Header */
+    /* ========================================
+       ヘッダー
+       ======================================== */
+
+    /* 画面上部に固定表示されるヘッダーバー */
     .header {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
       padding: 16px 24px;
-      position: sticky;
+      position: sticky; /* スクロールしても上部に固定 */
       top: 0;
-      z-index: 100;
+      z-index: 100;     /* 他の要素より手前に表示 */
     }
 
+    /* ヘッダー内のレイアウト（ロゴ左・ボタン右） */
     .header-content {
       max-width: 960px;
       margin: 0 auto;
@@ -73,6 +98,7 @@
       gap: 16px;
     }
 
+    /* アプリ名とアイコンのロゴ部分 */
     .logo {
       display: flex;
       align-items: center;
@@ -86,7 +112,11 @@
       color: var(--accent);
     }
 
-    /* Theme Toggle */
+    /* ========================================
+       テーマ切り替えボタン
+       ======================================== */
+
+    /* ライト/ダークモードを切り替えるボタン */
     .theme-toggle {
       background: var(--bg);
       border: 1px solid var(--border);
@@ -109,12 +139,19 @@
       font-size: 22px;
     }
 
+    /* ライトモード時: 月アイコン（ダークへ切り替えるヒント）を表示 */
     .theme-toggle .icon-light { display: block; }
     .theme-toggle .icon-dark  { display: none; }
+
+    /* ダークモード時: 太陽アイコン（ライトへ切り替えるヒント）を表示 */
     [data-theme="dark"] .theme-toggle .icon-light { display: none; }
     [data-theme="dark"] .theme-toggle .icon-dark  { display: block; }
 
-    /* Main */
+    /* ========================================
+       メインコンテンツエリア
+       ======================================== */
+
+    /* 入力・モード選択・出力を縦並びにするコンテナ */
     .main {
       max-width: 960px;
       margin: 0 auto;
@@ -124,7 +161,7 @@
       gap: 24px;
     }
 
-    /* Section Labels */
+    /* 各セクションの見出しラベル（小文字・グレー） */
     .section-label {
       font-size: 13px;
       font-weight: 600;
@@ -134,12 +171,17 @@
       margin-bottom: 8px;
     }
 
-    /* Textarea */
+    /* ========================================
+       テキストエリア（入力・出力共通）
+       ======================================== */
+
+    /* 入力欄・出力欄の外側ラッパー */
     .textarea-wrapper {
       display: flex;
       flex-direction: column;
     }
 
+    /* 入力欄・出力欄の共通スタイル */
     textarea {
       width: 100%;
       background: var(--surface);
@@ -147,14 +189,15 @@
       border-radius: var(--radius);
       padding: 16px;
       color: var(--text);
-      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; /* 等幅フォント */
       font-size: 14px;
       line-height: 1.6;
-      resize: vertical;
+      resize: vertical; /* 縦方向のみリサイズ可 */
       outline: none;
       transition: border-color 0.2s;
     }
 
+    /* フォーカス時にアクセントカラーのボーダーを表示 */
     textarea:focus {
       border-color: var(--accent);
     }
@@ -163,23 +206,30 @@
       color: var(--text-muted);
     }
 
+    /* 入力欄の最低高さ */
     #input-area {
       min-height: 180px;
     }
 
-    /* Mode Selector */
+    /* ========================================
+       変換モード選択
+       ======================================== */
+
+    /* モードボタンのセクション全体 */
     .mode-section {
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
 
+    /* モードボタンを横並びにするコンテナ */
     .mode-buttons {
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: wrap; /* 画面が狭い場合は折り返し */
       gap: 8px;
     }
 
+    /* 各変換モードを選ぶボタン（非選択時） */
     .mode-btn {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -190,7 +240,7 @@
       font-weight: 500;
       cursor: pointer;
       transition: background 0.15s, border-color 0.15s, color 0.15s;
-      white-space: nowrap;
+      white-space: nowrap; /* テキストを折り返さない */
     }
 
     .mode-btn:hover {
@@ -198,22 +248,29 @@
       color: var(--text);
     }
 
+    /* 選択中のモードボタン（アクセントカラーで強調） */
     .mode-btn.active {
       border-color: var(--accent);
       color: var(--accent);
-      background: rgba(37, 99, 235, 0.06);
+      background: rgba(37, 99, 235, 0.06); /* ライトモード用の薄い青背景 */
     }
 
+    /* ダークモードの選択中ボタン（青がより明るいため背景色を調整） */
     [data-theme="dark"] .mode-btn.active {
       background: rgba(88, 166, 255, 0.08);
     }
 
-    /* Output Section */
+    /* ========================================
+       出力エリア
+       ======================================== */
+
+    /* 出力ラベルとコピーボタンを横並びにするコンテナ */
     .output-section {
       display: flex;
       flex-direction: column;
     }
 
+    /* 出力ヘッダー（ラベル左・コピーボタン右） */
     .output-header {
       display: flex;
       align-items: center;
@@ -221,13 +278,18 @@
       margin-bottom: 8px;
     }
 
+    /* 出力欄の最低高さ（読み取り専用） */
     #output-area {
       min-height: 120px;
       background: var(--surface);
       color: var(--text);
     }
 
-    /* Copy Button */
+    /* ========================================
+       コピーボタン
+       ======================================== */
+
+    /* 出力内容をクリップボードにコピーするボタン */
     .copy-btn {
       display: flex;
       align-items: center;
@@ -247,6 +309,7 @@
       background: var(--accent-hover);
     }
 
+    /* コピー完了時: 緑色に変化（2秒後に元に戻る） */
     .copy-btn.copied {
       background: var(--success);
     }
@@ -255,29 +318,30 @@
       font-size: 16px;
     }
 
-    /* Empty State */
-    .empty-hint {
-      font-size: 13px;
-      color: var(--text-muted);
-      font-style: italic;
-    }
+    /* ========================================
+       レスポンシブ対応
+       ======================================== */
 
-    /* Responsive */
+    /* スマートフォン幅（600px以下）の調整 */
     @media (max-width: 600px) {
       .main { padding: 20px 16px; }
-      .mode-buttons { flex-direction: column; }
+      .mode-buttons { flex-direction: column; } /* モードボタンを縦並びに */
       .mode-btn { width: 100%; }
     }
   </style>
 </head>
 <body>
 
+<!-- ========================================
+     ヘッダー: アプリ名とテーマ切り替えボタン
+     ======================================== -->
 <header class="header">
   <div class="header-content">
     <div class="logo">
       <span class="material-icons">find_replace</span>
       Text Changer
     </div>
+    <!-- テーマ切り替えボタン: ライト/ダークを交互に切り替え -->
     <button class="theme-toggle" id="theme-toggle" aria-label="テーマ切り替え">
       <span class="material-icons icon-dark">light_mode</span>
       <span class="material-icons icon-light">dark_mode</span>
@@ -287,26 +351,36 @@
 
 <main class="main">
 
-  <!-- Input -->
+  <!-- ========================================
+       入力エリア: 変換前のテキストを入力（1行1値）
+       ======================================== -->
   <div class="textarea-wrapper">
     <div class="section-label">入力（1行につき1つの値）</div>
     <textarea id="input-area" placeholder="ここに値を入力してください（1行に1つ）&#10;例：&#10;apple&#10;banana&#10;cherry"></textarea>
   </div>
 
-  <!-- Mode -->
+  <!-- ========================================
+       変換モード選択: 3種類の出力形式を選ぶ
+       ======================================== -->
   <div class="mode-section">
     <div class="section-label">変換モード</div>
     <div class="mode-buttons">
+      <!-- A5SQL用: -- *Captions '値1' '値2' ... の形式 -->
       <button class="mode-btn active" data-mode="a5sql">A5SQL用 Caption 変換</button>
+      <!-- タブ区切り: '値1'\t'値2'\t... のTSV形式 -->
       <button class="mode-btn" data-mode="tsv">タブ区切り変換</button>
+      <!-- SQL IN句: in ('値1','値2',...); の形式 -->
       <button class="mode-btn" data-mode="sql-in">SQL の IN 句変換</button>
     </div>
   </div>
 
-  <!-- Output -->
+  <!-- ========================================
+       出力エリア: 変換結果を表示（読み取り専用）
+       ======================================== -->
   <div class="output-section">
     <div class="output-header">
       <div class="section-label" style="margin-bottom:0;">出力</div>
+      <!-- コピーボタン: クリックで出力内容をクリップボードへコピー -->
       <button class="copy-btn" id="copy-btn" aria-label="クリップボードにコピー">
         <span class="material-icons">content_copy</span>
         コピー
@@ -317,28 +391,50 @@
 
 </main>
 
+<!--
+============================================================
+JavaScript: アプリケーションロジック
+============================================================
+-->
 <script>
   'use strict';
 
-  const STORAGE_KEY = 'textChanger_settings';
-  const THEME_KEY   = 'textChanger_theme';
+  // ========================================
+  // 定数定義
+  // ========================================
 
-  // --- State ---
-  let currentMode = 'a5sql';
+  const STORAGE_KEY = 'textChanger_settings'; // 入力内容・モードの保存キー
+  const THEME_KEY   = 'textChanger_theme';     // テーマ設定の保存キー
 
-  // --- Elements ---
-  const inputArea   = document.getElementById('input-area');
-  const outputArea  = document.getElementById('output-area');
-  const copyBtn     = document.getElementById('copy-btn');
-  const themeToggle = document.getElementById('theme-toggle');
-  const modeBtns    = document.querySelectorAll('.mode-btn');
+  // ========================================
+  // 状態管理
+  // ========================================
 
-  // --- Theme ---
+  let currentMode = 'a5sql'; // 現在選択中の変換モード
+
+  // ========================================
+  // DOM要素の取得
+  // ========================================
+
+  const inputArea   = document.getElementById('input-area');   // テキスト入力欄
+  const outputArea  = document.getElementById('output-area');  // 変換結果表示欄（読み取り専用）
+  const copyBtn     = document.getElementById('copy-btn');     // クリップボードコピーボタン
+  const themeToggle = document.getElementById('theme-toggle'); // テーマ切り替えボタン
+  const modeBtns    = document.querySelectorAll('.mode-btn');  // 変換モード選択ボタン一覧
+
+  // ========================================
+  // テーマ切り替え機能
+  // ========================================
+
+  // ===== テーマの初期化 =====
+  // localStorageに保存済みの設定を読み込む。未設定ならライトモード
   function initTheme() {
     const saved = localStorage.getItem(THEME_KEY) || 'light';
     document.documentElement.setAttribute('data-theme', saved);
   }
 
+  // ===== ライト/ダークモードの切り替え =====
+  // 現在のテーマを反転してlocalStorageに保存
   function toggleTheme() {
     const current = document.documentElement.getAttribute('data-theme');
     const next = current === 'dark' ? 'light' : 'dark';
@@ -346,7 +442,12 @@
     localStorage.setItem(THEME_KEY, next);
   }
 
-  // --- Conversion ---
+  // ========================================
+  // テキスト変換処理
+  // ========================================
+
+  // ===== 入力テキストを行ごとに分割 =====
+  // 空行・前後の空白を除去して配列として返す
   function getLines(text) {
     return text
       .split('\n')
@@ -354,23 +455,31 @@
       .filter(line => line.length > 0);
   }
 
+  // ===== A5SQL用 Caption 変換 =====
+  // 出力形式: -- *Captions '値1' '値2' '値3' ...
   function convertA5sql(lines) {
     if (lines.length === 0) return '';
     const quoted = lines.map(v => `'${v}'`).join(' ');
     return `-- *Captions ${quoted}`;
   }
 
+  // ===== タブ区切り変換（TSV形式） =====
+  // 出力形式: '値1'\t'値2'\t'値3' ...
   function convertTsv(lines) {
     if (lines.length === 0) return '';
     return lines.map(v => `'${v}'`).join('\t');
   }
 
+  // ===== SQL の IN 句変換 =====
+  // 出力形式: in ('値1','値2','値3',...);
   function convertSqlIn(lines) {
     if (lines.length === 0) return '';
     const quoted = lines.map(v => `'${v}'`).join(',');
     return `in (${quoted});`;
   }
 
+  // ===== 変換の実行 =====
+  // 現在のモードに応じた変換関数を呼び出し、結果を出力欄に表示
   function convert() {
     const lines = getLines(inputArea.value);
     let result = '';
@@ -384,7 +493,12 @@
     outputArea.value = result;
   }
 
-  // --- Mode Selection ---
+  // ========================================
+  // 変換モード選択処理
+  // ========================================
+
+  // ===== モードボタンの切り替え =====
+  // 選択したモードをアクティブ状態にして変換を再実行
   function selectMode(mode) {
     currentMode = mode;
     modeBtns.forEach(btn => {
@@ -394,12 +508,19 @@
     saveSettings();
   }
 
-  // --- Copy ---
+  // ========================================
+  // コピー機能
+  // ========================================
+
+  // ===== 出力内容をクリップボードにコピー =====
+  // コピー成功時: ボタンを「コピーしました」に変更し2秒後に元に戻す
+  // コピー失敗時: 出力欄を選択状態にして代替コピーを試みる
   function copyOutput() {
     const text = outputArea.value;
     if (!text) return;
 
     navigator.clipboard.writeText(text).then(() => {
+      // コピー成功: ボタンの表示を一時的に変更
       copyBtn.classList.add('copied');
       copyBtn.innerHTML = '<span class="material-icons">check</span> コピーしました';
       setTimeout(() => {
@@ -407,13 +528,18 @@
         copyBtn.innerHTML = '<span class="material-icons">content_copy</span> コピー';
       }, 2000);
     }).catch(() => {
-      // Fallback for environments without clipboard API
+      // フォールバック: Clipboard API が使えない環境向け
       outputArea.select();
       document.execCommand('copy');
     });
   }
 
-  // --- Persistence ---
+  // ========================================
+  // データ永続化（localStorage）
+  // ========================================
+
+  // ===== 設定の保存 =====
+  // 現在の変換モードと入力内容をlocalStorageに保存
   function saveSettings() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -425,6 +551,8 @@
     }
   }
 
+  // ===== 設定の読み込み =====
+  // 前回保存したモードと入力内容を復元する
   function loadSettings() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -440,24 +568,30 @@
         inputArea.value = data.input;
       }
     } catch (e) {
-      // ignore
+      // パースエラーは無視して初期状態のまま続行
     }
   }
 
-  // --- Auto-save (debounced) ---
+  // ===== デバウンス付き自動保存 =====
+  // 入力のたびに保存が走らないよう、500ms の遅延を設ける
   let saveTimeout;
   function autoSave() {
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(saveSettings, 500);
   }
 
-  // --- Event Listeners ---
+  // ========================================
+  // イベントリスナー登録
+  // ========================================
+
   themeToggle.addEventListener('click', toggleTheme);
 
+  // 各モードボタンクリック時に selectMode を呼び出す
   modeBtns.forEach(btn => {
     btn.addEventListener('click', () => selectMode(btn.dataset.mode));
   });
 
+  // 入力欄の変更時: リアルタイム変換 + 自動保存
   inputArea.addEventListener('input', () => {
     convert();
     autoSave();
@@ -465,10 +599,13 @@
 
   copyBtn.addEventListener('click', copyOutput);
 
-  // --- Init ---
-  initTheme();
-  loadSettings();
-  convert();
+  // ========================================
+  // 初期化処理
+  // ========================================
+
+  initTheme();     // テーマを適用
+  loadSettings();  // 前回の状態を復元
+  convert();       // 初期変換を実行
 </script>
 </body>
 </html>
