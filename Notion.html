@@ -249,15 +249,6 @@
       visibility: hidden;
     }
 
-    .page-icon {
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-right: 4px;
-    }
 
     .page-title {
       flex: 1;
@@ -414,57 +405,6 @@
       position: relative;
     }
 
-    .page-header-actions {
-      display: none;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-
-    .page-header:hover .page-header-actions {
-      display: flex;
-    }
-
-    .page-header-action {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 6px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      color: var(--text-tertiary);
-    }
-
-    .page-header-action:hover {
-      background: var(--bg-hover);
-      color: var(--text-secondary);
-    }
-
-    .page-header-action .material-icons {
-      font-size: 16px;
-    }
-
-    .page-icon-container {
-      margin-bottom: 8px;
-    }
-
-    .page-icon-large {
-      font-size: 72px;
-      line-height: 1;
-      cursor: pointer;
-      display: inline-block;
-      padding: 4px;
-      border-radius: 4px;
-    }
-
-    .page-icon-large:hover {
-      background: var(--bg-hover);
-    }
-
-    .page-icon-large.hidden {
-      display: none;
-    }
-
     .page-title-input {
       font-size: 40px;
       font-weight: 700;
@@ -481,330 +421,166 @@
       color: var(--text-tertiary);
     }
 
-    /* Blocks */
-    .blocks {
-      position: relative;
-      counter-reset: block-counter;
-    }
-
-    .block {
-      position: relative;
-      padding: 3px 0;
+    /* Mode Toggle */
+    .mode-toggle {
       display: flex;
-      align-items: flex-start;
+      background: var(--bg-secondary);
+      border-radius: 6px;
+      padding: 2px;
+      gap: 2px;
     }
 
-    .block::before {
-      content: '';
-      position: absolute;
-      left: -52px;
-      top: 0;
-      width: 52px;
-      height: 100%;
-    }
-
-    .block-handle {
-      position: absolute;
-      left: -24px;
-      top: 3px;
-      width: 18px;
-      height: 24px;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      cursor: grab;
-      color: var(--text-tertiary);
-      border-radius: 4px;
-    }
-
-    .block:hover .block-handle {
-      display: flex;
-    }
-
-    .block-handle:hover {
-      background: var(--bg-hover);
-      color: var(--text-secondary);
-    }
-
-    .block-add {
-      position: absolute;
-      left: -48px;
-      top: 3px;
-      width: 18px;
-      height: 24px;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: var(--text-tertiary);
-      border-radius: 4px;
-    }
-
-    .block:hover .block-add {
-      display: flex;
-    }
-
-    .block-add:hover {
-      background: var(--bg-hover);
-      color: var(--text-secondary);
-    }
-
-    .block-content {
-      flex: 1;
-      min-height: 1.5em;
-      outline: none;
-      word-break: break-word;
-    }
-
-    .block-content:empty::before {
-      content: attr(data-placeholder);
-      color: var(--text-tertiary);
-    }
-
-    .block-content:focus:empty::before {
-      content: "'/'を入力してコマンドを使用...";
-    }
-
-    /* Block Types */
-    .block.heading1 .block-content {
-      font-size: 30px;
-      font-weight: 600;
-      margin: 16px 0 4px;
-      line-height: 1.3;
-    }
-
-    .block.heading2 .block-content {
-      font-size: 24px;
-      font-weight: 600;
-      margin: 14px 0 4px;
-      line-height: 1.3;
-    }
-
-    .block.heading3 .block-content {
-      font-size: 20px;
-      font-weight: 600;
-      margin: 12px 0 4px;
-      line-height: 1.3;
-    }
-
-    .block.bullet {
-      padding-left: 24px;
-    }
-
-    .block.bullet::before {
-      content: "•";
-      position: absolute;
-      left: 8px;
-      color: var(--text-primary);
-    }
-
-    .block.numbered {
-      padding-left: 24px;
-      counter-increment: block-counter;
-    }
-
-    .block.numbered::before {
-      content: counter(block-counter) ".";
-      position: absolute;
-      left: 0;
-      color: var(--text-primary);
-      font-size: 14px;
-    }
-
-    .block.todo {
-      padding-left: 28px;
-    }
-
-    .block.todo .todo-checkbox {
-      position: absolute;
-      left: 0;
-      top: 6px;
-      width: 16px;
-      height: 16px;
-      border: 2px solid var(--text-secondary);
-      border-radius: 3px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .block.todo.checked .todo-checkbox {
-      background: var(--blue);
-      border-color: var(--blue);
-    }
-
-    .block.todo.checked .todo-checkbox .material-icons {
-      display: block;
-    }
-
-    .block.todo .todo-checkbox .material-icons {
-      display: none;
-      font-size: 12px;
-      color: white;
-    }
-
-    .block.todo.checked .block-content {
-      text-decoration: line-through;
-      color: var(--text-tertiary);
-    }
-
-    .block.toggle {
-      padding-left: 24px;
-    }
-
-    .block.toggle .toggle-icon {
-      position: absolute;
-      left: 0;
-      top: 4px;
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 4px;
-      transition: transform 0.1s;
-    }
-
-    .block.toggle .toggle-icon:hover {
-      background: var(--bg-hover);
-    }
-
-    .block.toggle.expanded .toggle-icon {
-      transform: rotate(90deg);
-    }
-
-    .block.toggle .toggle-content {
-      display: none;
-      margin-left: 24px;
-      margin-top: 4px;
-    }
-
-    .block.toggle.expanded .toggle-content {
-      display: block;
-    }
-
-    .block.quote {
-      padding-left: 16px;
-      border-left: 3px solid var(--quote-border);
-    }
-
-    .block.callout {
-      background: var(--callout-bg);
-      border-radius: 4px;
-      padding: 16px 16px 16px 48px;
-      position: relative;
-    }
-
-    .block.callout .callout-icon {
-      position: absolute;
-      left: 16px;
-      top: 16px;
-      font-size: 20px;
-      cursor: pointer;
-    }
-
-    .block.divider {
-      padding: 12px 0;
-    }
-
-    .block.divider hr {
+    .mode-btn {
+      padding: 4px 14px;
       border: none;
-      border-top: 1px solid var(--border-color);
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-family: inherit;
     }
 
-    .block.code {
+    .mode-btn.active {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      box-shadow: 0 1px 3px var(--shadow);
+    }
+
+    /* Editor */
+    .editor-textarea {
+      width: 100%;
+      min-height: 60vh;
+      border: none;
+      outline: none;
+      resize: none;
+      background: transparent;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 15px;
+      line-height: 1.8;
+      padding: 0;
+      caret-color: var(--text-primary);
+    }
+
+    .editor-textarea::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .editor-textarea.hidden {
+      display: none;
+    }
+
+    /* Preview */
+    .editor-preview {
+      display: none;
+      line-height: 1.7;
+    }
+
+    .editor-preview.active {
+      display: block;
+    }
+
+    .editor-preview h1 {
+      font-size: 2em;
+      font-weight: 700;
+      margin: 0.8em 0 0.4em;
+      line-height: 1.2;
+    }
+
+    .editor-preview h2 {
+      font-size: 1.5em;
+      font-weight: 600;
+      margin: 0.7em 0 0.35em;
+      line-height: 1.3;
+    }
+
+    .editor-preview h3 {
+      font-size: 1.2em;
+      font-weight: 600;
+      margin: 0.6em 0 0.3em;
+      line-height: 1.3;
+    }
+
+    .editor-preview p {
+      margin: 0.4em 0;
+    }
+
+    .editor-preview ul,
+    .editor-preview ol {
+      margin: 0.4em 0;
+      padding-left: 1.6em;
+    }
+
+    .editor-preview li {
+      margin: 0.2em 0;
+    }
+
+    .editor-preview li.task-item {
+      list-style: none;
+      margin-left: -1.2em;
+    }
+
+    .editor-preview li.task-item input[type="checkbox"] {
+      margin-right: 6px;
+    }
+
+    .editor-preview blockquote {
+      border-left: 3px solid var(--text-tertiary);
+      padding-left: 1em;
+      margin: 0.6em 0;
+      color: var(--text-secondary);
+    }
+
+    .editor-preview pre {
       background: var(--code-bg);
       border-radius: 4px;
-      padding: 16px;
-      font-family: var(--font-mono);
-      font-size: 14px;
+      padding: 14px 16px;
       overflow-x: auto;
+      margin: 0.6em 0;
     }
 
-    .block.code .block-content {
-      white-space: pre-wrap;
-    }
-
-    /* Slash Menu */
-    .slash-menu {
-      position: fixed;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      box-shadow: 0 4px 24px var(--shadow);
-      width: 320px;
-      max-height: 400px;
-      overflow-y: auto;
-      z-index: 1000;
-      display: none;
-    }
-
-    .slash-menu.visible {
-      display: block;
-      animation: fadeIn 0.15s ease;
-    }
-
-    .slash-menu-header {
-      padding: 8px 12px;
-      font-size: 12px;
-      color: var(--text-tertiary);
-      font-weight: 500;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .slash-menu-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 8px 12px;
-      cursor: pointer;
-    }
-
-    .slash-menu-item:hover,
-    .slash-menu-item.selected {
-      background: var(--bg-hover);
-    }
-
-    .slash-menu-icon {
-      width: 46px;
-      height: 46px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      color: var(--text-primary);
-    }
-
-    .slash-menu-icon .material-icons {
-      font-size: 24px;
-    }
-
-    .slash-menu-icon span.text-icon {
-      font-size: 18px;
-      font-weight: 500;
-    }
-
-    .slash-menu-icon.emoji {
-      font-size: 24px;
-    }
-
-    .slash-menu-text {
-      flex: 1;
-    }
-
-    .slash-menu-title {
+    .editor-preview pre code {
+      background: none;
+      padding: 0;
       font-size: 14px;
-      font-weight: 500;
+      line-height: 1.6;
     }
 
-    .slash-menu-desc {
-      font-size: 12px;
-      color: var(--text-secondary);
+    .editor-preview code {
+      background: var(--code-bg);
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-family: var(--font-mono);
+      font-size: 87%;
+    }
+
+    .editor-preview hr {
+      border: none;
+      border-top: 1px solid var(--border-color);
+      margin: 1em 0;
+    }
+
+    .editor-preview a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    .editor-preview a:hover {
+      text-decoration: underline;
+    }
+
+    .editor-preview strong {
+      font-weight: 700;
+    }
+
+    .editor-preview em {
+      font-style: italic;
+    }
+
+    .editor-preview del {
+      text-decoration: line-through;
+      color: var(--text-tertiary);
     }
 
     /* Search Modal */
@@ -1002,115 +778,72 @@
       background: rgba(46, 170, 220, 0.1);
     }
 
-    /* Emoji Picker */
-    .emoji-picker {
+    /* File Setup Overlay */
+    .file-setup-overlay {
       position: fixed;
+      inset: 0;
       background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      box-shadow: 0 4px 24px var(--shadow);
-      padding: 8px;
-      z-index: 1000;
-      display: none;
-      max-width: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
     }
 
-    .emoji-picker.visible {
+    .file-setup-overlay.hidden {
+      display: none;
+    }
+
+    .file-setup-box {
+      text-align: center;
+      max-width: 400px;
+      padding: 48px 32px;
+    }
+
+    .file-setup-box .material-icons {
+      font-size: 48px;
+      color: var(--text-tertiary);
+      margin-bottom: 16px;
       display: block;
-      animation: fadeIn 0.15s ease;
     }
 
-    .emoji-grid {
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      gap: 4px;
-    }
-
-    .emoji-item {
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      border-radius: 4px;
-      font-size: 20px;
-    }
-
-    .emoji-item:hover {
-      background: var(--bg-hover);
-    }
-
-    .color-picker-row {
-      display: flex;
-      gap: 6px;
-      padding: 8px;
-      border-bottom: 1px solid var(--border-color);
+    .file-setup-title {
+      font-size: 22px;
+      font-weight: 600;
       margin-bottom: 8px;
-      justify-content: center;
-      flex-wrap: wrap;
     }
 
-    .color-option {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid transparent;
-      transition: transform 0.1s;
+    .file-setup-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      line-height: 1.6;
     }
 
-    .color-option:hover {
-      transform: scale(1.1);
-    }
-
-    .color-option.selected {
-      border-color: var(--text-primary);
-    }
-
-    /* Selection Toolbar */
-    .selection-toolbar {
-      position: fixed;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      box-shadow: 0 2px 12px var(--shadow);
-      display: none;
-      padding: 4px;
-      z-index: 1000;
-    }
-
-    .selection-toolbar.visible {
-      display: flex;
-    }
-
-    .toolbar-btn {
-      width: 28px;
-      height: 28px;
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      border-radius: 4px;
-      display: flex;
+    .file-setup-btn {
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      color: var(--text-primary);
+      gap: 8px;
+      padding: 10px 24px;
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-family: inherit;
+      cursor: pointer;
+      margin: 4px;
     }
 
-    .toolbar-btn:hover {
-      background: var(--bg-hover);
+    .file-setup-btn:hover {
+      opacity: 0.85;
     }
 
-    .toolbar-btn .material-icons {
-      font-size: 18px;
+    .file-setup-btn.secondary {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
     }
 
-    .toolbar-divider {
-      width: 1px;
-      height: 24px;
-      background: var(--border-color);
-      margin: 0 4px;
-    }
 
     ::-webkit-scrollbar {
       width: 10px;
@@ -1219,24 +952,19 @@
           </div>
         </div>
         <div class="topbar-right">
+          <div class="mode-toggle">
+            <button class="mode-btn active" id="editModeBtn" onclick="setMode('edit')">編集</button>
+            <button class="mode-btn" id="previewModeBtn" onclick="setMode('preview')">プレビュー</button>
+          </div>
         </div>
       </div>
       <div class="editor-container">
         <div class="editor" id="editor">
           <div class="page-header">
-            <div class="page-header-actions">
-              <div class="page-header-action" id="addIconBtn" onclick="showPageIconPicker(event)">
-                <span class="material-icons">mood</span>
-                <span>アイコンを追加</span>
-              </div>
-            </div>
-            <div class="page-icon-container">
-              <div class="page-icon-large material-icons" id="pageIcon" onclick="showEmojiPicker(event, 'pageIcon')">
-                description</div>
-            </div>
             <input type="text" class="page-title-input" id="pageTitle" placeholder="無題">
           </div>
-          <div class="blocks" id="blocks"></div>
+          <textarea class="editor-textarea" id="editorTextarea" placeholder="マークダウンで書く...&#10;&#10;# 見出し1&#10;## 見出し2&#10;**太字** *斜体* `コード`&#10;- リスト項目&#10;1. 番号付きリスト&#10;- [ ] チェックリスト&#10;> 引用&#10;```&#10;コードブロック&#10;```"></textarea>
+          <div class="editor-preview" id="editorPreview"></div>
         </div>
       </div>
     </main>
@@ -1270,109 +998,6 @@
     </div>
   </div>
 
-  <!-- Slash Menu -->
-  <div class="slash-menu" id="slashMenu">
-    <div class="slash-menu-header">基本ブロック</div>
-    <div class="slash-menu-item" data-type="text">
-      <div class="slash-menu-icon"><span class="material-icons">title</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">テキスト</div>
-        <div class="slash-menu-desc">プレーンテキストで書き始める</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="heading1">
-      <div class="slash-menu-icon"><span class="text-icon">H1</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">見出し 1</div>
-        <div class="slash-menu-desc">大きい見出し</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="heading2">
-      <div class="slash-menu-icon"><span class="text-icon">H2</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">見出し 2</div>
-        <div class="slash-menu-desc">中くらいの見出し</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="heading3">
-      <div class="slash-menu-icon"><span class="text-icon">H3</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">見出し 3</div>
-        <div class="slash-menu-desc">小さい見出し</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="bullet">
-      <div class="slash-menu-icon"><span class="material-icons">format_list_bulleted</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">箇条書きリスト</div>
-        <div class="slash-menu-desc">シンプルな箇条書き</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="numbered">
-      <div class="slash-menu-icon"><span class="material-icons">format_list_numbered</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">番号付きリスト</div>
-        <div class="slash-menu-desc">番号付きのリスト</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="todo">
-      <div class="slash-menu-icon"><span class="material-icons">check_box</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">ToDoリスト</div>
-        <div class="slash-menu-desc">タスクのチェックリスト</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="toggle">
-      <div class="slash-menu-icon"><span class="material-icons">expand_more</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">トグル</div>
-        <div class="slash-menu-desc">折りたたみ可能なコンテンツ</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="quote">
-      <div class="slash-menu-icon"><span class="material-icons">format_quote</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">引用</div>
-        <div class="slash-menu-desc">引用テキスト</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="callout">
-      <div class="slash-menu-icon"><span class="material-icons">lightbulb</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">コールアウト</div>
-        <div class="slash-menu-desc">目立つボックス</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="divider">
-      <div class="slash-menu-icon"><span class="material-icons">horizontal_rule</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">区切り線</div>
-        <div class="slash-menu-desc">コンテンツを分割</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="code">
-      <div class="slash-menu-icon"><span class="material-icons">code</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">コード</div>
-        <div class="slash-menu-desc">コードスニペット</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Selection Toolbar -->
-  <div class="selection-toolbar" id="selectionToolbar">
-    <button class="toolbar-btn" onclick="formatText('bold')" title="太字"><span
-        class="material-icons">format_bold</span></button>
-    <button class="toolbar-btn" onclick="formatText('italic')" title="斜体"><span
-        class="material-icons">format_italic</span></button>
-    <button class="toolbar-btn" onclick="formatText('underline')" title="下線"><span
-        class="material-icons">format_underlined</span></button>
-    <button class="toolbar-btn" onclick="formatText('strikethrough')" title="取り消し線"><span
-        class="material-icons">strikethrough_s</span></button>
-    <div class="toolbar-divider"></div>
-    <button class="toolbar-btn" onclick="formatText('code')" title="コード"><span
-        class="material-icons">code</span></button>
-  </div>
 
   <!-- Settings Modal -->
   <div class="modal-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
@@ -1403,142 +1028,254 @@
         </div>
       </div>
       <div class="settings-item" style="flex-direction: column; align-items: flex-start; gap: 12px;">
-        <span class="settings-label">データ管理</span>
-        <button class="font-option" onclick="selectFile()" style="width:100%; text-align:center;">JSONファイルを開く /
-          保存先設定</button>
-        <div id="fileStatus" style="font-size:12px; color:var(--text-tertiary);">現在の保存先: Local Storage</div>
+        <span class="settings-label">データファイル</span>
+        <button class="font-option" onclick="changeFile()" style="width:100%; text-align:center;">ファイルを変更</button>
+        <div id="fileStatus" style="font-size:12px; color:var(--text-tertiary);">接続中...</div>
       </div>
     </div>
   </div>
 
-  <!-- Emoji Picker -->
-  <div class="emoji-picker" id="emojiPicker">
-    <div class="emoji-grid" id="emojiGrid"></div>
+  <!-- File Setup Overlay -->
+  <div class="file-setup-overlay" id="fileSetupOverlay">
+    <div class="file-setup-box">
+      <span class="material-icons">folder_open</span>
+      <div class="file-setup-title" id="fileSetupTitle">データファイルを設定</div>
+      <div class="file-setup-desc" id="fileSetupDesc">
+        Notion Plus のデータを保存する JSON ファイルを選択してください。<br>
+        一度設定すると、次回以降は自動で読み込まれます。
+      </div>
+      <div>
+        <button class="file-setup-btn" id="fileSetupBtn" onclick="setupNewFile()">
+          <span class="material-icons" style="font-size:18px">folder_open</span>
+          ファイルを選択 / 作成
+        </button>
+      </div>
+    </div>
   </div>
 
   <script>
     // === State ===
     let state = {
       pages: [
-        { id: '1', title: 'はじめに', icon: 'home', favorite: false, children: [], blocks: [] },
+        { id: '1', title: 'はじめに', children: [], content: '' },
         {
-          id: '2', title: 'プロジェクト', icon: 'folder', favorite: true, children: [
-            { id: '2-1', title: 'タスク一覧', icon: 'check_circle', children: [], blocks: [] }
-          ], blocks: []
+          id: '2', title: 'プロジェクト', children: [
+            { id: '2-1', title: 'タスク一覧', children: [], content: '' }
+          ], content: ''
         },
-        { id: '3', title: 'メモ', icon: 'description', favorite: false, children: [], blocks: [] }
+        { id: '3', title: 'メモ', children: [], content: '' }
       ],
       currentPage: null,
       settings: { darkMode: false, fullWidth: false, smallText: false, font: 'default' },
-      sectionExpanded: { favorites: true, all: true }
+      sectionExpanded: { all: true }
     };
-    let blockIdCounter = 100;
-    let slashMenuTarget = null;
-    let emojiTarget = null;
     let deleteTargetId = null;
+    let fileHandle = null;
+    let saveTimeout = null;
+    let currentMode = 'edit';
 
-    const emojis = [
-      // Document & Files
-      'description', 'article', 'folder', 'folder_open', 'task', 'note_add', 'post_add', 'file_copy', 'snippet_folder', 'topic', 'newspaper', 'inventory_2',
-      // Business & Status
-      'check_circle', 'schedule', 'event', 'today', 'pending', 'done', 'done_all', 'verified', 'error', 'warning', 'info', 'help', 'flag', 'bookmark', 'star', 'thumb_up', 'analytics', 'timeline', 'trending_up', 'trending_down',
-      // Places & Objects
-      'home', 'store', 'domain', 'school', 'local_cafe', 'restaurant', 'fitness_center', 'spa', 'local_florist', 'forest', 'landscape', 'dark_mode', 'light_mode', 'bolt', 'rocket', 'build', 'construction',
-      // Tech & Tools
-      'settings', 'search', 'language', 'code', 'terminal', 'developer_mode', 'devices', 'laptop', 'smartphone', 'mouse', 'keyboard', 'memory', 'router', 'wifi', 'security', 'lock', 'key',
-      // Communication
-      'chat', 'forum', 'comment', 'mail', 'send', 'call', 'contact_page', 'groups', 'person', 'face', 'support_agent', 'settings_accessibility',
-      // Media
-      'image', 'movie', 'mic', 'volume_up', 'music_note', 'camera_alt', 'videocam', 'brush', 'palette', 'format_paint', 'auto_stories',
-      // Travel & Map
-      'flight', 'directions_car', 'directions_boat', 'two_wheeler', 'train', 'map', 'pin_drop', 'navigation', 'explore',
-      // Misc
-      'emoji_events', 'savings', 'paid', 'shopping_cart', 'favorite', 'heart_broken', 'pets', 'recycling', 'water_drop', 'ac_unit'
-    ];
+    // === IndexedDB for file handle persistence ===
+    const DB_NAME = 'notionPlusDB';
+    const STORE_NAME = 'fileHandles';
 
-    const iconColors = [
-      { name: 'default', value: 'var(--text-primary)' },
-      { name: 'gray', value: '#787774' },
-      { name: 'brown', value: '#9f6b53' },
-      { name: 'orange', value: '#d9730d' },
-      { name: 'yellow', value: '#cb912f' },
-      { name: 'green', value: '#448361' },
-      { name: 'blue', value: '#337ea9' },
-      { name: 'purple', value: '#9065b0' },
-      { name: 'pink', value: '#c14c8a' },
-      { name: 'red', value: '#d44c47' }
-    ];
+    function getDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = e => e.target.result.createObjectStore(STORE_NAME);
+        req.onsuccess = e => resolve(e.target.result);
+        req.onerror = e => reject(e.target.error);
+      });
+    }
 
-    let selectedColor = 'default';
+    async function saveHandleToDB(handle) {
+      const db = await getDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).put(handle, 'dataFile');
+        tx.oncomplete = resolve;
+        tx.onerror = e => reject(e.target.error);
+      });
+    }
+
+    async function getHandleFromDB() {
+      const db = await getDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const req = tx.objectStore(STORE_NAME).get('dataFile');
+        req.onsuccess = e => resolve(e.target.result);
+        req.onerror = e => reject(e.target.error);
+      });
+    }
 
     // === Init ===
     document.addEventListener('DOMContentLoaded', () => {
-      loadState();
-      renderPagesList();
-      if (state.pages.length > 0) openPage(state.pages[0].id);
       setupEventListeners();
-      initEmojiPicker();
-      initStaticFavicon();
+      initFileSystem();
     });
 
-    let fileHandle = null;
-    let saveTimeout = null;
-
-    // === State Management ===
-    function saveState() {
-      // Local Storage (Backup)
-      localStorage.setItem('notionCloneState', JSON.stringify(state));
-
-      // Auto-save to File
-      if (fileHandle) {
-        if (saveTimeout) clearTimeout(saveTimeout);
-        document.getElementById('fileStatus').textContent = "保存中...";
-        saveTimeout = setTimeout(async () => {
-          try {
-            const writable = await fileHandle.createWritable();
-            await writable.write(JSON.stringify(state, null, 2));
-            await writable.close();
-            const fileName = fileHandle.name;
-            document.getElementById('fileStatus').textContent = `現在の保存先: ${fileName} (保存完了)`;
-          } catch (e) {
-            console.error('Auto-save failed:', e);
-            document.getElementById('fileStatus').textContent = `保存エラー: ${e.message}`;
-          }
-        }, 1000); // Debounce 1s
-      }
-    }
-
-    function loadState() {
-      const saved = localStorage.getItem('notionCloneState');
-      if (saved) {
-        try { state = { ...state, ...JSON.parse(saved) }; applySettings(); }
-        catch (e) { console.error('Load failed:', e); }
-      }
-    }
-
-    async function selectFile() {
+    async function initFileSystem() {
       try {
-        const [handle] = await window.showOpenFilePicker({
-          types: [{ description: 'JSON Files', accept: { 'application/json': ['.json'] } }],
-        });
+        const handle = await getHandleFromDB();
+        if (!handle) { showSetupOverlay('initial'); return; }
+        const perm = await handle.queryPermission({ mode: 'readwrite' });
+        if (perm === 'granted') {
+          await connectFile(handle);
+        } else {
+          showSetupOverlay('reconnect', handle);
+        }
+      } catch (e) {
+        showSetupOverlay('initial');
+      }
+    }
+
+    function showSetupOverlay(mode, handle) {
+      const overlay = document.getElementById('fileSetupOverlay');
+      const title = document.getElementById('fileSetupTitle');
+      const desc = document.getElementById('fileSetupDesc');
+      const btn = document.getElementById('fileSetupBtn');
+      overlay.classList.remove('hidden');
+      if (mode === 'reconnect') {
+        title.textContent = 'ファイルへの再接続';
+        desc.textContent = '前回使用したファイルへの接続が必要です。\nボタンをクリックして接続を再開してください。';
+        btn.innerHTML = '<span class="material-icons" style="font-size:18px">link</span> 再接続する';
+        btn.onclick = async () => {
+          try {
+            const perm = await handle.requestPermission({ mode: 'readwrite' });
+            if (perm === 'granted') {
+              await connectFile(handle);
+            } else {
+              showSetupOverlay('initial');
+            }
+          } catch (e) { showSetupOverlay('initial'); }
+        };
+      } else {
+        title.textContent = 'データファイルを設定';
+        desc.innerHTML = 'Notion Plus のデータを保存する JSON ファイルを選択してください。<br>一度設定すると、次回以降は自動で読み込まれます。';
+        btn.innerHTML = '<span class="material-icons" style="font-size:18px">folder_open</span> ファイルを選択 / 作成';
+        btn.onclick = setupNewFile;
+      }
+    }
+
+    async function connectFile(handle) {
+      try {
         fileHandle = handle;
-        const file = await fileHandle.getFile();
-        const content = await file.text();
-        state = { ...state, ...JSON.parse(content) }; // Merge to keep UI state if needed, or straight replace
+        const file = await handle.getFile();
+        const text = await file.text();
+        const loaded = JSON.parse(text);
+        if (loaded.pages) state.pages = loaded.pages.map(migratePageData);
+        if (loaded.settings) state.settings = { ...state.settings, ...loaded.settings };
+        if (loaded.sectionExpanded) state.sectionExpanded = loaded.sectionExpanded;
+        state.currentPage = null;
+        await saveHandleToDB(handle);
+        document.getElementById('fileSetupOverlay').classList.add('hidden');
+        document.getElementById('fileStatus').textContent = `ファイル: ${file.name}`;
         applySettings();
         renderPagesList();
         if (state.pages.length > 0) openPage(state.pages[0].id);
-        document.getElementById('fileStatus').textContent = `現在の保存先: ${file.name}`;
-        alert(`ファイルを読み込みました: ${file.name}\nこれ以降の変更は自動的にこのファイルに保存されます。`);
-      } catch (err) {
-        console.error('File selection cancelled or failed:', err);
+      } catch (e) {
+        // New file or empty - start fresh
+        fileHandle = handle;
+        await saveHandleToDB(handle);
+        document.getElementById('fileSetupOverlay').classList.add('hidden');
+        document.getElementById('fileStatus').textContent = `ファイル: ${handle.name}`;
+        applySettings();
+        renderPagesList();
+        if (state.pages.length > 0) openPage(state.pages[0].id);
+        saveState();
       }
     }
+
+    // Migrate old block-based page data to markdown content
+    function migratePageData(page) {
+      if (page.content === undefined && page.blocks) {
+        page.content = blocksToMarkdown(page.blocks);
+        delete page.blocks;
+      }
+      if (page.content === undefined) page.content = '';
+      if (page.children) page.children = page.children.map(migratePageData);
+      // Remove old fields
+      delete page.icon; delete page.iconColor; delete page.favorite;
+      return page;
+    }
+
+    function blocksToMarkdown(blocks) {
+      if (!blocks || blocks.length === 0) return '';
+      return blocks.map(b => {
+        const c = b.content || '';
+        switch (b.type) {
+          case 'heading1': return `# ${c}`;
+          case 'heading2': return `## ${c}`;
+          case 'heading3': return `### ${c}`;
+          case 'bullet': return `- ${c}`;
+          case 'numbered': return `1. ${c}`;
+          case 'todo': return `- [${b.checked ? 'x' : ' '}] ${c}`;
+          case 'quote': return `> ${c}`;
+          case 'callout': return `> 💡 ${c}`;
+          case 'code': return `\`\`\`\n${c}\n\`\`\``;
+          case 'divider': return '---';
+          case 'toggle': return `- ${c}`;
+          default: return c;
+        }
+      }).filter(s => s !== '').join('\n');
+    }
+
+    async function setupNewFile() {
+      try {
+        const [handle] = await window.showOpenFilePicker({
+          types: [{ description: 'JSON Files', accept: { 'application/json': ['.json'] } }],
+          multiple: false
+        });
+        await connectFile(handle);
+      } catch (e) {
+        // User cancelled - try save picker to create new file
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: 'notion-plus-data.json',
+            types: [{ description: 'JSON Files', accept: { 'application/json': ['.json'] } }],
+          });
+          await connectFile(handle);
+        } catch (e2) {
+          // Cancelled entirely
+        }
+      }
+    }
+
+    async function changeFile() {
+      closeSettings();
+      await setupNewFile();
+    }
+
+    // === State Management ===
+    function saveState() {
+      if (!fileHandle) return;
+      // Sync textarea to current page before saving
+      if (state.currentPage) {
+        state.currentPage.content = document.getElementById('editorTextarea').value;
+      }
+      if (saveTimeout) clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(async () => {
+        const saveData = {
+          pages: state.pages,
+          settings: state.settings,
+          sectionExpanded: state.sectionExpanded
+        };
+        try {
+          const writable = await fileHandle.createWritable();
+          await writable.write(JSON.stringify(saveData, null, 2));
+          await writable.close();
+          document.getElementById('fileStatus').textContent = `ファイル: ${fileHandle.name}`;
+        } catch (e) {
+          console.error('Save failed:', e);
+          document.getElementById('fileStatus').textContent = `保存エラー: ${e.message}`;
+        }
+      }, 800);
+    }
     function applySettings() {
-      if (state.settings.darkMode) { document.body.classList.add('dark-mode'); document.getElementById('darkModeToggle').classList.add('active'); }
-      if (state.settings.fullWidth) { document.getElementById('editor').classList.add('full-width'); document.getElementById('fullWidthToggle').classList.add('active'); }
-      if (state.settings.smallText) { document.body.classList.add('small-text'); document.getElementById('smallTextToggle').classList.add('active'); }
-      setFont(state.settings.font);
+      const s = state.settings || {};
+      if (s.darkMode) { document.body.classList.add('dark-mode'); document.getElementById('darkModeToggle').classList.add('active'); }
+      if (s.fullWidth) { document.getElementById('editor').classList.add('full-width'); document.getElementById('fullWidthToggle').classList.add('active'); }
+      if (s.smallText) { document.body.classList.add('small-text'); document.getElementById('smallTextToggle').classList.add('active'); }
+      setFont(s.font || 'default');
     }
 
     // === Sidebar ===
@@ -1581,7 +1318,6 @@
                 <div class="page-toggle ${hasChildren ? '' : 'hidden'} ${isExpanded ? 'expanded' : ''}" onclick="event.stopPropagation(); togglePageExpand('${page.id}', '${context}')">
                     <span class="material-icons" style="font-size:16px">chevron_right</span>
                 </div>
-                <div class="page-icon"><span class="material-icons" style="font-size: 18px; color: ${getColorValue(page.iconColor)}">${page.icon || 'description'}</span></div>
                 <div class="page-title">${page.title || '無題'}</div>
                 <div class="page-actions">
                     <div class="page-action" onclick="event.stopPropagation(); addSubPage('${page.id}', '${context}')" title="サブページを追加"><span class="material-icons">add</span></div>
@@ -1632,26 +1368,18 @@
         item.classList.remove('active');
         if (item.dataset.pageId === pageId) item.classList.add('active');
       });
-      const pageIcon = document.getElementById('pageIcon');
-      const addIconBtn = document.getElementById('addIconBtn');
-      if (page.icon) {
-        pageIcon.textContent = page.icon;
-        pageIcon.style.color = getColorValue(page.iconColor);
-        pageIcon.classList.remove('hidden');
-        addIconBtn.style.display = 'none';
-      } else {
-        pageIcon.classList.add('hidden');
-        addIconBtn.style.display = 'flex';
-        pageIcon.style.color = '';
-      }
       document.getElementById('pageTitle').value = page.title || '';
-      document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span class="material-icons" style="font-size: 16px; color: ${getColorValue(page.iconColor)}">${page.icon || 'description'}</span><span>${page.title || '無題'}</span></div>`;
-      renderBlocks(page);
+      document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span>${page.title || '無題'}</span></div>`;
+      const content = page.content || '';
+      document.getElementById('editorTextarea').value = content;
+      if (currentMode === 'preview') {
+        document.getElementById('editorPreview').innerHTML = markdownToHtml(content);
+      }
       saveState();
     }
 
     function addNewPage() {
-      const newPage = { id: Date.now().toString(), title: '', icon: 'description', favorite: false, children: [], blocks: [] };
+      const newPage = { id: Date.now().toString(), title: '', children: [], content: '' };
       state.pages.push(newPage);
       renderPagesList();
       openPage(newPage.id);
@@ -1662,7 +1390,7 @@
     function addSubPage(parentId, context) {
       const parent = findPage(parentId);
       if (!parent) return;
-      const newPage = { id: Date.now().toString(), title: '', icon: 'description', children: [], blocks: [] };
+      const newPage = { id: Date.now().toString(), title: '', children: [], content: '' };
       if (!parent.children) parent.children = [];
       parent.children.push(newPage);
 
@@ -1715,131 +1443,167 @@
       if (state.currentPage) {
         state.currentPage.title = e.target.value;
         renderPagesList();
-        document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span class="material-icons" style="font-size: 16px; color: ${getColorValue(state.currentPage.iconColor)}">${state.currentPage.icon || 'description'}</span><span>${state.currentPage.title || '無題'}</span></div>`;
+        document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span>${state.currentPage.title || '無題'}</span></div>`;
         saveState();
       }
     });
 
-    // === Blocks ===
-    function renderBlocks(page) {
-      const container = document.getElementById('blocks');
-      container.innerHTML = '';
-      if (!page.blocks || page.blocks.length === 0) page.blocks = [{ id: Date.now().toString(), type: 'text', content: '' }];
-      page.blocks.forEach(block => container.appendChild(createBlockElement(block)));
-    }
-
-    function createBlockElement(block) {
-      const div = document.createElement('div');
-      div.className = `block ${block.type}${block.checked ? ' checked' : ''}${block.expanded ? ' expanded' : ''}`;
-      div.dataset.id = block.id;
-      let extra = '';
-      if (block.type === 'todo') extra = `<div class="todo-checkbox" onclick="toggleTodo('${block.id}')"><span class="material-icons">check</span></div>`;
-      else if (block.type === 'toggle') extra = `<div class="toggle-icon" onclick="toggleToggle('${block.id}')"><span class="material-icons" style="font-size:18px">chevron_right</span></div>`;
-      else if (block.type === 'callout') extra = `<div class="callout-icon material-icons" onclick="showEmojiPicker(event, 'callout-${block.id}')">${block.icon || 'lightbulb'}</div>`;
-
-      if (block.type === 'divider') {
-        div.innerHTML = `<div class="block-add" onclick="showSlashMenu(event, this.parentElement)"><span class="material-icons" style="font-size:16px">add</span></div><div class="block-handle" draggable="true"><span class="material-icons" style="font-size:16px">drag_indicator</span></div><hr>`;
-      } else {
-        div.innerHTML = `<div class="block-add" onclick="showSlashMenu(event, this.parentElement)"><span class="material-icons" style="font-size:16px">add</span></div><div class="block-handle" draggable="true"><span class="material-icons" style="font-size:16px">drag_indicator</span></div>${extra}<div class="block-content" contenteditable="true" data-placeholder=""></div>`;
-        const contentEl = div.querySelector('.block-content');
-        if (contentEl && block.content) contentEl.textContent = block.content;
+    document.getElementById('editorTextarea').addEventListener('input', (e) => {
+      if (state.currentPage) {
+        state.currentPage.content = e.target.value;
+        saveState();
       }
-      return div;
-    }
-
-    function addBlock(type, afterBlock, initialContent = '') {
-      const newBlock = { id: (++blockIdCounter).toString(), type, content: initialContent };
-      if (type === 'callout') newBlock.icon = 'lightbulb';
-      if (!state.currentPage.blocks) state.currentPage.blocks = [];
-      const idx = state.currentPage.blocks.findIndex(b => b.id === afterBlock.dataset.id);
-      if (idx !== -1) state.currentPage.blocks.splice(idx + 1, 0, newBlock);
-      else state.currentPage.blocks.push(newBlock);
-      const newEl = createBlockElement(newBlock);
-      afterBlock.after(newEl);
-      const content = newEl.querySelector('.block-content');
-      if (content) {
-        content.focus();
-        if (initialContent) {
-          const range = document.createRange();
-          range.selectNodeContents(content);
-          range.collapse(false);
-          const sel = window.getSelection();
-          sel.removeAllRanges();
-          sel.addRange(range);
-        }
-      }
-      saveState();
-      return newEl;
-    }
-
-    function deleteBlock(block) {
-      const blocks = document.querySelectorAll('.block');
-      if (blocks.length <= 1) return;
-      const idx = state.currentPage.blocks.findIndex(b => b.id === block.dataset.id);
-      if (idx !== -1) state.currentPage.blocks.splice(idx, 1);
-      const prev = block.previousElementSibling;
-      block.remove();
-      if (prev) {
-        const content = prev.querySelector('.block-content');
-        if (content) {
-          content.focus();
-          const range = document.createRange();
-          range.selectNodeContents(content);
-          range.collapse(false);
-          const sel = window.getSelection();
-          sel.removeAllRanges();
-          sel.addRange(range);
-        }
-      }
-      saveState();
-    }
-
-    function toggleTodo(blockId) {
-      const block = findBlock(blockId);
-      if (block) { block.checked = !block.checked; document.querySelector(`[data-id="${blockId}"]`).classList.toggle('checked'); saveState(); }
-    }
-
-    function toggleToggle(blockId) {
-      const block = findBlock(blockId);
-      if (block) { block.expanded = !block.expanded; document.querySelector(`[data-id="${blockId}"]`).classList.toggle('expanded'); saveState(); }
-    }
-
-    function findBlock(blockId) { return state.currentPage?.blocks?.find(b => b.id === blockId); }
-
-    // === Slash Menu ===
-    function showSlashMenu(event, targetBlock) {
-      event.preventDefault();
-      event.stopPropagation();
-      slashMenuTarget = targetBlock;
-      const menu = document.getElementById('slashMenu');
-      const rect = targetBlock.getBoundingClientRect();
-      menu.style.left = `${Math.min(rect.left, window.innerWidth - 340)}px`;
-      menu.style.top = `${Math.min(rect.bottom + 4, window.innerHeight - 420)}px`;
-      menu.classList.add('visible');
-    }
-
-    function hideSlashMenu() { document.getElementById('slashMenu').classList.remove('visible'); slashMenuTarget = null; }
-
-    document.querySelectorAll('.slash-menu-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const type = item.dataset.type;
-        if (slashMenuTarget) {
-          const blockId = slashMenuTarget.dataset.id;
-          const block = findBlock(blockId);
-          if (block) {
-            block.type = type;
-            block.content = '';
-            if (type === 'callout') block.icon = 'lightbulb';
-            const newEl = createBlockElement(block);
-            slashMenuTarget.replaceWith(newEl);
-            const content = newEl.querySelector('.block-content');
-            if (content) content.focus();
-            saveState();
-          }
-        }
-        hideSlashMenu();
-      });
     });
+
+    // === Mode Toggle ===
+    function setMode(mode) {
+      currentMode = mode;
+      const textarea = document.getElementById('editorTextarea');
+      const preview = document.getElementById('editorPreview');
+      const editBtn = document.getElementById('editModeBtn');
+      const previewBtn = document.getElementById('previewModeBtn');
+      if (mode === 'edit') {
+        textarea.classList.remove('hidden');
+        preview.classList.remove('active');
+        editBtn.classList.add('active');
+        previewBtn.classList.remove('active');
+        textarea.focus();
+      } else {
+        if (state.currentPage) {
+          state.currentPage.content = textarea.value;
+        }
+        textarea.classList.add('hidden');
+        preview.classList.add('active');
+        editBtn.classList.remove('active');
+        previewBtn.classList.add('active');
+        preview.innerHTML = markdownToHtml(state.currentPage?.content || '');
+      }
+    }
+
+    // === Markdown Parser ===
+    function escapeHtml(text) {
+      return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function inlineMarkdown(text) {
+      // Escape HTML first
+      text = escapeHtml(text);
+      // Bold **text** or __text__
+      text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      text = text.replace(/__(.*?)__/g, '<strong>$1</strong>');
+      // Italic *text* or _text_ (not inside words)
+      text = text.replace(/(?<!\w)\*([^*\n]+)\*(?!\w)/g, '<em>$1</em>');
+      text = text.replace(/(?<!\w)_([^_\n]+)_(?!\w)/g, '<em>$1</em>');
+      // Strikethrough ~~text~~
+      text = text.replace(/~~(.*?)~~/g, '<del>$1</del>');
+      // Inline code `code`
+      text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+      // Links [text](url)
+      text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+      return text;
+    }
+
+    function markdownToHtml(md) {
+      if (!md) return '<p style="color:var(--text-tertiary)">プレビューする内容がありません。</p>';
+      const lines = md.split('\n');
+      let html = '';
+      let inCodeBlock = false;
+      let codeBlockLang = '';
+      let codeLines = [];
+      let listType = null;   // 'ul' | 'ol'
+      let listItems = '';
+
+      function flushList() {
+        if (!listType) return;
+        html += `<${listType}>${listItems}</${listType}>`;
+        listType = null;
+        listItems = '';
+      }
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        // Code block fence
+        if (line.startsWith('```')) {
+          if (!inCodeBlock) {
+            flushList();
+            inCodeBlock = true;
+            codeBlockLang = line.slice(3).trim();
+            codeLines = [];
+          } else {
+            html += `<pre><code>${codeLines.map(escapeHtml).join('\n')}</code></pre>`;
+            inCodeBlock = false;
+            codeLines = [];
+            codeBlockLang = '';
+          }
+          continue;
+        }
+        if (inCodeBlock) { codeLines.push(line); continue; }
+
+        // Horizontal rule
+        if (/^(-{3,}|\*{3,}|_{3,})\s*$/.test(line)) {
+          flushList(); html += '<hr>'; continue;
+        }
+
+        // Headings
+        const h1 = line.match(/^# (.+)/);
+        const h2 = line.match(/^## (.+)/);
+        const h3 = line.match(/^### (.+)/);
+        if (h1) { flushList(); html += `<h1>${inlineMarkdown(h1[1])}</h1>`; continue; }
+        if (h2) { flushList(); html += `<h2>${inlineMarkdown(h2[1])}</h2>`; continue; }
+        if (h3) { flushList(); html += `<h3>${inlineMarkdown(h3[1])}</h3>`; continue; }
+
+        // Blockquote
+        const bq = line.match(/^> (.+)/);
+        if (bq) { flushList(); html += `<blockquote>${inlineMarkdown(bq[1])}</blockquote>`; continue; }
+
+        // Ordered list
+        const olMatch = line.match(/^(\d+)\. (.+)/);
+        if (olMatch) {
+          if (listType !== 'ol') { flushList(); listType = 'ol'; }
+          listItems += `<li>${inlineMarkdown(olMatch[2])}</li>`;
+          continue;
+        }
+
+        // Todo (before general bullet check)
+        const todoX = line.match(/^- \[x\] (.+)/i);
+        const todoSpace = line.match(/^- \[ \] (.+)/);
+        if (todoX) {
+          if (listType !== 'ul') { flushList(); listType = 'ul'; }
+          listItems += `<li class="task-item"><input type="checkbox" checked disabled> <del>${inlineMarkdown(todoX[1])}</del></li>`;
+          continue;
+        }
+        if (todoSpace) {
+          if (listType !== 'ul') { flushList(); listType = 'ul'; }
+          listItems += `<li class="task-item"><input type="checkbox" disabled> ${inlineMarkdown(todoSpace[1])}</li>`;
+          continue;
+        }
+
+        // Unordered list
+        const ulMatch = line.match(/^[-*+] (.+)/);
+        if (ulMatch) {
+          if (listType !== 'ul') { flushList(); listType = 'ul'; }
+          listItems += `<li>${inlineMarkdown(ulMatch[1])}</li>`;
+          continue;
+        }
+
+        // Empty line
+        if (line.trim() === '') {
+          flushList();
+          // Consecutive empty lines → single break
+          if (!html.endsWith('<br>') && !html.endsWith('>')) html += '<br>';
+          continue;
+        }
+
+        // Paragraph
+        flushList();
+        html += `<p>${inlineMarkdown(line)}</p>`;
+      }
+
+      flushList();
+      if (inCodeBlock) html += `<pre><code>${codeLines.map(escapeHtml).join('\n')}</code></pre>`;
+      return html;
+    }
 
     // === Search ===
     function openSearch() {
@@ -1865,7 +1629,7 @@
       const q = query.toLowerCase();
       const matched = allPages.filter(page => {
         const titleMatch = (page.title || '無題').toLowerCase().includes(q);
-        const contentMatch = page.blocks?.some(b => (b.content || '').toLowerCase().includes(q));
+        const contentMatch = (page.content || '').toLowerCase().includes(q);
         return titleMatch || contentMatch;
       });
       if (matched.length === 0) {
@@ -1874,7 +1638,6 @@
       }
       container.innerHTML = matched.map(p => `
                 <div class="search-result-item" onclick="openPageFromSearch('${p.id}')">
-                    <div class="result-icon material-icons" style="font-size: 16px; color: ${getColorValue(p.iconColor)}">${p.icon || 'description'}</div>
                     <div class="search-result-title">${p.title || '無題'}</div>
                 </div>
             `).join('');
@@ -1904,331 +1667,32 @@
       saveState();
     }
 
-    // === Emoji Picker (Enhanced) ===
-    function initEmojiPicker() {
-      const picker = document.getElementById('emojiPicker');
-      // Clear
-      picker.innerHTML = '';
-
-      // Color Palette
-      const colorRow = document.createElement('div');
-      colorRow.className = 'color-picker-row';
-      iconColors.forEach(c => {
-        const dot = document.createElement('div');
-        dot.className = `color-option ${c.name === 'default' ? 'selected' : ''}`;
-        dot.style.background = c.value.startsWith('var') ? '#37352f' : c.value;
-        if (c.name === 'default') dot.style.background = '#37352f'; // fallback for display
-        dot.onclick = (e) => {
-          e.stopPropagation();
-          selectedColor = c.name;
-          document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
-          dot.classList.add('selected');
-          // If page icon is active, apply color immediately
-          if (emojiTarget === 'pageIcon' && state.currentPage) {
-            state.currentPage.iconColor = selectedColor;
-            renderPagesList();
-            document.getElementById('pageIcon').style.color = getColorValue(selectedColor);
-            document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span class="material-icons" style="font-size: 16px; color: ${getColorValue(selectedColor)}">${state.currentPage.icon || 'description'}</span><span>${state.currentPage.title || '無題'}</span></div>`;
-            saveState();
-          }
-        };
-        colorRow.appendChild(dot);
-      });
-      picker.appendChild(colorRow);
-
-      // Grid
-      const grid = document.createElement('div');
-      grid.className = 'emoji-grid';
-      grid.id = 'emojiGrid';
-      emojis.forEach(emoji => {
-        const item = document.createElement('div');
-        item.className = 'emoji-item material-icons';
-        item.textContent = emoji;
-        item.onclick = () => selectEmoji(emoji);
-        grid.appendChild(item);
-      });
-      picker.appendChild(grid);
-    }
-
-    function getColorValue(colorName) {
-      if (!colorName) return 'var(--text-primary)';
-      const c = iconColors.find(ci => ci.name === colorName);
-      return c ? c.value : 'var(--text-primary)';
-    }
-
-    function showEmojiPicker(event, target) {
-      event.stopPropagation();
-      emojiTarget = target;
-
-      // Reset color selection based on current target
-      if (target === 'pageIcon' && state.currentPage) {
-        selectedColor = state.currentPage.iconColor || 'default';
-      } else {
-        selectedColor = 'default';
-      }
-      document.querySelectorAll('.color-option').forEach(opt => {
-        const isSelected = (selectedColor === 'default' && opt.style.background === 'rgb(55, 53, 47)') ||
-          (iconColors.find(c => c.name === selectedColor)?.value === opt.style.background);
-        // Simple re-selection visual update
-        opt.classList.toggle('selected', iconColors.indexOf(iconColors.find(c => c.name === selectedColor)) === Array.from(opt.parentNode.children).indexOf(opt));
-      });
-      // Proper fix for selection finding
-      document.querySelectorAll('.color-option').forEach((opt, idx) => {
-        opt.classList.toggle('selected', iconColors[idx].name === selectedColor);
-      });
-
-      const picker = document.getElementById('emojiPicker');
-      const rect = event.target.getBoundingClientRect();
-      picker.style.left = `${Math.min(rect.left, window.innerWidth - 340)}px`;
-      picker.style.top = `${rect.bottom + 4}px`;
-      picker.classList.add('visible');
-    }
-
-    function showPageIconPicker(event) {
-      document.getElementById('pageIcon').classList.remove('hidden');
-      document.getElementById('addIconBtn').style.display = 'none';
-      showEmojiPicker(event, 'pageIcon');
-    }
-
-    function hideEmojiPicker() { document.getElementById('emojiPicker').classList.remove('visible'); emojiTarget = null; }
-
-    function selectEmoji(emoji) {
-      if (emojiTarget === 'pageIcon') {
-        document.getElementById('pageIcon').textContent = emoji;
-        if (state.currentPage) {
-          state.currentPage.icon = emoji;
-          state.currentPage.iconColor = selectedColor; // Apply selected
-          renderPagesList();
-          document.getElementById('pageIcon').style.color = getColorValue(selectedColor);
-          document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span class="material-icons" style="font-size: 16px; color: ${getColorValue(selectedColor)}">${emoji}</span><span>${state.currentPage.title || '無題'}</span></div>`;
-          saveState();
-        }
-      } else if (emojiTarget?.startsWith('callout-')) {
-        const blockId = emojiTarget.replace('callout-', '');
-        const block = findBlock(blockId);
-        if (block) { block.icon = emoji; document.querySelector(`[data-id="${blockId}"] .callout-icon`).textContent = emoji; saveState(); }
-      }
-      hideEmojiPicker();
-    }
-
-    // === Text Formatting ===
-    function formatText(command) {
-      if (command === 'code') {
-        const sel = window.getSelection();
-        if (sel.rangeCount > 0) {
-          const range = sel.getRangeAt(0);
-          const code = document.createElement('code');
-          code.style.cssText = 'background:var(--code-bg);padding:2px 4px;border-radius:3px;font-family:var(--font-mono);font-size:85%';
-          range.surroundContents(code);
-        }
-      } else document.execCommand(command, false, null);
-    }
-
-    function showSelectionToolbar() {
-      const sel = window.getSelection();
-      if (sel.rangeCount === 0 || sel.isCollapsed) { hideSelectionToolbar(); return; }
-      const range = sel.getRangeAt(0);
-      const rect = range.getBoundingClientRect();
-      const toolbar = document.getElementById('selectionToolbar');
-      toolbar.style.left = `${rect.left + rect.width / 2 - toolbar.offsetWidth / 2}px`;
-      toolbar.style.top = `${rect.top - toolbar.offsetHeight - 8}px`;
-      toolbar.classList.add('visible');
-    }
-
-    function hideSelectionToolbar() { document.getElementById('selectionToolbar').classList.remove('visible'); }
-
-    // === カーソル位置取得のヘルパー関数 ===
-    function getCaretPosition(element) {
-      const sel = window.getSelection();
-      if (sel.rangeCount === 0) return 0;
-      const range = sel.getRangeAt(0);
-      const preRange = range.cloneRange();
-      preRange.selectNodeContents(element);
-      preRange.setEnd(range.startContainer, range.startOffset);
-      return preRange.toString().length;
-    }
-
     // === Event Listeners ===
     function setupEventListeners() {
-      const blocksContainer = document.getElementById('blocks');
-
-      // Input: コンテンツ変更時に保存
-      blocksContainer.addEventListener('input', (e) => {
-        if (e.target.classList.contains('block-content')) {
-          const block = e.target.closest('.block');
-          const blockData = findBlock(block.dataset.id);
-          if (blockData) { blockData.content = e.target.textContent; saveState(); }
-        }
-      });
-
-      // Keydown: Enter, Backspace, スペース, スラッシュ
-      blocksContainer.addEventListener('keydown', (e) => {
-        if (!e.target.classList.contains('block-content')) return;
-        const block = e.target.closest('.block');
-        const blockData = findBlock(block.dataset.id);
-
-        // === Enter キー処理（修正版）===
-        if (e.key === 'Enter' && !e.shiftKey) {
-          if (e.isComposing) return;
+      // Tab key in textarea → insert spaces
+      document.getElementById('editorTextarea').addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
           e.preventDefault();
-
-          const fullText = e.target.textContent;
-          const cursorPos = getCaretPosition(e.target);
-          const textBefore = fullText.substring(0, cursorPos);
-          const textAfter = fullText.substring(cursorPos);
-
-          // 現在のブロックのテキストを更新
-          e.target.textContent = textBefore;
-          if (blockData) blockData.content = textBefore;
-
-          // 新しいブロックのタイプを決定
-          let newType = 'text';
-          if (block.classList.contains('bullet')) newType = 'bullet';
-          else if (block.classList.contains('numbered')) newType = 'numbered';
-          else if (block.classList.contains('todo')) newType = 'todo';
-
-          // 空のリスト項目の場合はテキストに変換
-          if (fullText.trim() === '' && (block.classList.contains('bullet') || block.classList.contains('numbered') || block.classList.contains('todo'))) {
-            if (blockData) {
-              blockData.type = 'text';
-              const newEl = createBlockElement(blockData);
-              block.replaceWith(newEl);
-              newEl.querySelector('.block-content')?.focus();
-              saveState();
-            }
-            return;
-          }
-
-          // 新しいブロックを追加
-          addBlock(newType, block, textAfter);
-        }
-
-        // Backspace: 空ブロック削除
-        if (e.key === 'Backspace' && e.target.textContent === '') {
-          e.preventDefault();
-          deleteBlock(block);
-        }
-
-        // スペース: Markdownショートカット
-        if (e.key === ' ' && blockData) {
-          const text = e.target.textContent;
-          const shortcuts = { '#': 'heading1', '##': 'heading2', '###': 'heading3', '-': 'bullet', '*': 'bullet', '1.': 'numbered', '[]': 'todo', '>': 'toggle', '"': 'quote', '---': 'divider' };
-          if (shortcuts[text]) {
-            e.preventDefault();
-            blockData.type = shortcuts[text];
-            blockData.content = '';
-            const newEl = createBlockElement(blockData);
-            block.replaceWith(newEl);
-            if (blockData.type === 'divider') addBlock('text', newEl);
-            else newEl.querySelector('.block-content')?.focus();
-            saveState();
-          }
-        }
-
-        // スラッシュ: メニュー表示
-        if (e.key === '/' && e.target.textContent === '') {
-          setTimeout(() => {
-            if (e.target.textContent === '/') {
-              e.target.textContent = '';
-              if (blockData) blockData.content = '';
-              showSlashMenu(e, block);
-            }
-          }, 0);
+          const ta = e.target;
+          const start = ta.selectionStart;
+          const end = ta.selectionEnd;
+          ta.value = ta.value.substring(0, start) + '  ' + ta.value.substring(end);
+          ta.selectionStart = ta.selectionEnd = start + 2;
+          if (state.currentPage) { state.currentPage.content = ta.value; saveState(); }
         }
       });
 
-      // Selection toolbar
-      document.addEventListener('mouseup', () => setTimeout(showSelectionToolbar, 10));
-
-      // Click outside
-      document.addEventListener('click', (e) => {
-        if (!e.target.closest('.slash-menu') && !e.target.closest('.block-add')) hideSlashMenu();
-        if (!e.target.closest('.emoji-picker') && !e.target.closest('.page-icon-large') && !e.target.closest('.callout-icon') && !e.target.closest('.page-header-action')) hideEmojiPicker();
-        if (!window.getSelection().toString()) hideSelectionToolbar();
-      });
-
-      // Keyboard shortcuts
+      // Keyboard shortcuts (global)
       document.addEventListener('keydown', (e) => {
         if ((e.metaKey || e.ctrlKey) && e.key === '\\') { e.preventDefault(); toggleSidebar(); }
         if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'p')) { e.preventDefault(); openSearch(); }
         if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'L') { e.preventDefault(); toggleDarkMode(); }
-        if (e.key === 'Escape') { hideSlashMenu(); hideEmojiPicker(); closeSettings(); document.getElementById('searchModal').classList.remove('visible'); }
-      });
-
-      // Drag and drop
-      let draggedBlock = null;
-      blocksContainer.addEventListener('dragstart', (e) => {
-        if (e.target.classList.contains('block-handle')) {
-          draggedBlock = e.target.closest('.block');
-          draggedBlock.style.opacity = '0.5';
-          e.dataTransfer.effectAllowed = 'move';
-        }
-      });
-      blocksContainer.addEventListener('dragend', () => {
-        if (draggedBlock) { draggedBlock.style.opacity = ''; draggedBlock = null; }
-      });
-      blocksContainer.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        if (!draggedBlock) return;
-        const afterEl = getDragAfterElement(e.clientY);
-        if (afterEl == null) blocksContainer.appendChild(draggedBlock);
-        else blocksContainer.insertBefore(draggedBlock, afterEl);
-      });
-      blocksContainer.addEventListener('drop', () => {
-        if (state.currentPage) {
-          const newOrder = [];
-          document.querySelectorAll('.block').forEach(b => {
-            const bd = findBlock(b.dataset.id);
-            if (bd) newOrder.push(bd);
-          });
-          state.currentPage.blocks = newOrder;
-          saveState();
-        }
+        // Ctrl+E or Ctrl+Shift+P: toggle mode
+        if ((e.metaKey || e.ctrlKey) && e.key === 'e') { e.preventDefault(); setMode(currentMode === 'edit' ? 'preview' : 'edit'); }
+        if (e.key === 'Escape') { closeSettings(); document.getElementById('searchModal').classList.remove('visible'); }
       });
     }
 
-    function getDragAfterElement(y) {
-      const blocks = [...document.querySelectorAll('.block:not([style*="opacity"])').values()];
-      return blocks.reduce((closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
-        if (offset < 0 && offset > closest.offset) return { offset, element: child };
-        return closest;
-      }, { offset: Number.NEGATIVE_INFINITY }).element;
-    }
-
-    function initStaticFavicon() {
-      // Font loading check to ensure icon renders correctly
-      document.fonts.ready.then(() => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 64;
-        canvas.height = 64;
-        const ctx = canvas.getContext('2d');
-
-        // Background (Gradient like workspace icon)
-        const gradient = ctx.createLinearGradient(0, 0, 64, 64);
-        gradient.addColorStop(0, '#e8e8e8');
-        gradient.addColorStop(1, '#d0d0d0');
-        ctx.fillStyle = gradient;
-
-        ctx.beginPath();
-        ctx.roundRect(0, 0, 64, 64, 12); // Rounded corners
-        ctx.fill();
-
-        // Icon 'edit_note'
-        ctx.fillStyle = '#37352f';
-        ctx.font = '40px "Material Icons"';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('edit_note', 32, 32);
-
-        const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
-        link.type = 'image/x-icon';
-        link.rel = 'shortcut icon';
-        link.href = canvas.toDataURL();
-        document.getElementsByTagName('head')[0].appendChild(link);
-      });
-    }
   </script>
 </body>
 
