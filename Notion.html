@@ -886,71 +886,6 @@
       background: rgba(46, 170, 220, 0.1);
     }
 
-    /* File Setup Overlay */
-    .file-setup-overlay {
-      position: fixed;
-      inset: 0;
-      background: var(--bg-primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-
-    .file-setup-overlay.hidden {
-      display: none;
-    }
-
-    .file-setup-box {
-      text-align: center;
-      max-width: 400px;
-      padding: 48px 32px;
-    }
-
-    .file-setup-box .material-icons {
-      font-size: 48px;
-      color: var(--text-tertiary);
-      margin-bottom: 16px;
-      display: block;
-    }
-
-    .file-setup-title {
-      font-size: 22px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    .file-setup-desc {
-      font-size: 14px;
-      color: var(--text-secondary);
-      margin-bottom: 32px;
-      line-height: 1.6;
-    }
-
-    .file-setup-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 24px;
-      background: var(--text-primary);
-      color: var(--bg-primary);
-      border: none;
-      border-radius: 6px;
-      font-size: 15px;
-      font-family: inherit;
-      cursor: pointer;
-      margin: 4px;
-    }
-
-    .file-setup-btn:hover {
-      opacity: 0.85;
-    }
-
-    .file-setup-btn.secondary {
-      background: transparent;
-      color: var(--text-secondary);
-      border: 1px solid var(--border-color);
-    }
 
 
     ::-webkit-scrollbar {
@@ -1173,31 +1108,9 @@
           <div class="font-option" data-font="mono" onclick="setFont('mono')">Mono</div>
         </div>
       </div>
-      <div class="settings-item" style="flex-direction: column; align-items: flex-start; gap: 12px;">
-        <span class="settings-label">データファイル</span>
-        <button class="font-option" onclick="changeFile()" style="width:100%; text-align:center;">ファイルを変更</button>
-        <div id="fileStatus" style="font-size:12px; color:var(--text-tertiary);">接続中...</div>
-      </div>
     </div>
   </div>
 
-  <!-- File Setup Overlay -->
-  <div class="file-setup-overlay" id="fileSetupOverlay">
-    <div class="file-setup-box">
-      <span class="material-icons">folder_open</span>
-      <div class="file-setup-title" id="fileSetupTitle">データファイルを設定</div>
-      <div class="file-setup-desc" id="fileSetupDesc">
-        <code style="background:var(--bg-secondary);padding:2px 6px;border-radius:4px;font-size:13px;">master-data-notion-plus.json</code> を保存する場所を選択してください。<br>
-        既存ファイルを選ぶと自動で読み込み、なければ新規作成します。
-      </div>
-      <div>
-        <button class="file-setup-btn" id="fileSetupBtn" onclick="setupNewFile()">
-          <span class="material-icons" style="font-size:18px">folder_open</span>
-          ファイルの場所を選択
-        </button>
-      </div>
-    </div>
-  </div>
 
   <script>
     // === State ===
@@ -1216,42 +1129,9 @@
       sectionExpanded: { all: true }
     };
     let deleteTargetId = null;
-    let fileHandle = null;
+    let opfsHandle = null;
     let saveTimeout = null;
     let currentMode = 'edit';
-
-    // === IndexedDB for file handle persistence ===
-    const DB_NAME = 'notionPlusDB';
-    const STORE_NAME = 'fileHandles';
-
-    function getDB() {
-      return new Promise((resolve, reject) => {
-        const req = indexedDB.open(DB_NAME, 1);
-        req.onupgradeneeded = e => e.target.result.createObjectStore(STORE_NAME);
-        req.onsuccess = e => resolve(e.target.result);
-        req.onerror = e => reject(e.target.error);
-      });
-    }
-
-    async function saveHandleToDB(handle) {
-      const db = await getDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, 'readwrite');
-        tx.objectStore(STORE_NAME).put(handle, 'dataFile');
-        tx.oncomplete = resolve;
-        tx.onerror = e => reject(e.target.error);
-      });
-    }
-
-    async function getHandleFromDB() {
-      const db = await getDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, 'readonly');
-        const req = tx.objectStore(STORE_NAME).get('dataFile');
-        req.onsuccess = e => resolve(e.target.result);
-        req.onerror = e => reject(e.target.error);
-      });
-    }
 
     // === Init ===
     document.addEventListener('DOMContentLoaded', () => {
@@ -1261,74 +1141,23 @@
 
     async function initFileSystem() {
       try {
-        const handle = await getHandleFromDB();
-        if (!handle) { showSetupOverlay('initial'); return; }
-        const perm = await handle.queryPermission({ mode: 'readwrite' });
-        if (perm === 'granted') {
-          await connectFile(handle);
-        } else {
-          showSetupOverlay('reconnect', handle);
+        const root = await navigator.storage.getDirectory();
+        opfsHandle = await root.getFileHandle('master-data-notion-plus.json', { create: true });
+        const file = await opfsHandle.getFile();
+        const text = await file.text();
+        if (text) {
+          const loaded = JSON.parse(text);
+          if (loaded.pages) state.pages = loaded.pages.map(migratePageData);
+          if (loaded.settings) state.settings = { ...state.settings, ...loaded.settings };
+          if (loaded.sectionExpanded) state.sectionExpanded = loaded.sectionExpanded;
         }
       } catch (e) {
-        showSetupOverlay('initial');
+        console.error('File init error:', e);
       }
-    }
-
-    function showSetupOverlay(mode, handle) {
-      const overlay = document.getElementById('fileSetupOverlay');
-      const title = document.getElementById('fileSetupTitle');
-      const desc = document.getElementById('fileSetupDesc');
-      const btn = document.getElementById('fileSetupBtn');
-      overlay.classList.remove('hidden');
-      if (mode === 'reconnect') {
-        title.textContent = 'ファイルへの再接続';
-        desc.textContent = '前回使用したファイルへの接続が必要です。\nボタンをクリックして接続を再開してください。';
-        btn.innerHTML = '<span class="material-icons" style="font-size:18px">link</span> 再接続する';
-        btn.onclick = async () => {
-          try {
-            const perm = await handle.requestPermission({ mode: 'readwrite' });
-            if (perm === 'granted') {
-              await connectFile(handle);
-            } else {
-              showSetupOverlay('initial');
-            }
-          } catch (e) { showSetupOverlay('initial'); }
-        };
-      } else {
-        title.textContent = 'データファイルを設定';
-        desc.innerHTML = '<code style="background:var(--bg-secondary);padding:2px 6px;border-radius:4px;font-size:13px;">master-data-notion-plus.json</code> を保存する場所を選択してください。<br>既存ファイルを選ぶと自動で読み込み、なければ新規作成します。';
-        btn.innerHTML = '<span class="material-icons" style="font-size:18px">folder_open</span> ファイルの場所を選択';
-        btn.onclick = setupNewFile;
-      }
-    }
-
-    async function connectFile(handle) {
-      try {
-        fileHandle = handle;
-        const file = await handle.getFile();
-        const text = await file.text();
-        const loaded = JSON.parse(text);
-        if (loaded.pages) state.pages = loaded.pages.map(migratePageData);
-        if (loaded.settings) state.settings = { ...state.settings, ...loaded.settings };
-        if (loaded.sectionExpanded) state.sectionExpanded = loaded.sectionExpanded;
-        state.currentPage = null;
-        await saveHandleToDB(handle);
-        document.getElementById('fileSetupOverlay').classList.add('hidden');
-        document.getElementById('fileStatus').textContent = `ファイル: ${file.name}`;
-        applySettings();
-        renderPagesList();
-        if (state.pages.length > 0) openPage(state.pages[0].id);
-      } catch (e) {
-        // New file or empty - start fresh
-        fileHandle = handle;
-        await saveHandleToDB(handle);
-        document.getElementById('fileSetupOverlay').classList.add('hidden');
-        document.getElementById('fileStatus').textContent = `ファイル: ${handle.name}`;
-        applySettings();
-        renderPagesList();
-        if (state.pages.length > 0) openPage(state.pages[0].id);
-        saveState();
-      }
+      state.currentPage = null;
+      applySettings();
+      renderPagesList();
+      if (state.pages.length > 0) openPage(state.pages[0].id);
     }
 
     // Migrate old block-based page data to markdown content
@@ -1365,32 +1194,9 @@
       }).filter(s => s !== '').join('\n');
     }
 
-    async function setupNewFile() {
-      try {
-        const handle = await window.showSaveFilePicker({
-          suggestedName: 'master-data-notion-plus.json',
-          types: [{ description: 'JSON Files', accept: { 'application/json': ['.json'] } }],
-        });
-        await connectFile(handle);
-      } catch (e) {
-        try {
-          // Dummy block to maintain structure
-          void 0;
-        } catch (e2) {
-          // Cancelled entirely
-        }
-      }
-    }
-
-    async function changeFile() {
-      closeSettings();
-      await setupNewFile();
-    }
-
     // === State Management ===
     function saveState() {
-      if (!fileHandle) return;
-      // Sync textarea to current page before saving
+      if (!opfsHandle) return;
       if (state.currentPage) {
         state.currentPage.content = document.getElementById('editorTextarea').value;
       }
@@ -1402,13 +1208,11 @@
           sectionExpanded: state.sectionExpanded
         };
         try {
-          const writable = await fileHandle.createWritable();
+          const writable = await opfsHandle.createWritable();
           await writable.write(JSON.stringify(saveData, null, 2));
           await writable.close();
-          document.getElementById('fileStatus').textContent = `ファイル: ${fileHandle.name}`;
         } catch (e) {
           console.error('Save failed:', e);
-          document.getElementById('fileStatus').textContent = `保存エラー: ${e.message}`;
         }
       }, 800);
     }
