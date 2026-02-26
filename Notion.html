@@ -447,6 +447,114 @@
       box-shadow: 0 1px 3px var(--shadow);
     }
 
+    .md-help-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-family: inherit;
+    }
+
+    .md-help-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .md-help-btn .material-icons {
+      font-size: 16px;
+    }
+
+    /* Markdown Help Modal */
+    .md-help-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .md-help-overlay.visible {
+      display: flex;
+    }
+
+    .md-help-box {
+      background: var(--bg-primary);
+      border-radius: 10px;
+      box-shadow: 0 8px 32px var(--shadow);
+      width: 520px;
+      max-width: 95vw;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .md-help-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    .md-help-header h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .md-help-body {
+      overflow-y: auto;
+      padding: 16px 20px 20px;
+    }
+
+    .md-help-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .md-help-table th {
+      text-align: left;
+      padding: 6px 10px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .md-help-table td {
+      padding: 7px 10px;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: top;
+    }
+
+    .md-help-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .md-help-table code {
+      background: var(--bg-secondary);
+      border-radius: 3px;
+      padding: 1px 5px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      white-space: pre;
+    }
+
     /* Editor */
     .editor-textarea {
       width: 100%;
@@ -952,6 +1060,10 @@
           </div>
         </div>
         <div class="topbar-right">
+          <button class="md-help-btn" id="mdHelpBtn" onclick="openMdHelp()" title="マークダウン記法">
+            <span class="material-icons">help_outline</span>
+            Markdown
+          </button>
           <div class="mode-toggle">
             <button class="mode-btn active" id="editModeBtn" onclick="setMode('edit')">編集</button>
             <button class="mode-btn" id="previewModeBtn" onclick="setMode('preview')">プレビュー</button>
@@ -999,6 +1111,40 @@
   </div>
 
 
+  <!-- Markdown Help Modal -->
+  <div class="md-help-overlay" id="mdHelpOverlay" onclick="closeMdHelp(event)">
+    <div class="md-help-box" onclick="event.stopPropagation()">
+      <div class="md-help-header">
+        <h3>マークダウン記法</h3>
+        <button class="icon-btn" onclick="closeMdHelp()"><span class="material-icons">close</span></button>
+      </div>
+      <div class="md-help-body">
+        <table class="md-help-table">
+          <thead>
+            <tr><th>記法</th><th>結果</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code># 見出し1</code></td><td>大見出し (H1)</td></tr>
+            <tr><td><code>## 見出し2</code></td><td>中見出し (H2)</td></tr>
+            <tr><td><code>### 見出し3</code></td><td>小見出し (H3)</td></tr>
+            <tr><td><code>**太字**</code></td><td><strong>太字</strong></td></tr>
+            <tr><td><code>*斜体*</code></td><td><em>斜体</em></td></tr>
+            <tr><td><code>~~取り消し~~</code></td><td><del>取り消し</del></td></tr>
+            <tr><td><code>`インラインコード`</code></td><td>インラインコード</td></tr>
+            <tr><td><code>[テキスト](URL)</code></td><td>リンク</td></tr>
+            <tr><td><code>- 項目</code></td><td>箇条書きリスト</td></tr>
+            <tr><td><code>1. 項目</code></td><td>番号付きリスト</td></tr>
+            <tr><td><code>- [ ] タスク</code></td><td>未完了チェック</td></tr>
+            <tr><td><code>- [x] タスク</code></td><td>完了チェック</td></tr>
+            <tr><td><code>&gt; 引用文</code></td><td>引用ブロック</td></tr>
+            <tr><td><code>```<br>コード<br>```</code></td><td>コードブロック</td></tr>
+            <tr><td><code>---</code></td><td>水平線</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <!-- Settings Modal -->
   <div class="modal-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
   <div class="settings-menu" id="settingsMenu">
@@ -1041,13 +1187,13 @@
       <span class="material-icons">folder_open</span>
       <div class="file-setup-title" id="fileSetupTitle">データファイルを設定</div>
       <div class="file-setup-desc" id="fileSetupDesc">
-        Notion Plus のデータを保存する JSON ファイルを選択してください。<br>
-        一度設定すると、次回以降は自動で読み込まれます。
+        <code style="background:var(--bg-secondary);padding:2px 6px;border-radius:4px;font-size:13px;">master-data-notion-plus.json</code> を保存する場所を選択してください。<br>
+        既存ファイルを選ぶと自動で読み込み、なければ新規作成します。
       </div>
       <div>
         <button class="file-setup-btn" id="fileSetupBtn" onclick="setupNewFile()">
           <span class="material-icons" style="font-size:18px">folder_open</span>
-          ファイルを選択 / 作成
+          ファイルの場所を選択
         </button>
       </div>
     </div>
@@ -1150,8 +1296,8 @@
         };
       } else {
         title.textContent = 'データファイルを設定';
-        desc.innerHTML = 'Notion Plus のデータを保存する JSON ファイルを選択してください。<br>一度設定すると、次回以降は自動で読み込まれます。';
-        btn.innerHTML = '<span class="material-icons" style="font-size:18px">folder_open</span> ファイルを選択 / 作成';
+        desc.innerHTML = '<code style="background:var(--bg-secondary);padding:2px 6px;border-radius:4px;font-size:13px;">master-data-notion-plus.json</code> を保存する場所を選択してください。<br>既存ファイルを選ぶと自動で読み込み、なければ新規作成します。';
+        btn.innerHTML = '<span class="material-icons" style="font-size:18px">folder_open</span> ファイルの場所を選択';
         btn.onclick = setupNewFile;
       }
     }
@@ -1221,19 +1367,15 @@
 
     async function setupNewFile() {
       try {
-        const [handle] = await window.showOpenFilePicker({
+        const handle = await window.showSaveFilePicker({
+          suggestedName: 'master-data-notion-plus.json',
           types: [{ description: 'JSON Files', accept: { 'application/json': ['.json'] } }],
-          multiple: false
         });
         await connectFile(handle);
       } catch (e) {
-        // User cancelled - try save picker to create new file
         try {
-          const handle = await window.showSaveFilePicker({
-            suggestedName: 'notion-plus-data.json',
-            types: [{ description: 'JSON Files', accept: { 'application/json': ['.json'] } }],
-          });
-          await connectFile(handle);
+          // Dummy block to maintain structure
+          void 0;
         } catch (e2) {
           // Cancelled entirely
         }
@@ -1462,11 +1604,13 @@
       const preview = document.getElementById('editorPreview');
       const editBtn = document.getElementById('editModeBtn');
       const previewBtn = document.getElementById('previewModeBtn');
+      const helpBtn = document.getElementById('mdHelpBtn');
       if (mode === 'edit') {
         textarea.classList.remove('hidden');
         preview.classList.remove('active');
         editBtn.classList.add('active');
         previewBtn.classList.remove('active');
+        helpBtn.style.display = '';
         textarea.focus();
       } else {
         if (state.currentPage) {
@@ -1476,8 +1620,19 @@
         preview.classList.add('active');
         editBtn.classList.remove('active');
         previewBtn.classList.add('active');
+        helpBtn.style.display = 'none';
+        closeMdHelp();
         preview.innerHTML = markdownToHtml(state.currentPage?.content || '');
       }
+    }
+
+    function openMdHelp() {
+      document.getElementById('mdHelpOverlay').classList.add('visible');
+    }
+
+    function closeMdHelp(e) {
+      if (e && e.target !== document.getElementById('mdHelpOverlay')) return;
+      document.getElementById('mdHelpOverlay').classList.remove('visible');
     }
 
     // === Markdown Parser ===
@@ -1689,7 +1844,7 @@
         if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'L') { e.preventDefault(); toggleDarkMode(); }
         // Ctrl+E or Ctrl+Shift+P: toggle mode
         if ((e.metaKey || e.ctrlKey) && e.key === 'e') { e.preventDefault(); setMode(currentMode === 'edit' ? 'preview' : 'edit'); }
-        if (e.key === 'Escape') { closeSettings(); document.getElementById('searchModal').classList.remove('visible'); }
+        if (e.key === 'Escape') { closeSettings(); document.getElementById('searchModal').classList.remove('visible'); document.getElementById('mdHelpOverlay').classList.remove('visible'); }
       });
     }
 
