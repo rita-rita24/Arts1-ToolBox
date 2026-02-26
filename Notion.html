@@ -249,15 +249,6 @@
       visibility: hidden;
     }
 
-    .page-icon {
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-right: 4px;
-    }
 
     .page-title {
       flex: 1;
@@ -414,57 +405,6 @@
       position: relative;
     }
 
-    .page-header-actions {
-      display: none;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-
-    .page-header:hover .page-header-actions {
-      display: flex;
-    }
-
-    .page-header-action {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 6px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      color: var(--text-tertiary);
-    }
-
-    .page-header-action:hover {
-      background: var(--bg-hover);
-      color: var(--text-secondary);
-    }
-
-    .page-header-action .material-icons {
-      font-size: 16px;
-    }
-
-    .page-icon-container {
-      margin-bottom: 8px;
-    }
-
-    .page-icon-large {
-      font-size: 72px;
-      line-height: 1;
-      cursor: pointer;
-      display: inline-block;
-      padding: 4px;
-      border-radius: 4px;
-    }
-
-    .page-icon-large:hover {
-      background: var(--bg-hover);
-    }
-
-    .page-icon-large.hidden {
-      display: none;
-    }
-
     .page-title-input {
       font-size: 40px;
       font-weight: 700;
@@ -494,7 +434,7 @@
       align-items: flex-start;
     }
 
-    .block::before {
+    .block::after {
       content: '';
       position: absolute;
       left: -52px;
@@ -526,29 +466,6 @@
       color: var(--text-secondary);
     }
 
-    .block-add {
-      position: absolute;
-      left: -48px;
-      top: 3px;
-      width: 18px;
-      height: 24px;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: var(--text-tertiary);
-      border-radius: 4px;
-    }
-
-    .block:hover .block-add {
-      display: flex;
-    }
-
-    .block-add:hover {
-      background: var(--bg-hover);
-      color: var(--text-secondary);
-    }
-
     .block-content {
       flex: 1;
       min-height: 1.5em;
@@ -562,7 +479,7 @@
     }
 
     .block-content:focus:empty::before {
-      content: "'/'を入力してコマンドを使用...";
+      content: "テキストを入力...";
     }
 
     /* Block Types */
@@ -725,86 +642,6 @@
 
     .block.code .block-content {
       white-space: pre-wrap;
-    }
-
-    /* Slash Menu */
-    .slash-menu {
-      position: fixed;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      box-shadow: 0 4px 24px var(--shadow);
-      width: 320px;
-      max-height: 400px;
-      overflow-y: auto;
-      z-index: 1000;
-      display: none;
-    }
-
-    .slash-menu.visible {
-      display: block;
-      animation: fadeIn 0.15s ease;
-    }
-
-    .slash-menu-header {
-      padding: 8px 12px;
-      font-size: 12px;
-      color: var(--text-tertiary);
-      font-weight: 500;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .slash-menu-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 8px 12px;
-      cursor: pointer;
-    }
-
-    .slash-menu-item:hover,
-    .slash-menu-item.selected {
-      background: var(--bg-hover);
-    }
-
-    .slash-menu-icon {
-      width: 46px;
-      height: 46px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      color: var(--text-primary);
-    }
-
-    .slash-menu-icon .material-icons {
-      font-size: 24px;
-    }
-
-    .slash-menu-icon span.text-icon {
-      font-size: 18px;
-      font-weight: 500;
-    }
-
-    .slash-menu-icon.emoji {
-      font-size: 24px;
-    }
-
-    .slash-menu-text {
-      flex: 1;
-    }
-
-    .slash-menu-title {
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .slash-menu-desc {
-      font-size: 12px;
-      color: var(--text-secondary);
     }
 
     /* Search Modal */
@@ -1002,70 +839,70 @@
       background: rgba(46, 170, 220, 0.1);
     }
 
-    /* Emoji Picker */
-    .emoji-picker {
+    /* File Setup Overlay */
+    .file-setup-overlay {
       position: fixed;
+      inset: 0;
       background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      box-shadow: 0 4px 24px var(--shadow);
-      padding: 8px;
-      z-index: 1000;
-      display: none;
-      max-width: 320px;
-    }
-
-    .emoji-picker.visible {
-      display: block;
-      animation: fadeIn 0.15s ease;
-    }
-
-    .emoji-grid {
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      gap: 4px;
-    }
-
-    .emoji-item {
-      width: 32px;
-      height: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      border-radius: 4px;
-      font-size: 20px;
+      z-index: 9999;
     }
 
-    .emoji-item:hover {
-      background: var(--bg-hover);
+    .file-setup-overlay.hidden {
+      display: none;
     }
 
-    .color-picker-row {
-      display: flex;
-      gap: 6px;
-      padding: 8px;
-      border-bottom: 1px solid var(--border-color);
+    .file-setup-box {
+      text-align: center;
+      max-width: 400px;
+      padding: 48px 32px;
+    }
+
+    .file-setup-box .material-icons {
+      font-size: 48px;
+      color: var(--text-tertiary);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .file-setup-title {
+      font-size: 22px;
+      font-weight: 600;
       margin-bottom: 8px;
-      justify-content: center;
-      flex-wrap: wrap;
     }
 
-    .color-option {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
+    .file-setup-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .file-setup-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-family: inherit;
       cursor: pointer;
-      border: 2px solid transparent;
-      transition: transform 0.1s;
+      margin: 4px;
     }
 
-    .color-option:hover {
-      transform: scale(1.1);
+    .file-setup-btn:hover {
+      opacity: 0.85;
     }
 
-    .color-option.selected {
-      border-color: var(--text-primary);
+    .file-setup-btn.secondary {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
     }
 
     /* Selection Toolbar */
@@ -1224,16 +1061,6 @@
       <div class="editor-container">
         <div class="editor" id="editor">
           <div class="page-header">
-            <div class="page-header-actions">
-              <div class="page-header-action" id="addIconBtn" onclick="showPageIconPicker(event)">
-                <span class="material-icons">mood</span>
-                <span>アイコンを追加</span>
-              </div>
-            </div>
-            <div class="page-icon-container">
-              <div class="page-icon-large material-icons" id="pageIcon" onclick="showEmojiPicker(event, 'pageIcon')">
-                description</div>
-            </div>
             <input type="text" class="page-title-input" id="pageTitle" placeholder="無題">
           </div>
           <div class="blocks" id="blocks"></div>
@@ -1266,95 +1093,6 @@
           style="padding: 6px 16px; border-radius: 4px; border: 1px solid var(--border-color); background: transparent; cursor: pointer; color: var(--text-primary);">キャンセル</button>
         <button onclick="executeDelete()"
           style="padding: 6px 16px; border-radius: 4px; border: none; background: #eb5757; color: white; cursor: pointer;">削除</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Slash Menu -->
-  <div class="slash-menu" id="slashMenu">
-    <div class="slash-menu-header">基本ブロック</div>
-    <div class="slash-menu-item" data-type="text">
-      <div class="slash-menu-icon"><span class="material-icons">title</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">テキスト</div>
-        <div class="slash-menu-desc">プレーンテキストで書き始める</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="heading1">
-      <div class="slash-menu-icon"><span class="text-icon">H1</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">見出し 1</div>
-        <div class="slash-menu-desc">大きい見出し</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="heading2">
-      <div class="slash-menu-icon"><span class="text-icon">H2</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">見出し 2</div>
-        <div class="slash-menu-desc">中くらいの見出し</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="heading3">
-      <div class="slash-menu-icon"><span class="text-icon">H3</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">見出し 3</div>
-        <div class="slash-menu-desc">小さい見出し</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="bullet">
-      <div class="slash-menu-icon"><span class="material-icons">format_list_bulleted</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">箇条書きリスト</div>
-        <div class="slash-menu-desc">シンプルな箇条書き</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="numbered">
-      <div class="slash-menu-icon"><span class="material-icons">format_list_numbered</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">番号付きリスト</div>
-        <div class="slash-menu-desc">番号付きのリスト</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="todo">
-      <div class="slash-menu-icon"><span class="material-icons">check_box</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">ToDoリスト</div>
-        <div class="slash-menu-desc">タスクのチェックリスト</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="toggle">
-      <div class="slash-menu-icon"><span class="material-icons">expand_more</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">トグル</div>
-        <div class="slash-menu-desc">折りたたみ可能なコンテンツ</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="quote">
-      <div class="slash-menu-icon"><span class="material-icons">format_quote</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">引用</div>
-        <div class="slash-menu-desc">引用テキスト</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="callout">
-      <div class="slash-menu-icon"><span class="material-icons">lightbulb</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">コールアウト</div>
-        <div class="slash-menu-desc">目立つボックス</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="divider">
-      <div class="slash-menu-icon"><span class="material-icons">horizontal_rule</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">区切り線</div>
-        <div class="slash-menu-desc">コンテンツを分割</div>
-      </div>
-    </div>
-    <div class="slash-menu-item" data-type="code">
-      <div class="slash-menu-icon"><span class="material-icons">code</span></div>
-      <div class="slash-menu-text">
-        <div class="slash-menu-title">コード</div>
-        <div class="slash-menu-desc">コードスニペット</div>
       </div>
     </div>
   </div>
@@ -1403,142 +1141,209 @@
         </div>
       </div>
       <div class="settings-item" style="flex-direction: column; align-items: flex-start; gap: 12px;">
-        <span class="settings-label">データ管理</span>
-        <button class="font-option" onclick="selectFile()" style="width:100%; text-align:center;">JSONファイルを開く /
-          保存先設定</button>
-        <div id="fileStatus" style="font-size:12px; color:var(--text-tertiary);">現在の保存先: Local Storage</div>
+        <span class="settings-label">データファイル</span>
+        <button class="font-option" onclick="changeFile()" style="width:100%; text-align:center;">ファイルを変更</button>
+        <div id="fileStatus" style="font-size:12px; color:var(--text-tertiary);">接続中...</div>
       </div>
     </div>
   </div>
 
-  <!-- Emoji Picker -->
-  <div class="emoji-picker" id="emojiPicker">
-    <div class="emoji-grid" id="emojiGrid"></div>
+  <!-- File Setup Overlay -->
+  <div class="file-setup-overlay" id="fileSetupOverlay">
+    <div class="file-setup-box">
+      <span class="material-icons">folder_open</span>
+      <div class="file-setup-title" id="fileSetupTitle">データファイルを設定</div>
+      <div class="file-setup-desc" id="fileSetupDesc">
+        Notion Plus のデータを保存する JSON ファイルを選択してください。<br>
+        一度設定すると、次回以降は自動で読み込まれます。
+      </div>
+      <div>
+        <button class="file-setup-btn" id="fileSetupBtn" onclick="setupNewFile()">
+          <span class="material-icons" style="font-size:18px">folder_open</span>
+          ファイルを選択 / 作成
+        </button>
+      </div>
+    </div>
   </div>
 
   <script>
     // === State ===
     let state = {
       pages: [
-        { id: '1', title: 'はじめに', icon: 'home', favorite: false, children: [], blocks: [] },
+        { id: '1', title: 'はじめに', children: [], blocks: [] },
         {
-          id: '2', title: 'プロジェクト', icon: 'folder', favorite: true, children: [
-            { id: '2-1', title: 'タスク一覧', icon: 'check_circle', children: [], blocks: [] }
+          id: '2', title: 'プロジェクト', children: [
+            { id: '2-1', title: 'タスク一覧', children: [], blocks: [] }
           ], blocks: []
         },
-        { id: '3', title: 'メモ', icon: 'description', favorite: false, children: [], blocks: [] }
+        { id: '3', title: 'メモ', children: [], blocks: [] }
       ],
       currentPage: null,
       settings: { darkMode: false, fullWidth: false, smallText: false, font: 'default' },
-      sectionExpanded: { favorites: true, all: true }
+      sectionExpanded: { all: true }
     };
     let blockIdCounter = 100;
-    let slashMenuTarget = null;
-    let emojiTarget = null;
     let deleteTargetId = null;
-
-    const emojis = [
-      // Document & Files
-      'description', 'article', 'folder', 'folder_open', 'task', 'note_add', 'post_add', 'file_copy', 'snippet_folder', 'topic', 'newspaper', 'inventory_2',
-      // Business & Status
-      'check_circle', 'schedule', 'event', 'today', 'pending', 'done', 'done_all', 'verified', 'error', 'warning', 'info', 'help', 'flag', 'bookmark', 'star', 'thumb_up', 'analytics', 'timeline', 'trending_up', 'trending_down',
-      // Places & Objects
-      'home', 'store', 'domain', 'school', 'local_cafe', 'restaurant', 'fitness_center', 'spa', 'local_florist', 'forest', 'landscape', 'dark_mode', 'light_mode', 'bolt', 'rocket', 'build', 'construction',
-      // Tech & Tools
-      'settings', 'search', 'language', 'code', 'terminal', 'developer_mode', 'devices', 'laptop', 'smartphone', 'mouse', 'keyboard', 'memory', 'router', 'wifi', 'security', 'lock', 'key',
-      // Communication
-      'chat', 'forum', 'comment', 'mail', 'send', 'call', 'contact_page', 'groups', 'person', 'face', 'support_agent', 'settings_accessibility',
-      // Media
-      'image', 'movie', 'mic', 'volume_up', 'music_note', 'camera_alt', 'videocam', 'brush', 'palette', 'format_paint', 'auto_stories',
-      // Travel & Map
-      'flight', 'directions_car', 'directions_boat', 'two_wheeler', 'train', 'map', 'pin_drop', 'navigation', 'explore',
-      // Misc
-      'emoji_events', 'savings', 'paid', 'shopping_cart', 'favorite', 'heart_broken', 'pets', 'recycling', 'water_drop', 'ac_unit'
-    ];
-
-    const iconColors = [
-      { name: 'default', value: 'var(--text-primary)' },
-      { name: 'gray', value: '#787774' },
-      { name: 'brown', value: '#9f6b53' },
-      { name: 'orange', value: '#d9730d' },
-      { name: 'yellow', value: '#cb912f' },
-      { name: 'green', value: '#448361' },
-      { name: 'blue', value: '#337ea9' },
-      { name: 'purple', value: '#9065b0' },
-      { name: 'pink', value: '#c14c8a' },
-      { name: 'red', value: '#d44c47' }
-    ];
-
-    let selectedColor = 'default';
-
-    // === Init ===
-    document.addEventListener('DOMContentLoaded', () => {
-      loadState();
-      renderPagesList();
-      if (state.pages.length > 0) openPage(state.pages[0].id);
-      setupEventListeners();
-      initEmojiPicker();
-      initStaticFavicon();
-    });
-
     let fileHandle = null;
     let saveTimeout = null;
 
-    // === State Management ===
-    function saveState() {
-      // Local Storage (Backup)
-      localStorage.setItem('notionCloneState', JSON.stringify(state));
+    // === IndexedDB for file handle persistence ===
+    const DB_NAME = 'notionPlusDB';
+    const STORE_NAME = 'fileHandles';
 
-      // Auto-save to File
-      if (fileHandle) {
-        if (saveTimeout) clearTimeout(saveTimeout);
-        document.getElementById('fileStatus').textContent = "保存中...";
-        saveTimeout = setTimeout(async () => {
-          try {
-            const writable = await fileHandle.createWritable();
-            await writable.write(JSON.stringify(state, null, 2));
-            await writable.close();
-            const fileName = fileHandle.name;
-            document.getElementById('fileStatus').textContent = `現在の保存先: ${fileName} (保存完了)`;
-          } catch (e) {
-            console.error('Auto-save failed:', e);
-            document.getElementById('fileStatus').textContent = `保存エラー: ${e.message}`;
-          }
-        }, 1000); // Debounce 1s
-      }
+    function getDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = e => e.target.result.createObjectStore(STORE_NAME);
+        req.onsuccess = e => resolve(e.target.result);
+        req.onerror = e => reject(e.target.error);
+      });
     }
 
-    function loadState() {
-      const saved = localStorage.getItem('notionCloneState');
-      if (saved) {
-        try { state = { ...state, ...JSON.parse(saved) }; applySettings(); }
-        catch (e) { console.error('Load failed:', e); }
-      }
+    async function saveHandleToDB(handle) {
+      const db = await getDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).put(handle, 'dataFile');
+        tx.oncomplete = resolve;
+        tx.onerror = e => reject(e.target.error);
+      });
     }
 
-    async function selectFile() {
+    async function getHandleFromDB() {
+      const db = await getDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const req = tx.objectStore(STORE_NAME).get('dataFile');
+        req.onsuccess = e => resolve(e.target.result);
+        req.onerror = e => reject(e.target.error);
+      });
+    }
+
+    // === Init ===
+    document.addEventListener('DOMContentLoaded', () => {
+      setupEventListeners();
+      initFileSystem();
+    });
+
+    async function initFileSystem() {
       try {
-        const [handle] = await window.showOpenFilePicker({
-          types: [{ description: 'JSON Files', accept: { 'application/json': ['.json'] } }],
-        });
+        const handle = await getHandleFromDB();
+        if (!handle) { showSetupOverlay('initial'); return; }
+        const perm = await handle.queryPermission({ mode: 'readwrite' });
+        if (perm === 'granted') {
+          await connectFile(handle);
+        } else {
+          showSetupOverlay('reconnect', handle);
+        }
+      } catch (e) {
+        showSetupOverlay('initial');
+      }
+    }
+
+    function showSetupOverlay(mode, handle) {
+      const overlay = document.getElementById('fileSetupOverlay');
+      const title = document.getElementById('fileSetupTitle');
+      const desc = document.getElementById('fileSetupDesc');
+      const btn = document.getElementById('fileSetupBtn');
+      overlay.classList.remove('hidden');
+      if (mode === 'reconnect') {
+        title.textContent = 'ファイルへの再接続';
+        desc.textContent = '前回使用したファイルへの接続が必要です。\nボタンをクリックして接続を再開してください。';
+        btn.innerHTML = '<span class="material-icons" style="font-size:18px">link</span> 再接続する';
+        btn.onclick = async () => {
+          try {
+            const perm = await handle.requestPermission({ mode: 'readwrite' });
+            if (perm === 'granted') {
+              await connectFile(handle);
+            } else {
+              showSetupOverlay('initial');
+            }
+          } catch (e) { showSetupOverlay('initial'); }
+        };
+      } else {
+        title.textContent = 'データファイルを設定';
+        desc.innerHTML = 'Notion Plus のデータを保存する JSON ファイルを選択してください。<br>一度設定すると、次回以降は自動で読み込まれます。';
+        btn.innerHTML = '<span class="material-icons" style="font-size:18px">folder_open</span> ファイルを選択 / 作成';
+        btn.onclick = setupNewFile;
+      }
+    }
+
+    async function connectFile(handle) {
+      try {
         fileHandle = handle;
-        const file = await fileHandle.getFile();
+        const file = await handle.getFile();
         const content = await file.text();
-        state = { ...state, ...JSON.parse(content) }; // Merge to keep UI state if needed, or straight replace
+        const loaded = JSON.parse(content);
+        state = { ...state, ...loaded };
+        state.currentPage = null;
+        await saveHandleToDB(handle);
+        document.getElementById('fileSetupOverlay').classList.add('hidden');
+        document.getElementById('fileStatus').textContent = `ファイル: ${file.name}`;
         applySettings();
         renderPagesList();
         if (state.pages.length > 0) openPage(state.pages[0].id);
-        document.getElementById('fileStatus').textContent = `現在の保存先: ${file.name}`;
-        alert(`ファイルを読み込みました: ${file.name}\nこれ以降の変更は自動的にこのファイルに保存されます。`);
-      } catch (err) {
-        console.error('File selection cancelled or failed:', err);
+      } catch (e) {
+        // New file or empty file - start fresh
+        fileHandle = handle;
+        await saveHandleToDB(handle);
+        document.getElementById('fileSetupOverlay').classList.add('hidden');
+        document.getElementById('fileStatus').textContent = `ファイル: ${handle.name}`;
+        applySettings();
+        renderPagesList();
+        if (state.pages.length > 0) openPage(state.pages[0].id);
+        saveState();
       }
     }
+
+    async function setupNewFile() {
+      try {
+        const [handle] = await window.showOpenFilePicker({
+          types: [{ description: 'JSON Files', accept: { 'application/json': ['.json'] } }],
+          multiple: false
+        });
+        await connectFile(handle);
+      } catch (e) {
+        // User cancelled - try save picker to create new file
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: 'notion-plus-data.json',
+            types: [{ description: 'JSON Files', accept: { 'application/json': ['.json'] } }],
+          });
+          await connectFile(handle);
+        } catch (e2) {
+          // Cancelled entirely
+        }
+      }
+    }
+
+    async function changeFile() {
+      closeSettings();
+      await setupNewFile();
+    }
+
+    // === State Management ===
+    function saveState() {
+      if (!fileHandle) return;
+      if (saveTimeout) clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(async () => {
+        try {
+          const writable = await fileHandle.createWritable();
+          await writable.write(JSON.stringify(state, null, 2));
+          await writable.close();
+          document.getElementById('fileStatus').textContent = `ファイル: ${fileHandle.name}`;
+        } catch (e) {
+          console.error('Save failed:', e);
+          document.getElementById('fileStatus').textContent = `保存エラー: ${e.message}`;
+        }
+      }, 800);
+    }
     function applySettings() {
-      if (state.settings.darkMode) { document.body.classList.add('dark-mode'); document.getElementById('darkModeToggle').classList.add('active'); }
-      if (state.settings.fullWidth) { document.getElementById('editor').classList.add('full-width'); document.getElementById('fullWidthToggle').classList.add('active'); }
-      if (state.settings.smallText) { document.body.classList.add('small-text'); document.getElementById('smallTextToggle').classList.add('active'); }
-      setFont(state.settings.font);
+      const s = state.settings || {};
+      if (s.darkMode) { document.body.classList.add('dark-mode'); document.getElementById('darkModeToggle').classList.add('active'); }
+      if (s.fullWidth) { document.getElementById('editor').classList.add('full-width'); document.getElementById('fullWidthToggle').classList.add('active'); }
+      if (s.smallText) { document.body.classList.add('small-text'); document.getElementById('smallTextToggle').classList.add('active'); }
+      setFont(s.font || 'default');
     }
 
     // === Sidebar ===
@@ -1581,7 +1386,6 @@
                 <div class="page-toggle ${hasChildren ? '' : 'hidden'} ${isExpanded ? 'expanded' : ''}" onclick="event.stopPropagation(); togglePageExpand('${page.id}', '${context}')">
                     <span class="material-icons" style="font-size:16px">chevron_right</span>
                 </div>
-                <div class="page-icon"><span class="material-icons" style="font-size: 18px; color: ${getColorValue(page.iconColor)}">${page.icon || 'description'}</span></div>
                 <div class="page-title">${page.title || '無題'}</div>
                 <div class="page-actions">
                     <div class="page-action" onclick="event.stopPropagation(); addSubPage('${page.id}', '${context}')" title="サブページを追加"><span class="material-icons">add</span></div>
@@ -1632,26 +1436,14 @@
         item.classList.remove('active');
         if (item.dataset.pageId === pageId) item.classList.add('active');
       });
-      const pageIcon = document.getElementById('pageIcon');
-      const addIconBtn = document.getElementById('addIconBtn');
-      if (page.icon) {
-        pageIcon.textContent = page.icon;
-        pageIcon.style.color = getColorValue(page.iconColor);
-        pageIcon.classList.remove('hidden');
-        addIconBtn.style.display = 'none';
-      } else {
-        pageIcon.classList.add('hidden');
-        addIconBtn.style.display = 'flex';
-        pageIcon.style.color = '';
-      }
       document.getElementById('pageTitle').value = page.title || '';
-      document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span class="material-icons" style="font-size: 16px; color: ${getColorValue(page.iconColor)}">${page.icon || 'description'}</span><span>${page.title || '無題'}</span></div>`;
+      document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span>${page.title || '無題'}</span></div>`;
       renderBlocks(page);
       saveState();
     }
 
     function addNewPage() {
-      const newPage = { id: Date.now().toString(), title: '', icon: 'description', favorite: false, children: [], blocks: [] };
+      const newPage = { id: Date.now().toString(), title: '', children: [], blocks: [] };
       state.pages.push(newPage);
       renderPagesList();
       openPage(newPage.id);
@@ -1662,7 +1454,7 @@
     function addSubPage(parentId, context) {
       const parent = findPage(parentId);
       if (!parent) return;
-      const newPage = { id: Date.now().toString(), title: '', icon: 'description', children: [], blocks: [] };
+      const newPage = { id: Date.now().toString(), title: '', children: [], blocks: [] };
       if (!parent.children) parent.children = [];
       parent.children.push(newPage);
 
@@ -1715,7 +1507,7 @@
       if (state.currentPage) {
         state.currentPage.title = e.target.value;
         renderPagesList();
-        document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span class="material-icons" style="font-size: 16px; color: ${getColorValue(state.currentPage.iconColor)}">${state.currentPage.icon || 'description'}</span><span>${state.currentPage.title || '無題'}</span></div>`;
+        document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span>${state.currentPage.title || '無題'}</span></div>`;
         saveState();
       }
     });
@@ -1735,12 +1527,12 @@
       let extra = '';
       if (block.type === 'todo') extra = `<div class="todo-checkbox" onclick="toggleTodo('${block.id}')"><span class="material-icons">check</span></div>`;
       else if (block.type === 'toggle') extra = `<div class="toggle-icon" onclick="toggleToggle('${block.id}')"><span class="material-icons" style="font-size:18px">chevron_right</span></div>`;
-      else if (block.type === 'callout') extra = `<div class="callout-icon material-icons" onclick="showEmojiPicker(event, 'callout-${block.id}')">${block.icon || 'lightbulb'}</div>`;
+      else if (block.type === 'callout') extra = `<div class="callout-icon material-icons">lightbulb</div>`;
 
       if (block.type === 'divider') {
-        div.innerHTML = `<div class="block-add" onclick="showSlashMenu(event, this.parentElement)"><span class="material-icons" style="font-size:16px">add</span></div><div class="block-handle" draggable="true"><span class="material-icons" style="font-size:16px">drag_indicator</span></div><hr>`;
+        div.innerHTML = `<div class="block-handle" draggable="true"><span class="material-icons" style="font-size:16px">drag_indicator</span></div><hr>`;
       } else {
-        div.innerHTML = `<div class="block-add" onclick="showSlashMenu(event, this.parentElement)"><span class="material-icons" style="font-size:16px">add</span></div><div class="block-handle" draggable="true"><span class="material-icons" style="font-size:16px">drag_indicator</span></div>${extra}<div class="block-content" contenteditable="true" data-placeholder=""></div>`;
+        div.innerHTML = `<div class="block-handle" draggable="true"><span class="material-icons" style="font-size:16px">drag_indicator</span></div>${extra}<div class="block-content" contenteditable="true" data-placeholder=""></div>`;
         const contentEl = div.querySelector('.block-content');
         if (contentEl && block.content) contentEl.textContent = block.content;
       }
@@ -1749,7 +1541,6 @@
 
     function addBlock(type, afterBlock, initialContent = '') {
       const newBlock = { id: (++blockIdCounter).toString(), type, content: initialContent };
-      if (type === 'callout') newBlock.icon = 'lightbulb';
       if (!state.currentPage.blocks) state.currentPage.blocks = [];
       const idx = state.currentPage.blocks.findIndex(b => b.id === afterBlock.dataset.id);
       if (idx !== -1) state.currentPage.blocks.splice(idx + 1, 0, newBlock);
@@ -1806,41 +1597,6 @@
 
     function findBlock(blockId) { return state.currentPage?.blocks?.find(b => b.id === blockId); }
 
-    // === Slash Menu ===
-    function showSlashMenu(event, targetBlock) {
-      event.preventDefault();
-      event.stopPropagation();
-      slashMenuTarget = targetBlock;
-      const menu = document.getElementById('slashMenu');
-      const rect = targetBlock.getBoundingClientRect();
-      menu.style.left = `${Math.min(rect.left, window.innerWidth - 340)}px`;
-      menu.style.top = `${Math.min(rect.bottom + 4, window.innerHeight - 420)}px`;
-      menu.classList.add('visible');
-    }
-
-    function hideSlashMenu() { document.getElementById('slashMenu').classList.remove('visible'); slashMenuTarget = null; }
-
-    document.querySelectorAll('.slash-menu-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const type = item.dataset.type;
-        if (slashMenuTarget) {
-          const blockId = slashMenuTarget.dataset.id;
-          const block = findBlock(blockId);
-          if (block) {
-            block.type = type;
-            block.content = '';
-            if (type === 'callout') block.icon = 'lightbulb';
-            const newEl = createBlockElement(block);
-            slashMenuTarget.replaceWith(newEl);
-            const content = newEl.querySelector('.block-content');
-            if (content) content.focus();
-            saveState();
-          }
-        }
-        hideSlashMenu();
-      });
-    });
-
     // === Search ===
     function openSearch() {
       document.getElementById('searchModal').classList.add('visible');
@@ -1874,7 +1630,6 @@
       }
       container.innerHTML = matched.map(p => `
                 <div class="search-result-item" onclick="openPageFromSearch('${p.id}')">
-                    <div class="result-icon material-icons" style="font-size: 16px; color: ${getColorValue(p.iconColor)}">${p.icon || 'description'}</div>
                     <div class="search-result-title">${p.title || '無題'}</div>
                 </div>
             `).join('');
@@ -1902,113 +1657,6 @@
       if (font !== 'default') document.body.classList.add(`font-${font}`);
       document.querySelectorAll('.font-option').forEach(opt => opt.classList.toggle('active', opt.dataset.font === font));
       saveState();
-    }
-
-    // === Emoji Picker (Enhanced) ===
-    function initEmojiPicker() {
-      const picker = document.getElementById('emojiPicker');
-      // Clear
-      picker.innerHTML = '';
-
-      // Color Palette
-      const colorRow = document.createElement('div');
-      colorRow.className = 'color-picker-row';
-      iconColors.forEach(c => {
-        const dot = document.createElement('div');
-        dot.className = `color-option ${c.name === 'default' ? 'selected' : ''}`;
-        dot.style.background = c.value.startsWith('var') ? '#37352f' : c.value;
-        if (c.name === 'default') dot.style.background = '#37352f'; // fallback for display
-        dot.onclick = (e) => {
-          e.stopPropagation();
-          selectedColor = c.name;
-          document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
-          dot.classList.add('selected');
-          // If page icon is active, apply color immediately
-          if (emojiTarget === 'pageIcon' && state.currentPage) {
-            state.currentPage.iconColor = selectedColor;
-            renderPagesList();
-            document.getElementById('pageIcon').style.color = getColorValue(selectedColor);
-            document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span class="material-icons" style="font-size: 16px; color: ${getColorValue(selectedColor)}">${state.currentPage.icon || 'description'}</span><span>${state.currentPage.title || '無題'}</span></div>`;
-            saveState();
-          }
-        };
-        colorRow.appendChild(dot);
-      });
-      picker.appendChild(colorRow);
-
-      // Grid
-      const grid = document.createElement('div');
-      grid.className = 'emoji-grid';
-      grid.id = 'emojiGrid';
-      emojis.forEach(emoji => {
-        const item = document.createElement('div');
-        item.className = 'emoji-item material-icons';
-        item.textContent = emoji;
-        item.onclick = () => selectEmoji(emoji);
-        grid.appendChild(item);
-      });
-      picker.appendChild(grid);
-    }
-
-    function getColorValue(colorName) {
-      if (!colorName) return 'var(--text-primary)';
-      const c = iconColors.find(ci => ci.name === colorName);
-      return c ? c.value : 'var(--text-primary)';
-    }
-
-    function showEmojiPicker(event, target) {
-      event.stopPropagation();
-      emojiTarget = target;
-
-      // Reset color selection based on current target
-      if (target === 'pageIcon' && state.currentPage) {
-        selectedColor = state.currentPage.iconColor || 'default';
-      } else {
-        selectedColor = 'default';
-      }
-      document.querySelectorAll('.color-option').forEach(opt => {
-        const isSelected = (selectedColor === 'default' && opt.style.background === 'rgb(55, 53, 47)') ||
-          (iconColors.find(c => c.name === selectedColor)?.value === opt.style.background);
-        // Simple re-selection visual update
-        opt.classList.toggle('selected', iconColors.indexOf(iconColors.find(c => c.name === selectedColor)) === Array.from(opt.parentNode.children).indexOf(opt));
-      });
-      // Proper fix for selection finding
-      document.querySelectorAll('.color-option').forEach((opt, idx) => {
-        opt.classList.toggle('selected', iconColors[idx].name === selectedColor);
-      });
-
-      const picker = document.getElementById('emojiPicker');
-      const rect = event.target.getBoundingClientRect();
-      picker.style.left = `${Math.min(rect.left, window.innerWidth - 340)}px`;
-      picker.style.top = `${rect.bottom + 4}px`;
-      picker.classList.add('visible');
-    }
-
-    function showPageIconPicker(event) {
-      document.getElementById('pageIcon').classList.remove('hidden');
-      document.getElementById('addIconBtn').style.display = 'none';
-      showEmojiPicker(event, 'pageIcon');
-    }
-
-    function hideEmojiPicker() { document.getElementById('emojiPicker').classList.remove('visible'); emojiTarget = null; }
-
-    function selectEmoji(emoji) {
-      if (emojiTarget === 'pageIcon') {
-        document.getElementById('pageIcon').textContent = emoji;
-        if (state.currentPage) {
-          state.currentPage.icon = emoji;
-          state.currentPage.iconColor = selectedColor; // Apply selected
-          renderPagesList();
-          document.getElementById('pageIcon').style.color = getColorValue(selectedColor);
-          document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span class="material-icons" style="font-size: 16px; color: ${getColorValue(selectedColor)}">${emoji}</span><span>${state.currentPage.title || '無題'}</span></div>`;
-          saveState();
-        }
-      } else if (emojiTarget?.startsWith('callout-')) {
-        const blockId = emojiTarget.replace('callout-', '');
-        const block = findBlock(blockId);
-        if (block) { block.icon = emoji; document.querySelector(`[data-id="${blockId}"] .callout-icon`).textContent = emoji; saveState(); }
-      }
-      hideEmojiPicker();
     }
 
     // === Text Formatting ===
@@ -2109,32 +1757,6 @@
           deleteBlock(block);
         }
 
-        // スペース: Markdownショートカット
-        if (e.key === ' ' && blockData) {
-          const text = e.target.textContent;
-          const shortcuts = { '#': 'heading1', '##': 'heading2', '###': 'heading3', '-': 'bullet', '*': 'bullet', '1.': 'numbered', '[]': 'todo', '>': 'toggle', '"': 'quote', '---': 'divider' };
-          if (shortcuts[text]) {
-            e.preventDefault();
-            blockData.type = shortcuts[text];
-            blockData.content = '';
-            const newEl = createBlockElement(blockData);
-            block.replaceWith(newEl);
-            if (blockData.type === 'divider') addBlock('text', newEl);
-            else newEl.querySelector('.block-content')?.focus();
-            saveState();
-          }
-        }
-
-        // スラッシュ: メニュー表示
-        if (e.key === '/' && e.target.textContent === '') {
-          setTimeout(() => {
-            if (e.target.textContent === '/') {
-              e.target.textContent = '';
-              if (blockData) blockData.content = '';
-              showSlashMenu(e, block);
-            }
-          }, 0);
-        }
       });
 
       // Selection toolbar
@@ -2142,8 +1764,6 @@
 
       // Click outside
       document.addEventListener('click', (e) => {
-        if (!e.target.closest('.slash-menu') && !e.target.closest('.block-add')) hideSlashMenu();
-        if (!e.target.closest('.emoji-picker') && !e.target.closest('.page-icon-large') && !e.target.closest('.callout-icon') && !e.target.closest('.page-header-action')) hideEmojiPicker();
         if (!window.getSelection().toString()) hideSelectionToolbar();
       });
 
@@ -2152,7 +1772,7 @@
         if ((e.metaKey || e.ctrlKey) && e.key === '\\') { e.preventDefault(); toggleSidebar(); }
         if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'p')) { e.preventDefault(); openSearch(); }
         if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'L') { e.preventDefault(); toggleDarkMode(); }
-        if (e.key === 'Escape') { hideSlashMenu(); hideEmojiPicker(); closeSettings(); document.getElementById('searchModal').classList.remove('visible'); }
+        if (e.key === 'Escape') { closeSettings(); document.getElementById('searchModal').classList.remove('visible'); }
       });
 
       // Drag and drop
@@ -2197,38 +1817,6 @@
       }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
 
-    function initStaticFavicon() {
-      // Font loading check to ensure icon renders correctly
-      document.fonts.ready.then(() => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 64;
-        canvas.height = 64;
-        const ctx = canvas.getContext('2d');
-
-        // Background (Gradient like workspace icon)
-        const gradient = ctx.createLinearGradient(0, 0, 64, 64);
-        gradient.addColorStop(0, '#e8e8e8');
-        gradient.addColorStop(1, '#d0d0d0');
-        ctx.fillStyle = gradient;
-
-        ctx.beginPath();
-        ctx.roundRect(0, 0, 64, 64, 12); // Rounded corners
-        ctx.fill();
-
-        // Icon 'edit_note'
-        ctx.fillStyle = '#37352f';
-        ctx.font = '40px "Material Icons"';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('edit_note', 32, 32);
-
-        const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
-        link.type = 'image/x-icon';
-        link.rel = 'shortcut icon';
-        link.href = canvas.toDataURL();
-        document.getElementsByTagName('head')[0].appendChild(link);
-      });
-    }
   </script>
 </body>
 
