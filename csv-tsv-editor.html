@@ -1410,6 +1410,10 @@
     }
 
     function toggleHeader() {
+      const rowCount = state.data.length;
+      const colCount = state.data[0]?.length || 0;
+      if (rowCount === 0 || colCount === 0) return;
+
       saveToHistory();
       state.hasHeader = !state.hasHeader;
       renderTable();
