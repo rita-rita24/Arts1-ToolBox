@@ -24,7 +24,7 @@
     /* ライトモード用カラーパレット（デフォルト） */
     :root,
     [data-theme="light"] {
-      --bg: #f5f5f5;                          /* ページ背景色 */
+      --bg: #f8fafc;                          /* ページ背景色 */
       --surface: #ffffff;                     /* カード・入力欄の背景色 */
       --surface-hover: #f0f0f0;              /* ホバー時の背景色 */
       --border: #e0e0e0;                      /* ボーダー色 */
@@ -80,8 +80,7 @@
 
     /* 画面上部に固定表示されるヘッダーバー */
     .header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
+      background: var(--bg);
       padding: 16px 24px;
       position: sticky; /* スクロールしても上部に固定 */
       top: 0;
@@ -368,7 +367,7 @@
       <!-- A5SQL用: -- *Captions '値1' '値2' ... の形式 -->
       <button class="mode-btn active" data-mode="a5sql">A5SQL用 Caption 変換</button>
       <!-- タブ区切り: '値1'\t'値2'\t... のTSV形式 -->
-      <button class="mode-btn" data-mode="tsv">タブ区切り変換</button>
+      <button class="mode-btn" data-mode="tsv">タブ区切り変換（Excelへの貼り付けに便利）</button>
       <!-- SQL IN句: in ('値1','値2',...); の形式 -->
       <button class="mode-btn" data-mode="sql-in">SQL の IN 句変換</button>
     </div>
