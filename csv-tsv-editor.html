@@ -956,6 +956,10 @@
       <span class="material-symbols-outlined">content_copy</span>
       行をコピー
     </div>
+    <div class="menu-item" onclick="duplicateRow()">
+      <span class="material-symbols-outlined">content_copy</span>
+      行を複製
+    </div>
     <div class="menu-divider"></div>
     <div class="menu-item danger" onclick="confirmDeleteRowFromMenu()">
       <span class="material-symbols-outlined">delete</span>
@@ -1847,6 +1851,23 @@
         });
 
       closeRowMenu();
+    }
+
+    function duplicateRow() {
+      if (activeRowIndex < 0) return;
+
+      saveToHistory();
+
+      const newRow = [...state.data[activeRowIndex]];
+      state.data.splice(activeRowIndex + 1, 0, newRow);
+
+      renderTable();
+      updateStats();
+      saveToStorage();
+      closeRowMenu();
+
+      const rowNum = state.hasHeader ? activeRowIndex : activeRowIndex + 1;
+      showToast(`${rowNum}行目を複製しました`, 'success');
     }
 
     function confirmDeleteRowFromMenu() {
