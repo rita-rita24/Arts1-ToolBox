@@ -364,8 +364,8 @@
   <div class="mode-section">
     <div class="section-label">変換モード</div>
     <div class="mode-buttons">
-      <!-- A5SQL用: -- *Captions '値1' '値2' ... の形式 -->
-      <button class="mode-btn active" data-mode="a5sql">A5SQL用 Caption 変換</button>
+      <!-- A5M2用: -- *Captions 値1,値2,... の形式 -->
+      <button class="mode-btn active" data-mode="a5m2">A5M2用 Caption 変換</button>
       <!-- タブ区切り: '値1'\t'値2'\t... のTSV形式 -->
       <button class="mode-btn" data-mode="tsv">タブ区切り変換（Excelへの貼り付けに便利）</button>
       <!-- SQL IN句: in ('値1','値2',...); の形式 -->
@@ -409,7 +409,7 @@ JavaScript: アプリケーションロジック
   // 状態管理
   // ========================================
 
-  let currentMode = 'a5sql'; // 現在選択中の変換モード
+  let currentMode = 'a5m2'; // 現在選択中の変換モード
 
   // ========================================
   // DOM要素の取得
@@ -454,12 +454,11 @@ JavaScript: アプリケーションロジック
       .filter(line => line.length > 0);
   }
 
-  // ===== A5SQL用 Caption 変換 =====
-  // 出力形式: -- *Captions '値1' '値2' '値3' ...
-  function convertA5sql(lines) {
+  // ===== A5M2用 Caption 変換 =====
+  // 出力形式: -- *Captions 値1,値2,値3,...
+  function convertA5m2(lines) {
     if (lines.length === 0) return '';
-    const quoted = lines.map(v => `'${v}'`).join(' ');
-    return `-- *Captions ${quoted}`;
+    return `-- *Captions ${lines.join(',')}`;
   }
 
   // ===== タブ区切り変換（TSV形式） =====
@@ -484,7 +483,7 @@ JavaScript: アプリケーションロジック
     let result = '';
 
     switch (currentMode) {
-      case 'a5sql':  result = convertA5sql(lines);  break;
+      case 'a5m2':   result = convertA5m2(lines);    break;
       case 'tsv':    result = convertTsv(lines);    break;
       case 'sql-in': result = convertSqlIn(lines);  break;
     }
