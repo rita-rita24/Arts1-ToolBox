@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KAIK バッチ変換</title>
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%232563eb' d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z'/></svg>">
+
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+  <style>
+    /* ========================================
+       カラーテーマ
+       ======================================== */
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --danger: #dc2626;
+      --danger-hover: #b91c1c;
+      --success: #16a34a;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --header-bg: #f1f5f9;
+      --mode-csv: #2563eb;
+      --mode-txt: #7c3aed;
+    }
+
+    [data-theme="dark"] {
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --danger: #ef4444;
+      --danger-hover: #f87171;
+      --success: #22c55e;
+      --bg: #000000;
+      --surface: #121212;
+      --border: #404040;
+      --text: #ffffff;
+      --text-muted: #a3a3a3;
+      --header-bg: #262626;
+      --mode-csv: #3b82f6;
+      --mode-txt: #a78bfa;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      font-size: 1.25em;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* ========================================
+       ヘッダー
+       ======================================== */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .header h1 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .header h1 .material-symbols-outlined {
+      font-size: 1.75rem;
+      color: var(--primary);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 12px;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .stats .value {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+
+    .theme-toggle:hover { background: var(--header-bg); }
+
+    /* ========================================
+       ボタン共通
+       ======================================== */
+    .btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      color: var(--text);
+      font-size: 13px;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+
+    .btn:hover { background: var(--header-bg); }
+
+    .btn-primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+
+    .btn-danger {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: #fff;
+    }
+
+    .btn-danger:hover { background: var(--danger-hover); border-color: var(--danger-hover); }
+
+    /* ========================================
+       フォーマットバッジ
+       ======================================== */
+    .fmt-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .fmt-badge.csv { background: var(--mode-csv); color: #fff; }
+    .fmt-badge.txt { background: var(--mode-txt); color: #fff; }
+
+    /* ========================================
+       変換エリア（2ペイン）
+       ======================================== */
+    .conversion-area {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+    }
+
+    .panel-label { color: var(--text-muted); font-size: 12px; margin-left: auto; }
+
+    .fmt-toggle {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .fmt-toggle button {
+      border: none;
+      border-radius: 0;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--surface);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .fmt-toggle button.active-csv {
+      background: var(--mode-csv);
+      color: #fff;
+    }
+
+    .fmt-toggle button.active-txt {
+      background: var(--mode-txt);
+      color: #fff;
+    }
+
+    .fmt-toggle button:not(:first-child) {
+      border-left: 1px solid var(--border);
+    }
+
+    textarea {
+      width: 100%;
+      height: 300px;
+      resize: vertical;
+      border: none;
+      padding: 10px 12px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 12px;
+      background: var(--surface);
+      color: var(--text);
+      outline: none;
+      line-height: 1.5;
+    }
+
+    textarea::placeholder { color: var(--text-muted); }
+
+    .panel-footer {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 10px;
+      background: var(--header-bg);
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .panel-footer .ml-auto { margin-left: auto; }
+
+    /* ========================================
+       中央変換コントロール
+       ======================================== */
+    .convert-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 0;
+      min-width: 56px;
+    }
+
+    .convert-arrow {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 20px;
+      transition: all 0.15s;
+      width: 40px;
+      height: 40px;
+    }
+
+    .convert-arrow:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    /* ========================================
+       統計バー
+       ======================================== */
+    .stats-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 16px;
+      display: flex;
+      gap: 20px;
+      font-size: 12px;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+
+    .stats-bar .stat-item { display: flex; gap: 4px; align-items: center; }
+    .stats-bar .stat-val { font-weight: 600; color: var(--text); }
+
+    /* ========================================
+       プレビューテーブル
+       ======================================== */
+    .preview-header {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .preview-header:hover { background: var(--header-bg); }
+
+    .preview-toggle-icon {
+      margin-left: auto;
+      color: var(--text-muted);
+      transition: transform 0.2s;
+    }
+
+    .preview-toggle-icon.open { transform: rotate(180deg); }
+
+    .preview-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .table-wrapper {
+      overflow: auto;
+      max-height: 400px;
+    }
+
+    table {
+      border-collapse: collapse;
+      white-space: nowrap;
+      font-size: 12px;
+      width: 100%;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: var(--header-bg);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 11px;
+      z-index: 1;
+    }
+
+    th .field-len {
+      font-weight: 400;
+      color: var(--text-muted);
+      font-size: 10px;
+      margin-left: 4px;
+    }
+
+    td {
+      border: 1px solid var(--border);
+      padding: 3px 8px;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: 'Consolas', 'Courier New', monospace;
+    }
+
+    td.over-limit { background: #fef2f2; color: var(--danger); }
+    [data-theme="dark"] td.over-limit { background: #3f0000; }
+
+    tr:nth-child(even) td { background: var(--header-bg); }
+    tr:nth-child(even) td.over-limit { background: #fef2f2; }
+    [data-theme="dark"] tr:nth-child(even) td.over-limit { background: #3f0000; }
+
+    /* ========================================
+       トースト
+       ======================================== */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: #1e293b;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.25);
+      animation: slideIn 0.2s ease;
+      pointer-events: auto;
+    }
+
+    .toast.success { border-left: 4px solid var(--success); }
+    .toast.error   { border-left: 4px solid var(--danger); }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========================================
+       レスポンシブ
+       ======================================== */
+    @media (max-width: 768px) {
+      .conversion-area {
+        grid-template-columns: 1fr;
+      }
+
+      .convert-center {
+        flex-direction: row;
+        justify-content: center;
+        padding: 0;
+      }
+
+      .convert-arrow { width: 36px; height: 36px; font-size: 16px; }
+
+      textarea { height: 200px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- ヘッダー -->
+    <header class="header">
+      <h1>
+        <span class="material-symbols-outlined">swap_horiz</span>
+        KAIK バッチ変換
+      </h1>
+      <div class="header-right">
+        <div class="stats" id="statsHeader">
+          <span>行: <span class="value" id="rowCount">0</span></span>
+          <span>列: <span class="value" id="colCount">0</span></span>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()" title="ダークモード切替">
+          <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 変換エリア -->
+    <div class="conversion-area">
+
+      <!-- 入力パネル -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="fmt-badge csv" id="inputBadge">CSV</span>
+          <span>入力</span>
+          <div class="fmt-toggle" style="margin-left: auto;">
+            <button id="inputCsvBtn" class="active-csv" onclick="setInputFormat('csv')">CSV</button>
+            <button id="inputTxtBtn" onclick="setInputFormat('txt')">TXT</button>
+          </div>
+        </div>
+        <textarea id="inputArea"
+          placeholder="CSVまたはTXT固定長データをここに貼り付け&#10;（入力後に自動変換します）"
+          oninput="onInputChange()"></textarea>
+        <div class="panel-footer">
+          <button class="btn" onclick="pasteFromClipboard()">
+            <span class="material-symbols-outlined">content_paste</span> 貼り付け
+          </button>
+          <button class="btn btn-danger" onclick="clearInput()">
+            <span class="material-symbols-outlined">delete</span> クリア
+          </button>
+          <span class="panel-label" id="inputInfo"></span>
+        </div>
+      </div>
+
+      <!-- 中央コントロール -->
+      <div class="convert-center">
+        <button class="convert-arrow" onclick="swapPanels()" title="入出力を入れ替え">
+          <span class="material-symbols-outlined">swap_horiz</span>
+        </button>
+      </div>
+
+      <!-- 出力パネル -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="fmt-badge txt" id="outputBadge">TXT</span>
+          <span>変換結果</span>
+          <span class="panel-label" id="outputInfo"></span>
+        </div>
+        <textarea id="outputArea" readonly
+          placeholder="変換結果がここに表示されます"></textarea>
+        <div class="panel-footer">
+          <button class="btn btn-primary" onclick="copyOutput()">
+            <span class="material-symbols-outlined">content_copy</span> コピー
+          </button>
+          <button class="btn" onclick="downloadOutput()">
+            <span class="material-symbols-outlined">save</span> 保存
+          </button>
+          <span class="panel-label" id="outputSize"></span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 統計バー -->
+    <div class="stats-bar" id="statsBar" style="display:none">
+      <div class="stat-item">
+        <span>入力行数:</span>
+        <span class="stat-val" id="statInputRows">-</span>
+      </div>
+      <div class="stat-item">
+        <span>変換後行数:</span>
+        <span class="stat-val" id="statOutputRows">-</span>
+      </div>
+      <div class="stat-item">
+        <span>フィールド数:</span>
+        <span class="stat-val" id="statCols">-</span>
+      </div>
+      <div class="stat-item">
+        <span>TXT 1行バイト数:</span>
+        <span class="stat-val" id="statRecordLen">-</span>
+        <span>（データ） + 2（CRLF）</span>
+      </div>
+      <div class="stat-item">
+        <span>桁超過セル:</span>
+        <span class="stat-val" id="statOverLimit">-</span>
+      </div>
+    </div>
+
+    <!-- プレビュートグル -->
+    <div class="preview-header" onclick="togglePreview()" id="previewToggle" style="display:none">
+      <span class="material-symbols-outlined">table_view</span>
+      <span>プレビュー</span>
+      <span class="preview-toggle-icon material-symbols-outlined" id="previewIcon">expand_more</span>
+    </div>
+
+    <!-- プレビューテーブル -->
+    <div class="preview-section" id="previewSection" style="display:none">
+      <div class="table-wrapper">
+        <table id="previewTable"></table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- トースト -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    // ============================================================
+    // フィールド定義（TXT_FIELDS が唯一の正）
+    // ============================================================
+    //
+    // ・name   : フィールド名（CSV ヘッダーにも使用）
+    // ・length : TXT 固定長フィールドの文字数（半角基準）
+    // ※ 配列の順序 = ファイル上の左から右への並び順
+    //
+    const TXT_FIELDS = [
+      { name: '従業員コード',               length: 6  },
+      { name: '伝票年月日',                 length: 8  },
+      { name: '伝票発番グループコード',       length: 2  },
+      { name: '組番号',                     length: 5  },
+      { name: '伝票種別',                   length: 1  },
+      { name: '振込区分',                   length: 1  },
+      { name: '出納年月日',                 length: 8  },
+      { name: '原価センタコード',             length: 8  },
+      { name: '勘定科目コード',               length: 9  },
+      { name: '取引タイプ',                  length: 3  },
+      { name: '計上区分',                   length: 1  },
+      { name: '機能領域',                   length: 8  },
+      { name: '別記科目',                   length: 4  },
+      { name: '設備コストグループコード',     length: 10 },
+      { name: '建仮件名・款コード',           length: 6  },
+      { name: '受注用工事件名コード',         length: 6  },
+      { name: '予算責任単位コード',           length: 8  },
+      { name: '事業コード',                  length: 4  },
+      { name: '取引先コード',                length: 6  },
+      { name: '振込先銀行区分',              length: 2  },
+      { name: '取引銀行コード',              length: 3  },
+      { name: '貸借区分',                   length: 1  },
+      { name: '税抜金額',                   length: 13 },
+      { name: '消費税コード',                length: 2  },
+      { name: '内税区分',                   length: 1  },
+      { name: '消費税額',                   length: 13 },
+      { name: '数量',                       length: 9  },
+      { name: '単位',                       length: 6  },
+      { name: '修正元対象年月',              length: 6  },
+      { name: '修正元伝票発番グループコード', length: 2  },
+      { name: '修正元組番号',               length: 5  },
+      { name: '入力担当者コード',             length: 6  },
+      { name: '振込先従業員コード',           length: 6  },
+      { name: '振替取引先',                  length: 6  },
+      { name: '振替振込先銀行区分',           length: 2  },
+      { name: '入力責任単位コード',           length: 8  },
+      { name: '予備',                       length: 1  },
+      { name: '摘要',                       length: 50 },
+    ];
+
+    // CSV ヘッダー = TXT フィールド名（TXT_FIELDS が正）
+    const CSV_HEADERS = TXT_FIELDS.map(f => f.name);
+
+    // TXT 1レコードの総文字数（CRLF を除く）
+    const RECORD_LEN = TXT_FIELDS.reduce((s, f) => s + f.length, 0);
+
+    // ============================================================
+    // 状態
+    // ============================================================
+    let inputFormat = 'csv';   // 'csv' | 'txt'
+    let parsedData  = [];      // 2次元配列（ヘッダーなし）
+    let convertTimer = null;
+
+    function getOutputFormat() {
+      return inputFormat === 'csv' ? 'txt' : 'csv';
+    }
+
+    // ============================================================
+    // テーマ
+    // ============================================================
+    (function initTheme() {
+      const saved = localStorage.getItem('kaikBatch_theme');
+      const dark  = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(saved || (dark ? 'dark' : 'light'));
+    })();
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      document.getElementById('themeIcon').textContent =
+        theme === 'dark' ? 'light_mode' : 'dark_mode';
+      localStorage.setItem('kaikBatch_theme', theme);
+    }
+
+    function toggleTheme() {
+      const cur = document.documentElement.getAttribute('data-theme');
+      setTheme(cur === 'dark' ? 'light' : 'dark');
+    }
+
+    // ============================================================
+    // フォーマット切り替え
+    // ============================================================
+    function setInputFormat(fmt) {
+      inputFormat = fmt;
+      _updateFormatUI();
+      if (document.getElementById('inputArea').value.trim()) convert();
+    }
+
+    function _updateFormatUI() {
+      const outFmt = getOutputFormat();
+
+      // 入力バッジ
+      const ib = document.getElementById('inputBadge');
+      ib.textContent = inputFormat.toUpperCase();
+      ib.className = `fmt-badge ${inputFormat}`;
+
+      // 入力フォーマットトグルボタン
+      document.getElementById('inputCsvBtn').className =
+        inputFormat === 'csv' ? 'active-csv' : '';
+      document.getElementById('inputTxtBtn').className =
+        inputFormat === 'txt' ? 'active-txt' : '';
+
+      // 出力バッジ
+      const ob = document.getElementById('outputBadge');
+      ob.textContent = outFmt.toUpperCase();
+      ob.className = `fmt-badge ${outFmt}`;
+
+      // プレースホルダー
+      document.getElementById('inputArea').placeholder =
+        inputFormat === 'csv'
+          ? 'CSVデータをここに貼り付け（ヘッダー行は自動スキップ）\n（入力後に自動変換します）'
+          : `TXT固定長データをここに貼り付け（1行 ${RECORD_LEN} 文字 + CRLF）\n（入力後に自動変換します）`;
+    }
+
+    // ============================================================
+    // 入力変化 → デバウンス変換
+    // ============================================================
+    function onInputChange() {
+      clearTimeout(convertTimer);
+      convertTimer = setTimeout(convert, 400);
+    }
+
+    // ============================================================
+    // パーサー
+    // ============================================================
+
+    /** CSV テキスト → 2次元配列（ヘッダー行は自動スキップ） */
+    function parseCSV(text) {
+      const rows = [];
+      const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (line === '') continue;
+
+        const fields = _splitCSVLine(line);
+
+        // 先頭行が CSV_HEADERS と一致する場合はスキップ
+        if (rows.length === 0) {
+          const isHeader =
+            fields.length === CSV_HEADERS.length &&
+            fields.every((v, j) => v.trim() === CSV_HEADERS[j]);
+          if (isHeader) continue;
+        }
+
+        // 列数を TXT_FIELDS に合わせる
+        const normalized = fields.slice(0, TXT_FIELDS.length);
+        while (normalized.length < TXT_FIELDS.length) normalized.push('');
+        rows.push(normalized);
+      }
+      return rows;
+    }
+
+    /** CSV 1行をフィールド配列に分割（RFC 4180 準拠） */
+    function _splitCSVLine(line) {
+      const fields = [];
+      let cur = '';
+      let inQuote = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (inQuote) {
+          if (ch === '"') {
+            if (line[i + 1] === '"') { cur += '"'; i++; }
+            else inQuote = false;
+          } else {
+            cur += ch;
+          }
+        } else {
+          if (ch === '"') { inQuote = true; }
+          else if (ch === ',') { fields.push(cur); cur = ''; }
+          else { cur += ch; }
+        }
+      }
+      fields.push(cur);
+      return fields;
+    }
+
+    /** TXT 固定長テキスト → 2次元配列 */
+    function parseTXT(text) {
+      const rows = [];
+      const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+
+      for (const raw of lines) {
+        // 末尾スペースを保持しつつ空行はスキップ
+        if (raw.trim() === '') continue;
+
+        const row = [];
+        let offset = 0;
+        for (const field of TXT_FIELDS) {
+          row.push(raw.substr(offset, field.length) || '');
+          offset += field.length;
+        }
+        rows.push(row);
+      }
+      return rows;
+    }
+
+    // ============================================================
+    // ジェネレーター
+    // ============================================================
+
+    /** 2次元配列 → CSV テキスト（ヘッダーなし） */
+    function toCSV(rows) {
+      return rows.map(row =>
+        row.map((v, i) => _quoteCSVField(v)).join(',')
+      ).join('\n') + '\n';
+    }
+
+    function _quoteCSVField(val) {
+      if (/[,"\r\n]/.test(val)) {
+        return '"' + val.replace(/"/g, '""') + '"';
+      }
+      return val;
+    }
+
+    /** 2次元配列 → TXT 固定長テキスト（各行末 CRLF 付き） */
+    function toTXT(rows) {
+      return rows.map(row =>
+        TXT_FIELDS.map((field, i) => {
+          const val = (row[i] || '').substring(0, field.length);
+          return val.padEnd(field.length, ' ');
+        }).join('') + '\r\n'
+      ).join('');
+    }
+
+    // ============================================================
+    // 変換実行
+    // ============================================================
+    function convert() {
+      const input = document.getElementById('inputArea').value;
+      const outFmt = getOutputFormat();
+
+      if (!input.trim()) {
+        parsedData = [];
+        document.getElementById('outputArea').value = '';
+        _updateStats();
+        _hidePreview();
+        return;
+      }
+
+      // パース
+      parsedData = inputFormat === 'csv' ? parseCSV(input) : parseTXT(input);
+
+      // 生成
+      const output = outFmt === 'csv' ? toCSV(parsedData) : toTXT(parsedData);
+      document.getElementById('outputArea').value = output;
+
+      _updateStats();
+      _renderPreview();
+    }
+
+    // ============================================================
+    // UI 更新
+    // ============================================================
+    function _updateStats() {
+      const rows = parsedData.length;
+      const cols = TXT_FIELDS.length;
+      const outFmt = getOutputFormat();
+      const outputText = document.getElementById('outputArea').value;
+      const bytes = new Blob([outputText]).size;
+
+      document.getElementById('rowCount').textContent = rows;
+      document.getElementById('colCount').textContent = cols;
+
+      const statsBar = document.getElementById('statsBar');
+      if (rows === 0) {
+        statsBar.style.display = 'none';
+        document.getElementById('previewToggle').style.display = 'none';
+        return;
+      }
+
+      statsBar.style.display = 'flex';
+      document.getElementById('previewToggle').style.display = 'flex';
+
+      document.getElementById('statInputRows').textContent = rows;
+      document.getElementById('statOutputRows').textContent = rows;
+      document.getElementById('statCols').textContent = cols;
+      document.getElementById('statRecordLen').textContent = RECORD_LEN;
+
+      // 桁超過カウント
+      let overCount = 0;
+      for (const row of parsedData) {
+        for (let j = 0; j < TXT_FIELDS.length; j++) {
+          if ((row[j] || '').length > TXT_FIELDS[j].length) overCount++;
+        }
+      }
+      document.getElementById('statOverLimit').textContent = overCount;
+
+      // 出力サイズ表示
+      const sizeStr = bytes < 1024 ? `${bytes} B`
+        : bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB`
+        : `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+      document.getElementById('outputSize').textContent = sizeStr;
+      document.getElementById('outputInfo').textContent =
+        `${rows} 行 / ${sizeStr}`;
+      document.getElementById('inputInfo').textContent =
+        `${rows} 行`;
+    }
+
+    // ============================================================
+    // プレビュー
+    // ============================================================
+    let previewOpen = false;
+
+    function togglePreview() {
+      previewOpen = !previewOpen;
+      document.getElementById('previewSection').style.display =
+        previewOpen ? 'block' : 'none';
+      const icon = document.getElementById('previewIcon');
+      icon.classList.toggle('open', previewOpen);
+    }
+
+    function _hidePreview() {
+      previewOpen = false;
+      document.getElementById('previewSection').style.display = 'none';
+      document.getElementById('previewToggle').style.display = 'none';
+      const icon = document.getElementById('previewIcon');
+      icon.classList.remove('open');
+    }
+
+    function _renderPreview() {
+      if (!previewOpen) return;
+
+      const table = document.getElementById('previewTable');
+      const fragment = document.createDocumentFragment();
+
+      // ヘッダー行
+      const thead = document.createElement('thead');
+      const trh = document.createElement('tr');
+      TXT_FIELDS.forEach(field => {
+        const th = document.createElement('th');
+        th.innerHTML = `${field.name}<span class="field-len">${field.length}</span>`;
+        trh.appendChild(th);
+      });
+      thead.appendChild(trh);
+      fragment.appendChild(thead);
+
+      // データ行
+      const tbody = document.createElement('tbody');
+      parsedData.forEach(row => {
+        const tr = document.createElement('tr');
+        TXT_FIELDS.forEach((field, j) => {
+          const td = document.createElement('td');
+          td.textContent = row[j] || '';
+          if ((row[j] || '').length > field.length) td.classList.add('over-limit');
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      fragment.appendChild(tbody);
+
+      table.innerHTML = '';
+      table.appendChild(fragment);
+    }
+
+
+    // ============================================================
+    // パネル入れ替え
+    // ============================================================
+    function swapPanels() {
+      const inputArea  = document.getElementById('inputArea');
+      const outputArea = document.getElementById('outputArea');
+
+      const prevOutput = outputArea.value;
+      if (!prevOutput.trim()) {
+        showToast('変換結果がありません', 'error');
+        return;
+      }
+
+      // 出力を入力へ、フォーマットを入れ替え
+      inputArea.value = prevOutput;
+      inputFormat = getOutputFormat();
+      _updateFormatUI();
+      convert();
+      showToast('入出力を入れ替えました');
+    }
+
+    // ============================================================
+    // クリップボード
+    // ============================================================
+    function pasteFromClipboard() {
+      navigator.clipboard.readText()
+        .then(text => {
+          document.getElementById('inputArea').value = text;
+          onInputChange();
+        })
+        .catch(() => showToast('クリップボードの読み取りに失敗しました', 'error'));
+    }
+
+    function copyOutput() {
+      const text = document.getElementById('outputArea').value;
+      if (!text.trim()) { showToast('コピーするデータがありません', 'error'); return; }
+      navigator.clipboard.writeText(text)
+        .then(() => showToast(`${getOutputFormat().toUpperCase()} としてコピーしました`, 'success'))
+        .catch(() => showToast('コピーに失敗しました', 'error'));
+    }
+
+    // ============================================================
+    // ファイル保存
+    // ============================================================
+    function downloadOutput() {
+      const text = document.getElementById('outputArea').value;
+      if (!text.trim()) { showToast('保存するデータがありません', 'error'); return; }
+
+      const fmt  = getOutputFormat();
+      const ext  = fmt;
+      const mime = fmt === 'csv' ? 'text/csv; charset=utf-8' : 'text/plain; charset=utf-8';
+      const bom  = '\uFEFF';
+      const blob = new Blob([bom + text], { type: mime });
+      const url  = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `kaik_${fmt}_${new Date().toISOString().slice(0, 10)}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast(`${fmt.toUpperCase()} ファイルを保存しました`, 'success');
+    }
+
+    // ============================================================
+    // クリア
+    // ============================================================
+    function clearInput() {
+      document.getElementById('inputArea').value = '';
+      document.getElementById('outputArea').value = '';
+      parsedData = [];
+      _updateStats();
+      _hidePreview();
+    }
+
+    // ============================================================
+    // トースト
+    // ============================================================
+    function showToast(msg, type = '') {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
+    }
+
+    // ============================================================
+    // 初期化
+    // ============================================================
+    _updateFormatUI();
+  </script>
+</body>
+
+</html>
