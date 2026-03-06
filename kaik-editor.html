@@ -1238,7 +1238,7 @@
         pasteNote.textContent  = 'ヘッダー行は自動的にスキップします';
       } else {
         pasteTitle.textContent = 'クリックしてTXT（固定長）データを貼り付け';
-        pasteNote.textContent  = `1行あたり ${TXT_FIELDS.reduce((s, f) => s + f.length, 0)} 文字（改行コード除く）`;
+        pasteNote.textContent  = `1行あたり ${TXT_FIELDS.reduce((s, f) => s + f.length, 0)} 文字 + 改行コード（CRLF）2文字`;
       }
     }
 
@@ -1813,8 +1813,8 @@
         // ヘッダーは表示用のみ。コピー・保存にはデータ行のみ出力
         return state.data.map(row => _rowToCSV(row)).join('\n') + '\n';
       } else {
-        // TXT固定長: 行末はCRLF
-        return state.data.map(row => _rowToTXT(row)).join('\r\n') + '\r\n';
+        // TXT固定長: 各行末に改行コード（CR+LF）を含めて出力
+        return state.data.map(row => _rowToTXT(row) + '\r\n').join('');
       }
     }
 
