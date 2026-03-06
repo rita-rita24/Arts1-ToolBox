@@ -502,6 +502,17 @@
       font-size: 0.8rem;
     }
 
+    .th-colnum {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      flex-shrink: 0;
+      background: var(--border);
+      padding: 1px 4px;
+      border-radius: 3px;
+      line-height: 1.4;
+    }
+
     .th-length {
       font-size: 0.7rem;
       color: var(--mode-txt);
@@ -982,23 +993,22 @@
       { name: '出納年月日',                 length: 8  },
       { name: '原価センタコード',             length: 8  },
       { name: '勘定科目コード',               length: 9  },
-      { name: '取引タイプ',                  length: 3  },
+      { name: '取引タイプコード',              length: 3  },
       { name: '計上区分',                   length: 1  },
       { name: '機能領域',                   length: 8  },
       { name: '別記科目',                   length: 4  },
       { name: '設備コストグループコード',     length: 10 },
       { name: '建仮件名・款コード',           length: 6  },
       { name: '受注用工事件名コード',         length: 6  },
-      { name: '予算責任単位コード',           length: 8  },
-      { name: '事業コード',                  length: 4  },
       { name: '取引先コード',                length: 6  },
       { name: '振込先銀行区分',              length: 2  },
       { name: '取引銀行コード',              length: 3  },
       { name: '貸借区分',                   length: 1  },
-      { name: '税抜金額',                   length: 13 },
+      { name: '金額',                       length: 13 },
       { name: '消費税コード',                length: 2  },
       { name: '内税区分',                   length: 1  },
       { name: '消費税額',                   length: 13 },
+      { name: '予算ID',                    length: 6  },
       { name: '数量',                       length: 9  },
       { name: '単位',                       length: 6  },
       { name: '修正元対象年月',              length: 6  },
@@ -1366,6 +1376,7 @@
           <th style="width: ${width}px; min-width: ${width}px;" data-col="${i}">
             <div class="th-wrapper">
               <div class="th-content" onclick="openColumnMenu(event, ${i})">
+                <span class="th-colnum">${i + 1}</span>
                 <span class="th-text" title="${escapeHTML(header)}">${escapeHTML(header)}</span>
                 ${isTxt ? `<span class="th-length">${field.length}</span>` : ''}
                 <span class="th-menu-btn material-symbols-outlined" style="font-size: 1.1rem;">more_vert</span>
