@@ -6,14 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KAIK バッチ変換</title>
 
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%232563eb' d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z'/></svg>">
+  <!-- ファビコン -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%232563eb' d='M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z'/></svg>">
 
+  <!-- Material Symbols アイコンフォント -->
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
   <style>
     /* ========================================
-       カラーテーマ
+       カラーテーマ設定
        ======================================== */
     :root {
       --primary: #2563eb;
@@ -21,12 +23,14 @@
       --danger: #dc2626;
       --danger-hover: #b91c1c;
       --success: #16a34a;
+      --warning: #f59e0b;
       --bg: #f8fafc;
       --surface: #ffffff;
       --border: #e2e8f0;
       --text: #1e293b;
       --text-muted: #64748b;
       --header-bg: #f1f5f9;
+      --highlight: #fef08a;
       --mode-csv: #2563eb;
       --mode-txt: #7c3aed;
     }
@@ -37,17 +41,23 @@
       --danger: #ef4444;
       --danger-hover: #f87171;
       --success: #22c55e;
+      --warning: #fbbf24;
       --bg: #000000;
       --surface: #121212;
       --border: #404040;
       --text: #ffffff;
       --text-muted: #a3a3a3;
       --header-bg: #262626;
+      --highlight: #854d0e;
       --mode-csv: #3b82f6;
       --mode-txt: #a78bfa;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     .material-symbols-outlined {
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -61,65 +71,128 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
+    }
+
+    .header h1 .material-symbols-outlined {
+      font-size: 2rem;
+      color: var(--primary);
+    }
+
+    .btn .material-symbols-outlined {
+      font-size: 1.15rem;
     }
 
     body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", sans-serif;
       background: var(--bg);
       color: var(--text);
-      font-family: system-ui, sans-serif;
-      font-size: 14px;
+      line-height: 1.6;
       min-height: 100vh;
     }
 
     .container {
-      max-width: 1400px;
+      max-width: 1600px;
       margin: 0 auto;
-      padding: 12px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      padding: 20px;
     }
 
-    /* ========================================
-       ヘッダー
-       ======================================== */
+    /* ヘッダー */
     .header {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 16px;
-      gap: 12px;
+      align-items: center;
       flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 20px;
     }
 
     .header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
-
-    .header h1 .material-symbols-outlined {
-      font-size: 1.75rem;
-      color: var(--primary);
+      gap: 12px;
     }
 
     .header-right {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* モード切り替え */
+    .mode-toggle {
+      display: flex;
+      background: var(--header-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .mode-btn {
+      padding: 6px 18px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 0.2s;
+      min-height: 32px;
+    }
+
+    .mode-btn:hover {
+      color: var(--text);
+      background: var(--border);
+    }
+
+    .mode-btn.active[data-mode="csv"] {
+      background: var(--mode-csv);
+      color: white;
+    }
+
+    .mode-btn.active[data-mode="txt"] {
+      background: var(--mode-txt);
+      color: white;
+    }
+
+    .mode-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .mode-badge.csv {
+      background: var(--mode-csv);
+      color: white;
+    }
+
+    .mode-badge.txt {
+      background: var(--mode-txt);
+      color: white;
     }
 
     .stats {
       display: flex;
-      gap: 12px;
+      gap: 16px;
+      font-size: 0.9rem;
       color: var(--text-muted);
-      font-size: 12px;
+      background: var(--surface);
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .stats span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
 
     .stats .value {
@@ -128,351 +201,601 @@
     }
 
     .theme-toggle {
-      background: none;
-      border: 1px solid var(--border);
+      width: 36px;
+      height: 36px;
       border-radius: 6px;
-      padding: 6px;
-      cursor: pointer;
-      color: var(--text-muted);
-    }
-
-    .theme-toggle:hover { background: var(--header-bg); }
-
-    /* ========================================
-       ボタン共通
-       ======================================== */
-    .btn {
+      border: 1px solid var(--border);
       background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 6px 12px;
-      cursor: pointer;
       color: var(--text);
-      font-size: 13px;
-      white-space: nowrap;
-      transition: background 0.15s;
+      cursor: pointer;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
     }
 
-    .btn:hover { background: var(--header-bg); }
+    .theme-toggle:hover {
+      background: var(--header-bg);
+    }
+
+    /* ツールバー */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 16px;
+      padding: 8px 12px;
+      background: var(--surface);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      align-items: center;
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      position: relative;
+    }
+
+    .toolbar-group:not(:last-child)::after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      margin-left: 2px;
+    }
+
+    .ml-auto {
+      margin-left: auto;
+    }
+
+    .ml-auto::after {
+      display: none !important;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      min-height: 36px;
+      background: var(--header-bg);
+      color: var(--text);
+    }
+
+    .btn:hover {
+      background: var(--border);
+    }
 
     .btn-primary {
       background: var(--primary);
-      border-color: var(--primary);
-      color: #fff;
+      color: white;
     }
 
-    .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
 
     .btn-danger {
       background: var(--danger);
-      border-color: var(--danger);
-      color: #fff;
+      color: white;
     }
 
-    .btn-danger:hover { background: var(--danger-hover); border-color: var(--danger-hover); }
-
-    /* ========================================
-       フォーマットバッジ
-       ======================================== */
-    .fmt-badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
+    .btn-danger:hover {
+      background: var(--danger-hover);
     }
 
-    .fmt-badge.csv { background: var(--mode-csv); color: #fff; }
-    .fmt-badge.txt { background: var(--mode-txt); color: #fff; }
-
-    /* ========================================
-       変換エリア（2ペイン）
-       ======================================== */
-    .conversion-area {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 10px;
-      align-items: start;
-    }
-
-    .panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .panel-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      background: var(--header-bg);
-      border-bottom: 1px solid var(--border);
-      font-weight: 600;
-    }
-
-    .panel-label { color: var(--text-muted); font-size: 12px; margin-left: auto; }
-
-    .fmt-toggle {
-      display: flex;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      overflow: hidden;
-    }
-
-    .fmt-toggle button {
-      border: none;
-      border-radius: 0;
-      padding: 4px 10px;
-      font-size: 12px;
-      font-weight: 600;
-      background: var(--surface);
-      color: var(--text-muted);
-      cursor: pointer;
-    }
-
-    .fmt-toggle button.active-csv {
-      background: var(--mode-csv);
-      color: #fff;
-    }
-
-    .fmt-toggle button.active-txt {
+    .btn-purple {
       background: var(--mode-txt);
-      color: #fff;
+      color: white;
     }
 
-    .fmt-toggle button:not(:first-child) {
-      border-left: 1px solid var(--border);
+    .btn-purple:hover {
+      background: #6d28d9;
     }
 
-    textarea {
-      width: 100%;
-      height: 300px;
-      resize: vertical;
-      border: none;
-      padding: 10px 12px;
-      font-family: 'Consolas', 'Courier New', monospace;
-      font-size: 12px;
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* 検索バー */
+    .search-bar {
+      display: none;
+      padding: 12px 16px;
       background: var(--surface);
-      color: var(--text);
-      outline: none;
-      line-height: 1.5;
-    }
-
-    textarea::placeholder { color: var(--text-muted); }
-
-    .panel-footer {
-      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      gap: 12px;
       align-items: center;
-      gap: 6px;
-      padding: 8px 10px;
-      background: var(--header-bg);
-      border-top: 1px solid var(--border);
       flex-wrap: wrap;
     }
 
-    .panel-footer .ml-auto { margin-left: auto; }
-
-    /* ========================================
-       中央変換コントロール
-       ======================================== */
-    .convert-center {
+    .search-bar.show {
       display: flex;
-      flex-direction: column;
+    }
+
+    .search-bar input {
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      background: var(--bg);
+      color: var(--text);
+      min-width: 200px;
+      height: 36px;
+    }
+
+    .search-bar input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .search-info {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .search-nav {
+      display: flex;
+      gap: 4px;
+    }
+
+    .search-nav button {
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      color: var(--text);
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      padding: 8px 0;
-      min-width: 56px;
     }
 
-    .convert-arrow {
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 8px;
-      cursor: pointer;
-      color: var(--text-muted);
-      font-size: 20px;
-      transition: all 0.15s;
-      width: 40px;
-      height: 40px;
+    .search-nav button:hover {
+      background: var(--header-bg);
     }
 
-    .convert-arrow:hover {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: #fff;
-    }
-
-    /* ========================================
-       統計バー
-       ======================================== */
-    .stats-bar {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 16px;
-      display: flex;
-      gap: 20px;
-      font-size: 12px;
-      color: var(--text-muted);
-      flex-wrap: wrap;
-    }
-
-    .stats-bar .stat-item { display: flex; gap: 4px; align-items: center; }
-    .stats-bar .stat-val { font-weight: 600; color: var(--text); }
-
-    /* ========================================
-       プレビューテーブル
-       ======================================== */
-    .preview-header {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .preview-header:hover { background: var(--header-bg); }
-
-    .preview-toggle-icon {
+    .search-close {
       margin-left: auto;
-      color: var(--text-muted);
-      transition: transform 0.2s;
     }
 
-    .preview-toggle-icon.open { transform: rotate(180deg); }
-
-    .preview-section {
+    /* ペーストエリア */
+    .paste-zone {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
       background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      overflow: hidden;
+      transition: all 0.2s;
+      cursor: pointer;
+      margin-bottom: 20px;
     }
 
-    .table-wrapper {
+    .paste-zone:hover {
+      border-color: var(--primary);
+      background: var(--header-bg);
+    }
+
+    .paste-zone h2 {
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .paste-zone p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .paste-zone.has-data {
+      display: none;
+    }
+
+    /* テーブルコンテナ */
+    .table-container {
+      display: none;
+      background: var(--surface);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .table-container.show {
+      display: block;
+    }
+
+    .table-scroll {
       overflow: auto;
-      max-height: 400px;
+      max-height: 70vh;
     }
 
     table {
+      width: max-content;
       border-collapse: collapse;
+      font-size: 0.9rem;
+      table-layout: fixed;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      text-align: left;
+      overflow: hidden;
+      text-overflow: ellipsis;
       white-space: nowrap;
-      font-size: 12px;
-      width: 100%;
     }
 
     th {
-      position: sticky;
-      top: 0;
+      padding: 0;
       background: var(--header-bg);
-      border: 1px solid var(--border);
-      padding: 4px 8px;
-      text-align: left;
       font-weight: 600;
-      font-size: 11px;
-      z-index: 1;
-    }
-
-    th .field-len {
-      font-weight: 400;
-      color: var(--text-muted);
-      font-size: 10px;
-      margin-left: 4px;
+      position: sticky;
+      top: -1px;
+      z-index: 10;
+      user-select: none;
     }
 
     td {
-      border: 1px solid var(--border);
-      padding: 3px 8px;
-      max-width: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      font-family: 'Consolas', 'Courier New', monospace;
+      padding: 10px 12px;
+      background: var(--surface);
     }
 
-    td.over-limit { background: #fef2f2; color: var(--danger); }
-    [data-theme="dark"] td.over-limit { background: #3f0000; }
+    th:hover {
+      background: var(--border);
+    }
 
-    tr:nth-child(even) td { background: var(--header-bg); }
-    tr:nth-child(even) td.over-limit { background: #fef2f2; }
-    [data-theme="dark"] tr:nth-child(even) td.over-limit { background: #3f0000; }
+    /* 列リサイズハンドル */
+    .resize-handle {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      cursor: col-resize;
+      background: transparent;
+      z-index: 100;
+    }
 
-    /* ========================================
-       トースト
-       ======================================== */
+    .resize-handle:hover,
+    .resize-handle.resizing {
+      background: var(--primary);
+    }
+
+    .th-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+    }
+
+    .th-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      cursor: pointer;
+      padding: 8px 12px;
+      flex: 1;
+      width: 100%;
+    }
+
+    .th-text {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 0.8rem;
+    }
+
+    .th-length {
+      font-size: 0.7rem;
+      color: var(--mode-txt);
+      font-weight: 700;
+      opacity: 0.8;
+      flex-shrink: 0;
+    }
+
+    .th-menu-btn {
+      padding: 4px;
+      border-radius: 4px;
+      opacity: 0.5;
+      transition: opacity 0.15s;
+    }
+
+    th:hover .th-menu-btn {
+      opacity: 1;
+    }
+
+    /* 行番号列 */
+    .row-num {
+      background: var(--header-bg);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      text-align: center;
+      width: 70px !important;
+      min-width: 70px !important;
+      max-width: 70px !important;
+      font-weight: normal;
+      padding: 0 !important;
+      position: sticky;
+      left: -1px;
+      z-index: 20;
+      border-right: 1px solid var(--border);
+    }
+
+    .row-num-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      height: 100%;
+      padding: 0 4px;
+      position: relative;
+    }
+
+    .row-num-text {
+      flex: 1;
+      text-align: center;
+    }
+
+    .row-menu-btn {
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.5;
+      transition: all 0.15s;
+    }
+
+    .row-num:hover .row-menu-btn,
+    .row-menu-btn:focus-visible {
+      opacity: 1;
+    }
+
+    .row-menu-btn:hover {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    th.row-num {
+      z-index: 30;
+      padding: 10px 0 !important;
+    }
+
+    tr:hover td:not(.row-num) {
+      background: var(--header-bg);
+    }
+
+    td[contenteditable] {
+      outline: none;
+    }
+
+    td[contenteditable]:focus,
+    td.selected {
+      background: var(--header-bg);
+      box-shadow: inset 0 0 0 2px var(--primary);
+    }
+
+    td.highlight {
+      background: var(--highlight) !important;
+    }
+
+    td.current-match {
+      background: var(--warning) !important;
+    }
+
+    /* TXTモード: 桁オーバーセル */
+    td.over-limit {
+      box-shadow: inset 0 0 0 2px var(--danger) !important;
+    }
+
+    /* 列メニュー */
+    .column-menu {
+      display: none;
+      position: absolute;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      min-width: 200px;
+      overflow: hidden;
+    }
+
+    .column-menu.show {
+      display: block;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.1s;
+    }
+
+    .menu-item:hover {
+      background: var(--header-bg);
+    }
+
+    .menu-item.danger {
+      color: var(--danger);
+    }
+
+    .menu-item.danger:hover {
+      background: #fee2e2;
+    }
+
+    [data-theme="dark"] .menu-item.danger:hover {
+      background: #262626;
+    }
+
+    .menu-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+
+    /* トースト */
     .toast-container {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2000;
       display: flex;
       flex-direction: column;
       gap: 8px;
-      z-index: 9999;
-      pointer-events: none;
     }
 
     .toast {
-      background: #1e293b;
-      color: #fff;
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      box-shadow: 0 4px 12px rgba(0,0,0,.25);
-      animation: slideIn 0.2s ease;
-      pointer-events: auto;
+      padding: 14px 24px;
+      background: var(--text);
+      color: var(--bg);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 1.2s forwards;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .toast.success { border-left: 4px solid var(--success); }
-    .toast.error   { border-left: 4px solid var(--danger); }
+    .toast.success { background: var(--success); color: white; }
+    .toast.error   { background: var(--danger); color: white; }
 
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(8px); }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(20px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ========================================
-       レスポンシブ
-       ======================================== */
+    @keyframes toastOut {
+      from { opacity: 1; }
+      to   { opacity: 0; }
+    }
+
+    /* モーダル */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 3000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--surface);
+      border-radius: 16px;
+      max-width: 400px;
+      width: 100%;
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal h3 {
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+    }
+
+    .modal p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    /* フィールド長バリデーション情報 */
+    .validation-bar {
+      display: none;
+      padding: 8px 16px;
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 0.85rem;
+      color: #92400e;
+      align-items: center;
+      gap: 8px;
+    }
+
+    [data-theme="dark"] .validation-bar {
+      background: #292524;
+      border-color: #b45309;
+      color: #fbbf24;
+    }
+
+    .validation-bar.show {
+      display: flex;
+    }
+
+    /* レスポンシブ */
     @media (max-width: 768px) {
-      .conversion-area {
-        grid-template-columns: 1fr;
-      }
-
-      .convert-center {
-        flex-direction: row;
-        justify-content: center;
-        padding: 0;
-      }
-
-      .convert-arrow { width: 36px; height: 36px; font-size: 16px; }
-
-      textarea { height: 200px; }
+      .container { padding: 12px; }
+      .header { flex-direction: column; align-items: stretch; }
+      .stats { justify-content: center; flex-wrap: wrap; }
+      .toolbar { padding: 12px; }
+      .btn { padding: 6px 12px; font-size: 0.8rem; }
+      .paste-zone { padding: 24px; }
+      th, td { padding: 8px; }
     }
   </style>
 </head>
 
 <body>
   <div class="container">
-
     <!-- ヘッダー -->
     <header class="header">
       <h1>
-        <span class="material-symbols-outlined">swap_horiz</span>
+        <span class="material-symbols-outlined">edit_document</span>
         KAIK バッチ変換
+        <span class="mode-badge csv" id="modeBadge">CSV</span>
       </h1>
       <div class="header-right">
-        <div class="stats" id="statsHeader">
+        <!-- モード切り替え -->
+        <div class="mode-toggle">
+          <button class="mode-btn active" data-mode="csv" id="csvModeBtn" onclick="switchMode('csv')">CSV形式</button>
+          <button class="mode-btn" data-mode="txt" id="txtModeBtn" onclick="switchMode('txt')">TXT固定長</button>
+        </div>
+        <!-- 統計 -->
+        <div class="stats" id="stats">
           <span>行: <span class="value" id="rowCount">0</span></span>
           <span>列: <span class="value" id="colCount">0</span></span>
+          <span>サイズ: <span class="value" id="dataSize">0 B</span></span>
         </div>
         <button class="theme-toggle" onclick="toggleTheme()" title="ダークモード切替">
           <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
@@ -480,115 +803,175 @@
       </div>
     </header>
 
-    <!-- 変換エリア -->
-    <div class="conversion-area">
-
-      <!-- 入力パネル -->
-      <div class="panel">
-        <div class="panel-header">
-          <span class="fmt-badge csv" id="inputBadge">CSV</span>
-          <span>入力</span>
-          <div class="fmt-toggle" style="margin-left: auto;">
-            <button id="inputCsvBtn" class="active-csv" onclick="setInputFormat('csv')">CSV</button>
-            <button id="inputTxtBtn" onclick="setInputFormat('txt')">TXT</button>
-          </div>
-        </div>
-        <textarea id="inputArea"
-          placeholder="CSVまたはTXT固定長データをここに貼り付け&#10;（入力後に自動変換します）"
-          oninput="onInputChange()"></textarea>
-        <div class="panel-footer">
-          <button class="btn" onclick="pasteFromClipboard()">
-            <span class="material-symbols-outlined">content_paste</span> 貼り付け
-          </button>
-          <button class="btn btn-danger" onclick="clearInput()">
-            <span class="material-symbols-outlined">delete</span> クリア
-          </button>
-          <span class="panel-label" id="inputInfo"></span>
-        </div>
+    <!-- 検索バー -->
+    <div class="search-bar" id="searchBar">
+      <input type="text" id="searchInput" placeholder="検索..." oninput="performSearch()">
+      <input type="text" id="replaceInput" placeholder="置換...">
+      <button class="btn" onclick="replaceNext()">置換</button>
+      <button class="btn" onclick="replaceAll()">すべて置換</button>
+      <div class="search-nav">
+        <button onclick="navigateMatch(-1)" title="前へ"><span class="material-symbols-outlined">expand_less</span></button>
+        <button onclick="navigateMatch(1)" title="次へ"><span class="material-symbols-outlined">expand_more</span></button>
       </div>
+      <span class="search-info" id="searchInfo"></span>
+      <button class="btn search-close" onclick="closeSearch()"><span class="material-symbols-outlined">close</span></button>
+    </div>
 
-      <!-- 中央コントロール -->
-      <div class="convert-center">
-        <button class="convert-arrow" onclick="swapPanels()" title="入出力を入れ替え">
-          <span class="material-symbols-outlined">swap_horiz</span>
+    <!-- TXTモード 桁数警告 -->
+    <div class="validation-bar" id="validationBar">
+      <span class="material-symbols-outlined">warning</span>
+      <span id="validationMsg">一部のフィールドが最大桁数を超えています。赤枠のセルを確認してください。</span>
+    </div>
+
+    <!-- ツールバー -->
+    <div class="toolbar">
+      <!-- 履歴 -->
+      <div class="toolbar-group">
+        <button class="btn" id="undoBtn" onclick="undo()" disabled title="元に戻す">
+          <span class="material-symbols-outlined">undo</span>
+        </button>
+        <button class="btn" id="redoBtn" onclick="redo()" disabled title="やり直し">
+          <span class="material-symbols-outlined">redo</span>
         </button>
       </div>
 
-      <!-- 出力パネル -->
-      <div class="panel">
-        <div class="panel-header">
-          <span class="fmt-badge txt" id="outputBadge">TXT</span>
-          <span>変換結果</span>
-          <span class="panel-label" id="outputInfo"></span>
-        </div>
-        <textarea id="outputArea" readonly
-          placeholder="変換結果がここに表示されます"></textarea>
-        <div class="panel-footer">
-          <button class="btn btn-primary" onclick="copyOutput()">
-            <span class="material-symbols-outlined">content_copy</span> コピー
-          </button>
-          <button class="btn" onclick="downloadOutput()">
-            <span class="material-symbols-outlined">save</span> 保存
-          </button>
-          <span class="panel-label" id="outputSize"></span>
-        </div>
+      <!-- 編集 -->
+      <div class="toolbar-group">
+        <button class="btn" onclick="triggerPaste()" title="クリップボードから貼り付け">
+          <span class="material-symbols-outlined">content_paste</span> 貼り付け
+        </button>
+        <button class="btn" onclick="addRow()" title="行を追加">
+          <span class="material-symbols-outlined">add_box</span> 行追加
+        </button>
       </div>
 
-    </div>
+      <!-- 検索 -->
+      <div class="toolbar-group">
+        <button class="btn" onclick="openSearch()" title="検索・置換 (Ctrl+F)">
+          <span class="material-symbols-outlined">search</span> 検索
+        </button>
+      </div>
 
-    <!-- 統計バー -->
-    <div class="stats-bar" id="statsBar" style="display:none">
-      <div class="stat-item">
-        <span>入力行数:</span>
-        <span class="stat-val" id="statInputRows">-</span>
+      <!-- エクスポート（モードに応じて変化） -->
+      <div class="toolbar-group" id="exportGroup">
+        <button class="btn" id="copyBtn" onclick="copyData()" title="クリップボードにコピー">
+          <span class="material-symbols-outlined">content_copy</span>
+          <span id="copyBtnLabel">CSVコピー</span>
+        </button>
+        <button class="btn" id="downloadBtn" onclick="downloadData()" title="ファイルとして保存">
+          <span class="material-symbols-outlined">save</span>
+          <span id="downloadBtnLabel">CSV保存</span>
+        </button>
       </div>
-      <div class="stat-item">
-        <span>変換後行数:</span>
-        <span class="stat-val" id="statOutputRows">-</span>
-      </div>
-      <div class="stat-item">
-        <span>フィールド数:</span>
-        <span class="stat-val" id="statCols">-</span>
-      </div>
-      <div class="stat-item">
-        <span>TXT 1行バイト数:</span>
-        <span class="stat-val" id="statRecordLen">-</span>
-        <span>（データ） + 2（CRLF）</span>
-      </div>
-      <div class="stat-item">
-        <span>桁超過セル:</span>
-        <span class="stat-val" id="statOverLimit">-</span>
+
+      <!-- クリア -->
+      <div class="toolbar-group ml-auto">
+        <button class="btn btn-danger" onclick="confirmClearAll()" title="すべてクリア">
+          <span class="material-symbols-outlined">delete</span> クリア
+        </button>
       </div>
     </div>
 
-    <!-- プレビュートグル -->
-    <div class="preview-header" onclick="togglePreview()" id="previewToggle" style="display:none">
-      <span class="material-symbols-outlined">table_view</span>
-      <span>プレビュー</span>
-      <span class="preview-toggle-icon material-symbols-outlined" id="previewIcon">expand_more</span>
+    <!-- ペーストエリア -->
+    <div class="paste-zone" id="pasteZone" tabindex="0" onclick="triggerPaste()">
+      <span class="material-symbols-outlined"
+        style="font-size: 48px; color: var(--text-muted); margin-bottom: 16px;">content_paste</span>
+      <h2 id="pasteZoneTitle">クリックしてCSVデータを貼り付け</h2>
+      <p>Ctrl+V でもペーストできます</p>
+      <p id="pasteZoneNote" style="margin-top: 8px; font-size: 0.8rem; color: var(--text-muted);">
+        ヘッダー行は自動的にスキップします
+      </p>
     </div>
 
-    <!-- プレビューテーブル -->
-    <div class="preview-section" id="previewSection" style="display:none">
-      <div class="table-wrapper">
-        <table id="previewTable"></table>
+    <!-- テーブル -->
+    <div class="table-container" id="tableContainer">
+      <div class="table-scroll" id="tableScroll">
+        <table id="dataTable">
+          <thead id="tableHead"></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
       </div>
     </div>
+  </div>
 
+  <!-- 列メニュー -->
+  <div class="column-menu" id="columnMenu">
+    <div class="menu-item" onclick="sortColumn('asc')">
+      <span class="material-symbols-outlined">arrow_upward</span> 昇順に並び替え
+    </div>
+    <div class="menu-item" onclick="sortColumn('desc')">
+      <span class="material-symbols-outlined">arrow_downward</span> 降順に並び替え
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" onclick="copyColumn()">
+      <span class="material-symbols-outlined">content_copy</span> 列をコピー
+    </div>
+  </div>
+
+  <!-- 行メニュー -->
+  <div class="column-menu" id="rowMenu">
+    <div class="menu-item" onclick="copyRow()">
+      <span class="material-symbols-outlined">content_copy</span> 行をコピー
+    </div>
+    <div class="menu-item" onclick="duplicateRow()">
+      <span class="material-symbols-outlined">content_copy</span> 行を複製
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item danger" onclick="confirmDeleteRowFromMenu()">
+      <span class="material-symbols-outlined">delete</span> 行を削除
+    </div>
   </div>
 
   <!-- トースト -->
   <div class="toast-container" id="toastContainer"></div>
 
+  <!-- 確認モーダル -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h3 id="modalTitle">確認</h3>
+      <p id="modalMessage"></p>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeModal()">キャンセル</button>
+        <button class="btn btn-danger" id="modalConfirmBtn">確認</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ============================================================
-    // フィールド定義（TXT_FIELDS が唯一の正）
+    // 定数: 固定ヘッダー定義
     // ============================================================
     //
-    // ・name   : フィールド名（CSV ヘッダーにも使用）
-    // ・length : TXT 固定長フィールドの文字数（半角基準）
-    // ※ 配列の順序 = ファイル上の左から右への並び順
+    // 【メンテナンス方法】
     //
+    // ▼ CSV形式のヘッダーを変更する場合
+    //   → 下の「CSV_HEADERS」配列を編集してください。
+    //   ・列を追加: 配列の末尾（または任意の位置）に文字列を追加する
+    //       例: '新しい項目名',
+    //   ・列を削除: 該当行をそのまま削除する
+    //   ・列名を変更: 該当行の文字列を書き換える
+    //   ※ 列の順序がCSVファイルの列順序と一致するように注意してください。
+    //
+    // ▼ TXT固定長のフィールドを変更する場合
+    //   → 下の「TXT_FIELDS」配列を編集してください。
+    //   各要素は { name: 'フィールド名', length: 桁数 } の形式です。
+    //   ・フィールドを追加: 配列の任意の位置に要素を追加する
+    //       例: { name: '新フィールド', length: 4 },
+    //   ・フィールドを削除: 該当行をそのまま削除する
+    //   ・フィールド名を変更: name の文字列を書き換える
+    //   ・桁数を変更: length の数値を書き換える
+    //   ※ フィールドの順序と桁数はTXTファイルのレイアウト仕様と
+    //      厳密に一致させてください。桁数がずれると他フィールドの
+    //      読み取り位置もすべてずれます。
+    //   ※ 末尾の改行コード（CRLF = 2バイト）はフィールド定義に
+    //      含めません。エクスポート時に自動付与されます。
+    //
+    // ============================================================
+
+    // TXT固定長フィールド定義
+    // ・name   : 画面表示用のフィールド名（任意の文字列）
+    // ・length : フィールドの文字数（半角基準）
+    // ※ 配列の順序 = ファイル上の左から右への並び順
     const TXT_FIELDS = [
       { name: '従業員コード',               length: 6  },
       { name: '伝票年月日',                 length: 8  },
@@ -627,418 +1010,992 @@
       { name: '振替振込先銀行区分',           length: 2  },
       { name: '入力責任単位コード',           length: 8  },
       { name: '予備',                       length: 1  },
-      { name: '摘要',                       length: 50 },
+      { name: '摘要',                       length: 50 }
     ];
 
     // CSV ヘッダー = TXT フィールド名（TXT_FIELDS が正）
     const CSV_HEADERS = TXT_FIELDS.map(f => f.name);
 
-    // TXT 1レコードの総文字数（CRLF を除く）
-    const RECORD_LEN = TXT_FIELDS.reduce((s, f) => s + f.length, 0);
+    // ============================================================
+    // 状態管理
+    // ============================================================
+
+    let state = {
+      mode: 'csv',      // 'csv' or 'txt'
+      data: [],         // 2次元配列（ヘッダーを含まないデータ行）
+      columnWidths: {}  // 各列の幅
+    };
+
+    let undoStack = [];
+    let redoStack = [];
+    const MAX_HISTORY = 20;
+
+    let activeColumnIndex = -1;
+    let activeRowIndex = -1;
+
+    let searchMatches = [];
+    let currentMatchIndex = -1;
+
+    let isResizing = false;
+    let resizeColumnIndex = -1;
+    let resizeStartX = 0;
+    let resizeStartWidth = 0;
 
     // ============================================================
-    // 状態
+    // 初期化
     // ============================================================
-    let inputFormat = 'csv';   // 'csv' | 'txt'
-    let parsedData  = [];      // 2次元配列（ヘッダーなし）
-    let convertTimer = null;
 
-    function getOutputFormat() {
-      return inputFormat === 'csv' ? 'txt' : 'csv';
+    document.addEventListener('DOMContentLoaded', () => {
+      initEventListeners();
+      initTheme();
+      loadFromStorage();
+      updateModeUI();
+    });
+
+    function initEventListeners() {
+      document.addEventListener('keydown', handleKeyDown);
+      document.addEventListener('paste', handlePaste);
+      document.addEventListener('mousemove', handleResizeMove);
+      document.addEventListener('mouseup', handleResizeEnd);
+      document.addEventListener('click', () => {
+        closeColumnMenu();
+        closeRowMenu();
+      });
     }
 
     // ============================================================
-    // テーマ
+    // キーボード操作
     // ============================================================
-    (function initTheme() {
-      const saved = localStorage.getItem('kaikBatch_theme');
-      const dark  = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(saved || (dark ? 'dark' : 'light'));
-    })();
 
-    function setTheme(theme) {
-      document.documentElement.setAttribute('data-theme', theme);
-      document.getElementById('themeIcon').textContent =
-        theme === 'dark' ? 'light_mode' : 'dark_mode';
-      localStorage.setItem('kaikBatch_theme', theme);
+    function handleKeyDown(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault(); undo(); return;
+      }
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        e.preventDefault(); redo(); return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault(); openSearch(); return;
+      }
+      if (e.key === 'Escape') {
+        closeSearch(); return;
+      }
+      const activeElement = document.activeElement;
+      if (activeElement.tagName === 'TD' && activeElement.isContentEditable) {
+        handleCellNavigation(e, activeElement);
+      }
+    }
+
+    function handleCellNavigation(e, cell) {
+      const row = parseInt(cell.dataset.row);
+      const col = parseInt(cell.dataset.col);
+      const colCount = getCurrentHeaders().length;
+      let newRow = row;
+      let newCol = col;
+      let shouldMove = false;
+
+      switch (e.key) {
+        case 'Tab':
+          e.preventDefault();
+          if (e.shiftKey) {
+            newCol = col - 1;
+            if (newCol < 0) { newCol = colCount - 1; newRow = row - 1; }
+          } else {
+            newCol = col + 1;
+            if (newCol >= colCount) { newCol = 0; newRow = row + 1; }
+          }
+          shouldMove = true;
+          break;
+        case 'Enter':
+          if (!e.shiftKey) { e.preventDefault(); newRow = row + 1; shouldMove = true; }
+          break;
+        case 'ArrowUp':
+          if (e.altKey) { e.preventDefault(); newRow = row - 1; shouldMove = true; }
+          break;
+        case 'ArrowDown':
+          if (e.altKey) { e.preventDefault(); newRow = row + 1; shouldMove = true; }
+          break;
+        case 'ArrowLeft':
+          if (e.altKey) { e.preventDefault(); newCol = col - 1; shouldMove = true; }
+          break;
+        case 'ArrowRight':
+          if (e.altKey) { e.preventDefault(); newCol = col + 1; shouldMove = true; }
+          break;
+      }
+
+      if (shouldMove) {
+        if (newRow >= 0 && newRow < state.data.length && newCol >= 0 && newCol < colCount) {
+          const newCell = document.querySelector(`td[data-row="${newRow}"][data-col="${newCol}"]`);
+          if (newCell) newCell.focus();
+        }
+      }
+    }
+
+    // ============================================================
+    // テーマ切り替え
+    // ============================================================
+
+    function initTheme() {
+      const saved = localStorage.getItem('kaikBatch_theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(saved || (prefersDark ? 'dark' : 'light'));
     }
 
     function toggleTheme() {
-      const cur = document.documentElement.getAttribute('data-theme');
-      setTheme(cur === 'dark' ? 'light' : 'dark');
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      setTheme(next);
+      localStorage.setItem('kaikBatch_theme', next);
+    }
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      document.getElementById('themeIcon').textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
     }
 
     // ============================================================
-    // フォーマット切り替え
+    // モード切り替え
     // ============================================================
-    function setInputFormat(fmt) {
-      inputFormat = fmt;
-      _updateFormatUI();
-      if (document.getElementById('inputArea').value.trim()) convert();
+
+    function switchMode(newMode) {
+      if (state.mode === newMode) return;
+      state.mode = newMode;
+      state.columnWidths = {};
+      updateModeUI();
+      renderTable();
+      updateStats();
+      saveToStorage();
     }
 
-    function _updateFormatUI() {
-      const outFmt = getOutputFormat();
+    function updateModeUI() {
+      const isCsv = state.mode === 'csv';
 
-      // 入力バッジ
-      const ib = document.getElementById('inputBadge');
-      ib.textContent = inputFormat.toUpperCase();
-      ib.className = `fmt-badge ${inputFormat}`;
+      document.getElementById('csvModeBtn').classList.toggle('active', isCsv);
+      document.getElementById('txtModeBtn').classList.toggle('active', !isCsv);
 
-      // 入力フォーマットトグルボタン
-      document.getElementById('inputCsvBtn').className =
-        inputFormat === 'csv' ? 'active-csv' : '';
-      document.getElementById('inputTxtBtn').className =
-        inputFormat === 'txt' ? 'active-txt' : '';
+      const badge = document.getElementById('modeBadge');
+      badge.textContent = isCsv ? 'CSV' : 'TXT固定長';
+      badge.className = `mode-badge ${isCsv ? 'csv' : 'txt'}`;
 
-      // 出力バッジ
-      const ob = document.getElementById('outputBadge');
-      ob.textContent = outFmt.toUpperCase();
-      ob.className = `fmt-badge ${outFmt}`;
+      document.getElementById('copyBtnLabel').textContent = isCsv ? 'CSVコピー' : 'TXTコピー';
+      document.getElementById('downloadBtnLabel').textContent = isCsv ? 'CSV保存' : 'TXT保存';
 
-      // プレースホルダー
-      document.getElementById('inputArea').placeholder =
-        inputFormat === 'csv'
-          ? 'CSVデータをここに貼り付け（ヘッダー行は自動スキップ）\n（入力後に自動変換します）'
-          : `TXT固定長データをここに貼り付け（1行 ${RECORD_LEN} 文字 + CRLF）\n（入力後に自動変換します）`;
-    }
-
-    // ============================================================
-    // 入力変化 → デバウンス変換
-    // ============================================================
-    function onInputChange() {
-      clearTimeout(convertTimer);
-      convertTimer = setTimeout(convert, 400);
-    }
-
-    // ============================================================
-    // パーサー
-    // ============================================================
-
-    /** CSV テキスト → 2次元配列（ヘッダー行は自動スキップ） */
-    function parseCSV(text) {
-      const rows = [];
-      const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
-
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        if (line === '') continue;
-
-        const fields = _splitCSVLine(line);
-
-        // 先頭行が CSV_HEADERS と一致する場合はスキップ
-        if (rows.length === 0) {
-          const isHeader =
-            fields.length === CSV_HEADERS.length &&
-            fields.every((v, j) => v.trim() === CSV_HEADERS[j]);
-          if (isHeader) continue;
-        }
-
-        // 列数を TXT_FIELDS に合わせる
-        const normalized = fields.slice(0, TXT_FIELDS.length);
-        while (normalized.length < TXT_FIELDS.length) normalized.push('');
-        rows.push(normalized);
+      const pasteTitle = document.getElementById('pasteZoneTitle');
+      const pasteNote  = document.getElementById('pasteZoneNote');
+      if (isCsv) {
+        pasteTitle.textContent = 'クリックしてCSVデータを貼り付け';
+        pasteNote.textContent  = 'ヘッダー行は自動的にスキップします';
+      } else {
+        pasteTitle.textContent = 'クリックしてTXT（固定長）データを貼り付け';
+        pasteNote.textContent  = `1行あたり ${TXT_FIELDS.reduce((s, f) => s + f.length, 0)} 文字 + 改行コード（CRLF）2文字`;
       }
+    }
+
+    function getCurrentHeaders() {
+      return state.mode === 'csv' ? CSV_HEADERS : TXT_FIELDS.map(f => f.name);
+    }
+
+    // ============================================================
+    // データ入力処理
+    // ============================================================
+
+    function handlePaste(e) {
+      const pasteZone = document.getElementById('pasteZone');
+      if (pasteZone.classList.contains('has-data')) return;
+      const text = e.clipboardData?.getData('text');
+      if (text) { e.preventDefault(); processData(text); }
+    }
+
+    async function triggerPaste() {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) processData(text);
+      } catch (err) {
+        showToast('クリップボードにアクセスできません', 'error');
+      }
+    }
+
+    function processData(text) {
+      if (!text.trim()) {
+        showToast('データが空です', 'error');
+        return;
+      }
+
+      let parsed;
+      if (state.mode === 'csv') {
+        parsed = parseCSV(text);
+      } else {
+        parsed = parseTXT(text);
+      }
+
+      if (parsed.length === 0) {
+        showToast('データを解析できませんでした', 'error');
+        return;
+      }
+
+      state.data = parsed;
+      state.columnWidths = {};
+      undoStack = [];
+      redoStack = [];
+      updateHistoryButtons();
+
+      renderTable();
+      updateStats();
+      saveToStorage();
+      showToast(`${state.data.length}行のデータを読み込みました`, 'success');
+    }
+
+    // ============================================================
+    // CSV パース
+    // ============================================================
+
+    function parseCSV(text) {
+      const rows = _parseCSVRaw(text, ',');
+      if (rows.length === 0) return [];
+
+      // 1行目がCSVヘッダーと一致する場合はスキップ
+      const firstRow = rows[0];
+      const isHeader = firstRow.length === CSV_HEADERS.length &&
+        firstRow.every((cell, i) => cell.trim() === CSV_HEADERS[i]);
+
+      const dataRows = isHeader ? rows.slice(1) : rows;
+
+      // 列数をCSV_HEADERSに合わせる
+      return dataRows.map(row => {
+        const normalized = [...row];
+        while (normalized.length < CSV_HEADERS.length) normalized.push('');
+        return normalized.slice(0, CSV_HEADERS.length);
+      });
+    }
+
+    function _parseCSVRaw(text, delimiter) {
+      const rows = [];
+      let currentRow = [];
+      let currentCell = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+
+        if (inQuotes) {
+          if (char === '"') {
+            if (nextChar === '"') { currentCell += '"'; i++; }
+            else { inQuotes = false; }
+          } else {
+            currentCell += char;
+          }
+        } else {
+          if (char === '"') {
+            inQuotes = true;
+          } else if (char === delimiter) {
+            currentRow.push(currentCell);
+            currentCell = '';
+          } else if (char === '\n' || (char === '\r' && nextChar === '\n')) {
+            currentRow.push(currentCell);
+            if (currentRow.some(c => c.trim())) rows.push(currentRow);
+            currentRow = [];
+            currentCell = '';
+            if (char === '\r') i++;
+          } else if (char !== '\r') {
+            currentCell += char;
+          }
+        }
+      }
+
+      currentRow.push(currentCell);
+      if (currentRow.some(c => c.trim())) rows.push(currentRow);
+
       return rows;
     }
 
-    /** CSV 1行をフィールド配列に分割（RFC 4180 準拠） */
-    function _splitCSVLine(line) {
-      const fields = [];
-      let cur = '';
-      let inQuote = false;
+    // ============================================================
+    // TXT 固定長パース
+    // ============================================================
 
-      for (let i = 0; i < line.length; i++) {
-        const ch = line[i];
-        if (inQuote) {
-          if (ch === '"') {
-            if (line[i + 1] === '"') { cur += '"'; i++; }
-            else inQuote = false;
-          } else {
-            cur += ch;
-          }
-        } else {
-          if (ch === '"') { inQuote = true; }
-          else if (ch === ',') { fields.push(cur); cur = ''; }
-          else { cur += ch; }
-        }
-      }
-      fields.push(cur);
-      return fields;
-    }
-
-    /** TXT 固定長テキスト → 2次元配列 */
     function parseTXT(text) {
       const rows = [];
-      const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+      const lines = text.split(/\r?\n/);
 
-      for (const raw of lines) {
-        // 末尾スペースを保持しつつ空行はスキップ
-        if (raw.trim() === '') continue;
+      for (const line of lines) {
+        if (!line.trim()) continue;
 
         const row = [];
-        let offset = 0;
+        let pos = 0;
         for (const field of TXT_FIELDS) {
-          row.push(raw.substr(offset, field.length) || '');
-          offset += field.length;
+          const value = line.substring(pos, pos + field.length);
+          // 末尾スペースをトリムして表示を綺麗に
+          row.push(value.trimEnd());
+          pos += field.length;
         }
         rows.push(row);
       }
+
       return rows;
     }
 
     // ============================================================
-    // ジェネレーター
+    // テーブル表示
     // ============================================================
 
-    /** 2次元配列 → CSV テキスト（ヘッダーなし） */
-    function toCSV(rows) {
-      return rows.map(row =>
-        row.map((v, i) => _quoteCSVField(v)).join(',')
-      ).join('\n') + '\n';
-    }
+    function renderTable() {
+      const tableHead = document.getElementById('tableHead');
+      const tableBody = document.getElementById('tableBody');
+      const container = document.getElementById('tableContainer');
+      const pasteZone = document.getElementById('pasteZone');
 
-    function _quoteCSVField(val) {
-      if (/[,"\r\n]/.test(val)) {
-        return '"' + val.replace(/"/g, '""') + '"';
-      }
-      return val;
-    }
-
-    /** 2次元配列 → TXT 固定長テキスト（各行末 CRLF 付き） */
-    function toTXT(rows) {
-      return rows.map(row =>
-        TXT_FIELDS.map((field, i) => {
-          const val = (row[i] || '').substring(0, field.length);
-          return val.padEnd(field.length, ' ');
-        }).join('') + '\r\n'
-      ).join('');
-    }
-
-    // ============================================================
-    // 変換実行
-    // ============================================================
-    function convert() {
-      const input = document.getElementById('inputArea').value;
-      const outFmt = getOutputFormat();
-
-      if (!input.trim()) {
-        parsedData = [];
-        document.getElementById('outputArea').value = '';
-        _updateStats();
-        _hidePreview();
+      if (state.data.length === 0) {
+        container.classList.remove('show');
+        pasteZone.classList.remove('has-data');
+        document.getElementById('validationBar').classList.remove('show');
         return;
       }
 
-      // パース
-      parsedData = inputFormat === 'csv' ? parseCSV(input) : parseTXT(input);
+      container.classList.add('show');
+      pasteZone.classList.add('has-data');
 
-      // 生成
-      const output = outFmt === 'csv' ? toCSV(parsedData) : toTXT(parsedData);
-      document.getElementById('outputArea').value = output;
-
-      _updateStats();
-      _renderPreview();
-    }
-
-    // ============================================================
-    // UI 更新
-    // ============================================================
-    function _updateStats() {
-      const rows = parsedData.length;
-      const cols = TXT_FIELDS.length;
-      const outFmt = getOutputFormat();
-      const outputText = document.getElementById('outputArea').value;
-      const bytes = new Blob([outputText]).size;
-
-      document.getElementById('rowCount').textContent = rows;
-      document.getElementById('colCount').textContent = cols;
-
-      const statsBar = document.getElementById('statsBar');
-      if (rows === 0) {
-        statsBar.style.display = 'none';
-        document.getElementById('previewToggle').style.display = 'none';
-        return;
-      }
-
-      statsBar.style.display = 'flex';
-      document.getElementById('previewToggle').style.display = 'flex';
-
-      document.getElementById('statInputRows').textContent = rows;
-      document.getElementById('statOutputRows').textContent = rows;
-      document.getElementById('statCols').textContent = cols;
-      document.getElementById('statRecordLen').textContent = RECORD_LEN;
-
-      // 桁超過カウント
-      let overCount = 0;
-      for (const row of parsedData) {
-        for (let j = 0; j < TXT_FIELDS.length; j++) {
-          if ((row[j] || '').length > TXT_FIELDS[j].length) overCount++;
-        }
-      }
-      document.getElementById('statOverLimit').textContent = overCount;
-
-      // 出力サイズ表示
-      const sizeStr = bytes < 1024 ? `${bytes} B`
-        : bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB`
-        : `${(bytes / 1024 / 1024).toFixed(2)} MB`;
-      document.getElementById('outputSize').textContent = sizeStr;
-      document.getElementById('outputInfo').textContent =
-        `${rows} 行 / ${sizeStr}`;
-      document.getElementById('inputInfo').textContent =
-        `${rows} 行`;
-    }
-
-    // ============================================================
-    // プレビュー
-    // ============================================================
-    let previewOpen = false;
-
-    function togglePreview() {
-      previewOpen = !previewOpen;
-      document.getElementById('previewSection').style.display =
-        previewOpen ? 'block' : 'none';
-      const icon = document.getElementById('previewIcon');
-      icon.classList.toggle('open', previewOpen);
-    }
-
-    function _hidePreview() {
-      previewOpen = false;
-      document.getElementById('previewSection').style.display = 'none';
-      document.getElementById('previewToggle').style.display = 'none';
-      const icon = document.getElementById('previewIcon');
-      icon.classList.remove('open');
-    }
-
-    function _renderPreview() {
-      if (!previewOpen) return;
-
-      const table = document.getElementById('previewTable');
-      const fragment = document.createDocumentFragment();
+      const headers = getCurrentHeaders();
+      const isTxt = state.mode === 'txt';
 
       // ヘッダー行
-      const thead = document.createElement('thead');
-      const trh = document.createElement('tr');
-      TXT_FIELDS.forEach(field => {
-        const th = document.createElement('th');
-        th.innerHTML = `${field.name}<span class="field-len">${field.length}</span>`;
-        trh.appendChild(th);
+      let headHTML = '<tr><th class="row-num">#</th>';
+      headers.forEach((header, i) => {
+        const width = state.columnWidths[i] || _defaultColWidth(i);
+        const field = isTxt ? TXT_FIELDS[i] : null;
+        headHTML += `
+          <th style="width: ${width}px; min-width: ${width}px;" data-col="${i}">
+            <div class="th-wrapper">
+              <div class="th-content" onclick="openColumnMenu(event, ${i})">
+                <span class="th-text" title="${escapeHTML(header)}">${escapeHTML(header)}</span>
+                ${isTxt ? `<span class="th-length">${field.length}</span>` : ''}
+                <span class="th-menu-btn material-symbols-outlined" style="font-size: 1.1rem;">more_vert</span>
+              </div>
+              <div class="resize-handle" onmousedown="startResize(event, ${i})"></div>
+            </div>
+          </th>
+        `;
       });
-      thead.appendChild(trh);
-      fragment.appendChild(thead);
+      headHTML += '</tr>';
+      tableHead.innerHTML = headHTML;
 
       // データ行
-      const tbody = document.createElement('tbody');
-      parsedData.forEach(row => {
-        const tr = document.createElement('tr');
-        TXT_FIELDS.forEach((field, j) => {
-          const td = document.createElement('td');
-          td.textContent = row[j] || '';
-          if ((row[j] || '').length > field.length) td.classList.add('over-limit');
-          tr.appendChild(td);
+      let bodyHTML = '';
+      for (let i = 0; i < state.data.length; i++) {
+        const row = state.data[i];
+        bodyHTML += `<tr data-row="${i}">
+          <td class="row-num">
+            <div class="row-num-wrapper">
+              <span class="row-num-text">${i + 1}</span>
+              <button class="row-menu-btn" onclick="openRowMenu(event, ${i})" title="行メニュー">
+                <span class="material-symbols-outlined" style="font-size: 1.0rem;">more_vert</span>
+              </button>
+            </div>
+          </td>`;
+        headers.forEach((_, j) => {
+          const width = state.columnWidths[j] || _defaultColWidth(j);
+          const cellValue = row[j] !== undefined ? row[j] : '';
+          const overLimit = isTxt && cellValue.length > TXT_FIELDS[j].length;
+          bodyHTML += `<td contenteditable="true" data-row="${i}" data-col="${j}"
+            class="${overLimit ? 'over-limit' : ''}"
+            style="width: ${width}px; min-width: ${width}px;"
+            onblur="handleCellBlur(this)">${escapeHTML(cellValue)}</td>`;
         });
-        tbody.appendChild(tr);
-      });
-      fragment.appendChild(tbody);
+        bodyHTML += `</tr>`;
+      }
+      tableBody.innerHTML = bodyHTML;
 
-      table.innerHTML = '';
-      table.appendChild(fragment);
+      if (isTxt) checkValidation();
+
+      if (document.getElementById('searchBar').classList.contains('show')) {
+        performSearch();
+      }
     }
 
+    function _defaultColWidth(colIndex) {
+      if (state.mode === 'txt') {
+        return Math.max(80, TXT_FIELDS[colIndex].length * 12);
+      }
+      return 150;
+    }
+
+    function escapeHTML(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
 
     // ============================================================
-    // パネル入れ替え
+    // TXT バリデーション
     // ============================================================
-    function swapPanels() {
-      const inputArea  = document.getElementById('inputArea');
-      const outputArea = document.getElementById('outputArea');
 
-      const prevOutput = outputArea.value;
-      if (!prevOutput.trim()) {
-        showToast('変換結果がありません', 'error');
+    function checkValidation() {
+      if (state.mode !== 'txt') {
+        document.getElementById('validationBar').classList.remove('show');
         return;
       }
 
-      // 出力を入力へ、フォーマットを入れ替え
-      inputArea.value = prevOutput;
-      inputFormat = getOutputFormat();
-      _updateFormatUI();
-      convert();
-      showToast('入出力を入れ替えました');
+      let hasOver = false;
+      document.querySelectorAll('td[data-col]').forEach(td => {
+        const col = parseInt(td.dataset.col);
+        const val = td.textContent;
+        const over = val.length > TXT_FIELDS[col].length;
+        td.classList.toggle('over-limit', over);
+        if (over) hasOver = true;
+      });
+
+      document.getElementById('validationBar').classList.toggle('show', hasOver);
     }
 
     // ============================================================
-    // クリップボード
+    // 列リサイズ
     // ============================================================
-    function pasteFromClipboard() {
-      navigator.clipboard.readText()
-        .then(text => {
-          document.getElementById('inputArea').value = text;
-          onInputChange();
-        })
-        .catch(() => showToast('クリップボードの読み取りに失敗しました', 'error'));
+
+    function startResize(e, colIndex) {
+      e.stopPropagation();
+      isResizing = true;
+      resizeColumnIndex = colIndex;
+      resizeStartX = e.clientX;
+      const th = document.querySelector(`th[data-col="${colIndex}"]`);
+      resizeStartWidth = th.offsetWidth;
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
     }
 
-    function copyOutput() {
-      const text = document.getElementById('outputArea').value;
-      if (!text.trim()) { showToast('コピーするデータがありません', 'error'); return; }
+    function handleResizeMove(e) {
+      if (!isResizing) return;
+      const newWidth = Math.max(60, resizeStartWidth + (e.clientX - resizeStartX));
+      state.columnWidths[resizeColumnIndex] = newWidth;
+      document.querySelectorAll(`th[data-col="${resizeColumnIndex}"], td[data-col="${resizeColumnIndex}"]`).forEach(el => {
+        el.style.width = `${newWidth}px`;
+        el.style.minWidth = `${newWidth}px`;
+      });
+    }
+
+    function handleResizeEnd() {
+      if (isResizing) {
+        isResizing = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        saveToStorage();
+      }
+    }
+
+    // ============================================================
+    // セル編集
+    // ============================================================
+
+    function handleCellBlur(cell) {
+      const row = parseInt(cell.dataset.row);
+      const col = parseInt(cell.dataset.col);
+      const newValue = cell.textContent;
+
+      if (state.data[row] && state.data[row][col] !== newValue) {
+        saveToHistory();
+        state.data[row][col] = newValue;
+        updateStats();
+        saveToStorage();
+      }
+
+      if (state.mode === 'txt') {
+        const over = newValue.length > TXT_FIELDS[col].length;
+        cell.classList.toggle('over-limit', over);
+        checkValidation();
+      }
+    }
+
+    // ============================================================
+    // 検索・置換
+    // ============================================================
+
+    function openSearch() {
+      document.getElementById('searchBar').classList.add('show');
+      document.getElementById('searchInput').focus();
+    }
+
+    function closeSearch() {
+      document.getElementById('searchBar').classList.remove('show');
+      document.getElementById('searchInput').value = '';
+      document.getElementById('replaceInput').value = '';
+      clearHighlights();
+      searchMatches = [];
+      currentMatchIndex = -1;
+      updateSearchInfo();
+    }
+
+    function performSearch() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      clearHighlights();
+      searchMatches = [];
+      currentMatchIndex = -1;
+
+      if (!query) { updateSearchInfo(); return; }
+
+      for (let i = 0; i < state.data.length; i++) {
+        for (let j = 0; j < state.data[i].length; j++) {
+          if (state.data[i][j].toLowerCase().includes(query)) {
+            searchMatches.push({ row: i, col: j });
+            const cell = document.querySelector(`td[data-row="${i}"][data-col="${j}"]`);
+            if (cell) cell.classList.add('highlight');
+          }
+        }
+      }
+
+      if (searchMatches.length > 0) {
+        currentMatchIndex = 0;
+        highlightCurrentMatch();
+      }
+      updateSearchInfo();
+    }
+
+    function navigateMatch(direction) {
+      if (searchMatches.length === 0) return;
+      currentMatchIndex += direction;
+      if (currentMatchIndex < 0) currentMatchIndex = searchMatches.length - 1;
+      if (currentMatchIndex >= searchMatches.length) currentMatchIndex = 0;
+      highlightCurrentMatch();
+      updateSearchInfo();
+    }
+
+    function highlightCurrentMatch() {
+      document.querySelectorAll('td.current-match').forEach(el => el.classList.remove('current-match'));
+      if (currentMatchIndex >= 0 && currentMatchIndex < searchMatches.length) {
+        const match = searchMatches[currentMatchIndex];
+        const cell = document.querySelector(`td[data-row="${match.row}"][data-col="${match.col}"]`);
+        if (cell) { cell.classList.add('current-match'); cell.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      }
+    }
+
+    function clearHighlights() {
+      document.querySelectorAll('td.highlight, td.current-match').forEach(el => el.classList.remove('highlight', 'current-match'));
+    }
+
+    function updateSearchInfo() {
+      const info = document.getElementById('searchInfo');
+      const query = document.getElementById('searchInput').value;
+      info.textContent = searchMatches.length === 0
+        ? (query ? '一致なし' : '')
+        : `${currentMatchIndex + 1} / ${searchMatches.length}件`;
+    }
+
+    function replaceNext() {
+      if (currentMatchIndex < 0 || searchMatches.length === 0) return;
+      const replaceValue = document.getElementById('replaceInput').value;
+      const searchValue  = document.getElementById('searchInput').value;
+      const match = searchMatches[currentMatchIndex];
+
+      saveToHistory();
+      state.data[match.row][match.col] = state.data[match.row][match.col].replace(
+        new RegExp(escapeRegExp(searchValue), 'i'), replaceValue
+      );
+      renderTable(); saveToStorage(); performSearch();
+      showToast('1件置換しました', 'success');
+    }
+
+    function replaceAll() {
+      const replaceValue = document.getElementById('replaceInput').value;
+      const searchValue  = document.getElementById('searchInput').value;
+      if (!searchValue) return;
+
+      saveToHistory();
+      let count = 0;
+      const regex = new RegExp(escapeRegExp(searchValue), 'gi');
+      for (let i = 0; i < state.data.length; i++) {
+        for (let j = 0; j < state.data[i].length; j++) {
+          const original = state.data[i][j];
+          const replaced = original.replace(regex, replaceValue);
+          if (original !== replaced) { state.data[i][j] = replaced; count++; }
+        }
+      }
+      renderTable(); saveToStorage(); performSearch();
+      showToast(`${count}件置換しました`, 'success');
+    }
+
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    // ============================================================
+    // 列操作
+    // ============================================================
+
+    function openColumnMenu(e, colIndex) {
+      e.stopPropagation();
+      activeColumnIndex = colIndex;
+      closeRowMenu();
+      const menu = document.getElementById('columnMenu');
+      const rect = e.target.closest('th').getBoundingClientRect();
+      menu.style.top  = `${rect.bottom + window.scrollY + 4}px`;
+      menu.style.left = `${Math.min(rect.left, window.innerWidth - 220)}px`;
+      menu.classList.add('show');
+    }
+
+    function sortColumn(direction) {
+      if (activeColumnIndex < 0) return;
+      saveToHistory();
+
+      state.data.sort((a, b) => {
+        const valA = a[activeColumnIndex] || '';
+        const valB = b[activeColumnIndex] || '';
+        const numA = parseFloat(valA);
+        const numB = parseFloat(valB);
+        if (!isNaN(numA) && !isNaN(numB)) return direction === 'asc' ? numA - numB : numB - numA;
+        return direction === 'asc' ? valA.localeCompare(valB, 'ja') : valB.localeCompare(valA, 'ja');
+      });
+
+      renderTable(); saveToStorage(); closeColumnMenu();
+      const headers = getCurrentHeaders();
+      showToast(`「${headers[activeColumnIndex]}」を${direction === 'asc' ? '昇順' : '降順'}に並び替えました`, 'success');
+    }
+
+    function copyColumn() {
+      if (activeColumnIndex < 0) return;
+      const text = state.data.map(row => row[activeColumnIndex] || '').join('\n');
+      navigator.clipboard.writeText(text + '\n')
+        .then(() => showToast(`「${getCurrentHeaders()[activeColumnIndex]}」をコピーしました`, 'success'))
+        .catch(() => showToast('コピーに失敗しました', 'error'));
+      closeColumnMenu();
+    }
+
+    function closeColumnMenu() {
+      document.getElementById('columnMenu').classList.remove('show');
+    }
+
+    // ============================================================
+    // 行操作
+    // ============================================================
+
+    function openRowMenu(e, rowIndex) {
+      e.stopPropagation();
+      activeRowIndex = rowIndex;
+      closeColumnMenu();
+      const menu = document.getElementById('rowMenu');
+      const rect = e.target.getBoundingClientRect();
+      menu.style.top  = `${rect.bottom + window.scrollY + 4}px`;
+      menu.style.left = `${Math.min(rect.left, window.innerWidth - 220)}px`;
+      menu.classList.add('show');
+    }
+
+    function copyRow() {
+      if (activeRowIndex < 0) return;
+      const text = _generateRowText(activeRowIndex);
+      navigator.clipboard.writeText(text + '\n')
+        .then(() => showToast(`${activeRowIndex + 1}行目をコピーしました`, 'success'))
+        .catch(() => showToast('コピーに失敗しました', 'error'));
+      closeRowMenu();
+    }
+
+    function duplicateRow() {
+      if (activeRowIndex < 0) return;
+      saveToHistory();
+      const newRow = [...state.data[activeRowIndex]];
+      state.data.splice(activeRowIndex + 1, 0, newRow);
+      renderTable(); updateStats(); saveToStorage(); closeRowMenu();
+      showToast(`${activeRowIndex + 1}行目を複製しました`, 'success');
+    }
+
+    function confirmDeleteRowFromMenu() {
+      closeRowMenu();
+      if (activeRowIndex < 0) return;
+      openModal('行を削除', `${activeRowIndex + 1}行目を削除しますか？`, () => deleteRow(activeRowIndex));
+    }
+
+    function closeRowMenu() {
+      document.getElementById('rowMenu').classList.remove('show');
+    }
+
+    function addRow() {
+      saveToHistory();
+      const colCount = getCurrentHeaders().length;
+      state.data.push(Array(colCount).fill(''));
+      renderTable(); updateStats(); saveToStorage();
+      showToast('行を追加しました', 'success');
+    }
+
+    function deleteRow(rowIndex) {
+      saveToHistory();
+      state.data.splice(rowIndex, 1);
+
+      if (state.data.length === 0) {
+        state.columnWidths = {};
+        renderTable(); updateStats();
+        localStorage.removeItem('kaikBatch_state');
+        closeModal();
+        showToast('すべての行が削除されました', 'success');
+        return;
+      }
+      renderTable(); updateStats(); saveToStorage(); closeModal();
+      showToast('行を削除しました', 'success');
+    }
+
+    // ============================================================
+    // コピー / ダウンロード
+    // ============================================================
+
+    function _generateRowText(rowIndex) {
+      if (state.mode === 'csv') {
+        return _rowToCSV(state.data[rowIndex]);
+      } else {
+        return _rowToTXT(state.data[rowIndex]);
+      }
+    }
+
+    function _rowToCSV(row) {
+      return row.map(cell => {
+        const s = String(cell || '');
+        if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+          return `"${s.replace(/"/g, '""')}"`;
+        }
+        return s;
+      }).join(',');
+    }
+
+    function _rowToTXT(row) {
+      return TXT_FIELDS.map((field, i) => {
+        const val = String(row[i] || '');
+        // 右パディング（スペース）。超過分はカット
+        return val.padEnd(field.length, ' ').substring(0, field.length);
+      }).join('');
+    }
+
+    function _generateOutput() {
+      if (state.mode === 'csv') {
+        // ヘッダーは表示用のみ。コピー・保存にはデータ行のみ出力
+        return state.data.map(row => _rowToCSV(row)).join('\n') + '\n';
+      } else {
+        // TXT固定長: 各行末に改行コード（CR+LF）を含めて出力
+        return state.data.map(row => _rowToTXT(row) + '\r\n').join('');
+      }
+    }
+
+    function copyData() {
+      if (state.data.length === 0) {
+        showToast('コピーするデータがありません', 'error');
+        return;
+      }
+      const text = _generateOutput();
       navigator.clipboard.writeText(text)
-        .then(() => showToast(`${getOutputFormat().toUpperCase()} としてコピーしました`, 'success'))
+        .then(() => showToast(`${state.mode === 'csv' ? 'CSV' : 'TXT'}としてコピーしました（末尾改行付き）`, 'success'))
         .catch(() => showToast('コピーに失敗しました', 'error'));
     }
 
-    // ============================================================
-    // ファイル保存
-    // ============================================================
-    function downloadOutput() {
-      const text = document.getElementById('outputArea').value;
-      if (!text.trim()) { showToast('保存するデータがありません', 'error'); return; }
-
-      const fmt  = getOutputFormat();
-      const ext  = fmt;
-      const mime = fmt === 'csv' ? 'text/csv; charset=utf-8' : 'text/plain; charset=utf-8';
-      const bom  = '\uFEFF';
-      const blob = new Blob([bom + text], { type: mime });
-      const url  = URL.createObjectURL(blob);
+    function downloadData() {
+      if (state.data.length === 0) {
+        showToast('ダウンロードするデータがありません', 'error');
+        return;
+      }
+      const text = _generateOutput();
+      const isCsv = state.mode === 'csv';
+      const ext   = isCsv ? 'csv' : 'txt';
+      const mime  = isCsv ? 'text/csv; charset=utf-8' : 'text/plain; charset=utf-8';
+      const bom   = '\uFEFF';
+      const blob  = new Blob([bom + text], { type: mime });
+      const url   = URL.createObjectURL(blob);
 
       const a = document.createElement('a');
       a.href = url;
-      a.download = `kaik_${fmt}_${new Date().toISOString().slice(0, 10)}.${ext}`;
+      a.download = `kaik_data_${new Date().toISOString().slice(0, 10)}.${ext}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      showToast(`${fmt.toUpperCase()} ファイルを保存しました`, 'success');
+      showToast(`${ext.toUpperCase()}ファイルをダウンロードしました（末尾改行付き）`, 'success');
     }
 
     // ============================================================
-    // クリア
+    // Undo / Redo
     // ============================================================
-    function clearInput() {
-      document.getElementById('inputArea').value = '';
-      document.getElementById('outputArea').value = '';
-      parsedData = [];
-      _updateStats();
-      _hidePreview();
+
+    function saveToHistory() {
+      undoStack.push(structuredClone(state));
+      if (undoStack.length > MAX_HISTORY) undoStack.shift();
+      redoStack = [];
+      updateHistoryButtons();
+    }
+
+    function undo() {
+      if (undoStack.length === 0) return;
+      redoStack.push(structuredClone(state));
+      state = undoStack.pop();
+      renderTable(); updateStats(); saveToStorage(); updateHistoryButtons();
+      updateModeUI();
+      showToast('元に戻しました');
+    }
+
+    function redo() {
+      if (redoStack.length === 0) return;
+      undoStack.push(structuredClone(state));
+      state = redoStack.pop();
+      renderTable(); updateStats(); saveToStorage(); updateHistoryButtons();
+      updateModeUI();
+      showToast('やり直しました');
+    }
+
+    function updateHistoryButtons() {
+      document.getElementById('undoBtn').disabled = undoStack.length === 0;
+      document.getElementById('redoBtn').disabled = redoStack.length === 0;
     }
 
     // ============================================================
-    // トースト
+    // 統計情報
     // ============================================================
-    function showToast(msg, type = '') {
-      const c = document.getElementById('toastContainer');
-      const t = document.createElement('div');
-      t.className = `toast ${type}`;
-      t.textContent = msg;
-      c.appendChild(t);
-      setTimeout(() => t.remove(), 3000);
+
+    function updateStats() {
+      const rowCount = state.data.length;
+      const colCount = getCurrentHeaders().length;
+
+      const bytes = new Blob([_generateOutput()]).size;
+      const sizeStr = bytes < 1024
+        ? `${bytes} B`
+        : bytes < 1024 * 1024
+          ? `${(bytes / 1024).toFixed(1)} KB`
+          : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+
+      document.getElementById('rowCount').textContent = rowCount.toLocaleString();
+      document.getElementById('colCount').textContent = colCount;
+      document.getElementById('dataSize').textContent = sizeStr;
     }
 
     // ============================================================
-    // 初期化
+    // ローカルストレージ
     // ============================================================
-    _updateFormatUI();
+
+    function saveToStorage() {
+      try {
+        localStorage.setItem('kaikBatch_state', JSON.stringify(state));
+      } catch (e) {
+        console.warn('LocalStorage save failed:', e);
+      }
+    }
+
+    function loadFromStorage() {
+      try {
+        const saved = localStorage.getItem('kaikBatch_state');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          state.mode = parsed.mode || 'csv';
+          state.data = parsed.data || [];
+          state.columnWidths = parsed.columnWidths || {};
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    // ============================================================
+    // データクリア
+    // ============================================================
+
+    function confirmClearAll() {
+      if (state.data.length === 0) return;
+      openModal('データをクリア', 'すべてのデータを削除しますか？', clearAll);
+    }
+
+    function clearAll() {
+      saveToHistory();
+      state.data = [];
+      state.columnWidths = {};
+      renderTable(); updateStats();
+      localStorage.removeItem('kaikBatch_state');
+      closeModal();
+      showToast('すべてのデータをクリアしました');
+    }
+
+    // ============================================================
+    // UI: トースト / モーダル
+    // ============================================================
+
+    function showToast(message, type = '') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 1500);
+    }
+
+    function openModal(title, message, onConfirm) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalMessage').textContent = message;
+      document.getElementById('modalConfirmBtn').onclick = onConfirm;
+      document.getElementById('modalOverlay').classList.add('show');
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('show');
+    }
+
+    // ============================================================
+    // ■ メンテナンスガイド
+    // ============================================================
+    //
+    // このファイルで変更が必要になりやすい箇所をまとめます。
+    // 「定数: 固定ヘッダー定義」セクション（<script> 冒頭付近）を参照してください。
+    //
+    // ─────────────────────────────────────────────────────────────
+    // 【1】CSVヘッダーの変更 → CSV_HEADERS 配列を編集
+    // ─────────────────────────────────────────────────────────────
+    //
+    //   const CSV_HEADERS = [
+    //     '従業員コード',   // ← 列名を変更する場合はここを書き換える
+    //     '伝票年月日',
+    //     // ... 中略 ...
+    //     '証ひょう書類区分',
+    //     '追加した新項目',  // ← 列を追加する場合はここに追記
+    //   ];
+    //
+    //   ポイント:
+    //   - 各行がCSVの1列に対応。上から順に左の列から右の列へ。
+    //   - 列を削除した場合、既存データの列位置がずれるため、
+    //     データを貼り直す前にクリアしてから使用してください。
+    //
+    // ─────────────────────────────────────────────────────────────
+    // 【2】TXT固定長フィールドの変更 → TXT_FIELDS 配列を編集
+    // ─────────────────────────────────────────────────────────────
+    //
+    //   const TXT_FIELDS = [
+    //     { name: '従業員コード',   length: 6  },  // ← 桁数を変える場合は length を変更
+    //     { name: '伝票年月日',     length: 8  },
+    //     // ... 中略 ...
+    //     { name: '摘要',           length: 50 },
+    //     { name: '新フィールド',   length: 4  },  // ← フィールド追加例
+    //   ];
+    //
+    //   ポイント:
+    //   - name  : 画面上の列ヘッダーに表示される文字列。自由に変更可。
+    //   - length: 半角文字基準の桁数。ファイル仕様書の「バイト数（半角）」と合わせる。
+    //   - 配列の順序がファイル内の物理的な並び順と一致している必要がある。
+    //     順序を変えると読み取り/書き出し位置がずれて全フィールドが壊れる。
+    //   - 全フィールドの length 合計 = 1レコードの総文字数（改行コード除く）。
+    //     現在の合計: TXT_FIELDS.reduce((s, f) => s + f.length, 0) で確認可能。
+    //   - 改行コード（CRLF = \r\n）は自動付与のため定義不要。
+    //
+    // ─────────────────────────────────────────────────────────────
+    // 【3】その他よくある変更
+    // ─────────────────────────────────────────────────────────────
+    //
+    //   ・エクスポート時の改行コードを変更したい場合
+    //     → _generateOutput() 内の '\r\n' を '\n' に変更（TXTモード）
+    //
+    //   ・TXTエクスポート時のパディング文字をスペース以外にしたい場合
+    //     → _rowToTXT() 内の padEnd(field.length, ' ') の ' ' を変更
+    //
+    //   ・CSVのデータ区切り文字をカンマ以外にしたい場合
+    //     → _rowToCSV() と parseCSV() 内の ',' を変更
+    //
+    //   ・LocalStorage のキー名を変更したい場合（他アプリと衝突時など）
+    //     → 'kaikBatch_state' および 'kaikBatch_theme' を変更
+    //
+    // ─────────────────────────────────────────────────────────────
+    // 【変更後の確認チェックリスト】
+    // ─────────────────────────────────────────────────────────────
+    //   □ ブラウザのキャッシュをクリアして再読み込みする
+    //   □ ペーストエリアにテストデータを貼り付けて列が正しく表示されるか確認
+    //   □ TXTモード: 総桁数がファイル仕様書と一致しているか確認
+    //   □ コピー/保存したデータを別のエディタで開いて内容を目視確認
+    //   □ LocalStorageに古いデータが残っている場合は「クリア」ボタンで初期化
+    //
+    // ============================================================
   </script>
 </body>
 
