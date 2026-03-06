@@ -1810,9 +1810,8 @@
 
     function _generateOutput() {
       if (state.mode === 'csv') {
-        const headerRow = CSV_HEADERS.join(',');
-        const dataRows  = state.data.map(row => _rowToCSV(row));
-        return [headerRow, ...dataRows].join('\n') + '\n';
+        // ヘッダーは表示用のみ。コピー・保存にはデータ行のみ出力
+        return state.data.map(row => _rowToCSV(row)).join('\n') + '\n';
       } else {
         // TXT固定長: 行末はCRLF
         return state.data.map(row => _rowToTXT(row)).join('\r\n') + '\r\n';
