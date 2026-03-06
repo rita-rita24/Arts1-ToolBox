@@ -1385,7 +1385,7 @@
         const row = [];
         let pos = 0;
         for (const field of TXT_FIELDS) {
-          const value = line.substring(pos, pos + field.length);
+          const value = _jisExtract(line, pos, field.length);
           // 末尾スペースをトリムして表示を綺麗に
           row.push(value.trimEnd());
           pos += field.length;
@@ -1457,7 +1457,7 @@
         headers.forEach((_, j) => {
           const width = state.columnWidths[j] || _defaultColWidth(j);
           const cellValue = row[j] !== undefined ? row[j] : '';
-          const overLimit = isTxt && cellValue.length > TXT_FIELDS[j].length;
+          const overLimit = isTxt && _jisByteLen(cellValue) > TXT_FIELDS[j].length;
           bodyHTML += `<td contenteditable="true" data-row="${i}" data-col="${j}"
             class="${overLimit ? 'over-limit' : ''}"
             style="width: ${width}px; min-width: ${width}px;"
@@ -1501,7 +1501,7 @@
       document.querySelectorAll('td[data-col]').forEach(td => {
         const col = parseInt(td.dataset.col);
         const val = td.textContent;
-        const over = val.length > TXT_FIELDS[col].length;
+        const over = _jisByteLen(val) > TXT_FIELDS[col].length;
         td.classList.toggle('over-limit', over);
         if (over) hasOver = true;
       });
@@ -1560,7 +1560,7 @@
       }
 
       if (state.mode === 'txt') {
-        const over = newValue.length > TXT_FIELDS[col].length;
+        const over = _jisByteLen(newValue) > TXT_FIELDS[col].length;
         cell.classList.toggle('over-limit', over);
         checkValidation();
       }
@@ -1812,11 +1812,43 @@
       }).join(',');
     }
 
+    // JIS バイト数ユーティリティ（半角=1バイト、全角=2バイト）
+    function _jisByteLen(str) {
+      let n = 0;
+      for (let i = 0; i < str.length; i++) {
+        const c = str.charCodeAt(i);
+        n += (c <= 0x7E || (c >= 0xFF61 && c <= 0xFF9F)) ? 1 : 2;
+      }
+      return n;
+    }
+    function _jisSlice(str, maxBytes) {
+      let n = 0, i = 0;
+      for (; i < str.length; i++) {
+        const c = str.charCodeAt(i);
+        const b = (c <= 0x7E || (c >= 0xFF61 && c <= 0xFF9F)) ? 1 : 2;
+        if (n + b > maxBytes) break;
+        n += b;
+      }
+      return str.substring(0, i);
+    }
+    function _jisPad(str, targetBytes) {
+      const lack = targetBytes - _jisByteLen(str);
+      return lack > 0 ? str + ' '.repeat(lack) : str;
+    }
+    function _jisExtract(str, startByte, numBytes) {
+      let n = 0, i = 0;
+      for (; i < str.length && n < startByte; i++) {
+        const c = str.charCodeAt(i);
+        n += (c <= 0x7E || (c >= 0xFF61 && c <= 0xFF9F)) ? 1 : 2;
+      }
+      return _jisSlice(str.substring(i), numBytes);
+    }
+
     function _rowToTXT(row) {
       return TXT_FIELDS.map((field, i) => {
         const val = String(row[i] || '');
-        // 右パディング（スペース）。超過分はカット
-        return val.padEnd(field.length, ' ').substring(0, field.length);
+        // JISバイト数で補完・切り出し
+        return _jisPad(_jisSlice(val, field.length), field.length);
       }).join('');
     }
 
