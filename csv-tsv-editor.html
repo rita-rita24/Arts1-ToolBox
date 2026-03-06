@@ -509,6 +509,17 @@
       width: 100%;
     }
 
+    .th-colnum {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      flex-shrink: 0;
+      background: var(--border);
+      padding: 1px 4px;
+      border-radius: 3px;
+      line-height: 1.4;
+    }
+
     .th-text {
       flex: 1;
       overflow: hidden;
@@ -1360,6 +1371,7 @@
           <th style="width: ${width}px; min-width: ${width}px;" data-col="${i}">
             <div class="th-wrapper">
               <div class="th-content" onclick="openColumnMenu(event, ${i})">
+                ${state.hasHeader ? `<span class="th-colnum">${i + 1}</span>` : ''}
                 <span class="th-text" style="${textStyle}">${escapeHTML(header)}</span>
                 <span class="th-menu-btn material-symbols-outlined" style="font-size: 1.1rem;">more_vert</span>
               </div>

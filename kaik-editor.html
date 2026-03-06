@@ -502,6 +502,17 @@
       font-size: 0.8rem;
     }
 
+    .th-colnum {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      flex-shrink: 0;
+      background: var(--border);
+      padding: 1px 4px;
+      border-radius: 3px;
+      line-height: 1.4;
+    }
+
     .th-length {
       font-size: 0.7rem;
       color: var(--mode-txt);
@@ -1417,6 +1428,7 @@
           <th style="width: ${width}px; min-width: ${width}px;" data-col="${i}">
             <div class="th-wrapper">
               <div class="th-content" onclick="openColumnMenu(event, ${i})">
+                <span class="th-colnum">${i + 1}</span>
                 <span class="th-text" title="${escapeHTML(header)}">${escapeHTML(header)}</span>
                 ${isTxt ? `<span class="th-length">${field.length}</span>` : ''}
                 <span class="th-menu-btn material-symbols-outlined" style="font-size: 1.1rem;">more_vert</span>
