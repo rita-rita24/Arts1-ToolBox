@@ -560,8 +560,7 @@
 
     function initTheme() {
       const saved = localStorage.getItem('csvCreater_theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(saved || (prefersDark ? 'dark' : 'light'));
+      setTheme(saved || 'light');
     }
 
     function toggleTheme() {
@@ -1635,8 +1634,7 @@ ${headersJSON}
 
     function initTheme() {
       const saved = localStorage.getItem(THEME_KEY);
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(saved || (prefersDark ? 'dark' : 'light'));
+      setTheme(saved || 'light');
     }
 
     function toggleTheme() {
