@@ -1741,9 +1741,20 @@
     function copyRow() {
       if (activeRowIndex < 0) return;
       const text = _generateRowText(activeRowIndex);
-      navigator.clipboard.writeText(text + '\n')
-        .then(() => showToast(`${activeRowIndex + 1}行目をコピーしました`, 'success'))
-        .catch(() => showToast('コピーに失敗しました', 'error'));
+      const idx = activeRowIndex;
+      if (state.mode === 'txt') {
+        _clipboardWriteSJIS(text + '\r\n')
+          .then(() => showToast(`${idx + 1}行目をコピーしました（Shift-JIS）`, 'success'))
+          .catch(() => {
+            navigator.clipboard.writeText(text + '\n')
+              .then(() => showToast(`${idx + 1}行目をコピーしました`, 'success'))
+              .catch(() => showToast('コピーに失敗しました', 'error'));
+          });
+      } else {
+        navigator.clipboard.writeText(text + '\n')
+          .then(() => showToast(`${idx + 1}行目をコピーしました`, 'success'))
+          .catch(() => showToast('コピーに失敗しました', 'error'));
+      }
       closeRowMenu();
     }
 
@@ -1845,6 +1856,73 @@
       return _jisSlice(str.substring(i), numBytes);
     }
 
+    // ============================================================
+    // Shift-JIS エンコーダー
+    // TextDecoder('shift-jis') の逆引きテーブルを初回呼び出し時に構築する。
+    // クリップボードコピー・ファイル保存の両方で使用。
+    // ============================================================
+
+    let _sjisMap = null;
+
+    function _getSJISMap() {
+      if (_sjisMap) return _sjisMap;
+      _sjisMap = new Map();
+      const dec = new TextDecoder('shift-jis', { fatal: false });
+      // 1バイト文字: ASCII (0x00-0x7F)
+      for (let b = 0x00; b <= 0x7F; b++) {
+        const ch = dec.decode(new Uint8Array([b]));
+        if (ch.length === 1 && ch.charCodeAt(0) !== 0xFFFD)
+          _sjisMap.set(ch.charCodeAt(0), new Uint8Array([b]));
+      }
+      // 1バイト文字: 半角カタカナ (0xA1-0xDF)
+      for (let b = 0xA1; b <= 0xDF; b++) {
+        const ch = dec.decode(new Uint8Array([b]));
+        if (ch.length === 1 && ch.charCodeAt(0) !== 0xFFFD)
+          _sjisMap.set(ch.charCodeAt(0), new Uint8Array([b]));
+      }
+      // 2バイト文字: 先頭バイト 0x81-0x9F, 0xE0-0xEF
+      for (let b1 = 0x81; b1 <= 0xEF; b1++) {
+        if (b1 > 0x9F && b1 < 0xE0) continue;
+        for (let b2 = 0x40; b2 <= 0xFC; b2++) {
+          if (b2 === 0x7F) continue;
+          const ch = dec.decode(new Uint8Array([b1, b2]));
+          if (ch.length === 1 && ch.charCodeAt(0) !== 0xFFFD && !_sjisMap.has(ch.charCodeAt(0)))
+            _sjisMap.set(ch.charCodeAt(0), new Uint8Array([b1, b2]));
+        }
+      }
+      // ¥ (U+00A5) → 0x5C、‾ (U+203E) → 0x7E を明示的に追加
+      _sjisMap.set(0x00A5, new Uint8Array([0x5C]));
+      _sjisMap.set(0x203E, new Uint8Array([0x7E]));
+      return _sjisMap;
+    }
+
+    function _encodeShiftJIS(str) {
+      const map = _getSJISMap();
+      const parts = [];
+      let totalLen = 0;
+      for (let i = 0; i < str.length; i++) {
+        const c = str.charCodeAt(i);
+        let bytes = map.get(c);
+        if (!bytes) {
+          // 変換不能文字: JISバイト幅に合わせてフォールバック
+          bytes = (c <= 0x7E || c === 0xA5 || (c >= 0xFF61 && c <= 0xFF9F))
+            ? new Uint8Array([0x3F])        // 半角 '?'
+            : new Uint8Array([0x81, 0x40]); // 全角スペース
+        }
+        parts.push(bytes);
+        totalLen += bytes.length;
+      }
+      const buf = new Uint8Array(totalLen);
+      let pos = 0;
+      for (const b of parts) { buf.set(b, pos); pos += b.length; }
+      return buf;
+    }
+
+    function _clipboardWriteSJIS(text) {
+      const blob = new Blob([_encodeShiftJIS(text)], { type: 'text/plain; charset=shift-jis' });
+      return navigator.clipboard.write([new ClipboardItem({ 'text/plain': blob })]);
+    }
+
     function _rowToTXT(row) {
       return TXT_FIELDS.map((field, i) => {
         const val = String(row[i] || '');
@@ -1869,9 +1947,19 @@
         return;
       }
       const text = _generateOutput();
-      navigator.clipboard.writeText(text)
-        .then(() => showToast(`${state.mode === 'csv' ? 'CSV' : 'TXT'}としてコピーしました（末尾改行付き）`, 'success'))
-        .catch(() => showToast('コピーに失敗しました', 'error'));
+      if (state.mode === 'csv') {
+        navigator.clipboard.writeText(text)
+          .then(() => showToast('CSVとしてコピーしました（末尾改行付き）', 'success'))
+          .catch(() => showToast('コピーに失敗しました', 'error'));
+      } else {
+        _clipboardWriteSJIS(text)
+          .then(() => showToast('TXTとしてコピーしました（Shift-JIS・末尾改行付き）', 'success'))
+          .catch(() => {
+            navigator.clipboard.writeText(text)
+              .then(() => showToast('TXTとしてコピーしました（末尾改行付き）', 'success'))
+              .catch(() => showToast('コピーに失敗しました', 'error'));
+          });
+      }
     }
 
     function downloadData() {
@@ -1881,11 +1969,14 @@
       }
       const text = _generateOutput();
       const isCsv = state.mode === 'csv';
-      const ext   = isCsv ? 'csv' : 'txt';
-      const mime  = isCsv ? 'text/csv; charset=utf-8' : 'text/plain; charset=utf-8';
-      const bom   = '\uFEFF';
-      const blob  = new Blob([bom + text], { type: mime });
-      const url   = URL.createObjectURL(blob);
+      const ext  = isCsv ? 'csv' : 'txt';
+      let blob;
+      if (isCsv) {
+        blob = new Blob(['\uFEFF' + text], { type: 'text/csv; charset=utf-8' });
+      } else {
+        blob = new Blob([_encodeShiftJIS(text)], { type: 'text/plain; charset=shift-jis' });
+      }
+      const url = URL.createObjectURL(blob);
 
       const a = document.createElement('a');
       a.href = url;
@@ -1895,7 +1986,7 @@
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      showToast(`${ext.toUpperCase()}ファイルをダウンロードしました（末尾改行付き）`, 'success');
+      showToast(`${ext.toUpperCase()}ファイルをダウンロードしました（${isCsv ? 'UTF-8 BOM付き' : 'Shift-JIS'}・末尾改行付き）`, 'success');
     }
 
     // ============================================================
