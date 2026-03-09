@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markdown Editor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg-secondary: #f8f9fa;
+      --bg-tertiary: #e9ecef;
+      --text: #212529;
+      --text-secondary: #6c757d;
+      --border: #dee2e6;
+      --accent: #4263eb;
+      --accent-hover: #3b5bdb;
+      --toolbar-bg: #f1f3f5;
+      --editor-bg: #ffffff;
+      --preview-bg: #fafafa;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --header-height: 52px;
+      --toolbar-height: 44px;
+      --status-height: 28px;
+      --code-bg: #f1f3f5;
+      --blockquote-border: #adb5bd;
+      --table-border: #dee2e6;
+      --divider: #ced4da;
+    }
+
+    [data-theme="dark"] {
+      --bg: #1a1b1e;
+      --bg-secondary: #25262b;
+      --bg-tertiary: #2c2e33;
+      --text: #c1c2c5;
+      --text-secondary: #909296;
+      --border: #373a40;
+      --accent: #4dabf7;
+      --accent-hover: #74c0fc;
+      --toolbar-bg: #25262b;
+      --editor-bg: #1a1b1e;
+      --preview-bg: #1e1f23;
+      --shadow: 0 1px 3px rgba(0,0,0,0.4);
+      --code-bg: #2c2e33;
+      --blockquote-border: #495057;
+      --table-border: #373a40;
+      --divider: #373a40;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ===== ヘッダー ===== */
+    .header {
+      height: var(--header-height);
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .header-logo .material-symbols-outlined {
+      font-size: 22px;
+      color: var(--accent);
+    }
+
+    .header-spacer { flex: 1; }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      background: var(--bg-tertiary);
+      color: var(--text);
+    }
+
+    .btn:hover { background: var(--border); }
+
+    .btn .material-symbols-outlined { font-size: 18px; }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    .btn-icon {
+      padding: 6px;
+      border-radius: 6px;
+    }
+
+    /* ===== ツールバー ===== */
+    .toolbar {
+      height: var(--toolbar-height);
+      background: var(--toolbar-bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      gap: 2px;
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .toolbar-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      transition: background 0.12s, color 0.12s;
+      flex-shrink: 0;
+    }
+
+    .toolbar-btn:hover {
+      background: var(--bg-tertiary);
+      color: var(--text);
+    }
+
+    .toolbar-btn .material-symbols-outlined { font-size: 18px; }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--divider);
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+
+    /* ===== メインコンテンツ ===== */
+    .main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .pane-header {
+      height: 32px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .pane-divider {
+      width: 4px;
+      background: var(--border);
+      cursor: col-resize;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+
+    .pane-divider:hover { background: var(--accent); }
+
+    /* ===== エディタ ===== */
+    #editor {
+      flex: 1;
+      width: 100%;
+      background: var(--editor-bg);
+      color: var(--text);
+      border: none;
+      outline: none;
+      resize: none;
+      padding: 20px 24px;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      tab-size: 2;
+    }
+
+    /* ===== プレビュー ===== */
+    #preview {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 32px;
+      background: var(--preview-bg);
+    }
+
+    /* Markdown レンダリングスタイル */
+    #preview h1, #preview h2, #preview h3,
+    #preview h4, #preview h5, #preview h6 {
+      color: var(--text);
+      line-height: 1.3;
+      margin: 1.4em 0 0.5em;
+      font-weight: 700;
+    }
+
+    #preview h1 { font-size: 2em; border-bottom: 2px solid var(--border); padding-bottom: 0.3em; }
+    #preview h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+    #preview h3 { font-size: 1.25em; }
+    #preview h4 { font-size: 1.1em; }
+    #preview h5 { font-size: 1em; }
+    #preview h6 { font-size: 0.9em; color: var(--text-secondary); }
+
+    #preview p { margin: 0.8em 0; line-height: 1.75; }
+
+    #preview a { color: var(--accent); text-decoration: none; }
+    #preview a:hover { text-decoration: underline; }
+
+    #preview strong { font-weight: 700; }
+    #preview em { font-style: italic; }
+    #preview del { text-decoration: line-through; color: var(--text-secondary); }
+
+    #preview code {
+      font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+      font-size: 0.88em;
+      background: var(--code-bg);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+      color: #e64980;
+    }
+
+    [data-theme="dark"] #preview code { color: #f783ac; }
+
+    #preview pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      overflow-x: auto;
+      margin: 1em 0;
+    }
+
+    #preview pre code {
+      background: none;
+      padding: 0;
+      color: var(--text);
+      font-size: 0.9em;
+      line-height: 1.6;
+    }
+
+    #preview blockquote {
+      border-left: 4px solid var(--blockquote-border);
+      margin: 1em 0;
+      padding: 8px 16px;
+      background: var(--bg-secondary);
+      border-radius: 0 6px 6px 0;
+      color: var(--text-secondary);
+    }
+
+    #preview ul, #preview ol {
+      padding-left: 1.8em;
+      margin: 0.6em 0;
+    }
+
+    #preview li { margin: 0.3em 0; line-height: 1.7; }
+
+    #preview li input[type="checkbox"] {
+      margin-right: 6px;
+      accent-color: var(--accent);
+    }
+
+    #preview hr {
+      border: none;
+      border-top: 2px solid var(--border);
+      margin: 1.5em 0;
+    }
+
+    #preview img {
+      max-width: 100%;
+      border-radius: 6px;
+      margin: 0.5em 0;
+    }
+
+    #preview table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1em 0;
+      font-size: 0.9em;
+    }
+
+    #preview th {
+      background: var(--bg-secondary);
+      font-weight: 600;
+      text-align: left;
+    }
+
+    #preview th, #preview td {
+      border: 1px solid var(--table-border);
+      padding: 8px 12px;
+    }
+
+    #preview tr:nth-child(even) td { background: var(--bg-secondary); }
+
+    /* ===== ステータスバー ===== */
+    .statusbar {
+      height: var(--status-height);
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 16px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .statusbar-item { display: flex; align-items: center; gap: 4px; }
+
+    /* ===== プレビュー専用モード ===== */
+    .layout-preview-only .editor-pane { display: none; }
+    .layout-preview-only .pane-divider { display: none; }
+    .layout-editor-only .preview-pane { display: none; }
+    .layout-editor-only .pane-divider { display: none; }
+
+    /* ===== レスポンシブ ===== */
+    @media (max-width: 640px) {
+      .main { flex-direction: column; }
+      .pane-divider { width: 100%; height: 4px; cursor: row-resize; }
+      #preview { padding: 16px; }
+      #editor { padding: 16px; }
+      .hide-mobile { display: none; }
+    }
+
+    /* ===== スクロールバー ===== */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+    /* ===== ビューモードボタン ===== */
+    .view-toggle {
+      display: flex;
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .view-toggle-btn {
+      padding: 3px 8px;
+      border: none;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .view-toggle-btn .material-symbols-outlined { font-size: 15px; }
+
+    .view-toggle-btn.active {
+      background: var(--bg);
+      color: var(--text);
+      box-shadow: var(--shadow);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-logo">
+      <span class="material-symbols-outlined">edit_document</span>
+      Markdown Editor
+    </div>
+    <div class="header-spacer"></div>
+    <div class="header-actions">
+      <div class="view-toggle" id="view-toggle">
+        <button class="view-toggle-btn" data-view="editor" title="エディタのみ">
+          <span class="material-symbols-outlined">code</span>
+        </button>
+        <button class="view-toggle-btn active" data-view="split" title="分割表示">
+          <span class="material-symbols-outlined">vertical_split</span>
+        </button>
+        <button class="view-toggle-btn" data-view="preview" title="プレビューのみ">
+          <span class="material-symbols-outlined">article</span>
+        </button>
+      </div>
+      <button class="btn hide-mobile" id="btn-copy-html" title="HTMLをコピー">
+        <span class="material-symbols-outlined">content_copy</span>
+        HTML
+      </button>
+      <button class="btn btn-primary" id="btn-export" title="HTMLとして保存">
+        <span class="material-symbols-outlined">download</span>
+        エクスポート
+      </button>
+      <button class="btn btn-icon" id="btn-theme" title="テーマ切り替え">
+        <span class="material-symbols-outlined" id="theme-icon">dark_mode</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ツールバー -->
+  <div class="toolbar" id="toolbar">
+    <button class="toolbar-btn" data-action="h1" title="見出し1">H1</button>
+    <button class="toolbar-btn" data-action="h2" title="見出し2">H2</button>
+    <button class="toolbar-btn" data-action="h3" title="見出し3">H3</button>
+    <div class="toolbar-divider"></div>
+    <button class="toolbar-btn" data-action="bold" title="太字 (Ctrl+B)">
+      <span class="material-symbols-outlined">format_bold</span>
+    </button>
+    <button class="toolbar-btn" data-action="italic" title="斜体 (Ctrl+I)">
+      <span class="material-symbols-outlined">format_italic</span>
+    </button>
+    <button class="toolbar-btn" data-action="strikethrough" title="打ち消し線">
+      <span class="material-symbols-outlined">strikethrough_s</span>
+    </button>
+    <div class="toolbar-divider"></div>
+    <button class="toolbar-btn" data-action="code-inline" title="インラインコード">
+      <span class="material-symbols-outlined">code</span>
+    </button>
+    <button class="toolbar-btn" data-action="code-block" title="コードブロック">
+      <span class="material-symbols-outlined">data_object</span>
+    </button>
+    <div class="toolbar-divider"></div>
+    <button class="toolbar-btn" data-action="link" title="リンク (Ctrl+K)">
+      <span class="material-symbols-outlined">link</span>
+    </button>
+    <button class="toolbar-btn" data-action="image" title="画像">
+      <span class="material-symbols-outlined">image</span>
+    </button>
+    <div class="toolbar-divider"></div>
+    <button class="toolbar-btn" data-action="ul" title="箇条書き">
+      <span class="material-symbols-outlined">format_list_bulleted</span>
+    </button>
+    <button class="toolbar-btn" data-action="ol" title="番号付きリスト">
+      <span class="material-symbols-outlined">format_list_numbered</span>
+    </button>
+    <button class="toolbar-btn" data-action="task" title="タスクリスト">
+      <span class="material-symbols-outlined">checklist</span>
+    </button>
+    <div class="toolbar-divider"></div>
+    <button class="toolbar-btn" data-action="blockquote" title="引用">
+      <span class="material-symbols-outlined">format_quote</span>
+    </button>
+    <button class="toolbar-btn" data-action="table" title="テーブル">
+      <span class="material-symbols-outlined">table</span>
+    </button>
+    <button class="toolbar-btn" data-action="hr" title="水平線">
+      <span class="material-symbols-outlined">horizontal_rule</span>
+    </button>
+  </div>
+
+  <!-- メインコンテンツ -->
+  <main class="main" id="main">
+    <!-- エディタペイン -->
+    <div class="pane editor-pane">
+      <div class="pane-header">Markdown</div>
+      <textarea id="editor" spellcheck="false" placeholder="Markdownを入力してください..."></textarea>
+    </div>
+
+    <div class="pane-divider" id="pane-divider"></div>
+
+    <!-- プレビューペイン -->
+    <div class="pane preview-pane">
+      <div class="pane-header">プレビュー</div>
+      <div id="preview"></div>
+    </div>
+  </main>
+
+  <!-- ステータスバー -->
+  <div class="statusbar">
+    <div class="statusbar-item">
+      <span class="material-symbols-outlined" style="font-size:13px">text_fields</span>
+      <span id="stat-chars">0 文字</span>
+    </div>
+    <div class="statusbar-item">
+      <span class="material-symbols-outlined" style="font-size:13px">article</span>
+      <span id="stat-words">0 単語</span>
+    </div>
+    <div class="statusbar-item">
+      <span class="material-symbols-outlined" style="font-size:13px">toc</span>
+      <span id="stat-lines">0 行</span>
+    </div>
+    <div style="flex:1"></div>
+    <div class="statusbar-item" id="stat-saved">
+      <span class="material-symbols-outlined" style="font-size:13px">check_circle</span>
+      保存済み
+    </div>
+  </div>
+
+  <script>
+    // ===== 定数 =====
+    const STORAGE_KEY = 'markdownEditor_content';
+    const THEME_KEY = 'markdownEditor_theme';
+
+    const SAMPLE_CONTENT = `# Markdown Editor へようこそ
+
+Arts1-ToolBox のシングルファイル Markdown エディタです。
+
+## 主な機能
+
+- **ライブプレビュー**: 入力と同時にプレビューが更新されます
+- **自動保存**: localStorageに自動的に保存されます
+- **テーマ切り替え**: ライト／ダークモード対応
+- **HTMLエクスポート**: プレビューをHTMLファイルとして保存できます
+
+## Markdown 記法
+
+### テキスト装飾
+
+**太字** / *斜体* / ~~打ち消し~~ / \`インラインコード\`
+
+### コードブロック
+
+\`\`\`javascript
+function greet(name) {
+  return \`Hello, \${name}!\`;
+}
+console.log(greet('World'));
+\`\`\`
+
+### テーブル
+
+| 名前 | 説明 | 対応 |
+|------|------|------|
+| 見出し | H1〜H6 | ✓ |
+| リスト | 箇条書き・番号付き | ✓ |
+| テーブル | 表組み | ✓ |
+
+### 引用
+
+> 良いツールは、使う人の思考を邪魔しない。
+
+### タスクリスト
+
+- [x] Markdownパーサー実装
+- [x] ライブプレビュー
+- [ ] 画像ドラッグ&ドロップ
+
+---
+
+*左ペインを編集して、右側のプレビューを確認してみてください。*
+`;
+
+    // ===== Markdownパーサー =====
+    function parseMarkdown(md) {
+      let html = md;
+
+      // コードブロックを先に保護
+      const codeBlocks = [];
+      html = html.replace(/```([\w]*)\n([\s\S]*?)```/g, (_, lang, code) => {
+        const escaped = escapeHtml(code.trimEnd());
+        const cls = lang ? ` class="language-${lang}"` : '';
+        codeBlocks.push(`<pre><code${cls}>${escaped}</code></pre>`);
+        return `\x00CODE${codeBlocks.length - 1}\x00`;
+      });
+
+      // インラインコードを保護
+      const inlineCodes = [];
+      html = html.replace(/`([^`\n]+?)`/g, (_, code) => {
+        inlineCodes.push(`<code>${escapeHtml(code)}</code>`);
+        return `\x00INLINE${inlineCodes.length - 1}\x00`;
+      });
+
+      // 水平線
+      html = html.replace(/^[ \t]*[-*_]{3,}[ \t]*$/gm, '<hr>');
+
+      // テーブル
+      html = _parseTable(html);
+
+      // 見出し
+      html = html.replace(/^######\s+(.+)$/gm, '<h6>$1</h6>');
+      html = html.replace(/^#####\s+(.+)$/gm, '<h5>$1</h5>');
+      html = html.replace(/^####\s+(.+)$/gm, '<h4>$1</h4>');
+      html = html.replace(/^###\s+(.+)$/gm, '<h3>$1</h3>');
+      html = html.replace(/^##\s+(.+)$/gm, '<h2>$1</h2>');
+      html = html.replace(/^#\s+(.+)$/gm, '<h1>$1</h1>');
+
+      // 引用ブロック
+      html = _parseBlockquote(html);
+
+      // リスト
+      html = _parseList(html);
+
+      // 段落
+      html = _parseParagraphs(html);
+
+      // インライン装飾
+      html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+      html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+      html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+      html = html.replace(/_([^_\n]+?)_/g, '<em>$1</em>');
+      html = html.replace(/~~(.+?)~~/g, '<del>$1</del>');
+
+      // 画像（リンクより先に処理）
+      html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
+
+      // リンク
+      html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+
+      // 改行（行末2スペース）
+      html = html.replace(/  \n/g, '<br>\n');
+
+      // コードブロックを復元
+      codeBlocks.forEach((block, i) => {
+        html = html.replace(`\x00CODE${i}\x00`, block);
+      });
+
+      inlineCodes.forEach((code, i) => {
+        html = html.replace(`\x00INLINE${i}\x00`, code);
+      });
+
+      return html;
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function _parseTable(html) {
+      const lines = html.split('\n');
+      const result = [];
+      let i = 0;
+      while (i < lines.length) {
+        // ヘッダー行 | ... | の後に区切り行 |---|...| があればテーブル
+        if (i + 1 < lines.length && /^\|.+\|$/.test(lines[i].trim()) && /^\|[\s\-:|]+\|$/.test(lines[i + 1].trim())) {
+          const headers = _parseTableRow(lines[i]);
+          const alignRow = lines[i + 1].split('|').slice(1, -1).map(s => s.trim());
+          const aligns = alignRow.map(s => {
+            if (s.startsWith(':') && s.endsWith(':')) return 'center';
+            if (s.endsWith(':')) return 'right';
+            return 'left';
+          });
+          let rows = [];
+          i += 2;
+          while (i < lines.length && /^\|.+\|$/.test(lines[i].trim())) {
+            rows.push(_parseTableRow(lines[i]));
+            i++;
+          }
+          let tableHtml = '<table><thead><tr>';
+          headers.forEach((h, j) => {
+            tableHtml += `<th style="text-align:${aligns[j] || 'left'}">${h}</th>`;
+          });
+          tableHtml += '</tr></thead><tbody>';
+          rows.forEach(row => {
+            tableHtml += '<tr>';
+            row.forEach((cell, j) => {
+              tableHtml += `<td style="text-align:${aligns[j] || 'left'}">${cell}</td>`;
+            });
+            tableHtml += '</tr>';
+          });
+          tableHtml += '</tbody></table>';
+          result.push(tableHtml);
+        } else {
+          result.push(lines[i]);
+          i++;
+        }
+      }
+      return result.join('\n');
+    }
+
+    function _parseTableRow(line) {
+      return line.trim().slice(1, -1).split('|').map(s => s.trim());
+    }
+
+    function _parseBlockquote(html) {
+      return html.replace(/(^>.*(\n>.*)*)/gm, match => {
+        const inner = match.replace(/^>\s?/gm, '');
+        return `<blockquote>${parseMarkdown(inner)}</blockquote>`;
+      });
+    }
+
+    function _parseList(html) {
+      // タスクリスト
+      html = html.replace(/^([ \t]*)-\s\[( |x)\]\s(.+)$/gm, (_, indent, checked, text) => {
+        const chk = checked === 'x' ? ' checked' : '';
+        return `${indent}<li class="task-item"><input type="checkbox"${chk} disabled>${text}</li>`;
+      });
+
+      // 順序なしリスト
+      html = html.replace(/((?:^[ \t]*[-*+]\s.+\n?)+)/gm, match => {
+        const items = match.replace(/^[ \t]*[-*+]\s(.+)$/gm, '<li>$1</li>');
+        return `<ul>${items}</ul>`;
+      });
+
+      // 順序付きリスト
+      html = html.replace(/((?:^[ \t]*\d+\.\s.+\n?)+)/gm, match => {
+        const items = match.replace(/^[ \t]*\d+\.\s(.+)$/gm, '<li>$1</li>');
+        return `<ol>${items}</ol>`;
+      });
+
+      return html;
+    }
+
+    function _parseParagraphs(html) {
+      const blocks = html.split(/\n{2,}/);
+      return blocks.map(block => {
+        block = block.trim();
+        if (!block) return '';
+        // 既にブロック要素なら段落にしない
+        if (/^<(h[1-6]|ul|ol|li|blockquote|pre|hr|table|thead|tbody|tr|th|td)/.test(block)) return block;
+        if (/\x00CODE/.test(block)) return block;
+        return `<p>${block.replace(/\n/g, ' ')}</p>`;
+      }).join('\n');
+    }
+
+    // ===== エディタ操作 =====
+    const editor = document.getElementById('editor');
+    const preview = document.getElementById('preview');
+
+    function getSelection() {
+      const start = editor.selectionStart;
+      const end = editor.selectionEnd;
+      return {
+        start,
+        end,
+        text: editor.value.slice(start, end),
+        before: editor.value.slice(0, start),
+        after: editor.value.slice(end)
+      };
+    }
+
+    function replaceSelection(newText, cursorOffset = null) {
+      const { start, end } = getSelection();
+      const before = editor.value.slice(0, start);
+      const after = editor.value.slice(end);
+      editor.value = before + newText + after;
+      const pos = cursorOffset !== null ? start + cursorOffset : start + newText.length;
+      editor.setSelectionRange(pos, pos);
+      editor.focus();
+      updatePreview();
+      autoSave();
+    }
+
+    function wrapSelection(before, after, placeholder = 'テキスト') {
+      const sel = getSelection();
+      const text = sel.text || placeholder;
+      const wrapped = before + text + after;
+      const { start } = sel;
+      editor.value = sel.before + wrapped + sel.after;
+      if (sel.text) {
+        editor.setSelectionRange(start, start + wrapped.length);
+      } else {
+        editor.setSelectionRange(start + before.length, start + before.length + placeholder.length);
+      }
+      editor.focus();
+      updatePreview();
+      autoSave();
+    }
+
+    function prependLine(prefix) {
+      const { start } = getSelection();
+      const lineStart = editor.value.lastIndexOf('\n', start - 1) + 1;
+      const lineEnd = editor.value.indexOf('\n', start);
+      const end = lineEnd === -1 ? editor.value.length : lineEnd;
+      const line = editor.value.slice(lineStart, end);
+      editor.value = editor.value.slice(0, lineStart) + prefix + line + editor.value.slice(end);
+      editor.setSelectionRange(lineStart + prefix.length, lineStart + prefix.length + line.length);
+      editor.focus();
+      updatePreview();
+      autoSave();
+    }
+
+    // ツールバーアクション
+    const TOOLBAR_ACTIONS = {
+      'h1':           () => prependLine('# '),
+      'h2':           () => prependLine('## '),
+      'h3':           () => prependLine('### '),
+      'bold':         () => wrapSelection('**', '**'),
+      'italic':       () => wrapSelection('*', '*'),
+      'strikethrough':() => wrapSelection('~~', '~~'),
+      'code-inline':  () => wrapSelection('`', '`', 'コード'),
+      'code-block':   () => wrapSelection('```\n', '\n```', 'コード'),
+      'link':         () => {
+        const sel = getSelection();
+        const text = sel.text || 'リンクテキスト';
+        const newText = `[${text}](https://)`;
+        replaceSelection(newText, text.length + 3);
+        // URLを選択状態にする
+        const { start } = sel;
+        editor.setSelectionRange(start + text.length + 3, start + newText.length - 1);
+        editor.focus();
+      },
+      'image':        () => wrapSelection('![', '](https://)', '代替テキスト'),
+      'ul':           () => prependLine('- '),
+      'ol':           () => prependLine('1. '),
+      'task':         () => prependLine('- [ ] '),
+      'blockquote':   () => prependLine('> '),
+      'hr':           () => replaceSelection('\n\n---\n\n'),
+      'table':        () => replaceSelection(
+        '\n| 列1 | 列2 | 列3 |\n|-----|-----|-----|\n| A   | B   | C   |\n'
+      ),
+    };
+
+    document.getElementById('toolbar').addEventListener('click', e => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const action = TOOLBAR_ACTIONS[btn.dataset.action];
+      if (action) action();
+    });
+
+    // キーボードショートカット
+    editor.addEventListener('keydown', e => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'b') { e.preventDefault(); TOOLBAR_ACTIONS['bold'](); }
+        if (e.key === 'i') { e.preventDefault(); TOOLBAR_ACTIONS['italic'](); }
+        if (e.key === 'k') { e.preventDefault(); TOOLBAR_ACTIONS['link'](); }
+      }
+      // Tab → スペース2つ
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        replaceSelection('  ');
+      }
+    });
+
+    // ===== プレビュー更新 =====
+    let previewTimeout;
+    function updatePreview() {
+      clearTimeout(previewTimeout);
+      previewTimeout = setTimeout(() => {
+        preview.innerHTML = parseMarkdown(editor.value);
+        updateStats();
+      }, 80);
+    }
+
+    function updateStats() {
+      const text = editor.value;
+      const chars = text.length;
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      const lines = text.split('\n').length;
+      document.getElementById('stat-chars').textContent = `${chars.toLocaleString()} 文字`;
+      document.getElementById('stat-words').textContent = `${words.toLocaleString()} 単語`;
+      document.getElementById('stat-lines').textContent = `${lines.toLocaleString()} 行`;
+    }
+
+    editor.addEventListener('input', () => {
+      updatePreview();
+      autoSave();
+    });
+
+    // ===== 自動保存 =====
+    let saveTimeout;
+    function autoSave() {
+      clearTimeout(saveTimeout);
+      document.getElementById('stat-saved').innerHTML =
+        '<span class="material-symbols-outlined" style="font-size:13px">sync</span>保存中...';
+      saveTimeout = setTimeout(() => {
+        try {
+          localStorage.setItem(STORAGE_KEY, editor.value);
+          document.getElementById('stat-saved').innerHTML =
+            '<span class="material-symbols-outlined" style="font-size:13px">check_circle</span>保存済み';
+        } catch (e) {
+          document.getElementById('stat-saved').innerHTML =
+            '<span class="material-symbols-outlined" style="font-size:13px">error</span>保存失敗';
+        }
+      }, 500);
+    }
+
+    // ===== テーマ切り替え =====
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      document.getElementById('theme-icon').textContent =
+        theme === 'dark' ? 'light_mode' : 'dark_mode';
+      localStorage.setItem(THEME_KEY, theme);
+    }
+
+    document.getElementById('btn-theme').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      applyTheme(current === 'dark' ? 'light' : 'dark');
+    });
+
+    // ===== ビュー切り替え =====
+    const main = document.getElementById('main');
+    document.getElementById('view-toggle').addEventListener('click', e => {
+      const btn = e.target.closest('[data-view]');
+      if (!btn) return;
+      const view = btn.dataset.view;
+      document.querySelectorAll('.view-toggle-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      main.className = 'main';
+      if (view === 'editor') main.classList.add('layout-editor-only');
+      if (view === 'preview') main.classList.add('layout-preview-only');
+    });
+
+    // ===== HTMLコピー =====
+    document.getElementById('btn-copy-html').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(preview.innerHTML);
+        const btn = document.getElementById('btn-copy-html');
+        const original = btn.innerHTML;
+        btn.innerHTML = '<span class="material-symbols-outlined">check</span>コピー完了';
+        setTimeout(() => { btn.innerHTML = original; }, 1500);
+      } catch (e) {
+        alert('クリップボードへのコピーに失敗しました');
+      }
+    });
+
+    // ===== HTMLエクスポート =====
+    document.getElementById('btn-export').addEventListener('click', () => {
+      const title = editor.value.match(/^#\s+(.+)/m)?.[1] || 'document';
+      const htmlContent = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${escapeHtml(title)}</title>
+<style>
+  body { max-width: 800px; margin: 40px auto; padding: 0 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.7; color: #212529; }
+  h1,h2 { border-bottom: 1px solid #dee2e6; padding-bottom: 0.3em; }
+  pre { background: #f1f3f5; padding: 16px; border-radius: 8px; overflow-x: auto; }
+  code { background: #f1f3f5; padding: 0.15em 0.4em; border-radius: 4px; font-family: monospace; color: #e64980; }
+  pre code { background: none; color: inherit; padding: 0; }
+  blockquote { border-left: 4px solid #adb5bd; margin: 1em 0; padding: 8px 16px; background: #f8f9fa; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border: 1px solid #dee2e6; padding: 8px 12px; }
+  th { background: #f8f9fa; }
+  img { max-width: 100%; }
+  a { color: #4263eb; }
+</style>
+</head>
+<body>${preview.innerHTML}</body>
+</html>`;
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${title.replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-')}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // ===== 初期化 =====
+    function init() {
+      // テーマ復元
+      const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
+      applyTheme(savedTheme);
+
+      // コンテンツ復元
+      const saved = localStorage.getItem(STORAGE_KEY);
+      editor.value = saved !== null ? saved : SAMPLE_CONTENT;
+      updatePreview();
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
