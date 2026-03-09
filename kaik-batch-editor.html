@@ -1761,12 +1761,11 @@
     }
 
     // JIS バイト数ユーティリティ（半角=1バイト、全角=2バイト）
-    // 1バイト文字: ASCII (U+0000-U+007E) / ¥記号 (U+00A5→Shift-JIS 0x5C) / 半角カタカナ (U+FF61-U+FF9F)
     function _jisByteLen(str) {
       let n = 0;
       for (let i = 0; i < str.length; i++) {
         const c = str.charCodeAt(i);
-        n += (c <= 0x7E || c === 0xA5 || (c >= 0xFF61 && c <= 0xFF9F)) ? 1 : 2;
+        n += (c <= 0x7E || (c >= 0xFF61 && c <= 0xFF9F)) ? 1 : 2;
       }
       return n;
     }
@@ -1774,7 +1773,7 @@
       let n = 0, i = 0;
       for (; i < str.length; i++) {
         const c = str.charCodeAt(i);
-        const b = (c <= 0x7E || c === 0xA5 || (c >= 0xFF61 && c <= 0xFF9F)) ? 1 : 2;
+        const b = (c <= 0x7E || (c >= 0xFF61 && c <= 0xFF9F)) ? 1 : 2;
         if (n + b > maxBytes) break;
         n += b;
       }
@@ -1788,7 +1787,7 @@
       let n = 0, i = 0;
       for (; i < str.length && n < startByte; i++) {
         const c = str.charCodeAt(i);
-        n += (c <= 0x7E || c === 0xA5 || (c >= 0xFF61 && c <= 0xFF9F)) ? 1 : 2;
+        n += (c <= 0x7E || (c >= 0xFF61 && c <= 0xFF9F)) ? 1 : 2;
       }
       return _jisSlice(str.substring(i), numBytes);
     }
