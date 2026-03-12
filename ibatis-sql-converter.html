@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iBatis SQL Converter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f5f5;
+      --bg-tertiary: #e8e8e8;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --accent-color: #4285f4;
+      --accent-hover: #3367d6;
+      --border-color: #e0e0e0;
+      --keyword-color: #0033cc;
+      --string-color: #008800;
+      --comment-color: #888888;
+      --param-color: #cc3300;
+      --success-color: #0f9d58;
+      --error-color: #db4437;
+      --shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #1e1e1e;
+      --bg-secondary: #252525;
+      --bg-tertiary: #333333;
+      --text-primary: #d4d4d4;
+      --text-secondary: #888888;
+      --accent-color: #4da6ff;
+      --accent-hover: #66b3ff;
+      --border-color: #404040;
+      --keyword-color: #569cd6;
+      --string-color: #6a9955;
+      --comment-color: #608b4e;
+      --param-color: #ce9178;
+      --shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: var(--shadow);
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .header-icon { color: var(--accent-color); font-size: 24px; }
+    .app-title { font-size: 17px; font-weight: 600; }
+    .app-subtitle { font-size: 12px; color: var(--text-secondary); }
+    .header-spacer { flex: 1; }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      transition: background 0.2s, color 0.2s;
+    }
+    .icon-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg-primary);
+      min-width: 0;
+    }
+    .panel + .panel { border-left: 2px solid var(--border-color); }
+
+    .panel-header {
+      padding: 7px 12px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+    .panel-header .material-symbols-outlined { font-size: 16px; }
+    .panel-spacer { flex: 1; }
+
+    .btn {
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .btn:hover { background: var(--bg-tertiary); }
+    .btn .material-symbols-outlined { font-size: 14px; }
+
+    .btn-primary {
+      background: var(--accent-color);
+      color: white;
+      border-color: var(--accent-color);
+    }
+    .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+    .examples-bar {
+      padding: 6px 12px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+    .example-label { font-size: 11px; color: var(--text-secondary); margin-right: 2px; }
+    .example-btn {
+      font-size: 11px;
+      padding: 2px 9px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .example-btn:hover {
+      background: var(--accent-color);
+      color: white;
+      border-color: var(--accent-color);
+    }
+
+    .options-bar {
+      padding: 7px 12px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+
+    .option-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    select {
+      padding: 3px 6px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .params-section {
+      padding: 6px 12px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    .params-toggle {
+      font-size: 12px;
+      color: var(--accent-color);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+    .params-toggle .material-symbols-outlined { font-size: 15px; transition: transform 0.2s; }
+    .params-toggle.open .material-symbols-outlined { transform: rotate(90deg); }
+
+    .params-body {
+      display: none;
+      margin-top: 6px;
+    }
+    .params-body.open { display: block; }
+
+    .params-body textarea {
+      width: 100%;
+      height: 68px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 12px;
+      padding: 5px 8px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      resize: vertical;
+    }
+
+    .params-error { font-size: 11px; color: var(--error-color); margin-top: 3px; }
+
+    textarea#input-area {
+      flex: 1;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      outline: none;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.65;
+      resize: none;
+    }
+
+    .output-wrap {
+      flex: 1;
+      overflow: auto;
+    }
+
+    .output-area {
+      padding: 12px;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 100%;
+    }
+
+    .output-placeholder {
+      color: var(--text-secondary);
+      font-style: italic;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 13px;
+    }
+
+    .status-bar {
+      padding: 4px 12px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status-ok { color: var(--success-color); }
+    .status-err { color: var(--error-color); }
+
+    .copy-msg {
+      font-size: 11px;
+      color: var(--success-color);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .copy-msg.show { opacity: 1; }
+
+    /* Syntax highlight */
+    .sql-keyword { color: var(--keyword-color); font-weight: bold; }
+    .sql-string  { color: var(--string-color); }
+    .sql-comment { color: var(--comment-color); font-style: italic; }
+    .sql-param   { color: var(--param-color); }
+
+    @media (max-width: 720px) {
+      .main-content { flex-direction: column; }
+      .panel + .panel { border-left: none; border-top: 2px solid var(--border-color); }
+      body { overflow: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="material-symbols-outlined header-icon">transform</span>
+  <div>
+    <div class="app-title">iBatis SQL Converter</div>
+    <div class="app-subtitle">MyBatis / iBatis → 通常のSQL</div>
+  </div>
+  <div class="header-spacer"></div>
+  <button class="icon-btn" id="theme-toggle" title="テーマ切り替え">
+    <span class="material-symbols-outlined" id="theme-icon">dark_mode</span>
+  </button>
+</header>
+
+<div class="main-content">
+
+  <!-- ===== 入力パネル ===== -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="material-symbols-outlined">edit_note</span>
+      iBatis SQL（入力）
+      <div class="panel-spacer"></div>
+      <button class="btn" id="clear-btn"><span class="material-symbols-outlined">delete_sweep</span>クリア</button>
+      <button class="btn btn-primary" id="convert-btn"><span class="material-symbols-outlined">play_arrow</span>変換</button>
+    </div>
+
+    <div class="examples-bar">
+      <span class="example-label">サンプル:</span>
+      <button class="example-btn" data-example="select">SELECT + IF/WHERE</button>
+      <button class="example-btn" data-example="update">UPDATE + SET</button>
+      <button class="example-btn" data-example="foreach">FOREACH (IN句)</button>
+      <button class="example-btn" data-example="choose">CHOOSE/WHEN</button>
+      <button class="example-btn" data-example="trim">TRIM</button>
+    </div>
+
+    <div class="options-bar">
+      <div class="option-group">
+        <label for="param-style">パラメータ形式:</label>
+        <select id="param-style">
+          <option value="question">? (位置パラメータ)</option>
+          <option value="named">:name (名前付き)</option>
+          <option value="placeholder">#{name} (そのまま保持)</option>
+          <option value="value">値で置換 (パラメータ必要)</option>
+        </select>
+      </div>
+      <div class="option-group">
+        <label for="condition-mode">条件ブロック:</label>
+        <select id="condition-mode">
+          <option value="comment">コメントで表示</option>
+          <option value="include">すべて含める</option>
+          <option value="evaluate">パラメータで評価</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="params-section">
+      <button class="params-toggle" id="params-toggle">
+        <span class="material-symbols-outlined">chevron_right</span>
+        パラメータ設定（条件評価・値置換に使用）
+      </button>
+      <div class="params-body" id="params-body">
+        <textarea id="params-input" placeholder='{"name": "山田太郎", "age": 25, "active": true, "ids": [1,2,3]}'></textarea>
+        <div class="params-error" id="params-error"></div>
+      </div>
+    </div>
+
+    <textarea id="input-area" spellcheck="false" placeholder="iBatis/MyBatisのSQLをここに貼り付けてください...
+
+例:
+&lt;select id=&quot;findUsers&quot; resultType=&quot;User&quot;&gt;
+  SELECT * FROM users
+  &lt;where&gt;
+    &lt;if test=&quot;name != null&quot;&gt;
+      AND name = #{name}
+    &lt;/if&gt;
+  &lt;/where&gt;
+&lt;/select&gt;"></textarea>
+  </div>
+
+  <!-- ===== 出力パネル ===== -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="material-symbols-outlined">code</span>
+      変換結果（SQL）
+      <div class="panel-spacer"></div>
+      <span class="copy-msg" id="copy-msg">コピーしました!</span>
+      <button class="btn" id="copy-btn"><span class="material-symbols-outlined">content_copy</span>コピー</button>
+    </div>
+
+    <div class="output-wrap">
+      <div class="output-area" id="output-area">
+        <span class="output-placeholder">← 入力して「変換」ボタンを押してください</span>
+      </div>
+    </div>
+
+    <div class="status-bar" id="status-bar">待機中</div>
+  </div>
+
+</div>
+
+<script>
+'use strict';
+
+// ============================================================
+//  IBatis SQL Converter
+// ============================================================
+class IBatisSQLConverter {
+  constructor(options = {}) {
+    this.paramStyle    = options.paramStyle    || 'question';
+    this.conditionMode = options.conditionMode || 'comment';
+    this.params        = options.params        || {};
+    this.paramCount    = 0;
+  }
+
+  convert(input) {
+    this.paramCount = 0;
+    if (!input.trim()) return { sql: '', error: null, params: 0 };
+
+    // Handle both iBatis v2 (#name#, $name$) and v3 (#{name}, ${name})
+    // Wrap in a single root for DOMParser
+    const wrapped = `<ibatis-root>${input}</ibatis-root>`;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(wrapped, 'text/xml');
+
+    const parseErr = doc.querySelector('parsererror');
+    if (parseErr) {
+      // Try wrapping in CDATA as fallback
+      const cdataWrapped = `<ibatis-root><![CDATA[${input}]]></ibatis-root>`;
+      const doc2 = parser.parseFromString(cdataWrapped, 'text/xml');
+      if (!doc2.querySelector('parsererror')) {
+        const sql = this._clean(doc2.documentElement.textContent);
+        return { sql: this._processRawText(sql), error: null, params: this.paramCount };
+      }
+      return { sql: '', error: 'XML解析エラー: 属性値の引用符や特殊文字（<, >, &）を確認してください。' };
+    }
+
+    const root = doc.documentElement;
+    const sql  = this._node(root);
+    return { sql: this._clean(sql), error: null, params: this.paramCount };
+  }
+
+  // --- Node dispatcher ---
+  _node(n) {
+    if (!n) return '';
+    switch (n.nodeType) {
+      case Node.TEXT_NODE:    return this._text(n.textContent);
+      case Node.COMMENT_NODE: return `/* ${n.textContent.trim()} */\n`;
+      case Node.ELEMENT_NODE: return this._elem(n);
+      default: return '';
+    }
+  }
+
+  _children(n) {
+    return Array.from(n.childNodes).map(c => this._node(c)).join('');
+  }
+
+  // --- Element handlers ---
+  _elem(n) {
+    const tag = n.tagName.toLowerCase();
+    switch (tag) {
+      case 'ibatis-root':
+      case 'mapper':
+        return this._children(n);
+      case 'select':
+      case 'insert':
+      case 'update':
+      case 'delete':
+      case 'sql':
+        return this._children(n);
+      case 'if':
+        return this._if(n);
+      case 'choose':
+        return this._choose(n);
+      case 'when':
+      case 'otherwise':
+        return this._children(n);
+      case 'where':
+        return this._where(n);
+      case 'set':
+        return this._set(n);
+      case 'trim':
+        return this._trim(n);
+      case 'foreach':
+        return this._foreach(n);
+      case 'bind':
+        return '';
+      case 'include':
+        return `/* [INCLUDE: ${n.getAttribute('refid')}] */`;
+      default:
+        return this._children(n);
+    }
+  }
+
+  _if(n) {
+    const cond    = n.getAttribute('test') || '';
+    const content = this._children(n);
+    const mode    = this.conditionMode;
+
+    if (mode === 'evaluate') {
+      return this._eval(cond) ? content : '';
+    }
+    if (mode === 'include') {
+      return content;
+    }
+    // comment mode
+    const inner = content.trim();
+    if (!inner) return '';
+    return `\n/* IF: ${cond} */\n${inner}\n/* END IF */\n`;
+  }
+
+  _choose(n) {
+    const kids = Array.from(n.childNodes).filter(c => c.nodeType === Node.ELEMENT_NODE);
+    const mode = this.conditionMode;
+
+    if (mode === 'evaluate') {
+      for (const k of kids) {
+        const t = k.tagName.toLowerCase();
+        if (t === 'when' && this._eval(k.getAttribute('test') || '')) return this._children(k);
+        if (t === 'otherwise') return this._children(k);
+      }
+      return '';
+    }
+
+    if (mode === 'include') {
+      const w = kids.find(k => k.tagName.toLowerCase() === 'when');
+      const o = kids.find(k => k.tagName.toLowerCase() === 'otherwise');
+      if (w) return this._children(w);
+      if (o) return this._children(o);
+      return '';
+    }
+
+    // comment mode
+    let out = '\n/* CHOOSE */\n';
+    for (const k of kids) {
+      const t = k.tagName.toLowerCase();
+      if (t === 'when') {
+        out += `/* WHEN: ${k.getAttribute('test')} */\n${this._children(k).trim()}\n`;
+      } else if (t === 'otherwise') {
+        out += `/* OTHERWISE */\n${this._children(k).trim()}\n`;
+      }
+    }
+    out += '/* END CHOOSE */\n';
+    return out;
+  }
+
+  _where(n) {
+    let inner = this._children(n).trim();
+    // Remove leading AND / OR
+    inner = inner.replace(/^(AND|OR)\b[\s]*/i, '');
+    if (!inner) return '';
+    return `WHERE\n  ${inner}`;
+  }
+
+  _set(n) {
+    let inner = this._children(n).trim();
+    // Remove trailing comma
+    inner = inner.replace(/,\s*$/, '');
+    if (!inner) return '';
+    return `SET\n  ${inner}`;
+  }
+
+  _trim(n) {
+    const prefix          = n.getAttribute('prefix')          || '';
+    const suffix          = n.getAttribute('suffix')          || '';
+    const prefixOverrides = n.getAttribute('prefixOverrides') || '';
+    const suffixOverrides = n.getAttribute('suffixOverrides') || '';
+
+    let inner = this._children(n).trim();
+    if (!inner) return '';
+
+    if (prefixOverrides) {
+      for (const ov of prefixOverrides.split('|').map(s => s.trim()).filter(Boolean)) {
+        inner = inner.replace(new RegExp(`^\\s*${_escRe(ov)}\\s*`, 'i'), '');
+      }
+      inner = inner.trim();
+    }
+    if (suffixOverrides) {
+      for (const ov of suffixOverrides.split('|').map(s => s.trim()).filter(Boolean)) {
+        inner = inner.replace(new RegExp(`\\s*${_escRe(ov)}\\s*$`, 'i'), '');
+      }
+      inner = inner.trim();
+    }
+    if (!inner) return '';
+    return `${prefix ? prefix + ' ' : ''}${inner}${suffix ? ' ' + suffix : ''}`;
+  }
+
+  _foreach(n) {
+    const collection = n.getAttribute('collection') || 'list';
+    const open       = n.getAttribute('open')       || '';
+    const close      = n.getAttribute('close')      || '';
+    const separator  = n.getAttribute('separator')  || ',';
+
+    // Render one iteration of inner content to show the pattern
+    const innerTemplate = this._children(n).trim();
+    return `${open}/* foreach: ${collection} */ ${innerTemplate}${separator} ${innerTemplate} /* ... */${close}`;
+  }
+
+  // --- Text: replace iBatis placeholders ---
+  _text(raw) {
+    return this._processRawText(raw);
+  }
+
+  _processRawText(raw) {
+    let s = raw;
+    // iBatis v3: #{param} → parameterized
+    s = s.replace(/#\{([^}]+)\}/g, (_, p) => this._param(p.split(',')[0].trim()));
+    // iBatis v2: #param# → parameterized
+    s = s.replace(/#([a-zA-Z_][a-zA-Z0-9_.]*)#/g, (_, p) => this._param(p));
+    // iBatis v3: ${param} → substitution placeholder
+    s = s.replace(/\$\{([^}]+)\}/g, (_, p) => this._subst(p.trim()));
+    // iBatis v2: $param$ → substitution placeholder
+    s = s.replace(/\$([a-zA-Z_][a-zA-Z0-9_.]*)(?=\$)/g, (_, p) => this._subst(p));
+    s = s.replace(/\$/g, ''); // remove trailing $ from v2 style
+    return s;
+  }
+
+  _param(name) {
+    switch (this.paramStyle) {
+      case 'question':
+        this.paramCount++;
+        return '?';
+      case 'named':
+        return `:${name}`;
+      case 'placeholder':
+        return `#{${name}}`;
+      case 'value': {
+        const v = this.params[name];
+        if (v === undefined || v === null) return 'NULL';
+        if (typeof v === 'string') return `'${v.replace(/'/g, "''")}'`;
+        if (typeof v === 'boolean') return v ? '1' : '0';
+        return String(v);
+      }
+      default: return '?';
+    }
+  }
+
+  _subst(name) {
+    if (this.paramStyle === 'value') {
+      const v = this.params[name];
+      if (v !== undefined) return String(v);
+    }
+    return `/* \${${name}} */`;
+  }
+
+  // --- Condition evaluator (user-supplied expressions only) ---
+  _eval(condition) {
+    try {
+      let expr = condition
+        .replace(/\band\b/gi,   '&&')
+        .replace(/\bor\b/gi,    '||')
+        .replace(/\bnot\b\s*/gi,'!')
+        .replace(/\.size\(\)\s*==\s*0/g,  '.length === 0')
+        .replace(/\.size\(\)\s*!=\s*0/g,  '.length !== 0')
+        .replace(/\.size\(\)/g,           '.length')
+        .replace(/\.isEmpty\(\)/g,        '.length === 0')
+        .replace(/\.equals\(([^)]+)\)/g,  '=== $1')
+        .replace(/'([^']*)'/g,            '"$1"')
+        .replace(/@([^@]+)@/g,            '"$1"');
+
+      // Substitute known params (longest keys first to avoid partial replacement)
+      const keys = Object.keys(this.params).sort((a, b) => b.length - a.length);
+      for (const k of keys) {
+        const v   = this.params[k];
+        const jsv = (v === null || v === undefined) ? 'null'
+                  : typeof v === 'string' ? `"${v}"`
+                  : String(v);
+        expr = expr.replace(new RegExp(`\\b${_escRe(k)}\\b`, 'g'), jsv);
+      }
+      // Replace any remaining identifiers with null
+      expr = expr.replace(/\b([a-zA-Z_$][a-zA-Z0-9_$.]*)\b/g, m =>
+        ['null','true','false','undefined','NaN','Infinity'].includes(m) ? m : 'null'
+      );
+      // eslint-disable-next-line no-eval
+      return !!eval(expr); // safe: user-provided conditions only
+    } catch {
+      return true; // include on error
+    }
+  }
+
+  // --- Cleanup ---
+  _clean(sql) {
+    return sql
+      .replace(/\t/g,    '  ')
+      .replace(/[ \t]+$/gm, '')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim() + '\n';
+  }
+}
+
+function _escRe(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// ============================================================
+//  SQL Syntax Highlighter (tokenizer-based)
+// ============================================================
+const SQL_KEYWORDS = new Set([
+  'SELECT','FROM','WHERE','AND','OR','NOT','IN','LIKE','IS','NULL',
+  'INSERT','INTO','VALUES','UPDATE','SET','DELETE','JOIN',
+  'LEFT','RIGHT','INNER','OUTER','FULL','CROSS','NATURAL',
+  'ON','GROUP','BY','ORDER','HAVING','LIMIT','OFFSET',
+  'DISTINCT','AS','CASE','WHEN','THEN','ELSE','END',
+  'EXISTS','BETWEEN','ALL','ANY','UNION','INTERSECT','EXCEPT',
+  'CREATE','TABLE','ASC','DESC','WITH','USING','RETURNING','TOP',
+]);
+
+function tokenize(sql) {
+  const tokens = [];
+  let i = 0;
+  const n = sql.length;
+  while (i < n) {
+    // Block comment
+    if (sql[i] === '/' && sql[i+1] === '*') {
+      const e = sql.indexOf('*/', i + 2);
+      const end = e < 0 ? n : e + 2;
+      tokens.push({ type: 'comment', v: sql.slice(i, end) });
+      i = end;
+      continue;
+    }
+    // Line comment
+    if (sql[i] === '-' && sql[i+1] === '-') {
+      const e = sql.indexOf('\n', i);
+      const end = e < 0 ? n : e;
+      tokens.push({ type: 'comment', v: sql.slice(i, end) });
+      i = end;
+      continue;
+    }
+    // Single-quoted string
+    if (sql[i] === "'") {
+      let j = i + 1;
+      while (j < n) {
+        if (sql[j] === "'" && sql[j+1] === "'") { j += 2; continue; }
+        if (sql[j] === "'") { j++; break; }
+        j++;
+      }
+      tokens.push({ type: 'string', v: sql.slice(i, j) });
+      i = j;
+      continue;
+    }
+    // Named param :name
+    if (sql[i] === ':' && i + 1 < n && /[a-zA-Z_]/.test(sql[i+1])) {
+      let j = i + 1;
+      while (j < n && /[a-zA-Z0-9_]/.test(sql[j])) j++;
+      tokens.push({ type: 'param', v: sql.slice(i, j) });
+      i = j;
+      continue;
+    }
+    // Positional param ?
+    if (sql[i] === '?') {
+      tokens.push({ type: 'param', v: '?' });
+      i++;
+      continue;
+    }
+    // iBatis placeholder #{...} or ${...}
+    if ((sql[i] === '#' || sql[i] === '$') && sql[i+1] === '{') {
+      const e = sql.indexOf('}', i + 2);
+      const end = e < 0 ? n : e + 1;
+      tokens.push({ type: 'param', v: sql.slice(i, end) });
+      i = end;
+      continue;
+    }
+    // Other text (accumulate until next special char)
+    let j = i;
+    while (j < n) {
+      const c = sql[j];
+      if (c === '/' && sql[j+1] === '*') break;
+      if (c === '-' && sql[j+1] === '-') break;
+      if (c === "'") break;
+      if (c === ':' && /[a-zA-Z_]/.test(sql[j+1])) break;
+      if (c === '?') break;
+      if ((c === '#' || c === '$') && sql[j+1] === '{') break;
+      j++;
+    }
+    if (j > i) {
+      tokens.push({ type: 'text', v: sql.slice(i, j) });
+      i = j;
+    } else {
+      tokens.push({ type: 'text', v: sql[i] });
+      i++;
+    }
+  }
+  return tokens;
+}
+
+function escapeHTML(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlightText(t) {
+  return t.replace(/\b([A-Za-z_][A-Za-z0-9_]*)\b/g, m =>
+    SQL_KEYWORDS.has(m.toUpperCase()) ? `<span class="sql-keyword">${m}</span>` : m
+  );
+}
+
+function highlightSQL(sql) {
+  if (!sql.trim()) return '';
+  return tokenize(sql).map(({ type, v }) => {
+    const e = escapeHTML(v);
+    switch (type) {
+      case 'comment': return `<span class="sql-comment">${e}</span>`;
+      case 'string':  return `<span class="sql-string">${e}</span>`;
+      case 'param':   return `<span class="sql-param">${e}</span>`;
+      case 'text':    return highlightText(e);
+      default:        return e;
+    }
+  }).join('');
+}
+
+// ============================================================
+//  Sample SQL
+// ============================================================
+const EXAMPLES = {
+  select: `<select id="findUsers" parameterType="map" resultType="User">
+  SELECT
+    id, name, email, age, status
+  FROM users
+  <where>
+    <if test="name != null and name != ''">
+      AND name LIKE #{name}
+    </if>
+    <if test="status != null">
+      AND status = #{status}
+    </if>
+    <if test="minAge != null">
+      AND age &gt;= #{minAge}
+    </if>
+  </where>
+  ORDER BY id DESC
+  <if test="limit != null">
+    LIMIT #{limit} OFFSET #{offset}
+  </if>
+</select>`,
+
+  update: `<update id="updateUser" parameterType="User">
+  UPDATE users
+  <set>
+    <if test="name != null">name = #{name},</if>
+    <if test="email != null">email = #{email},</if>
+    <if test="status != null">status = #{status,jdbcType=VARCHAR},</if>
+    updated_at = NOW()
+  </set>
+  WHERE id = #{id}
+</update>`,
+
+  foreach: `<select id="findByIds" parameterType="map" resultType="User">
+  SELECT id, name, email
+  FROM users
+  WHERE
+    status = #{status}
+    AND id IN
+    <foreach collection="ids" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  ORDER BY id
+</select>`,
+
+  choose: `<select id="searchUsers" parameterType="map" resultType="User">
+  SELECT * FROM users
+  WHERE
+  <choose>
+    <when test="searchType == 'name'">
+      name LIKE #{keyword}
+    </when>
+    <when test="searchType == 'email'">
+      email = #{keyword}
+    </when>
+    <otherwise>
+      1 = 1
+    </otherwise>
+  </choose>
+  ORDER BY id
+</select>`,
+
+  trim: `<select id="findOrders" parameterType="map" resultType="Order">
+  SELECT * FROM orders
+  <trim prefix="WHERE" prefixOverrides="AND |OR ">
+    <if test="userId != null">
+      AND user_id = #{userId}
+    </if>
+    <if test="status != null">
+      AND status = #{status}
+    </if>
+    <if test="fromDate != null">
+      AND created_at &gt;= #{fromDate}
+    </if>
+  </trim>
+  ORDER BY created_at DESC
+</select>`,
+};
+
+// ============================================================
+//  UI State
+// ============================================================
+const STORAGE_KEY = 'ibatis_converter_state';
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      input:     document.getElementById('input-area').value,
+      params:    document.getElementById('params-input').value,
+      paramStyle:    document.getElementById('param-style').value,
+      conditionMode: document.getElementById('condition-mode').value,
+      paramsOpen:    document.getElementById('params-body').classList.contains('open'),
+      theme:         document.documentElement.getAttribute('data-theme'),
+    }));
+  } catch { /* ignore */ }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    if (s.input)    document.getElementById('input-area').value    = s.input;
+    if (s.params)   document.getElementById('params-input').value   = s.params;
+    if (s.paramStyle)    document.getElementById('param-style').value    = s.paramStyle;
+    if (s.conditionMode) document.getElementById('condition-mode').value = s.conditionMode;
+    if (s.paramsOpen) {
+      document.getElementById('params-body').classList.add('open');
+      document.getElementById('params-toggle').classList.add('open');
+    }
+    if (s.theme) {
+      document.documentElement.setAttribute('data-theme', s.theme);
+      updateThemeIcon(s.theme);
+    }
+    if (s.input) runConvert();
+  } catch { /* ignore */ }
+}
+
+function getParams() {
+  const raw = document.getElementById('params-input').value.trim();
+  const errEl = document.getElementById('params-error');
+  if (!raw) { errEl.textContent = ''; return {}; }
+  try {
+    const p = JSON.parse(raw);
+    errEl.textContent = '';
+    return p;
+  } catch (e) {
+    errEl.textContent = `JSON解析エラー: ${e.message}`;
+    return {};
+  }
+}
+
+function runConvert() {
+  const input    = document.getElementById('input-area').value;
+  const paramStyle    = document.getElementById('param-style').value;
+  const conditionMode = document.getElementById('condition-mode').value;
+  const params   = getParams();
+
+  const converter = new IBatisSQLConverter({ paramStyle, conditionMode, params });
+  const { sql, error, params: pCount } = converter.convert(input);
+
+  const outputEl = document.getElementById('output-area');
+  const statusEl = document.getElementById('status-bar');
+
+  if (error) {
+    outputEl.innerHTML = `<span style="color:var(--error-color)">${escapeHTML(error)}</span>`;
+    statusEl.innerHTML = `<span class="status-err">エラー: ${escapeHTML(error)}</span>`;
+    return;
+  }
+
+  if (!sql.trim()) {
+    outputEl.innerHTML = '<span class="output-placeholder">入力が空です</span>';
+    statusEl.textContent = '待機中';
+    return;
+  }
+
+  outputEl.innerHTML = highlightSQL(sql);
+
+  const lines = sql.split('\n').filter(l => l.trim()).length;
+  const paramInfo = paramStyle === 'question' && pCount > 0 ? ` | パラメータ: ${pCount}個` : '';
+  statusEl.innerHTML = `<span class="status-ok">変換完了</span> | ${lines}行${paramInfo}`;
+
+  saveState();
+}
+
+// ============================================================
+//  Theme
+// ============================================================
+function updateThemeIcon(theme) {
+  document.getElementById('theme-icon').textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+}
+
+function toggleTheme() {
+  const cur  = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  updateThemeIcon(next);
+  saveState();
+}
+
+// ============================================================
+//  Init
+// ============================================================
+function init() {
+  // Convert
+  document.getElementById('convert-btn').addEventListener('click', runConvert);
+
+  // Ctrl+Enter to convert
+  document.getElementById('input-area').addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runConvert(); }
+  });
+
+  // Clear
+  document.getElementById('clear-btn').addEventListener('click', () => {
+    document.getElementById('input-area').value = '';
+    document.getElementById('output-area').innerHTML = '<span class="output-placeholder">← 入力して「変換」ボタンを押してください</span>';
+    document.getElementById('status-bar').textContent = '待機中';
+    saveState();
+  });
+
+  // Copy
+  document.getElementById('copy-btn').addEventListener('click', () => {
+    const text = document.getElementById('output-area').innerText;
+    if (!text.trim() || text.includes('入力して')) return;
+    navigator.clipboard.writeText(text).then(() => {
+      const msg = document.getElementById('copy-msg');
+      msg.classList.add('show');
+      setTimeout(() => msg.classList.remove('show'), 2000);
+    });
+  });
+
+  // Theme
+  document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
+  // Examples
+  document.querySelectorAll('.example-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const ex = EXAMPLES[btn.dataset.example];
+      if (ex) {
+        document.getElementById('input-area').value = ex;
+        runConvert();
+      }
+    });
+  });
+
+  // Params toggle
+  document.getElementById('params-toggle').addEventListener('click', () => {
+    const body   = document.getElementById('params-body');
+    const toggle = document.getElementById('params-toggle');
+    body.classList.toggle('open');
+    toggle.classList.toggle('open');
+    saveState();
+  });
+
+  // Auto-save on input changes
+  document.getElementById('input-area').addEventListener('input', saveState);
+  document.getElementById('params-input').addEventListener('input', saveState);
+  document.getElementById('param-style').addEventListener('change', () => { runConvert(); });
+  document.getElementById('condition-mode').addEventListener('change', () => { runConvert(); });
+
+  loadState();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
