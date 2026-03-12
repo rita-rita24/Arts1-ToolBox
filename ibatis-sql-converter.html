@@ -415,146 +415,273 @@
 'use strict';
 
 // ============================================================
-//  IBatis SQL Converter
+//  IBatisSQLConverter クラス
+//
+//  【概要】
+//  iBatis / MyBatis の動的SQL（XMLタグ）を受け取り、
+//  通常の SQL 文字列に変換する。
+//
+//  【変換の流れ】
+//    1. 入力テキストを <ibatis-root>…</ibatis-root> で包む
+//    2. ブラウザ標準の DOMParser で XML としてパースする
+//    3. DOMツリーをノード単位で再帰的にたどり、各タグを SQL に変換する
+//    4. 最終的に空行・タブ等を整形して返す
+//
+//  【対応タグ一覧】
+//  MyBatis v3: <if>, <choose>/<when>/<otherwise>, <where>, <set>,
+//              <trim>, <foreach>, <bind>, <include>
+//  iBatis  v2: <iterate>, <dynamic>,
+//              <isNull>, <isNotNull>, <isEmpty>, <isNotEmpty>,
+//              <isEqual>, <isNotEqual>, <isGreaterThan>, <isGreaterEqual>,
+//              <isLessThan>, <isLessEqual>,
+//              <isParameterPresent>, <isNotParameterPresent>,
+//              <isPropertyAvailable>, <isNotPropertyAvailable>
 // ============================================================
 class IBatisSQLConverter {
+
+  /**
+   * コンストラクタ（インスタンス生成時に呼ばれる初期設定）
+   *
+   * @param {object} options
+   *   paramStyle    - パラメータの出力形式
+   *                   'question'   → ?（JDBCの位置パラメータ）
+   *                   'named'      → :paramName（名前付き）
+   *                   'placeholder'→ #{paramName}（iBatisそのまま）
+   *                   'value'      → paramsオブジェクトの値で直接置換
+   *   conditionMode - 条件ブロック（<if> 等）の扱い方
+   *                   'comment'  → SQL コメント /* IF: ... */ で囲んで表示
+   *                   'include'  → 常にブロック内容を含める
+   *                   'evaluate' → params の値で条件を評価し、真のみ含める
+   *   params        - パラメータ値の辞書（JSON オブジェクト）
+   *                   例: { name: "田中", age: 30, active: true }
+   */
   constructor(options = {}) {
     this.paramStyle    = options.paramStyle    || 'question';
     this.conditionMode = options.conditionMode || 'comment';
     this.params        = options.params        || {};
+    // ? の個数カウンター（変換のたびにリセット）
     this.paramCount    = 0;
   }
 
+  /**
+   * メインの変換メソッド。外部から呼ぶのはここだけ。
+   *
+   * @param  {string} input  - iBatis/MyBatis SQL テキスト
+   * @returns {{ sql: string, error: string|null, params: number }}
+   *   sql    - 変換後の SQL 文字列
+   *   error  - エラーメッセージ（成功時は null）
+   *   params - ? の個数（位置パラメータモード時）
+   */
   convert(input) {
+    // 変換開始時に ? カウンターをリセット
     this.paramCount = 0;
+
+    // 空入力はすぐ返す
     if (!input.trim()) return { sql: '', error: null, params: 0 };
 
-    // Handle both iBatis v2 (#name#, $name$) and v3 (#{name}, ${name})
-    // Wrap in a single root for DOMParser
+    // iBatis v2 (#name#, $name$) と v3 (#{name}, ${name}) 両方に対応するため
+    // まず XML としてパースを試みる。
+    // ただし入力が複数のルート要素を持つ場合や断片SQLの場合もあるので、
+    // 独自のラッパータグ <ibatis-root> で全体を包む。
     const wrapped = `<ibatis-root>${input}</ibatis-root>`;
     const parser = new DOMParser();
     const doc = parser.parseFromString(wrapped, 'text/xml');
 
+    // DOMParser がパースエラーを検出した場合、<parsererror> 要素が挿入される
     const parseErr = doc.querySelector('parsererror');
     if (parseErr) {
-      // Try wrapping in CDATA as fallback
+      // フォールバック: SQL 内に < > & などが生の文字で書かれている場合は
+      // CDATA セクションで包んでテキストとして丸ごと取り込む。
+      // タグ変換は行えないが、少なくとも #{param} 等は変換できる。
       const cdataWrapped = `<ibatis-root><![CDATA[${input}]]></ibatis-root>`;
       const doc2 = parser.parseFromString(cdataWrapped, 'text/xml');
       if (!doc2.querySelector('parsererror')) {
         const sql = this._clean(doc2.documentElement.textContent);
         return { sql: this._processRawText(sql), error: null, params: this.paramCount };
       }
+      // それでも失敗したらエラーを返す
       return { sql: '', error: 'XML解析エラー: 属性値の引用符や特殊文字（<, >, &）を確認してください。' };
     }
 
-    const root = doc.documentElement;
+    // 正常にパースできた場合はルート要素からノードをたどって SQL を生成する
+    const root = doc.documentElement;  // <ibatis-root> ノード
     const sql  = this._node(root);
     return { sql: this._clean(sql), error: null, params: this.paramCount };
   }
 
-  // --- Node dispatcher ---
+  // ============================================================
+  //  ノード処理（DOM ツリーをたどる中核部分）
+  // ============================================================
+
+  /**
+   * 任意のノードを SQL 文字列に変換する「振り分け係」。
+   * DOM ツリーを再帰的にたどる際に、すべてのノードはここを経由する。
+   *
+   * DOM ノードには主に 3 種類ある:
+   *   TEXT_NODE    … タグでない普通のテキスト（SQL の本文）
+   *   COMMENT_NODE … XML コメント <!-- ... -->
+   *   ELEMENT_NODE … <if>, <where> などのタグ
+   */
   _node(n) {
     if (!n) return '';
     switch (n.nodeType) {
+      // テキストノード: #param# や #{param} を変換する
       case Node.TEXT_NODE:    return this._text(n.textContent);
+      // XMLコメント: SQL のブロックコメントに変換して保持する
       case Node.COMMENT_NODE: return `/* ${n.textContent.trim()} */\n`;
+      // 要素ノード: タグ名に応じた専用ハンドラに委譲する
       case Node.ELEMENT_NODE: return this._elem(n);
+      // その他（属性ノード等）は無視
       default: return '';
     }
   }
 
+  /**
+   * あるノードのすべての子ノードを変換して結合する。
+   * 子ノードを順番に _node() に渡し、結果の文字列を連結する。
+   */
   _children(n) {
     return Array.from(n.childNodes).map(c => this._node(c)).join('');
   }
 
-  // --- Element handlers ---
+  // ============================================================
+  //  要素ハンドラ（タグ名ごとに処理を振り分ける）
+  // ============================================================
+
+  /**
+   * ELEMENT_NODE のタグ名を見て、対応するハンドラメソッドを呼ぶ「ルーター」。
+   * 知らないタグ（カスタムタグ等）は子ノードだけ処理してタグ自体は無視する。
+   */
   _elem(n) {
+    // tagName は大文字で返ることもあるので小文字に統一する
     const tag = n.tagName.toLowerCase();
     switch (tag) {
-      case 'ibatis-root':
-      case 'mapper':
+
+      // --- ラッパー・マッパータグ: タグ自体は不要なので子だけ処理 ---
+      case 'ibatis-root': // 変換のために自分で付けた仮のルートタグ
+      case 'mapper':      // <mapper namespace="..."> の mapper 部分
         return this._children(n);
+
+      // --- SQL 文タグ: <select>, <insert> 等もタグ本体は不要で内容だけ取り出す ---
       case 'select':
       case 'insert':
       case 'update':
       case 'delete':
-      case 'sql':
+      case 'sql':   // <sql id="reusable"> による再利用フラグメント
         return this._children(n);
-      case 'if':
-        return this._if(n);
-      case 'choose':
-        return this._choose(n);
+
+      // --- MyBatis v3 動的タグ ---
+      case 'if':       return this._if(n);        // 条件付きブロック
+      case 'choose':   return this._choose(n);    // switch 相当（when/otherwise）
+      // when / otherwise は choose の中でしか使わないが念のため単独でも子を処理
       case 'when':
       case 'otherwise':
         return this._children(n);
-      case 'where':
-        return this._where(n);
-      case 'set':
-        return this._set(n);
-      case 'trim':
-        return this._trim(n);
-      case 'foreach':
-        return this._foreach(n);
-      // iBatis v2 specific
-      case 'iterate':
-        return this._iterate(n);
-      case 'dynamic':
-        return this._dynamic(n);
-      case 'isnull':
-      case 'isnotnull':
-      case 'isempty':
-      case 'isnotempty':
-      case 'isequal':
-      case 'isnotequal':
-      case 'isgreaterthan':
-      case 'isgreaterequal':
-      case 'islessthan':
-      case 'islessequal':
-      case 'isparameterpresent':
-      case 'isnotparameterpresent':
-      case 'ispropertyavailable':
-      case 'isnotpropertyavailable':
+      case 'where':    return this._where(n);     // WHERE 句の自動生成
+      case 'set':      return this._set(n);       // SET 句の自動生成（UPDATE用）
+      case 'trim':     return this._trim(n);      // 前後の AND/OR やカンマを除去
+      case 'foreach':  return this._foreach(n);   // コレクションの繰り返し（IN句等）
+
+      // --- iBatis v2 固有タグ ---
+      case 'iterate':  return this._iterate(n);   // v2版の foreach 相当
+      case 'dynamic':  return this._dynamic(n);   // v2版の where/set 相当コンテナ
+
+      // iBatis v2 の条件タグ（14種類）はまとめて _ibatisCondition() で処理
+      case 'isnull':               // property が null ならブロックを含める
+      case 'isnotnull':            // property が null でなければ含める
+      case 'isempty':              // property が空（null/空文字/空配列）なら含める
+      case 'isnotempty':           // property が空でなければ含める
+      case 'isequal':              // property == compareValue なら含める
+      case 'isnotequal':           // property != compareValue なら含める
+      case 'isgreaterthan':        // property >  compareValue なら含める
+      case 'isgreaterequal':       // property >= compareValue なら含める
+      case 'islessthan':           // property <  compareValue なら含める
+      case 'islessequal':          // property <= compareValue なら含める
+      case 'isparameterpresent':   // パラメータオブジェクト自体が存在するなら含める
+      case 'isnotparameterpresent':// パラメータオブジェクトが null なら含める
+      case 'ispropertyavailable':  // property キーが params に存在するなら含める
+      case 'isnotpropertyavailable':// property キーが params にないなら含める
         return this._ibatisCondition(n);
+
+      // <bind name="x" value="..."/> は変数バインド（変換後のSQLでは不要）
       case 'bind':
         return '';
+
+      // <include refid="someFragment"/> はフラグメント参照。
+      // 実際の内容は別ファイルにあることが多いのでコメントとして残す
       case 'include':
         return `/* [INCLUDE: ${n.getAttribute('refid')}] */`;
+
+      // 未知のタグは無視してその子ノードだけ処理する（寛容な処理）
       default:
         return this._children(n);
     }
   }
 
+  // ============================================================
+  //  MyBatis v3 動的タグのハンドラ
+  // ============================================================
+
+  /**
+   * <if test="condition"> … </if>
+   *
+   * MyBatis v3 の基本条件タグ。test 属性の式が真のときだけ
+   * 内部の SQL を出力する。
+   *
+   * 例:
+   *   <if test="name != null">AND name = #{name}</if>
+   *   → name が null でなければ "AND name = ?" を含める
+   */
   _if(n) {
-    const cond    = n.getAttribute('test') || '';
-    const content = this._children(n);
+    const cond    = n.getAttribute('test') || '';  // 例: "name != null and name != ''"
+    const content = this._children(n);             // <if> 内部の SQL テキスト
     const mode    = this.conditionMode;
 
     if (mode === 'evaluate') {
+      // パラメータで条件を評価し、真ならコンテンツを、偽なら空を返す
       return this._eval(cond) ? content : '';
     }
     if (mode === 'include') {
+      // 条件に関わらず常にコンテンツを含める
       return content;
     }
-    // comment mode
+    // comment モード: コンテンツをコメントで囲んで「これは条件付きですよ」と示す
     const inner = content.trim();
     if (!inner) return '';
     return `\n/* IF: ${cond} */\n${inner}\n/* END IF */\n`;
   }
 
+  /**
+   * <choose> / <when test="…"> / <otherwise>
+   *
+   * Java の switch〜case 文に相当する。条件が一致した最初の
+   * <when> だけを出力し、どれも一致しなければ <otherwise> を出力する。
+   *
+   * 例:
+   *   <choose>
+   *     <when test="type == 'A'">col = 'A'</when>
+   *     <when test="type == 'B'">col = 'B'</when>
+   *     <otherwise>col IS NULL</otherwise>
+   *   </choose>
+   */
   _choose(n) {
+    // テキストノードや空白ノードを除き、要素ノード（when/otherwise）だけ取り出す
     const kids = Array.from(n.childNodes).filter(c => c.nodeType === Node.ELEMENT_NODE);
     const mode = this.conditionMode;
 
     if (mode === 'evaluate') {
+      // 上から順に when を評価し、最初に真になったものを返す
       for (const k of kids) {
         const t = k.tagName.toLowerCase();
         if (t === 'when' && this._eval(k.getAttribute('test') || '')) return this._children(k);
+        // otherwise はどの when も真でなかった場合のデフォルト
         if (t === 'otherwise') return this._children(k);
       }
       return '';
     }
 
     if (mode === 'include') {
+      // 条件評価しない場合は最初の when の内容を代表として使う
       const w = kids.find(k => k.tagName.toLowerCase() === 'when');
       const o = kids.find(k => k.tagName.toLowerCase() === 'otherwise');
       if (w) return this._children(w);
@@ -562,7 +689,7 @@ class IBatisSQLConverter {
       return '';
     }
 
-    // comment mode
+    // comment モード: すべての分岐をコメント付きで並べて表示する
     let out = '\n/* CHOOSE */\n';
     for (const k of kids) {
       const t = k.tagName.toLowerCase();
@@ -576,22 +703,63 @@ class IBatisSQLConverter {
     return out;
   }
 
+  /**
+   * <where> … </where>
+   *
+   * 内部の条件が 1 つ以上あるときだけ WHERE キーワードを付け加える。
+   * 先頭の AND / OR は自動的に取り除かれるので、各 <if> の中に
+   * "AND ..." と書いても安全に繋げられる。
+   *
+   * 例:
+   *   <where>
+   *     <if test="a != null">AND a = #{a}</if>
+   *     <if test="b != null">AND b = #{b}</if>
+   *   </where>
+   *   → WHERE a = ? AND b = ?   （条件が1つ以上ある場合）
+   *   → （空文字）              （すべての条件が false の場合）
+   */
   _where(n) {
     let inner = this._children(n).trim();
-    // Remove leading AND / OR
+    // 先頭の "AND " や "OR " を除去（<if> が最初に AND を書いていても問題ない）
     inner = inner.replace(/^(AND|OR)\b[\s]*/i, '');
     if (!inner) return '';
     return `WHERE\n  ${inner}`;
   }
 
+  /**
+   * <set> … </set>
+   *
+   * UPDATE 文の SET 句に使う。条件付きで更新するカラムを列挙でき、
+   * 最後の不要なカンマを自動的に除去してくれる。
+   *
+   * 例:
+   *   <set>
+   *     <if test="name != null">name = #{name},</if>
+   *     <if test="age  != null">age  = #{age},</if>
+   *   </set>
+   *   → SET name = ?, age = ?  （末尾のカンマは消える）
+   */
   _set(n) {
     let inner = this._children(n).trim();
-    // Remove trailing comma
+    // 末尾のカンマを除去（最後の <if> の後ろにカンマが残ることがある）
     inner = inner.replace(/,\s*$/, '');
     if (!inner) return '';
     return `SET\n  ${inner}`;
   }
 
+  /**
+   * <trim prefix="…" suffix="…" prefixOverrides="…" suffixOverrides="…">
+   *
+   * <where> や <set> の汎用版。自分で除去したい文字列（prefixOverrides）や
+   * 付け加えたいキーワード（prefix）を属性で細かく指定できる。
+   *
+   * 主な属性:
+   *   prefix          - 内容が空でない場合に先頭に付けるテキスト（例: "WHERE"）
+   *   suffix          - 内容が空でない場合に末尾に付けるテキスト
+   *   prefixOverrides - 先頭から除去したいテキスト（"|" 区切りで複数指定可）
+   *                     例: "AND |OR " → 先頭の "AND " または "OR " を削除
+   *   suffixOverrides - 末尾から除去したいテキスト（同様）
+   */
   _trim(n) {
     const prefix          = n.getAttribute('prefix')          || '';
     const suffix          = n.getAttribute('suffix')          || '';
@@ -601,12 +769,16 @@ class IBatisSQLConverter {
     let inner = this._children(n).trim();
     if (!inner) return '';
 
+    // prefixOverrides: "|" で区切られた各パターンを先頭から除去する
+    // 例: prefixOverrides="AND |OR " → ["AND ", "OR "] をそれぞれ試す
     if (prefixOverrides) {
       for (const ov of prefixOverrides.split('|').map(s => s.trim()).filter(Boolean)) {
+        // _escRe() で正規表現の特殊文字をエスケープしてから RegExp を作る
         inner = inner.replace(new RegExp(`^\\s*${_escRe(ov)}\\s*`, 'i'), '');
       }
       inner = inner.trim();
     }
+    // suffixOverrides: 末尾から除去する（SET 句の末尾カンマ除去に使われることが多い）
     if (suffixOverrides) {
       for (const ov of suffixOverrides.split('|').map(s => s.trim()).filter(Boolean)) {
         inner = inner.replace(new RegExp(`\\s*${_escRe(ov)}\\s*$`, 'i'), '');
@@ -614,21 +786,69 @@ class IBatisSQLConverter {
       inner = inner.trim();
     }
     if (!inner) return '';
+    // 最後に prefix / suffix を付けて返す
     return `${prefix ? prefix + ' ' : ''}${inner}${suffix ? ' ' + suffix : ''}`;
   }
 
+  /**
+   * <foreach collection="ids" item="id" open="(" separator="," close=")">
+   *   #{id}
+   * </foreach>
+   *
+   * コレクション（配列・リスト）を繰り返して SQL を生成する。
+   * IN 句に使われることが最も多い。
+   *
+   * 実際のデータ件数は変換時には分からないため、テンプレートを
+   * 2回並べて "... /* ... */" で続きを示す形式で出力する。
+   *
+   * 主な属性:
+   *   collection - パラメータ名（"list", "array", または任意の名前）
+   *   item       - ループ変数名（内部で #{item} と書く）
+   *   index      - インデックス変数名（ほぼ使わない）
+   *   open       - 全体の前に付ける文字（例: "("）
+   *   close      - 全体の後に付ける文字（例: ")"）
+   *   separator  - 各要素の間に入れる文字（例: ","）
+   */
   _foreach(n) {
     const collection = n.getAttribute('collection') || 'list';
     const open       = n.getAttribute('open')       || '';
     const close      = n.getAttribute('close')      || '';
     const separator  = n.getAttribute('separator')  || ',';
 
-    // Render one iteration of inner content to show the pattern
+    // 内部の1回分のテンプレートを変換する
     const innerTemplate = this._children(n).trim();
+    // 2回繰り返してパターンを示す（実際の繰り返し数は実行時依存）
     return `${open}/* foreach: ${collection} */ ${innerTemplate}${separator} ${innerTemplate} /* ... */${close}`;
   }
 
-  // --- iBatis v2: <iterate> ---
+  // ============================================================
+  //  iBatis v2 固有タグのハンドラ
+  // ============================================================
+
+  /**
+   * <iterate property="list" open="(" close=")" conjunction=",">
+   *   #list[].field#
+   * </iterate>
+   *
+   * iBatis v2 版の繰り返しタグ。MyBatis v3 の <foreach> に相当する。
+   *
+   * v3 の <foreach> との主な違い:
+   *   - 属性名が異なる: collection→property, separator→conjunction
+   *   - 内部の変数参照が異なる: #{item} → #list[].field# 形式
+   *   - コレクションが空の場合、open/close も出力されない（v3 は出力される）
+   *
+   * 主な属性:
+   *   property    - 繰り返すコレクションのパラメータ名
+   *   open        - 全体の前に付ける文字（例: "("）
+   *   close       - 全体の後に付ける文字（例: ")"）
+   *   conjunction - 各要素の間に入れる文字（例: ","）
+   *   prepend     - このブロック全体の前に付けるSQL（例: "IN"）
+   *
+   * 内部の記法:
+   *   #list[]#        → コレクションの現在の要素そのもの（文字列/数値等）
+   *   #list[].field#  → 現在の要素オブジェクトの field プロパティ
+   *   #list[0].field# → インデックス指定アクセス（通常はタグ外で使う）
+   */
   _iterate(n) {
     const property    = n.getAttribute('property')    || 'list';
     const open        = n.getAttribute('open')        || '';
@@ -636,62 +856,110 @@ class IBatisSQLConverter {
     const conjunction = n.getAttribute('conjunction') || ',';
     const prepend     = n.getAttribute('prepend')     || '';
 
+    // 内部テンプレートを変換する（#list[].field# は _processRawText() が処理する）
     const innerTemplate = this._children(n).trim();
+    // 2回繰り返してパターンを示す
     const body = `${open}/* iterate: ${property} */ ${innerTemplate}${conjunction} ${innerTemplate} /* ... */${close}`;
+    // prepend が指定されていれば先頭に付ける（例: "id IN (..."）
     return prepend ? `${prepend} ${body}` : body;
   }
 
-  // --- iBatis v2: <dynamic> ---
-  // Similar to <where>/<set> – wraps conditional blocks and applies prepend
+  /**
+   * <dynamic prepend="WHERE"> … </dynamic>
+   *
+   * iBatis v2 の条件ブロック用コンテナ。MyBatis v3 の <where> / <set> に相当する。
+   * 子タグ（<isNotNull> 等）がそれぞれ prepend="AND" を持っており、
+   * <dynamic> はその先頭の AND/OR を自動的に除去して prepend のキーワードを付ける。
+   *
+   * 主な用途:
+   *   <dynamic prepend="WHERE"> → WHERE 句の動的生成（<where> 相当）
+   *   <dynamic prepend="SET">   → SET 句の動的生成（<set> 相当）
+   *
+   * 例:
+   *   <dynamic prepend="WHERE">
+   *     <isNotNull prepend="AND" property="name">name LIKE #name#</isNotNull>
+   *     <isNotNull prepend="AND" property="age"> age = #age#</isNotNull>
+   *   </dynamic>
+   *   → WHERE name LIKE ? AND age = ?
+   */
   _dynamic(n) {
     const prepend = n.getAttribute('prepend') || '';
     let inner = this._children(n).trim();
     if (!inner) return '';
-    // Strip leading AND/OR (managed by child prepend attributes)
+    // 子タグの prepend="AND" が先頭に残っている場合は除去する
+    // （最初の条件タグの "AND " は不要なので <where> と同じ処理）
     inner = inner.replace(/^(AND|OR)\b\s*/i, '');
-    // Strip trailing comma (for SET-like usage)
+    // SET 句用途での末尾カンマ除去
     inner = inner.replace(/,\s*$/, '');
     inner = inner.trim();
     if (!inner) return '';
+    // prepend キーワードを付けてインデントする
     return prepend ? `${prepend}\n  ${inner}` : inner;
   }
 
-  // --- iBatis v2: conditional tags (isNull, isNotNull, isEqual, …) ---
+  /**
+   * iBatis v2 条件タグの共通ハンドラ（14種類すべてここで処理）
+   *
+   * iBatis v2 の条件タグは MyBatis v3 の <if test="..."> と役割は同じだが、
+   * 書き方が異なる。v2 では条件の種類ごとに別タグが用意されている。
+   *
+   * 共通の属性:
+   *   property     - チェック対象のパラメータ名（例: "name", "age"）
+   *   compareValue - 比較する値（isEqual等で使用, 例: "0", "admin"）
+   *   compareProperty - 比較する別のパラメータ名（compareValue の代わりに使用）
+   *   prepend      - このブロックの前に付けるSQL（例: "AND"）
+   *                  <dynamic> の中では先頭 AND は自動除去されるが、
+   *                  この prepend により各条件を AND で繋げられる
+   */
   _ibatisCondition(n) {
     const tag          = n.tagName.toLowerCase();
+    // getAttribute は大文字小文字を区別する場合があるので両方試みる
     const property     = n.getAttribute('property')                                       || '';
     const compareValue = n.getAttribute('compareValue') || n.getAttribute('comparevalue') || '';
     const compareProp  = n.getAttribute('compareProperty') || n.getAttribute('compareproperty') || '';
     const prepend      = n.getAttribute('prepend')                                        || '';
 
+    // タグ内部の SQL テキストを変換する
     const content = this._children(n);
     const mode    = this.conditionMode;
 
     if (mode === 'evaluate') {
+      // 条件を実際に評価して、偽なら空文字（ブロックを除外）
       if (!this._evalIbatisCond(tag, property, compareValue, compareProp)) return '';
+      // 真なら prepend（AND等）をつけてコンテンツを返す
       return prepend ? `${prepend}\n${content}` : content;
     }
     if (mode === 'include') {
+      // 条件評価なしで常に含める
       return prepend ? `${prepend}\n${content}` : content;
     }
-    // comment mode
+    // comment モード: 条件の意味をコメントで示す
     const label = this._ibatisCondLabel(tag, property, compareValue, compareProp);
     const inner = content.trim();
     if (!inner) return '';
+    // prepend がある場合はコメントの後ろに続けて表示する（例: "AND name LIKE ?"）
     const pre = prepend ? `${prepend} ` : '';
     return `\n/* IF: ${label} */\n${pre}${inner}\n/* END IF */\n`;
   }
 
+  /**
+   * 条件タグの「意味」を人が読みやすい文字列に変換する。
+   * comment モードでのコメント生成に使用する。
+   *
+   * 例: tag="isgreaterthan", property="age", compareValue="18"
+   *   → "age > '18'"
+   */
   _ibatisCondLabel(tag, property, compareValue, compareProperty) {
+    // 比較対象: compareProperty（他のパラメータ）が優先、なければ compareValue の文字列
     const cmp = compareProperty || `'${compareValue}'`;
     switch (tag) {
       case 'isnull':                 return `${property} IS NULL`;
       case 'isnotnull':              return `${property} IS NOT NULL`;
-      case 'isempty':                return `${property} IS EMPTY`;
+      case 'isempty':                return `${property} IS EMPTY`;        // null/空文字/空配列
       case 'isnotempty':             return `${property} IS NOT EMPTY`;
-      case 'isparameterpresent':     return 'PARAMETER IS PRESENT';
+      case 'isparameterpresent':     return 'PARAMETER IS PRESENT';        // パラメータオブジェクト自体が存在
       case 'isnotparameterpresent':  return 'PARAMETER IS NOT PRESENT';
-      case 'ispropertyavailable':    return `${property} IS AVAILABLE`;
+      case 'ispropertyavailable':    return `${property} IS AVAILABLE`;    // そのキーが params に存在する
       case 'isnotpropertyavailable': return `${property} IS NOT AVAILABLE`;
       case 'isequal':                return `${property} == ${cmp}`;
       case 'isnotequal':             return `${property} != ${cmp}`;
@@ -703,136 +971,305 @@ class IBatisSQLConverter {
     }
   }
 
+  /**
+   * iBatis v2 条件タグの実際の評価ロジック。
+   * conditionMode が 'evaluate' のときに呼ばれ、
+   * params オブジェクトの値とタグの属性を比較して真偽を返す。
+   *
+   * @param {string} tag           - タグ名（小文字）例: "isnotnull"
+   * @param {string} property      - チェックするパラメータ名
+   * @param {string} compareValue  - 比較する文字列値
+   * @param {string} compareProperty - 比較する別パラメータ名（優先）
+   * @returns {boolean} true なら内容を含める
+   */
   _evalIbatisCond(tag, property, compareValue, compareProperty) {
-    const val = this.params[property];
+    const val = this.params[property]; // params から該当値を取得
+    // compareProperty が指定されていればそちらの値、なければ compareValue を使う
     const cmpVal = compareProperty ? this.params[compareProperty] : compareValue;
     switch (tag) {
-      case 'isnull':   return val === null || val === undefined;
+      case 'isnull':    return val === null || val === undefined;
       case 'isnotnull': return val !== null && val !== undefined;
       case 'isempty':
+        // null/undefined → 空とみなす
         if (val === null || val === undefined) return true;
+        // 文字列や配列は length が 0 なら空
         if (typeof val === 'string' || Array.isArray(val)) return val.length === 0;
         return false;
       case 'isnotempty':
         if (val === null || val === undefined) return false;
         if (typeof val === 'string' || Array.isArray(val)) return val.length > 0;
         return true;
+      // パラメータオブジェクト全体の存在チェック
       case 'isparameterpresent':     return Object.keys(this.params).length > 0;
       case 'isnotparameterpresent':  return Object.keys(this.params).length === 0;
+      // そのキーが params に存在するかどうか（値が null でもキーがあれば true）
       case 'ispropertyavailable':    return property in this.params;
       case 'isnotpropertyavailable': return !(property in this.params);
+      // 文字列として比較（数値も String() で統一）
       case 'isequal':        return String(val) === String(cmpVal);
       case 'isnotequal':     return String(val) !== String(cmpVal);
+      // 数値比較（Number() で変換してから比較）
       case 'isgreaterthan':  return Number(val) >  Number(cmpVal);
       case 'isgreaterequal': return Number(val) >= Number(cmpVal);
       case 'islessthan':     return Number(val) <  Number(cmpVal);
       case 'islessequal':    return Number(val) <= Number(cmpVal);
+      // 未知のタグは安全側（含める）にする
       default: return true;
     }
   }
 
-  // --- Text: replace iBatis placeholders ---
+  // ============================================================
+  //  テキストノードとパラメータ変換
+  // ============================================================
+
+  /**
+   * テキストノード（タグの外のSQL本文）の変換エントリポイント。
+   * _processRawText() に処理を委譲している。
+   */
   _text(raw) {
     return this._processRawText(raw);
   }
 
+  /**
+   * iBatis の各種パラメータ記法を見つけて変換する。
+   * 正規表現の適用順序が重要: より具体的なパターン（v2配列記法）を
+   * 汎用パターン（#param#）より先に処理する。
+   *
+   * 変換対象の記法一覧:
+   *   MyBatis v3:  #{paramName}          → _param() で変換
+   *                #{paramName,handler}  → カンマ以降のオプションは無視
+   *                ${paramName}          → _subst() で変換（文字列埋め込み）
+   *   iBatis  v2:  #list[].field#        → _param('field') で変換
+   *                #list[]#              → _param('list')  で変換
+   *                #list[0].field#       → インデックス付きも同様
+   *                #paramName#           → _param('paramName') で変換
+   *                $paramName$           → _subst('paramName') で変換
+   */
   _processRawText(raw) {
     let s = raw;
-    // iBatis v3: #{param} → parameterized
-    s = s.replace(/#\{([^}]+)\}/g, (_, p) => this._param(p.split(',')[0].trim()));
-    // iBatis v2: #list[].field# or #list[]# or #list[0].field# (iterate/array notation)
-    s = s.replace(/#([a-zA-Z_][a-zA-Z0-9_]*)(?:\[\d*\])(?:\.([a-zA-Z_][a-zA-Z0-9_.]*))?#/g,
-      (_, list, field) => this._param(field || list));
-    // iBatis v2: #param# → parameterized
+
+    // 【1】MyBatis v3 形式: #{param} または #{param,jdbcType=VARCHAR}
+    //   正規表現: #\{   → # と { のリテラル
+    //             [^}]+ → } 以外の文字が1文字以上（パラメータ名＋オプション）
+    //             \}    → } のリテラル
+    s = s.replace(/#\{([^}]+)\}/g, (_, p) =>
+      // "name,jdbcType=VARCHAR" のようなオプションがある場合はカンマ前だけ使う
+      this._param(p.split(',')[0].trim())
+    );
+
+    // 【2】iBatis v2 の配列・イテレート記法: #list[].field# / #list[]# / #list[0].field#
+    //   正規表現の解説:
+    //     #                           → # のリテラル
+    //     ([a-zA-Z_][a-zA-Z0-9_]*)   → コレクション名（英数字・アンダースコア）
+    //     (?:\[\d*\])                 → [0] や [] のインデックス部分（非キャプチャ）
+    //     (?:\.([a-zA-Z_][a-zA-Z0-9_.]*))? → .fieldName の部分（省略可）
+    //     #                           → 末尾 # のリテラル
+    //   field がある場合は field 名でパラメータ化、ない場合はコレクション名を使う
+    s = s.replace(
+      /#([a-zA-Z_][a-zA-Z0-9_]*)(?:\[\d*\])(?:\.([a-zA-Z_][a-zA-Z0-9_.]*))?#/g,
+      (_, list, field) => this._param(field || list)
+    );
+
+    // 【3】iBatis v2 の単純パラメータ記法: #paramName# または #obj.property#
+    //   正規表現: [a-zA-Z0-9_.] → ドット記法（obj.field）も拾う
     s = s.replace(/#([a-zA-Z_][a-zA-Z0-9_.]*)#/g, (_, p) => this._param(p));
-    // iBatis v3: ${param} → substitution placeholder
+
+    // 【4】MyBatis v3 の文字列埋め込み: ${paramName}（SQL インジェクション注意）
     s = s.replace(/\$\{([^}]+)\}/g, (_, p) => this._subst(p.trim()));
-    // iBatis v2: $param$ → substitution placeholder
+
+    // 【5】iBatis v2 の文字列埋め込み: $paramName$
+    //   正規表現: (?=\$) は先読みアサーション（次の $ が存在することを確認）
     s = s.replace(/\$([a-zA-Z_][a-zA-Z0-9_.]*)(?=\$)/g, (_, p) => this._subst(p));
-    s = s.replace(/\$/g, ''); // remove trailing $ from v2 style
+    // v2 $param$ の処理後に残った末尾の $ を除去する
+    s = s.replace(/\$/g, '');
+
     return s;
   }
 
+  /**
+   * パラメータ名を選択中の paramStyle に応じた SQL 表現に変換する。
+   *
+   * @param {string} name - パラメータ名（例: "userId", "item.id"）
+   * @returns {string}    - SQL に埋め込む文字列
+   */
   _param(name) {
     switch (this.paramStyle) {
       case 'question':
+        // JDBC の位置パラメータ。PreparedStatement の ? に対応する。
+        // カウンターをインクリメントして個数を記録する。
         this.paramCount++;
         return '?';
+
       case 'named':
+        // Spring JDBC や NamedParameterJdbcTemplate で使う形式
         return `:${name}`;
+
       case 'placeholder':
+        // iBatis/MyBatis 形式をそのまま保持する（変換しない）
         return `#{${name}}`;
+
       case 'value': {
+        // params オブジェクトの値で直接置換する
         const v = this.params[name];
         if (v === undefined || v === null) return 'NULL';
+        // 文字列値: シングルクォートで囲み、内部の ' は '' にエスケープ
         if (typeof v === 'string') return `'${v.replace(/'/g, "''")}'`;
+        // boolean: DB の 0/1 表現に変換
         if (typeof v === 'boolean') return v ? '1' : '0';
+        // 数値等: そのまま文字列化
         return String(v);
       }
+
       default: return '?';
     }
   }
 
+  /**
+   * ${ } や $param$ の「文字列置換」パラメータを処理する。
+   * # 記法と異なり、値が SQL に直接埋め込まれる（SQLインジェクションのリスクあり）。
+   * value モード以外ではコメントとして出力して置換されなかったことを明示する。
+   *
+   * @param {string} name - パラメータ名
+   * @returns {string}
+   */
   _subst(name) {
     if (this.paramStyle === 'value') {
       const v = this.params[name];
+      // 値が設定されていれば直接文字列として埋め込む
       if (v !== undefined) return String(v);
     }
+    // 値なし・または value モード以外: コメントで表示してわかるようにする
     return `/* \${${name}} */`;
   }
 
-  // --- Condition evaluator (user-supplied expressions only) ---
+  // ============================================================
+  //  MyBatis v3 条件式の評価エンジン（<if test="..."> 用）
+  // ============================================================
+
+  /**
+   * MyBatis v3 の <if test="expression"> 内の Java 風条件式を評価する。
+   *
+   * Java 式を JavaScript に変換してから eval() で実行する。
+   * 安全性について: ユーザーが自分で入力した条件式のみを eval するため、
+   *   悪意ある第三者からの攻撃リスクはない（自分自身のコードを実行するのと同じ）。
+   *
+   * 変換する Java → JS の対応:
+   *   and         → &&
+   *   or          → ||
+   *   not         → !
+   *   .size()==0  → .length === 0
+   *   .isEmpty()  → .length === 0
+   *   .equals(x)  → === x
+   *   'string'    → "string"  （シングルクォート → ダブルクォート）
+   *   @ENUM@      → "ENUM"    （Java の列挙値参照）
+   *
+   * @param {string} condition - test 属性の式（例: "name != null and name != ''"）
+   * @returns {boolean}
+   */
   _eval(condition) {
     try {
+      // Java 式を JavaScript の同等な式に書き換える
       let expr = condition
-        .replace(/\band\b/gi,   '&&')
-        .replace(/\bor\b/gi,    '||')
-        .replace(/\bnot\b\s*/gi,'!')
-        .replace(/\.size\(\)\s*==\s*0/g,  '.length === 0')
+        .replace(/\band\b/gi,   '&&')               // Java の論理AND
+        .replace(/\bor\b/gi,    '||')               // Java の論理OR
+        .replace(/\bnot\b\s*/gi,'!')                // Java の論理NOT
+        .replace(/\.size\(\)\s*==\s*0/g,  '.length === 0')   // Java コレクションの空チェック
         .replace(/\.size\(\)\s*!=\s*0/g,  '.length !== 0')
-        .replace(/\.size\(\)/g,           '.length')
-        .replace(/\.isEmpty\(\)/g,        '.length === 0')
-        .replace(/\.equals\(([^)]+)\)/g,  '=== $1')
-        .replace(/'([^']*)'/g,            '"$1"')
-        .replace(/@([^@]+)@/g,            '"$1"');
+        .replace(/\.size\(\)/g,           '.length')          // size() → length
+        .replace(/\.isEmpty\(\)/g,        '.length === 0')    // isEmpty() → length===0
+        .replace(/\.equals\(([^)]+)\)/g,  '=== $1')          // obj.equals(x) → === x
+        .replace(/'([^']*)'/g,            '"$1"')             // 'str' → "str"
+        .replace(/@([^@]+)@/g,            '"$1"');            // @EnumValue@ → "EnumValue"
 
-      // Substitute known params (longest keys first to avoid partial replacement)
+      // params の値を式の中に代入する
+      // キー名の長いものを先に処理することで "userName" が "user" に部分一致しないようにする
       const keys = Object.keys(this.params).sort((a, b) => b.length - a.length);
       for (const k of keys) {
         const v   = this.params[k];
+        // JS の eval に渡す値としてリテラル文字列を作る
         const jsv = (v === null || v === undefined) ? 'null'
                   : typeof v === 'string' ? `"${v}"`
                   : String(v);
+        // 単語境界 \b でキー名を正確に置換（部分一致防止）
         expr = expr.replace(new RegExp(`\\b${_escRe(k)}\\b`, 'g'), jsv);
       }
-      // Replace any remaining identifiers with null
+
+      // まだ残っている識別子（params に存在しないキー）は null として扱う
+      // ただし JS のキーワード（null, true, false等）は置換しない
       expr = expr.replace(/\b([a-zA-Z_$][a-zA-Z0-9_$.]*)\b/g, m =>
         ['null','true','false','undefined','NaN','Infinity'].includes(m) ? m : 'null'
       );
+
       // eslint-disable-next-line no-eval
-      return !!eval(expr); // safe: user-provided conditions only
+      return !!eval(expr); // ユーザー自身が入力した式なので eval を使用
     } catch {
-      return true; // include on error
+      // 式の評価に失敗した場合は安全側（ブロックを含める）に倒す
+      return true;
     }
   }
 
-  // --- Cleanup ---
+  // ============================================================
+  //  出力整形
+  // ============================================================
+
+  /**
+   * 変換後の SQL テキストを見やすく整形する。
+   *   - タブをスペース2個に変換
+   *   - 行末の余分な空白を除去
+   *   - 3行以上連続する空行を2行に圧縮
+   *   - 前後の空白を除去して末尾に改行を1つ付ける
+   */
   _clean(sql) {
     return sql
-      .replace(/\t/g,    '  ')
-      .replace(/[ \t]+$/gm, '')
-      .replace(/\n{3,}/g, '\n\n')
-      .trim() + '\n';
+      .replace(/\t/g,       '  ')    // タブ → スペース2個
+      .replace(/[ \t]+$/gm, '')      // 各行の末尾スペース除去（gm: 全行対象）
+      .replace(/\n{3,}/g,   '\n\n') // 3行以上の空行 → 2行に圧縮
+      .trim() + '\n';                // 前後トリムして末尾改行を保証
   }
 }
 
+// ============================================================
+//  ユーティリティ関数
+// ============================================================
+
+/**
+ * 文字列を正規表現のパターンとして安全に使えるようにエスケープする。
+ * 正規表現の特殊文字（. * + ? ^ $ { } ( ) | [ ] \）の前に \ を付ける。
+ *
+ * 使用例:
+ *   _escRe("AND ")  → "AND\\ "  （スペースはエスケープ不要だが他の文字は必要）
+ *   _escRe("(val)") → "\\(val\\)"
+ *
+ * @param {string} s - エスケープしたい文字列
+ * @returns {string}   - 正規表現で使えるエスケープ済み文字列
+ */
 function _escRe(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // \$& は「マッチした文字列全体」を意味する置換文字
 }
 
 // ============================================================
-//  SQL Syntax Highlighter (tokenizer-based)
+//  SQL シンタックスハイライター（トークナイザー方式）
+//
+//  【なぜ正規表現の単純置換ではなくトークナイザーを使うのか?】
+//  SQL には /* コメント */ や '文字列' が含まれることがある。
+//  単純な正規表現で「SELECT などのキーワードを太字に」しようとすると、
+//  コメントや文字列リテラルの中にある "SELECT" も太字になってしまう。
+//
+//  トークナイザー方式では SQL を意味のある塊（トークン）に分解してから
+//  種類ごとに色付けするため、上記の問題を回避できる。
+//
+//  トークンの種類:
+//    'comment' → /* ... */ や -- ... （グレー・斜体）
+//    'string'  → 'シングルクォート文字列' （緑）
+//    'param'   → ?, :name, #{name}, ${name} （赤・オレンジ）
+//    'text'    → その他（キーワードはここでさらに色付け）
 // ============================================================
+
+/**
+ * ハイライト対象の SQL キーワード一覧（大文字で統一して比較する）。
+ * Set を使うことで includes() より高速に検索できる。
+ */
 const SQL_KEYWORDS = new Set([
   'SELECT','FROM','WHERE','AND','OR','NOT','IN','LIKE','IS','NULL',
   'INSERT','INTO','VALUES','UPDATE','SET','DELETE','JOIN',
@@ -843,32 +1280,48 @@ const SQL_KEYWORDS = new Set([
   'CREATE','TABLE','ASC','DESC','WITH','USING','RETURNING','TOP',
 ]);
 
+/**
+ * SQL 文字列を先頭から1文字ずつ読んでトークンに分割する（字句解析）。
+ *
+ * トークンは { type, v } のオブジェクト配列として返す:
+ *   type: 'comment' | 'string' | 'param' | 'text'
+ *   v:    そのトークンの元の文字列
+ *
+ * @param {string} sql - 変換済み SQL テキスト
+ * @returns {Array<{type:string, v:string}>}
+ */
 function tokenize(sql) {
   const tokens = [];
   let i = 0;
   const n = sql.length;
+
   while (i < n) {
-    // Block comment
+
+    // ── ブロックコメント: /* ... */ ──────────────────────────
     if (sql[i] === '/' && sql[i+1] === '*') {
-      const e = sql.indexOf('*/', i + 2);
-      const end = e < 0 ? n : e + 2;
+      const e = sql.indexOf('*/', i + 2);       // 閉じ */ を探す
+      const end = e < 0 ? n : e + 2;            // 見つからなければ末尾まで
       tokens.push({ type: 'comment', v: sql.slice(i, end) });
       i = end;
       continue;
     }
-    // Line comment
+
+    // ── 行コメント: -- ... (改行まで) ───────────────────────
     if (sql[i] === '-' && sql[i+1] === '-') {
-      const e = sql.indexOf('\n', i);
-      const end = e < 0 ? n : e;
+      const e = sql.indexOf('\n', i);            // 改行を探す
+      const end = e < 0 ? n : e;                // 見つからなければ末尾まで
       tokens.push({ type: 'comment', v: sql.slice(i, end) });
       i = end;
       continue;
     }
-    // Single-quoted string
+
+    // ── シングルクォート文字列: '...' ───────────────────────
     if (sql[i] === "'") {
       let j = i + 1;
       while (j < n) {
+        // '' はエスケープされたシングルクォート（文字列内の ' の表現）
         if (sql[j] === "'" && sql[j+1] === "'") { j += 2; continue; }
+        // 通常の閉じクォート
         if (sql[j] === "'") { j++; break; }
         j++;
       }
@@ -876,77 +1329,107 @@ function tokenize(sql) {
       i = j;
       continue;
     }
-    // Named param :name
+
+    // ── 名前付きパラメータ: :paramName ──────────────────────
+    // コロンの次が英字またはアンダースコアであることを確認（演算子の : と区別）
     if (sql[i] === ':' && i + 1 < n && /[a-zA-Z_]/.test(sql[i+1])) {
       let j = i + 1;
-      while (j < n && /[a-zA-Z0-9_]/.test(sql[j])) j++;
+      while (j < n && /[a-zA-Z0-9_]/.test(sql[j])) j++; // 識別子を読み切る
       tokens.push({ type: 'param', v: sql.slice(i, j) });
       i = j;
       continue;
     }
-    // Positional param ?
+
+    // ── 位置パラメータ: ? ────────────────────────────────────
     if (sql[i] === '?') {
       tokens.push({ type: 'param', v: '?' });
       i++;
       continue;
     }
-    // iBatis placeholder #{...} or ${...}
+
+    // ── iBatis プレースホルダー: #{...} または ${...} ───────
     if ((sql[i] === '#' || sql[i] === '$') && sql[i+1] === '{') {
-      const e = sql.indexOf('}', i + 2);
+      const e = sql.indexOf('}', i + 2);        // 閉じ } を探す
       const end = e < 0 ? n : e + 1;
       tokens.push({ type: 'param', v: sql.slice(i, end) });
       i = end;
       continue;
     }
-    // Other text (accumulate until next special char)
+
+    // ── その他のテキスト（SQL本文・キーワード等）────────────
+    // 次の特殊文字の手前まで一気に読み込む（効率化のため）
     let j = i;
     while (j < n) {
       const c = sql[j];
-      if (c === '/' && sql[j+1] === '*') break;
-      if (c === '-' && sql[j+1] === '-') break;
-      if (c === "'") break;
-      if (c === ':' && /[a-zA-Z_]/.test(sql[j+1])) break;
-      if (c === '?') break;
-      if ((c === '#' || c === '$') && sql[j+1] === '{') break;
+      // 各種トークン開始文字が来たらここで止める
+      if (c === '/' && sql[j+1] === '*') break;         // ブロックコメント開始
+      if (c === '-' && sql[j+1] === '-') break;         // 行コメント開始
+      if (c === "'") break;                             // 文字列開始
+      if (c === ':' && /[a-zA-Z_]/.test(sql[j+1])) break; // 名前付きパラメータ
+      if (c === '?') break;                             // 位置パラメータ
+      if ((c === '#' || c === '$') && sql[j+1] === '{') break; // iBatisプレースホルダー
       j++;
     }
     if (j > i) {
       tokens.push({ type: 'text', v: sql.slice(i, j) });
       i = j;
     } else {
+      // 1文字ずつ進む（無限ループ防止）
       tokens.push({ type: 'text', v: sql[i] });
       i++;
     }
   }
+
   return tokens;
 }
 
+/**
+ * HTML の特殊文字をエンティティにエスケープする。
+ * innerHTML に安全に挿入するために必要。
+ *   & → &amp;   < → &lt;   > → &gt;
+ */
 function escapeHTML(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+/**
+ * テキストトークン内の SQL キーワードに <span class="sql-keyword"> を付ける。
+ * 単語境界 \b を使ってキーワード全体にのみマッチさせる（部分一致防止）。
+ */
 function highlightText(t) {
   return t.replace(/\b([A-Za-z_][A-Za-z0-9_]*)\b/g, m =>
-    SQL_KEYWORDS.has(m.toUpperCase()) ? `<span class="sql-keyword">${m}</span>` : m
+    SQL_KEYWORDS.has(m.toUpperCase())
+      ? `<span class="sql-keyword">${m}</span>` // キーワードなら色付き span で囲む
+      : m                                        // キーワード以外はそのまま
   );
 }
 
+/**
+ * SQL 文字列全体にシンタックスハイライトを適用して HTML 文字列を返す。
+ * トークナイザーで分割してから各種類に応じた span タグを付ける。
+ *
+ * @param {string} sql - 変換済みの SQL テキスト
+ * @returns {string}     - カラー span タグを含む HTML 文字列
+ */
 function highlightSQL(sql) {
   if (!sql.trim()) return '';
   return tokenize(sql).map(({ type, v }) => {
-    const e = escapeHTML(v);
+    const e = escapeHTML(v); // XSS 防止のため必ず HTML エスケープしてから span を付ける
     switch (type) {
-      case 'comment': return `<span class="sql-comment">${e}</span>`;
-      case 'string':  return `<span class="sql-string">${e}</span>`;
-      case 'param':   return `<span class="sql-param">${e}</span>`;
-      case 'text':    return highlightText(e);
+      case 'comment': return `<span class="sql-comment">${e}</span>`; // グレー・斜体
+      case 'string':  return `<span class="sql-string">${e}</span>`;  // 緑
+      case 'param':   return `<span class="sql-param">${e}</span>`;   // 赤・オレンジ
+      case 'text':    return highlightText(e); // キーワードをさらに色付け
       default:        return e;
     }
   }).join('');
 }
 
 // ============================================================
-//  Sample SQL
+//  サンプル SQL（サンプルボタンクリック時に入力エリアに貼り付けられる）
+//
+//  各キーはサンプルボタンの data-example 属性と対応している。
+//  iBatis/MyBatis の代表的なパターンを網羅している。
 // ============================================================
 const EXAMPLES = {
   select: `<select id="findUsers" parameterType="map" resultType="User">
@@ -1065,169 +1548,263 @@ const EXAMPLES = {
 };
 
 // ============================================================
-//  UI State
+//  UI 状態管理（localStorage への保存・復元）
+//
+//  ページをリロードしても入力内容・設定・テーマが維持されるよう、
+//  ユーザーの操作のたびに localStorage に状態を保存する。
 // ============================================================
+
+/** localStorage に使うキー名。他のアプリと衝突しないよう固有の名前にする */
 const STORAGE_KEY = 'ibatis_converter_state';
 
+/**
+ * 現在の UI 状態を localStorage に保存する。
+ * 保存する内容:
+ *   input         - 入力テキストエリアの内容（iBatis SQL）
+ *   params        - パラメータ設定テキストエリアの内容（JSON文字列）
+ *   paramStyle    - パラメータ形式のセレクトボックスの値
+ *   conditionMode - 条件ブロックのセレクトボックスの値
+ *   paramsOpen    - パラメータ設定パネルの開閉状態
+ *   theme         - ライト/ダークテーマの設定
+ */
 function saveState() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      input:     document.getElementById('input-area').value,
-      params:    document.getElementById('params-input').value,
+      input:         document.getElementById('input-area').value,
+      params:        document.getElementById('params-input').value,
       paramStyle:    document.getElementById('param-style').value,
       conditionMode: document.getElementById('condition-mode').value,
       paramsOpen:    document.getElementById('params-body').classList.contains('open'),
       theme:         document.documentElement.getAttribute('data-theme'),
     }));
-  } catch { /* ignore */ }
+  } catch { /* localStorage が使えない環境（プライベートブラウジング等）では無視 */ }
 }
 
+/**
+ * 前回保存した UI 状態を localStorage から読み込んで復元する。
+ * ページ読み込み時（init()）に呼ばれる。
+ */
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    const s = JSON.parse(raw);
-    if (s.input)    document.getElementById('input-area').value    = s.input;
-    if (s.params)   document.getElementById('params-input').value   = s.params;
-    if (s.paramStyle)    document.getElementById('param-style').value    = s.paramStyle;
-    if (s.conditionMode) document.getElementById('condition-mode').value = s.conditionMode;
+    if (!raw) return; // 保存データがなければ何もしない
+
+    const s = JSON.parse(raw); // JSON 文字列をオブジェクトに変換
+
+    // 各 UI 要素に保存値を反映する（値がある項目だけ）
+    if (s.input)         document.getElementById('input-area').value        = s.input;
+    if (s.params)        document.getElementById('params-input').value       = s.params;
+    if (s.paramStyle)    document.getElementById('param-style').value        = s.paramStyle;
+    if (s.conditionMode) document.getElementById('condition-mode').value     = s.conditionMode;
+
+    // パラメータパネルの開閉状態を復元する
     if (s.paramsOpen) {
       document.getElementById('params-body').classList.add('open');
       document.getElementById('params-toggle').classList.add('open');
     }
+
+    // テーマを復元する
     if (s.theme) {
       document.documentElement.setAttribute('data-theme', s.theme);
       updateThemeIcon(s.theme);
     }
+
+    // 入力が復元されていれば自動で変換も実行する
     if (s.input) runConvert();
-  } catch { /* ignore */ }
+  } catch { /* JSON 解析エラー等は無視（壊れたデータを読んでも落ちないように） */ }
 }
 
+/**
+ * パラメータ設定テキストエリアの内容を JSON としてパースして返す。
+ * JSON が正しくなければエラーメッセージを表示して空オブジェクトを返す。
+ *
+ * @returns {object} パラメータの辞書（例: { name: "田中", age: 30 }）
+ */
 function getParams() {
-  const raw = document.getElementById('params-input').value.trim();
+  const raw   = document.getElementById('params-input').value.trim();
   const errEl = document.getElementById('params-error');
+
+  // 入力が空ならエラーなし・空オブジェクトを返す
   if (!raw) { errEl.textContent = ''; return {}; }
+
   try {
     const p = JSON.parse(raw);
-    errEl.textContent = '';
+    errEl.textContent = ''; // パース成功 → エラーメッセージをクリア
     return p;
   } catch (e) {
+    // パース失敗 → ユーザーに分かりやすくエラー表示
     errEl.textContent = `JSON解析エラー: ${e.message}`;
-    return {};
+    return {}; // エラーでも {} を返すことで変換自体は続けられる
   }
 }
 
+/**
+ * 変換を実行してその結果を出力パネルに表示するメイン関数。
+ * 変換ボタンのクリック・Ctrl+Enter・セレクト変更時に呼ばれる。
+ */
 function runConvert() {
-  const input    = document.getElementById('input-area').value;
+  // UI から現在の設定値を取得する
+  const input         = document.getElementById('input-area').value;
   const paramStyle    = document.getElementById('param-style').value;
   const conditionMode = document.getElementById('condition-mode').value;
-  const params   = getParams();
+  const params        = getParams(); // パラメータ JSON をパース
 
+  // コンバーターを設定付きでインスタンス化して変換を実行する
   const converter = new IBatisSQLConverter({ paramStyle, conditionMode, params });
   const { sql, error, params: pCount } = converter.convert(input);
 
   const outputEl = document.getElementById('output-area');
   const statusEl = document.getElementById('status-bar');
 
+  // エラーがあればエラーメッセージを表示して終了
   if (error) {
     outputEl.innerHTML = `<span style="color:var(--error-color)">${escapeHTML(error)}</span>`;
     statusEl.innerHTML = `<span class="status-err">エラー: ${escapeHTML(error)}</span>`;
     return;
   }
 
+  // 変換結果が空（入力が空など）
   if (!sql.trim()) {
     outputEl.innerHTML = '<span class="output-placeholder">入力が空です</span>';
     statusEl.textContent = '待機中';
     return;
   }
 
+  // シンタックスハイライトを適用して出力パネルに表示する
   outputEl.innerHTML = highlightSQL(sql);
 
-  const lines = sql.split('\n').filter(l => l.trim()).length;
+  // ステータスバーに変換情報を表示する
+  const lines     = sql.split('\n').filter(l => l.trim()).length; // 空行を除いた行数
+  // 位置パラメータモードのときだけ ? の個数を表示する
   const paramInfo = paramStyle === 'question' && pCount > 0 ? ` | パラメータ: ${pCount}個` : '';
   statusEl.innerHTML = `<span class="status-ok">変換完了</span> | ${lines}行${paramInfo}`;
 
+  // 変換後の状態を保存する（次回リロード時に復元される）
   saveState();
 }
 
 // ============================================================
-//  Theme
+//  テーマ切り替え（ライト ↔ ダーク）
 // ============================================================
+
+/**
+ * テーマに応じてヘッダーのアイコンを切り替える。
+ * ダークモードのときは「明るくする（light_mode）」アイコン、
+ * ライトモードのときは「暗くする（dark_mode）」アイコンを表示する。
+ *
+ * @param {string} theme - 'dark' または 'light'
+ */
 function updateThemeIcon(theme) {
-  document.getElementById('theme-icon').textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+  document.getElementById('theme-icon').textContent =
+    theme === 'dark' ? 'light_mode' : 'dark_mode';
 }
 
+/**
+ * ライト/ダークテーマをトグル（切り替え）する。
+ * <html> 要素の data-theme 属性を変更することで CSS 変数が切り替わり、
+ * 全体の色がリアルタイムで変わる。
+ */
 function toggleTheme() {
   const cur  = document.documentElement.getAttribute('data-theme') || 'light';
   const next = cur === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
+  document.documentElement.setAttribute('data-theme', next); // CSS に反映
   updateThemeIcon(next);
-  saveState();
+  saveState(); // テーマ設定も保存する
 }
 
 // ============================================================
-//  Init
+//  アプリケーション初期化
 // ============================================================
+
+/**
+ * アプリの初期化処理。ページ読み込み完了後（DOMContentLoaded）に呼ばれる。
+ * すべてのボタン・セレクト・テキストエリアにイベントリスナーを登録してから、
+ * 前回の状態を復元する（loadState）。
+ */
 function init() {
-  // Convert
+
+  // ── 変換ボタン ────────────────────────────────────────────
+  // クリックで変換を実行する
   document.getElementById('convert-btn').addEventListener('click', runConvert);
 
-  // Ctrl+Enter to convert
+  // ── Ctrl+Enter ショートカット ─────────────────────────────
+  // 入力エリアでのキー押下を監視し、Ctrl（またはMac: Cmd）+ Enter で変換する
   document.getElementById('input-area').addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runConvert(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault(); // ブラウザデフォルトの改行挿入を防ぐ
+      runConvert();
+    }
   });
 
-  // Clear
+  // ── クリアボタン ──────────────────────────────────────────
+  // 入力・出力・ステータスをすべてリセットする
   document.getElementById('clear-btn').addEventListener('click', () => {
     document.getElementById('input-area').value = '';
-    document.getElementById('output-area').innerHTML = '<span class="output-placeholder">← 入力して「変換」ボタンを押してください</span>';
+    document.getElementById('output-area').innerHTML =
+      '<span class="output-placeholder">← 入力して「変換」ボタンを押してください</span>';
     document.getElementById('status-bar').textContent = '待機中';
-    saveState();
+    saveState(); // クリア後の空状態も保存する
   });
 
-  // Copy
+  // ── コピーボタン ──────────────────────────────────────────
+  // 出力パネルのテキストをクリップボードにコピーし、完了メッセージを一時表示する
   document.getElementById('copy-btn').addEventListener('click', () => {
+    // innerText で HTML タグを除いた純粋なテキストを取得する
     const text = document.getElementById('output-area').innerText;
+    // 出力が空またはプレースホルダーテキストの場合はコピーしない
     if (!text.trim() || text.includes('入力して')) return;
+
+    // Clipboard API でコピー（非同期）
     navigator.clipboard.writeText(text).then(() => {
+      // コピー成功時に「コピーしました!」を 2 秒間表示してフェードアウト
       const msg = document.getElementById('copy-msg');
       msg.classList.add('show');
       setTimeout(() => msg.classList.remove('show'), 2000);
     });
   });
 
-  // Theme
+  // ── テーマ切り替えボタン ──────────────────────────────────
   document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
 
-  // Examples
+  // ── サンプル SQL ボタン ───────────────────────────────────
+  // data-example 属性でどのサンプルを使うか判断する（例: data-example="select"）
   document.querySelectorAll('.example-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const ex = EXAMPLES[btn.dataset.example];
+      const ex = EXAMPLES[btn.dataset.example]; // EXAMPLES オブジェクトから SQL を取得
       if (ex) {
-        document.getElementById('input-area').value = ex;
-        runConvert();
+        document.getElementById('input-area').value = ex; // 入力エリアに代入
+        runConvert(); // 即座に変換実行
       }
     });
   });
 
-  // Params toggle
+  // ── パラメータ設定パネルの開閉ボタン ─────────────────────
+  // クリックするたびに open クラスを toggle（付け外し）してアコーディオン表示
   document.getElementById('params-toggle').addEventListener('click', () => {
     const body   = document.getElementById('params-body');
     const toggle = document.getElementById('params-toggle');
-    body.classList.toggle('open');
-    toggle.classList.toggle('open');
-    saveState();
+    body.classList.toggle('open');   // CSS で display: none ↔ block が切り替わる
+    toggle.classList.toggle('open'); // CSS でアイコンの回転アニメーションが変わる
+    saveState(); // 開閉状態も保存する
   });
 
-  // Auto-save on input changes
+  // ── 入力変更時の自動保存 ─────────────────────────────────
+  // テキストエリアへの入力・セレクト変更のたびに状態を保存する
+  // （変換の自動実行はしない。ボタン押下 or Ctrl+Enter が必要）
   document.getElementById('input-area').addEventListener('input', saveState);
   document.getElementById('params-input').addEventListener('input', saveState);
+
+  // セレクトボックスは変更したら即座に再変換する（UX改善）
   document.getElementById('param-style').addEventListener('change', () => { runConvert(); });
   document.getElementById('condition-mode').addEventListener('change', () => { runConvert(); });
 
+  // ── 前回の状態を復元 ──────────────────────────────────────
+  // 最後に呼ぶことで、上記のリスナー登録が完了した状態で復元処理が走る
   loadState();
 }
 
+// ページの HTML が完全に読み込まれてから init() を実行する
+// （<script> が <body> の前にあると DOM 要素が存在しないためここで待つ）
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
