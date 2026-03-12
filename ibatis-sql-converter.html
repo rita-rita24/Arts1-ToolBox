@@ -314,7 +314,7 @@
   <span class="material-symbols-outlined header-icon">transform</span>
   <div>
     <div class="app-title">iBatis SQL Converter</div>
-    <div class="app-subtitle">MyBatis / iBatis → 通常のSQL</div>
+    <div class="app-subtitle">MyBatis v3 / iBatis v2 → 通常のSQL</div>
   </div>
   <div class="header-spacer"></div>
   <button class="icon-btn" id="theme-toggle" title="テーマ切り替え">
@@ -335,12 +335,15 @@
     </div>
 
     <div class="examples-bar">
-      <span class="example-label">サンプル:</span>
+      <span class="example-label">MyBatis v3:</span>
       <button class="example-btn" data-example="select">SELECT + IF/WHERE</button>
       <button class="example-btn" data-example="update">UPDATE + SET</button>
-      <button class="example-btn" data-example="foreach">FOREACH (IN句)</button>
+      <button class="example-btn" data-example="foreach">FOREACH</button>
       <button class="example-btn" data-example="choose">CHOOSE/WHEN</button>
       <button class="example-btn" data-example="trim">TRIM</button>
+      <span class="example-label" style="margin-left:6px">iBatis v2:</span>
+      <button class="example-btn" data-example="iterate">ITERATE</button>
+      <button class="example-btn" data-example="ibatisv2">isNotNull/dynamic</button>
     </div>
 
     <div class="options-bar">
@@ -492,6 +495,26 @@ class IBatisSQLConverter {
         return this._trim(n);
       case 'foreach':
         return this._foreach(n);
+      // iBatis v2 specific
+      case 'iterate':
+        return this._iterate(n);
+      case 'dynamic':
+        return this._dynamic(n);
+      case 'isnull':
+      case 'isnotnull':
+      case 'isempty':
+      case 'isnotempty':
+      case 'isequal':
+      case 'isnotequal':
+      case 'isgreaterthan':
+      case 'isgreaterequal':
+      case 'islessthan':
+      case 'islessequal':
+      case 'isparameterpresent':
+      case 'isnotparameterpresent':
+      case 'ispropertyavailable':
+      case 'isnotpropertyavailable':
+        return this._ibatisCondition(n);
       case 'bind':
         return '';
       case 'include':
@@ -605,6 +628,109 @@ class IBatisSQLConverter {
     return `${open}/* foreach: ${collection} */ ${innerTemplate}${separator} ${innerTemplate} /* ... */${close}`;
   }
 
+  // --- iBatis v2: <iterate> ---
+  _iterate(n) {
+    const property    = n.getAttribute('property')    || 'list';
+    const open        = n.getAttribute('open')        || '';
+    const close       = n.getAttribute('close')       || '';
+    const conjunction = n.getAttribute('conjunction') || ',';
+    const prepend     = n.getAttribute('prepend')     || '';
+
+    const innerTemplate = this._children(n).trim();
+    const body = `${open}/* iterate: ${property} */ ${innerTemplate}${conjunction} ${innerTemplate} /* ... */${close}`;
+    return prepend ? `${prepend} ${body}` : body;
+  }
+
+  // --- iBatis v2: <dynamic> ---
+  // Similar to <where>/<set> – wraps conditional blocks and applies prepend
+  _dynamic(n) {
+    const prepend = n.getAttribute('prepend') || '';
+    let inner = this._children(n).trim();
+    if (!inner) return '';
+    // Strip leading AND/OR (managed by child prepend attributes)
+    inner = inner.replace(/^(AND|OR)\b\s*/i, '');
+    // Strip trailing comma (for SET-like usage)
+    inner = inner.replace(/,\s*$/, '');
+    inner = inner.trim();
+    if (!inner) return '';
+    return prepend ? `${prepend}\n  ${inner}` : inner;
+  }
+
+  // --- iBatis v2: conditional tags (isNull, isNotNull, isEqual, …) ---
+  _ibatisCondition(n) {
+    const tag          = n.tagName.toLowerCase();
+    const property     = n.getAttribute('property')                                       || '';
+    const compareValue = n.getAttribute('compareValue') || n.getAttribute('comparevalue') || '';
+    const compareProp  = n.getAttribute('compareProperty') || n.getAttribute('compareproperty') || '';
+    const prepend      = n.getAttribute('prepend')                                        || '';
+
+    const content = this._children(n);
+    const mode    = this.conditionMode;
+
+    if (mode === 'evaluate') {
+      if (!this._evalIbatisCond(tag, property, compareValue, compareProp)) return '';
+      return prepend ? `${prepend}\n${content}` : content;
+    }
+    if (mode === 'include') {
+      return prepend ? `${prepend}\n${content}` : content;
+    }
+    // comment mode
+    const label = this._ibatisCondLabel(tag, property, compareValue, compareProp);
+    const inner = content.trim();
+    if (!inner) return '';
+    const pre = prepend ? `${prepend} ` : '';
+    return `\n/* IF: ${label} */\n${pre}${inner}\n/* END IF */\n`;
+  }
+
+  _ibatisCondLabel(tag, property, compareValue, compareProperty) {
+    const cmp = compareProperty || `'${compareValue}'`;
+    switch (tag) {
+      case 'isnull':                 return `${property} IS NULL`;
+      case 'isnotnull':              return `${property} IS NOT NULL`;
+      case 'isempty':                return `${property} IS EMPTY`;
+      case 'isnotempty':             return `${property} IS NOT EMPTY`;
+      case 'isparameterpresent':     return 'PARAMETER IS PRESENT';
+      case 'isnotparameterpresent':  return 'PARAMETER IS NOT PRESENT';
+      case 'ispropertyavailable':    return `${property} IS AVAILABLE`;
+      case 'isnotpropertyavailable': return `${property} IS NOT AVAILABLE`;
+      case 'isequal':                return `${property} == ${cmp}`;
+      case 'isnotequal':             return `${property} != ${cmp}`;
+      case 'isgreaterthan':          return `${property} > ${cmp}`;
+      case 'isgreaterequal':         return `${property} >= ${cmp}`;
+      case 'islessthan':             return `${property} < ${cmp}`;
+      case 'islessequal':            return `${property} <= ${cmp}`;
+      default: return tag;
+    }
+  }
+
+  _evalIbatisCond(tag, property, compareValue, compareProperty) {
+    const val = this.params[property];
+    const cmpVal = compareProperty ? this.params[compareProperty] : compareValue;
+    switch (tag) {
+      case 'isnull':   return val === null || val === undefined;
+      case 'isnotnull': return val !== null && val !== undefined;
+      case 'isempty':
+        if (val === null || val === undefined) return true;
+        if (typeof val === 'string' || Array.isArray(val)) return val.length === 0;
+        return false;
+      case 'isnotempty':
+        if (val === null || val === undefined) return false;
+        if (typeof val === 'string' || Array.isArray(val)) return val.length > 0;
+        return true;
+      case 'isparameterpresent':     return Object.keys(this.params).length > 0;
+      case 'isnotparameterpresent':  return Object.keys(this.params).length === 0;
+      case 'ispropertyavailable':    return property in this.params;
+      case 'isnotpropertyavailable': return !(property in this.params);
+      case 'isequal':        return String(val) === String(cmpVal);
+      case 'isnotequal':     return String(val) !== String(cmpVal);
+      case 'isgreaterthan':  return Number(val) >  Number(cmpVal);
+      case 'isgreaterequal': return Number(val) >= Number(cmpVal);
+      case 'islessthan':     return Number(val) <  Number(cmpVal);
+      case 'islessequal':    return Number(val) <= Number(cmpVal);
+      default: return true;
+    }
+  }
+
   // --- Text: replace iBatis placeholders ---
   _text(raw) {
     return this._processRawText(raw);
@@ -614,6 +740,9 @@ class IBatisSQLConverter {
     let s = raw;
     // iBatis v3: #{param} → parameterized
     s = s.replace(/#\{([^}]+)\}/g, (_, p) => this._param(p.split(',')[0].trim()));
+    // iBatis v2: #list[].field# or #list[]# or #list[0].field# (iterate/array notation)
+    s = s.replace(/#([a-zA-Z_][a-zA-Z0-9_]*)(?:\[\d*\])(?:\.([a-zA-Z_][a-zA-Z0-9_.]*))?#/g,
+      (_, list, field) => this._param(field || list));
     // iBatis v2: #param# → parameterized
     s = s.replace(/#([a-zA-Z_][a-zA-Z0-9_.]*)#/g, (_, p) => this._param(p));
     // iBatis v3: ${param} → substitution placeholder
@@ -895,6 +1024,43 @@ const EXAMPLES = {
     </if>
   </trim>
   ORDER BY created_at DESC
+</select>`,
+
+  iterate: `<select id="findByCompositeKeys" parameterType="OrderSearch">
+  SELECT
+    taishoYm, denpyoHtbnGrpCd, denpyoNo, kingaku
+  FROM orders
+  WHERE (taishoYm, denpyoHtbnGrpCd, denpyoNo) IN
+  <iterate property="taisholist" open="(" close=")"
+      conjunction=",">
+      (#taisholist[].taishoYm#,
+      #taisholist[].denpyoHtbnGrpCd#,
+      #taisholist[].denpyoNo#)
+  </iterate>
+  ORDER BY taishoYm, denpyoNo
+</select>`,
+
+  ibatisv2: `<select id="findUsers" parameterType="UserSearch">
+  SELECT id, name, email, age, status
+  FROM users
+  <dynamic prepend="WHERE">
+    <isNotNull prepend="AND" property="name">
+      name LIKE #name#
+    </isNotNull>
+    <isNotEmpty prepend="AND" property="statusList">
+      status IN
+      <iterate property="statusList" open="(" close=")" conjunction=",">
+        #statusList[]#
+      </iterate>
+    </isNotEmpty>
+    <isGreaterThan prepend="AND" property="minAge" compareValue="0">
+      age &gt;= #minAge#
+    </isGreaterThan>
+    <isEqual prepend="AND" property="role" compareValue="admin">
+      is_admin = 1
+    </isEqual>
+  </dynamic>
+  ORDER BY id DESC
 </select>`,
 };
 
