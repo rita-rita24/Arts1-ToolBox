@@ -815,8 +815,8 @@ class IBatisSQLConverter {
     const close      = n.getAttribute('close')      || '';
     const separator  = n.getAttribute('separator')  || ',';
 
-    // 内部の1回分のテンプレートを変換する
-    const innerTemplate = this._children(n).trim();
+    // 内部の1回分のテンプレートを変換する（改行・連続空白を1スペースに正規化）
+    const innerTemplate = this._children(n).trim().replace(/\s+/g, ' ');
     // 2回繰り返してパターンを示す（実際の繰り返し数は実行時依存）
     return `${open}/* foreach: ${collection} */ ${innerTemplate}${separator} ${innerTemplate} /* ... */${close}`;
   }
@@ -856,8 +856,8 @@ class IBatisSQLConverter {
     const conjunction = n.getAttribute('conjunction') || ',';
     const prepend     = n.getAttribute('prepend')     || '';
 
-    // 内部テンプレートを変換する（#list[].field# は _processRawText() が処理する）
-    const innerTemplate = this._children(n).trim();
+    // 内部テンプレートを変換する（改行・連続空白を1スペースに正規化）
+    const innerTemplate = this._children(n).trim().replace(/\s+/g, ' ');
     // 2回繰り返してパターンを示す
     const body = `${open}/* iterate: ${property} */ ${innerTemplate}${conjunction} ${innerTemplate} /* ... */${close}`;
     // prepend が指定されていれば先頭に付ける（例: "id IN (..."）
