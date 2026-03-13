@@ -721,7 +721,10 @@ class IBatisSQLConverter {
   _where(n) {
     let inner = this._children(n).trim();
     // 先頭の "AND " や "OR " を除去（<if> が最初に AND を書いていても問題ない）
-    inner = inner.replace(/^(AND|OR)\b[\s]*/i, '');
+    // コメントモードでは /* IF: ... */ が先頭に来るため、コメントブロックを飛ばして
+    // 最初の AND/OR を除去する
+    inner = inner.replace(/^((?:\s*\/\*[\s\S]*?\*\/)*\s*)(AND|OR)\b\s*/i, '$1');
+    inner = inner.trim();
     if (!inner) return '';
     return `WHERE\n  ${inner}`;
   }
@@ -771,17 +774,19 @@ class IBatisSQLConverter {
 
     // prefixOverrides: "|" で区切られた各パターンを先頭から除去する
     // 例: prefixOverrides="AND |OR " → ["AND ", "OR "] をそれぞれ試す
+    // コメントモードでは /* IF: ... */ が先頭に来るため、コメントブロックを飛ばす
     if (prefixOverrides) {
       for (const ov of prefixOverrides.split('|').map(s => s.trim()).filter(Boolean)) {
         // _escRe() で正規表現の特殊文字をエスケープしてから RegExp を作る
-        inner = inner.replace(new RegExp(`^\\s*${_escRe(ov)}\\s*`, 'i'), '');
+        inner = inner.replace(new RegExp(`^((?:\\s*\\/\\*[\\s\\S]*?\\*\\/)*\\s*)${_escRe(ov)}\\s*`, 'i'), '$1');
       }
       inner = inner.trim();
     }
     // suffixOverrides: 末尾から除去する（SET 句の末尾カンマ除去に使われることが多い）
+    // コメントモードでは /* END IF */ が末尾に来るため、コメントブロックを飛ばす
     if (suffixOverrides) {
       for (const ov of suffixOverrides.split('|').map(s => s.trim()).filter(Boolean)) {
-        inner = inner.replace(new RegExp(`\\s*${_escRe(ov)}\\s*$`, 'i'), '');
+        inner = inner.replace(new RegExp(`\\s*${_escRe(ov)}((?:\\s*\\/\\*[\\s\\S]*?\\*\\/)*\\s*)$`, 'i'), '$1');
       }
       inner = inner.trim();
     }
@@ -888,9 +893,10 @@ class IBatisSQLConverter {
     if (!inner) return '';
     // 子タグの prepend="AND" が先頭に残っている場合は除去する
     // （最初の条件タグの "AND " は不要なので <where> と同じ処理）
-    inner = inner.replace(/^(AND|OR)\b\s*/i, '');
-    // SET 句用途での末尾カンマ除去
-    inner = inner.replace(/,\s*$/, '');
+    // コメントモードでは /* IF: ... */ が先頭に来るため、コメントブロックを飛ばす
+    inner = inner.replace(/^((?:\s*\/\*[\s\S]*?\*\/)*\s*)(AND|OR)\b\s*/i, '$1');
+    // SET 句用途での末尾カンマ除去（コメントブロックが末尾にある場合も考慮）
+    inner = inner.replace(/,(\s*(?:\/\*[\s\S]*?\*\/\s*)*)$/, '$1');
     inner = inner.trim();
     if (!inner) return '';
     // prepend キーワードを付けてインデントする
@@ -1078,10 +1084,8 @@ class IBatisSQLConverter {
     s = s.replace(/\$\{([^}]+)\}/g, (_, p) => this._subst(p.trim()));
 
     // 【5】iBatis v2 の文字列埋め込み: $paramName$
-    //   正規表現: (?=\$) は先読みアサーション（次の $ が存在することを確認）
-    s = s.replace(/\$([a-zA-Z_][a-zA-Z0-9_.]*)(?=\$)/g, (_, p) => this._subst(p));
-    // v2 $param$ の処理後に残った末尾の $ を除去する
-    s = s.replace(/\$/g, '');
+    //   末尾の $ も含めて消費することで、後続の文字列中の $ を誤って削除しない
+    s = s.replace(/\$([a-zA-Z_][a-zA-Z0-9_.]*)\$/g, (_, p) => this._subst(p));
 
     return s;
   }
