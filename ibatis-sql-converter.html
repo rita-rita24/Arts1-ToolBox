@@ -545,14 +545,20 @@
         const conjunction = n.getAttribute('conjunction') || ',';
         const prepend = n.getAttribute('prepend') || '';
         // 内部テンプレートを変換する（#list[].field# は _processRawText() が処理する）
-        let innerTemplate = this._children(n).trim();
+        // 改行・連続空白を1スペースに正規化して1行にまとめる
+        let innerTemplate = this._children(n).trim().replace(/\s+/g, ' ');
         if (!innerTemplate) return '';
         // SqlBuilder向けにJava疑似コードのコメントでイテレートブロックをサンドイッチする
         const loopStr = `for (item in ${property})`;
         // サンプルのために中身を複数回繰り返す（見栄えのため2個まで）
         let bodyStr = '';
         if (innerTemplate) {
-          bodyStr = `${open} ${innerTemplate}${conjunction} ${innerTemplate} ${close}`;
+          if (open || close) {
+            // open/close がある場合は各要素を改行で見やすく配置する
+            bodyStr = `${open}\n  ${innerTemplate}${conjunction}\n  ${innerTemplate}\n${close}`;
+          } else {
+            bodyStr = `${innerTemplate}${conjunction} ${innerTemplate}`;
+          }
         }
         const prependStr = prepend ? `${prepend} ` : '';
         return `\n/* ${loopStr} { */\n${prependStr}${bodyStr}\n/* } */`;
