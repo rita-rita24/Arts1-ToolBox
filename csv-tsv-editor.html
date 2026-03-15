@@ -318,7 +318,7 @@
 
     /* 検索バー */
     .search-bar {
-      display: none;
+      display: flex;
       padding: 12px 16px;
       background: var(--surface);
       border: 1px solid var(--border);
@@ -327,10 +327,6 @@
       gap: 12px;
       align-items: center;
       flex-wrap: wrap;
-    }
-
-    .search-bar.show {
-      display: flex;
     }
 
     .search-bar input {
@@ -377,7 +373,7 @@
       background: var(--header-bg);
     }
 
-    .search-close {
+    .search-clear {
       margin-left: auto;
     }
 
@@ -859,7 +855,7 @@
             class="material-symbols-outlined">expand_more</span></button>
       </div>
       <span class="search-info" id="searchInfo"></span>
-      <button class="btn search-close" onclick="closeSearch()"><span
+      <button class="btn search-clear" onclick="clearSearch()" title="検索をクリア"><span
           class="material-symbols-outlined">close</span></button>
     </div>
 
@@ -888,11 +884,8 @@
         </button>
       </div>
 
-      <!-- 表示・検索グループ -->
+      <!-- 表示グループ -->
       <div class="toolbar-group">
-        <button class="btn" onclick="openSearch()" title="検索・置換">
-          <span class="material-symbols-outlined">search</span> 検索 <span class="shortcut-hint">Ctrl+F</span>
-        </button>
         <div class="toggle-group" title="ヘッダー行の有無を切り替え">
           <span class="toggle-label">ヘッダー</span>
           <div class="toggle" id="headerToggle" onclick="toggleHeader()"></div>
@@ -1514,12 +1507,14 @@
     // ===== データ内のテキスト検索と置換 =====
     // ハイライト表示、複数一致のナビゲーション、一括置換など
     function openSearch() {
-      document.getElementById('searchBar').classList.add('show');
       document.getElementById('searchInput').focus();
     }
 
     function closeSearch() {
-      document.getElementById('searchBar').classList.remove('show');
+      clearSearch();
+    }
+
+    function clearSearch() {
       document.getElementById('searchInput').value = '';
       document.getElementById('replaceInput').value = '';
       clearHighlights();

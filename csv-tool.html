@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSV ツール</title>
+
+  <!-- ファビコン -->
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%232563eb' d='M10 10.02h5V21h-5zM17 21h3c1.1 0 2-.9 2-2v-9h-5v11zm3-18H5c-1.1 0-2 .9-2 2v3h19V5c0-1.1-.9-2-2-2zM3 19c0 1.1.9 2 2 2h3V10.02H3V19z'/></svg>">
+
+  <!-- Material Symbols アイコンフォント -->
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+  <style>
+    :root {
+      --sidebar-width: 220px;
+      --sidebar-bg: #1e293b;
+      --sidebar-text: #e2e8f0;
+      --sidebar-hover: #334155;
+      --sidebar-active: #2563eb;
+      --sidebar-active-text: #ffffff;
+      --bg: #f8fafc;
+    }
+
+    [data-theme="dark"] {
+      --sidebar-bg: #0f172a;
+      --sidebar-text: #94a3b8;
+      --sidebar-hover: #1e293b;
+      --sidebar-active: #3b82f6;
+      --sidebar-active-text: #ffffff;
+      --bg: #000000;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", sans-serif;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      font-size: 1.25em;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    /* サイドバー */
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: var(--sidebar-bg);
+      color: var(--sidebar-text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      transition: transform 0.3s ease;
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      padding: 20px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-header h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--sidebar-active-text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-header h1 .material-symbols-outlined {
+      font-size: 1.5rem;
+      color: var(--sidebar-active);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 12px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--sidebar-text);
+      font-size: 0.9rem;
+      text-align: left;
+      width: 100%;
+      transition: background 0.15s ease;
+    }
+
+    .nav-item:hover {
+      background: var(--sidebar-hover);
+    }
+
+    .nav-item.active {
+      background: var(--sidebar-active);
+      color: var(--sidebar-active-text);
+    }
+
+    .nav-item .material-symbols-outlined {
+      font-size: 1.3rem;
+    }
+
+    .nav-item-label {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .nav-item-title {
+      font-weight: 600;
+    }
+
+    .nav-item-desc {
+      font-size: 0.75rem;
+      opacity: 0.7;
+      margin-top: 2px;
+    }
+
+    .sidebar-footer {
+      padding: 12px 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .theme-toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--sidebar-text);
+      font-size: 0.85rem;
+      width: 100%;
+      transition: background 0.15s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--sidebar-hover);
+    }
+
+    /* メインコンテンツ */
+    .main-content {
+      flex: 1;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .tool-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: none;
+    }
+
+    .tool-frame.active {
+      display: block;
+    }
+
+    /* モバイルメニューボタン */
+    .mobile-menu-btn {
+      display: none;
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 200;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      border: none;
+      background: var(--sidebar-bg);
+      color: var(--sidebar-active-text);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 90;
+    }
+
+    /* モバイル対応 */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-overlay.open {
+        display: block;
+      }
+
+      .mobile-menu-btn {
+        display: flex;
+      }
+
+      .main-content {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- モバイルメニューボタン -->
+  <button class="mobile-menu-btn" onclick="toggleSidebar()">
+    <span class="material-symbols-outlined">menu</span>
+  </button>
+
+  <!-- オーバーレイ（モバイル用） -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- サイドバー -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h1>
+        <span class="material-symbols-outlined">table_chart</span>
+        CSV ツール
+      </h1>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-tool="editor" onclick="switchTool('editor')">
+        <span class="material-symbols-outlined">table_view</span>
+        <span class="nav-item-label">
+          <span class="nav-item-title">CSV/TSV エディタ</span>
+          <span class="nav-item-desc">テーブル形式で編集</span>
+        </span>
+      </button>
+
+      <button class="nav-item" data-tool="generator" onclick="switchTool('generator')">
+        <span class="material-symbols-outlined">build</span>
+        <span class="nav-item-label">
+          <span class="nav-item-title">CSV ジェネレーター</span>
+          <span class="nav-item-desc">定義からCSVを生成</span>
+        </span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="theme-toggle-btn" onclick="toggleTheme()">
+        <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
+        <span id="themeLabel">ダークモード</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- メインコンテンツ -->
+  <main class="main-content">
+    <iframe class="tool-frame active" id="frame-editor" src="csv-tsv-editor.html"></iframe>
+    <iframe class="tool-frame" id="frame-generator" src="csv-tool-generator.html"></iframe>
+  </main>
+
+  <script>
+    const STORAGE_KEY = 'csvTool_settings';
+
+    function loadSettings() {
+      try {
+        const data = localStorage.getItem(STORAGE_KEY);
+        return data ? JSON.parse(data) : {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveSettings(settings) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+      } catch (e) {
+        console.error('Storage error:', e);
+      }
+    }
+
+    // ツール切り替え
+    function switchTool(tool) {
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.tool === tool);
+      });
+
+      document.querySelectorAll('.tool-frame').forEach(frame => {
+        frame.classList.remove('active');
+      });
+      document.getElementById('frame-' + tool).classList.add('active');
+
+      const settings = loadSettings();
+      settings.activeTool = tool;
+      saveSettings(settings);
+
+      // モバイルでは切り替え後にサイドバーを閉じる
+      if (window.innerWidth <= 768) {
+        closeSidebar();
+      }
+    }
+
+    // テーマ切り替え
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+
+      // iframe内のテーマも同期
+      document.querySelectorAll('.tool-frame').forEach(frame => {
+        try {
+          frame.contentDocument.documentElement.setAttribute('data-theme', next);
+        } catch (e) { /* cross-origin fallback */ }
+      });
+
+      updateThemeUI(next);
+
+      const settings = loadSettings();
+      settings.theme = next;
+      saveSettings(settings);
+    }
+
+    function updateThemeUI(theme) {
+      document.getElementById('themeIcon').textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+      document.getElementById('themeLabel').textContent = theme === 'dark' ? 'ライトモード' : 'ダークモード';
+    }
+
+    // サイドバー（モバイル）
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('open');
+    }
+
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('open');
+    }
+
+    // 初期化
+    function init() {
+      const settings = loadSettings();
+
+      // テーマ復元
+      if (settings.theme) {
+        document.documentElement.setAttribute('data-theme', settings.theme);
+        updateThemeUI(settings.theme);
+      }
+
+      // アクティブツール復元
+      if (settings.activeTool) {
+        switchTool(settings.activeTool);
+      }
+
+      // iframe読み込み後にテーマを同期
+      document.querySelectorAll('.tool-frame').forEach(frame => {
+        frame.addEventListener('load', () => {
+          const theme = document.documentElement.getAttribute('data-theme');
+          if (theme) {
+            try {
+              frame.contentDocument.documentElement.setAttribute('data-theme', theme);
+            } catch (e) { /* cross-origin fallback */ }
+          }
+        });
+      });
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
