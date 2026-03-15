@@ -17,21 +17,24 @@
   <style>
     :root {
       --sidebar-width: 220px;
-      --sidebar-bg: #1e293b;
-      --sidebar-text: #e2e8f0;
-      --sidebar-hover: #334155;
-      --sidebar-active: #2563eb;
-      --sidebar-active-text: #ffffff;
+      --sidebar-collapsed-width: 0px;
       --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
     }
 
     [data-theme="dark"] {
-      --sidebar-bg: #0f172a;
-      --sidebar-text: #94a3b8;
-      --sidebar-hover: #1e293b;
-      --sidebar-active: #3b82f6;
-      --sidebar-active-text: #ffffff;
       --bg: #000000;
+      --surface: #121212;
+      --border: #404040;
+      --text: #ffffff;
+      --text-muted: #a3a3a3;
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
     }
 
     * {
@@ -60,32 +63,56 @@
     .sidebar {
       width: var(--sidebar-width);
       min-width: var(--sidebar-width);
-      background: var(--sidebar-bg);
-      color: var(--sidebar-text);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      color: var(--text);
       display: flex;
       flex-direction: column;
       height: 100vh;
-      transition: transform 0.3s ease;
+      transition: width 0.25s ease, min-width 0.25s ease;
       z-index: 100;
+      overflow: hidden;
+    }
+
+    .sidebar.collapsed {
+      width: var(--sidebar-collapsed-width);
+      min-width: var(--sidebar-collapsed-width);
     }
 
     .sidebar-header {
-      padding: 20px 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .sidebar-header h1 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--sidebar-active-text);
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      min-height: 52px;
     }
 
-    .sidebar-header h1 .material-symbols-outlined {
-      font-size: 1.5rem;
-      color: var(--sidebar-active);
+    .sidebar-toggle-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s ease;
+    }
+
+    .sidebar-toggle-btn:hover {
+      background: var(--bg);
+    }
+
+    .sidebar-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
     }
 
     .sidebar-nav {
@@ -94,6 +121,7 @@
       display: flex;
       flex-direction: column;
       gap: 4px;
+      overflow: hidden;
     }
 
     .nav-item {
@@ -105,29 +133,32 @@
       cursor: pointer;
       border: none;
       background: none;
-      color: var(--sidebar-text);
+      color: var(--text-muted);
       font-size: 0.9rem;
       text-align: left;
       width: 100%;
+      white-space: nowrap;
       transition: background 0.15s ease;
     }
 
     .nav-item:hover {
-      background: var(--sidebar-hover);
+      background: var(--bg);
     }
 
     .nav-item.active {
-      background: var(--sidebar-active);
-      color: var(--sidebar-active-text);
+      background: var(--primary);
+      color: #ffffff;
     }
 
     .nav-item .material-symbols-outlined {
       font-size: 1.3rem;
+      flex-shrink: 0;
     }
 
     .nav-item-label {
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
 
     .nav-item-title {
@@ -140,28 +171,34 @@
       margin-top: 2px;
     }
 
-    .sidebar-footer {
-      padding: 12px 8px;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    /* 折り畳み時にテキストを隠す */
+    .sidebar.collapsed .sidebar-title,
+    .sidebar.collapsed .nav-item-label,
+    .sidebar.collapsed .nav-item-desc {
+      display: none;
     }
 
-    .theme-toggle-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
-      border-radius: 8px;
+    /* 展開ボタン（折り畳み時に表示） */
+    .expand-btn {
+      display: none;
+      position: fixed;
+      top: 8px;
+      left: 8px;
+      z-index: 200;
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
       cursor: pointer;
-      border: none;
-      background: none;
-      color: var(--sidebar-text);
-      font-size: 0.85rem;
-      width: 100%;
-      transition: background 0.15s ease;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .theme-toggle-btn:hover {
-      background: var(--sidebar-hover);
+    .sidebar.collapsed ~ .main-content .expand-btn {
+      display: flex;
     }
 
     /* メインコンテンツ */
@@ -183,33 +220,6 @@
       display: block;
     }
 
-    /* モバイルメニューボタン */
-    .mobile-menu-btn {
-      display: none;
-      position: fixed;
-      top: 12px;
-      left: 12px;
-      z-index: 200;
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      border: none;
-      background: var(--sidebar-bg);
-      color: var(--sidebar-active-text);
-      cursor: pointer;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .sidebar-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 90;
-    }
-
     /* モバイル対応 */
     @media (max-width: 768px) {
       .sidebar {
@@ -223,11 +233,18 @@
         transform: translateX(0);
       }
 
+      .sidebar.collapsed {
+        width: var(--sidebar-width);
+        min-width: var(--sidebar-width);
+        transform: translateX(-100%);
+      }
+
       .sidebar-overlay.open {
         display: block;
       }
 
-      .mobile-menu-btn {
+      .expand-btn,
+      .sidebar.collapsed ~ .main-content .expand-btn {
         display: flex;
       }
 
@@ -235,25 +252,28 @@
         width: 100%;
       }
     }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 90;
+    }
   </style>
 </head>
 
 <body>
-  <!-- モバイルメニューボタン -->
-  <button class="mobile-menu-btn" onclick="toggleSidebar()">
-    <span class="material-symbols-outlined">menu</span>
-  </button>
-
   <!-- オーバーレイ（モバイル用） -->
-  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
   <!-- サイドバー -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <h1>
-        <span class="material-symbols-outlined">table_chart</span>
-        CSV ツール
-      </h1>
+      <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="メニューを折り畳む">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+      <span class="sidebar-title">CSV ツール</span>
     </div>
 
     <nav class="sidebar-nav">
@@ -273,17 +293,15 @@
         </span>
       </button>
     </nav>
-
-    <div class="sidebar-footer">
-      <button class="theme-toggle-btn" onclick="toggleTheme()">
-        <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
-        <span id="themeLabel">ダークモード</span>
-      </button>
-    </div>
   </aside>
 
   <!-- メインコンテンツ -->
   <main class="main-content">
+    <!-- 展開ボタン（サイドバー折り畳み時に表示） -->
+    <button class="expand-btn" id="expandBtn" onclick="toggleSidebar()">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+
     <iframe class="tool-frame active" id="frame-editor" src="csv-tsv-editor.html"></iframe>
     <iframe class="tool-frame" id="frame-generator" src="csv-tool-generator.html"></iframe>
   </main>
@@ -329,66 +347,70 @@
       }
     }
 
-    // テーマ切り替え
-    function toggleTheme() {
-      const current = document.documentElement.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-
-      // iframe内のテーマも同期
-      document.querySelectorAll('.tool-frame').forEach(frame => {
-        try {
-          frame.contentDocument.documentElement.setAttribute('data-theme', next);
-        } catch (e) { /* cross-origin fallback */ }
-      });
-
-      updateThemeUI(next);
-
-      const settings = loadSettings();
-      settings.theme = next;
-      saveSettings(settings);
-    }
-
-    function updateThemeUI(theme) {
-      document.getElementById('themeIcon').textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
-      document.getElementById('themeLabel').textContent = theme === 'dark' ? 'ライトモード' : 'ダークモード';
-    }
-
-    // サイドバー（モバイル）
+    // サイドバー折り畳み
     function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('open');
-      document.getElementById('sidebarOverlay').classList.toggle('open');
+      const sidebar = document.getElementById('sidebar');
+
+      if (window.innerWidth <= 768) {
+        // モバイル: スライドイン/アウト
+        sidebar.classList.toggle('open');
+        document.getElementById('sidebarOverlay').classList.toggle('open');
+      } else {
+        // デスクトップ: 折り畳み
+        sidebar.classList.toggle('collapsed');
+        const settings = loadSettings();
+        settings.sidebarCollapsed = sidebar.classList.contains('collapsed');
+        saveSettings(settings);
+      }
     }
 
     function closeSidebar() {
-      document.getElementById('sidebar').classList.remove('open');
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.remove('open');
       document.getElementById('sidebarOverlay').classList.remove('open');
+    }
+
+    // テーマ同期（iframe内のテーマ変更を検知してサイドバーに反映）
+    function syncThemeFromIframe() {
+      document.querySelectorAll('.tool-frame').forEach(frame => {
+        try {
+          const iframeTheme = frame.contentDocument.documentElement.getAttribute('data-theme');
+          if (iframeTheme) {
+            document.documentElement.setAttribute('data-theme', iframeTheme);
+          }
+        } catch (e) { /* cross-origin fallback */ }
+      });
     }
 
     // 初期化
     function init() {
       const settings = loadSettings();
 
-      // テーマ復元
-      if (settings.theme) {
-        document.documentElement.setAttribute('data-theme', settings.theme);
-        updateThemeUI(settings.theme);
-      }
-
       // アクティブツール復元
       if (settings.activeTool) {
         switchTool(settings.activeTool);
       }
 
+      // サイドバー折り畳み状態を復元
+      if (settings.sidebarCollapsed && window.innerWidth > 768) {
+        document.getElementById('sidebar').classList.add('collapsed');
+      }
+
       // iframe読み込み後にテーマを同期
       document.querySelectorAll('.tool-frame').forEach(frame => {
         frame.addEventListener('load', () => {
-          const theme = document.documentElement.getAttribute('data-theme');
-          if (theme) {
-            try {
-              frame.contentDocument.documentElement.setAttribute('data-theme', theme);
-            } catch (e) { /* cross-origin fallback */ }
-          }
+          syncThemeFromIframe();
+
+          // iframe内のテーマ変更を監視
+          try {
+            const observer = new MutationObserver(() => {
+              syncThemeFromIframe();
+            });
+            observer.observe(frame.contentDocument.documentElement, {
+              attributes: true,
+              attributeFilter: ['data-theme']
+            });
+          } catch (e) { /* cross-origin fallback */ }
         });
       });
     }
