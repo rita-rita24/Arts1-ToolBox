@@ -340,11 +340,11 @@
       </div>
       <textarea id="input-area" spellcheck="false" placeholder="iBatisのSQLをここに貼り付けてください...
 例:
-<select id=&quot;findUsers&quot; resultClass=&quot;User&quot;>
-  SELECT * FROM users
+<select id=&quot;findEmployees&quot; resultClass=&quot;Employee&quot;>
+  SELECT * FROM employees
   <dynamic prepend=&quot;WHERE&quot;>
-    <isNotNull prepend=&quot;AND&quot; property=&quot;name&quot;>
-      name = #name#
+    <isNotNull prepend=&quot;AND&quot; property=&quot;empName&quot;>
+      emp_name = #empName#
     </isNotNull>
   </dynamic>
 </select>"></textarea>
@@ -579,10 +579,10 @@
        *
        * 例:
        *   &lt;dynamic prepend="WHERE"&gt;
-       *     &lt;isNotNull prepend="AND" property="name"&gt;name LIKE #name#&lt;/isNotNull&gt;
-       *     &lt;isNotNull prepend="AND" property="age"&gt; age = #age#&lt;/isNotNull&gt;
+       *     &lt;isNotNull prepend="AND" property="empName"&gt;emp_name LIKE #empName#&lt;/isNotNull&gt;
+       *     &lt;isNotNull prepend="AND" property="hireYear"&gt; hire_year = #hireYear#&lt;/isNotNull&gt;
        *   &lt;/dynamic&gt;
-       *   → WHERE name LIKE ? AND age = ?
+       *   → WHERE emp_name LIKE ? AND hire_year = ?
        */
       _dynamic(n) {
         const prepend = n.getAttribute('prepend') || '';
@@ -935,82 +935,82 @@
     //  iBatis の代表的なパターンを網羅している。
     // ============================================================
     const EXAMPLES = {
-      ibatisv2: `<select id="findUsers" parameterType="UserSearch">
-  SELECT id, name, email, age, status
-  FROM users
+      ibatisv2: `<select id="findEmployees" parameterType="EmployeeSearch">
+  SELECT emp_id, emp_name, dept_code, hire_year, grade
+  FROM employees
   <dynamic prepend="WHERE">
-    <isNotNull prepend="AND" property="name">
-      name LIKE #name#
+    <isNotNull prepend="AND" property="empName">
+      emp_name LIKE #empName#
     </isNotNull>
-    <isNotEmpty prepend="AND" property="statusList">
-      status IN
-      <iterate property="statusList" open="(" close=")" conjunction=",">
-        #statusList[]#
+    <isNotEmpty prepend="AND" property="gradeList">
+      grade IN
+      <iterate property="gradeList" open="(" close=")" conjunction=",">
+        #gradeList[]#
       </iterate>
     </isNotEmpty>
-    <isGreaterThan prepend="AND" property="minAge" compareValue="0">
-      age >= #minAge#
+    <isGreaterThan prepend="AND" property="minHireYear" compareValue="0">
+      hire_year >= #minHireYear#
     </isGreaterThan>
-    <isEqual prepend="AND" property="role" compareValue="admin">
-      is_admin = 1
+    <isEqual prepend="AND" property="position" compareValue="manager">
+      is_manager = 1
     </isEqual>
   </dynamic>
-  ORDER BY id DESC
+  ORDER BY emp_id DESC
 </select>`,
-      iterate: `<select id="findByCompositeKeys" parameterType="OrderSearch">
+      iterate: `<select id="findByCompositeKeys" parameterType="TransactionSearch">
   SELECT
-    taishoYm, denpyoHtbnGrpCd, denpyoNo, kingaku
-  FROM orders
-  WHERE (taishoYm, denpyoHtbnGrpCd, denpyoNo) IN
-  <iterate property="taisholist" open="(" close=")" conjunction=",">
-      (#taisholist[].taishoYm#,
-      #taisholist[].denpyoHtbnGrpCd#,
-      #taisholist[].denpyoNo#)
+    processYm, slipTypeCd, slipNo, amount
+  FROM transactions
+  WHERE (processYm, slipTypeCd, slipNo) IN
+  <iterate property="processlist" open="(" close=")" conjunction=",">
+      (#processlist[].processYm#,
+      #processlist[].slipTypeCd#,
+      #processlist[].slipNo#)
   </iterate>
-  ORDER BY taishoYm, denpyoNo
+  ORDER BY processYm, slipNo
 </select>`,
       ibatisAll: `<!-- iBatis v2 の全ての動的タグを網羅した確認用SQL (PostgreSQL想定) -->
 <select id="findAllTags" parameterType="Map">
   SELECT
-    id,
-    name,
-    status,
-    created_at
-  FROM items
+    product_id,
+    product_name,
+    availability,
+    registered_at
+  FROM products
   <dynamic prepend="WHERE">
     <!-- 1. 単純なNullチェック -->
-    <isNotNull prepend="AND" property="name">
-      name = #name#
+    <isNotNull prepend="AND" property="productName">
+      product_name = #productName#
     </isNotNull>
-    <isNull prepend="AND" property="deletedAt">
-      deleted_at IS NULL
+    <isNull prepend="AND" property="archivedAt">
+      archived_at IS NULL
     </isNull>
     <!-- 2. 空チェック (StringやCollection向け) -->
-    <isNotEmpty prepend="AND" property="category">
-      category = #category#
+    <isNotEmpty prepend="AND" property="division">
+      division = #division#
     </isNotEmpty>
-    <isEmpty prepend="AND" property="tags">
-      tag_count = 0
+    <isEmpty prepend="AND" property="labels">
+      label_count = 0
     </isEmpty>
     <!-- 3. 値の等価比較 -->
-    <isEqual prepend="AND" property="status" compareValue="ACTIVE">
-      status = 1
+    <isEqual prepend="AND" property="availability" compareValue="ACTIVE">
+      availability = 1
     </isEqual>
-    <isNotEqual prepend="AND" property="status" compareValue="INACTIVE">
-      status != 0
+    <isNotEqual prepend="AND" property="availability" compareValue="INACTIVE">
+      availability != 0
     </isNotEqual>
     <!-- 4. 大小比較 -->
-    <isGreaterThan prepend="AND" property="price" compareValue="1000">
-      price > 1000
+    <isGreaterThan prepend="AND" property="unitPrice" compareValue="1000">
+      unit_price > 1000
     </isGreaterThan>
-    <isGreaterEqual prepend="AND" property="price" compareValue="500">
-      price >= 500
+    <isGreaterEqual prepend="AND" property="unitPrice" compareValue="500">
+      unit_price >= 500
     </isGreaterEqual>
-    <isLessThan prepend="AND" property="quantity" compareValue="10">
-      quantity < 10
+    <isLessThan prepend="AND" property="stockQty" compareValue="10">
+      stock_qty < 10
     </isLessThan>
-    <isLessEqual prepend="AND" property="quantity" compareValue="50">
-      quantity <= 50
+    <isLessEqual prepend="AND" property="stockQty" compareValue="50">
+      stock_qty <= 50
     </isLessEqual>
     <!-- 5. パラメータの存在チェック -->
     <isParameterPresent prepend="AND">
@@ -1020,17 +1020,17 @@
       0 = 1
     </isNotParameterPresent>
     <!-- 6. プロパティの存在チェック -->
-    <isPropertyAvailable prepend="AND" property="specialFlag">
-      special_flag = #specialFlag#
+    <isPropertyAvailable prepend="AND" property="priorityFlag">
+      priority_flag = #priorityFlag#
     </isPropertyAvailable>
-    <isNotPropertyAvailable prepend="AND" property="specialFlag">
-      special_flag IS NULL
+    <isNotPropertyAvailable prepend="AND" property="priorityFlag">
+      priority_flag IS NULL
     </isNotPropertyAvailable>
     <!-- 7. 反復処理 (IN句など) -->
-    <isNotEmpty prepend="AND" property="idList">
-      id IN
-      <iterate property="idList" open="(" close=")" conjunction=",">
-        #idList[]#
+    <isNotEmpty prepend="AND" property="productIdList">
+      product_id IN
+      <iterate property="productIdList" open="(" close=")" conjunction=",">
+        #productIdList[]#
       </iterate>
     </isNotEmpty>
   </dynamic>
