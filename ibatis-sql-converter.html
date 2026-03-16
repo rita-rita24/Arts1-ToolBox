@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>iBatis SQL Converter</title>
+  <!-- ファビコン -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%232563eb'/%3E%3Cpath fill='white' d='M22 18v-2H8V4H2v2h4v10c0 1.1.9 2 2 2h14zM10 22h6v-3h-6v3zM15 8l1.5-4.5L21 2l-4.5 1.5L15 8zm3.5 5.5l1.5 4.5 4.5-1.5-4.5-1.5-1.5-4.5z'/%3E%3C/svg%3E">
+
   <link
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
     rel="stylesheet">
@@ -550,14 +554,13 @@
         if (!innerTemplate) return '';
         // SqlBuilder向けにJava疑似コードのコメントでイテレートブロックをサンドイッチする
         const loopStr = `for (item in ${property})`;
-        // サンプルのために中身を複数回繰り返す（見栄えのため2個まで）
+        // リストの中身は1つを想定し、2つ以上の可能性を ... で示す
         let bodyStr = '';
         if (innerTemplate) {
           if (open || close) {
-            // open/close がある場合は各要素を改行で見やすく配置する
-            bodyStr = `${open}\n  ${innerTemplate}${conjunction}\n  ${innerTemplate}\n${close}`;
+            bodyStr = `${open}\n  ${innerTemplate}${conjunction} ...\n${close}`;
           } else {
-            bodyStr = `${innerTemplate}${conjunction} ${innerTemplate}`;
+            bodyStr = `${innerTemplate}${conjunction} ...`;
           }
         }
         const prependStr = prepend ? `${prepend} ` : '';
