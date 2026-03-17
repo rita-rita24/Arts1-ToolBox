@@ -2033,6 +2033,9 @@
 
       // skipSave: true にすることで読み込み後の IDB 保存を二重実行しない
       await loadSelectedDirectories(true);
+
+      // 読み込み完了後はボタンを非表示にする（再クリックは不要なため）
+      $btnQuickReload.style.display = 'none';
     }
 
     /**
