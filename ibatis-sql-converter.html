@@ -1,1264 +1,2640 @@
 <!DOCTYPE html>
-<html lang="ja" data-theme="light">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>iBatis SQL Converter</title>
-  <!-- ファビコン -->
-  <link rel="icon" type="image/svg+xml"
-    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%232563eb'/%3E%3Cpath fill='white' d='M22 18v-2H8V4H2v2h4v10c0 1.1.9 2 2 2h14zM10 22h6v-3h-6v3zM15 8l1.5-4.5L21 2l-4.5 1.5L15 8zm3.5 5.5l1.5 4.5 4.5-1.5-4.5-1.5-1.5-4.5z'/%3E%3C/svg%3E">
+<html lang="ja">
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
-    rel="stylesheet">
+<head>
+  <!--
+    =====================================================================
+    【フォント・アイコン読み込み】
+    Google Fonts から Material Symbols Outlined（アイコンフォント）を読み込む。
+    preconnect でドメインへの接続を事前確立し、表示速度を改善する。
+    =====================================================================
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@500&display=swap"
+    rel="stylesheet" />
+
+  <!--
+    【ファビコン設定】
+    OS のカラーモードに合わせてファビコンを自動切り替えする。
+    id="favicon-runtime" は JS でダークモード切替時にも動的に変更する。
+  -->
+  <link rel="icon" href="https://cdn.jsdelivr.net/npm/@material-symbols/svg-400/outlined/book_2.svg"
+    media="(prefers-color-scheme: light)" />
+  <link rel="icon" href="https://cdn.jsdelivr.net/npm/@material-symbols/svg-400/outlined/book_2-fill.svg"
+    media="(prefers-color-scheme: dark)" />
+  <link id="favicon-runtime" rel="icon"
+    href="https://cdn.jsdelivr.net/npm/@material-symbols/svg-400/outlined/book_2.svg" />
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iBATIS v2 SQL 検索ツール（会計DB）</title>
+
   <style>
+    /* =====================================================================
+       【CSS カスタムプロパティ（変数）】
+       - :root はライトモード用の色設定
+       - [data-theme="dark"] はダークモード用の上書き設定
+       - 各変数の意味:
+         --primary       : メインカラー（ボタン・アクセント）
+         --primary-hover : メインカラーのホバー時
+         --danger        : 警告・エラー色
+         --danger-hover  : 警告色のホバー時
+         --success       : 成功色（トーストなど）
+         --warning       : 注意色
+         --bg            : ページ背景色
+         --surface       : カード・パネルの背景色
+         --border        : 枠線の色
+         --text          : 本文テキスト色
+         --text-muted    : 薄めのテキスト（補助説明など）
+         --header-bg     : パネルヘッダーの背景色
+         --radius        : 角丸（小）
+         --radius-lg     : 角丸（大）
+         --shadow-md     : モーダルなどの影
+         --panel-header-h: パネルヘッダーの高さ
+       ===================================================================== */
     :root {
-      --bg-primary: #ffffff;
-      --bg-secondary: #f5f5f5;
-      --bg-tertiary: #e8e8e8;
-      --text-primary: #1a1a1a;
-      --text-secondary: #666666;
-      --accent-color: #4285f4;
-      --accent-hover: #3367d6;
-      --border-color: #e0e0e0;
-      --keyword-color: #0033cc;
-      --string-color: #008800;
-      --comment-color: #888888;
-      --param-color: #cc3300;
-      --success-color: #0f9d58;
-      --error-color: #db4437;
-      --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      --primary: #16a34a;
+      --primary-hover: #15803d;
+      --danger: #dc2626;
+      --danger-hover: #b91c1c;
+      --success: #16a34a;
+      --warning: #f59e0b;
+
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --header-bg: #f1f5f9;
+
+      --radius: 6px;
+      --radius-lg: 12px;
+      --shadow-md: 0 10px 40px rgba(0, 0, 0, .15);
+      --panel-header-h: 60px;
     }
+
+    /* ダークモード用の色上書き */
     [data-theme="dark"] {
-      --bg-primary: #1e1e1e;
-      --bg-secondary: #252525;
-      --bg-tertiary: #333333;
-      --text-primary: #d4d4d4;
-      --text-secondary: #888888;
-      --accent-color: #4da6ff;
-      --accent-hover: #66b3ff;
-      --border-color: #404040;
-      --keyword-color: #569cd6;
-      --string-color: #6a9955;
-      --comment-color: #608b4e;
-      --param-color: #ce9178;
-      --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      --primary: #22c55e;
+      --primary-hover: #4ade80;
+      --danger: #ef4444;
+      --danger-hover: #f87171;
+      --success: #22c55e;
+      --warning: #fbbf24;
+
+      --bg: #000000;
+      --surface: #121212;
+      --border: #404040;
+      --text: #ffffff;
+      --text-muted: #a3a3a3;
+      --header-bg: #262626;
     }
+
+    /* =====================================================================
+       【リセット・基本設定】
+       box-sizing: border-box でパディングをサイズ計算に含める。
+       html, body を 100% にして縦スクロールが正しく動くようにする。
+       ===================================================================== */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
+
+    html,
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      height: 100%;
     }
-    header {
-      background: var(--bg-primary);
-      border-bottom: 1px solid var(--border-color);
-      padding: 10px 16px;
+
+    body {
+      /* 日本語対応フォント優先順位: Mac → Windows → Linux → Android の順 */
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", "Meiryo", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* =====================================================================
+       【Material Symbols アイコン】
+       FILL=0: 塗りなし, wght=500: 少し太め, GRAD=0: グラデなし, opsz=24: 24px基準
+       vertical-align: middle でテキストと縦位置を揃える
+       ===================================================================== */
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+      font-size: 1.25em;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    /* button デフォルトは inline なので、アイコンと文字を flex で横並びにする */
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* =====================================================================
+       【レイアウト: コンテナ】
+       max-width で最大幅を制限し、auto margin で中央揃えにする。
+       ===================================================================== */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* =====================================================================
+       【ヘッダー】
+       左: タイトル / 右: ボタン類 を flex で両端配置。
+       flex-wrap でスマホ表示時に折り返す。
+       ===================================================================== */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
       display: flex;
       align-items: center;
       gap: 10px;
-      box-shadow: var(--shadow);
-      z-index: 10;
-      flex-shrink: 0;
     }
-    .header-icon {
-      color: var(--accent-color);
-      font-size: 24px;
+
+    .header h1 .material-symbols-outlined {
+      font-size: 2rem;
     }
-    .app-title {
-      font-size: 17px;
-      font-weight: 600;
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
     }
-    .app-subtitle {
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-    .header-spacer {
-      flex: 1;
-    }
-    .icon-btn {
-      background: none;
-      border: none;
+
+    /* ダークモード切替ボタン */
+    .theme-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
       cursor: pointer;
-      padding: 6px;
-      border-radius: 6px;
-      color: var(--text-secondary);
+      transition: all .2s;
+    }
+
+    .theme-toggle:hover {
+      background: var(--header-bg);
+    }
+
+    /* =====================================================================
+       【検索バー】
+       検索入力欄・ボタン・フォルダ状態を横並びにする帯。
+       ===================================================================== */
+    .search-bar {
       display: flex;
+      padding: 12px 16px;
+      gap: 12px;
       align-items: center;
-      transition: background 0.2s, color 0.2s;
+      flex-wrap: wrap;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 12px;
     }
-    .icon-btn:hover {
-      background: var(--bg-tertiary);
-      color: var(--text-primary);
+
+    /* テキスト入力欄: 最小幅 500px で広めに取る */
+    .search-bar input[type="text"] {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg);
+      color: var(--text);
+      height: 36px;
+      min-width: 500px;
+      font-size: .95rem;
     }
-    .main-content {
-      flex: 1;
-      display: flex;
-      overflow: hidden;
+
+    .search-bar input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary);
     }
-    .panel {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      background: var(--bg-primary);
-      min-width: 0;
-    }
-    .panel+.panel {
-      border-left: 2px solid var(--border-color);
-    }
-    .panel-header {
-      padding: 7px 12px;
-      background: var(--bg-secondary);
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      flex-shrink: 0;
-    }
-    .panel-header .material-symbols-outlined {
-      font-size: 16px;
-    }
-    .panel-spacer {
-      flex: 1;
-    }
+
+    /* =====================================================================
+       【汎用ボタン】
+       .btn        : 基本スタイル（グレー背景）
+       .btn-primary: メインカラー（緑）
+       .btn:disabled: 無効状態（半透明・クリック不可）
+       ===================================================================== */
     .btn {
-      padding: 4px 10px;
-      border-radius: 4px;
-      border: 1px solid var(--border-color);
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      cursor: pointer;
-      font-size: 12px;
       display: inline-flex;
       align-items: center;
-      gap: 3px;
-      transition: all 0.15s;
+      gap: 6px;
+      padding: 8px 16px;
+      min-height: 36px;
+      border: none;
+      border-radius: var(--radius);
+      background: var(--header-bg);
+      color: var(--text);
+      font-size: .9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .15s ease;
+    }
+
+    .btn:hover {
+      background: var(--border);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    /* disabled ボタンのホバーを元のスタイルに戻す（ホバーエフェクト打ち消し） */
+    .btn:disabled:hover {
+      background: var(--header-bg);
+    }
+
+    /* btn-primary が disabled の場合のホバー打ち消し */
+    .btn-primary:disabled:hover {
+      background: var(--primary);
+    }
+
+    /* =====================================================================
+       【オートサジェスト（検索候補ドロップダウン）】
+       .suggest     : 親要素。position: relative で子の absolute 基準になる
+       .suggest-box : ドロップダウン本体。z-index で他要素の上に表示
+       .show        : 表示時に付与するクラス
+       ===================================================================== */
+    .suggest {
+      position: relative;
+    }
+
+    .suggest-box {
+      position: absolute;
+      z-index: 1000;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: var(--shadow-md);
+      margin-top: 6px;
+      min-width: 420px;
+      max-height: 320px;
+      overflow: auto;
+      display: none;
+      /* デフォルトは非表示 */
+    }
+
+    .suggest-box.show {
+      display: block;
+      /* .show クラスで表示に切り替える */
+    }
+
+    .suggest-item {
+      padding: 10px 12px;
+      cursor: pointer;
       white-space: nowrap;
     }
-    .btn:hover {
-      background: var(--bg-tertiary);
+
+    .suggest-item:hover {
+      background: var(--header-bg);
     }
-    .btn .material-symbols-outlined {
-      font-size: 14px;
+
+    /* =====================================================================
+       【2カラムレイアウト】
+       左: SQL表示パネル（大） / 右: プレースホルダパネル（小・固定）
+       minmax で最小幅を保ちつつ、利用可能スペースに応じて伸縮する。
+       ===================================================================== */
+    .columns {
+      display: grid;
+      grid-template-columns: minmax(420px, 1fr) minmax(260px, 360px);
+      gap: 16px;
+      align-items: stretch;
     }
-    .btn-primary {
-      background: var(--accent-color);
-      color: white;
-      border-color: var(--accent-color);
+
+    /* スマホ（900px以下）は1カラムに切り替え */
+    @media (max-width: 900px) {
+      .columns {
+        grid-template-columns: 1fr;
+      }
+
+      .sticky-panel {
+        position: static;
+        top: auto;
+        height: auto;
+      }
     }
-    .btn-primary:hover {
-      background: var(--accent-hover);
-      border-color: var(--accent-hover);
-    }
-    .examples-bar {
-      padding: 6px 12px;
-      background: var(--bg-secondary);
-      border-bottom: 1px solid var(--border-color);
+
+    /* =====================================================================
+       【パネル（カード）】
+       display: flex + flex-direction: column でヘッダー固定・ボディ可変伸縮。
+       overflow: hidden で角丸の内側をはみ出さないようにする。
+       ===================================================================== */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
       display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      flex-shrink: 0;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
     }
-    .example-label {
-      font-size: 11px;
-      color: var(--text-secondary);
-      margin-right: 2px;
-    }
-    .example-btn {
-      font-size: 11px;
-      padding: 2px 9px;
-      border-radius: 10px;
-      border: 1px solid var(--border-color);
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .example-btn:hover {
-      background: var(--accent-color);
-      color: white;
-      border-color: var(--accent-color);
-    }
-    .options-bar {
-      padding: 7px 12px;
-      background: var(--bg-secondary);
-      border-bottom: 1px solid var(--border-color);
+
+    .panel-header {
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
-      flex-shrink: 0;
+      gap: 8px;
+      padding: 0 16px;
+      min-height: var(--panel-header-h);
+      border-bottom: 1px solid var(--border);
+      background: var(--header-bg);
+      flex: 0 0 auto;
+      /* ヘッダーは固定サイズ（伸縮しない） */
     }
-    .option-group {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-    select {
-      padding: 3px 6px;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      font-size: 12px;
-      cursor: pointer;
-    }
-    textarea#input-area {
-      flex: 1;
-      width: 100%;
-      padding: 12px;
-      border: none;
-      outline: none;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-      font-size: 13px;
-      line-height: 1.65;
-      resize: none;
-    }
-    .output-wrap {
-      flex: 1;
-      overflow: auto;
-    }
-    .output-area {
-      padding: 12px;
-      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-      font-size: 13px;
-      line-height: 1.65;
-      white-space: pre-wrap;
-      word-break: break-word;
-      min-height: 100%;
-    }
-    .output-placeholder {
-      color: var(--text-secondary);
-      font-style: italic;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      font-size: 13px;
-    }
-    .status-bar {
-      padding: 4px 12px;
-      font-size: 11px;
-      color: var(--text-secondary);
-      background: var(--bg-secondary);
-      border-top: 1px solid var(--border-color);
-      flex-shrink: 0;
+
+    .panel-header h2 {
+      font-size: 1rem;
+      font-weight: 600;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .status-ok {
-      color: var(--success-color);
+
+    .panel-header h2,
+    .panel-header .panel-actions {
+      white-space: nowrap;
+      /* テキストの折り返しを防ぐ */
     }
-    .status-err {
-      color: var(--error-color);
+
+    /* パネル本体: flex: 1 1 auto で残りの高さをすべて使う */
+    .panel-body {
+      padding: 12px;
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
     }
-    .copy-msg {
-      font-size: 11px;
-      color: var(--success-color);
-      opacity: 0;
-      transition: opacity 0.3s;
+
+    /* =====================================================================
+       【XMLビューア（コード表示エリア）】
+       white-space: pre で改行・インデントをそのまま表示する。
+       overflow: auto でスクロール可能にする。
+       font-family は等幅フォント（コード表示用）。
+       ===================================================================== */
+    .xml-viewer {
+      width: 100%;
+      flex: 1 1 auto;
+      min-height: 0;
+      height: 100%;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      font-size: .9rem;
+      /* 等幅フォント: Mac → Windows → Linux → 日本語コンソール の優先順 */
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Noto Sans Mono CJK JP", "MeiryoKe_Console", monospace;
+      line-height: 1.6;
+      overflow: auto;
+      white-space: pre;
     }
-    .copy-msg.show {
-      opacity: 1;
+
+    /* =====================================================================
+       【XMLアコーディオン（折り畳み）】
+       .xml-foldable  : 折り畳み可能なブロック全体のラッパー
+       .xml-fold-btn  : ▼/▶ アイコンのクリック可能なエリア
+       .collapsed     : 折り畳み状態を表すクラス（JS で toggle する）
+
+       仕組み:
+         .xml-fold-btn::before の content を ▼ / ▶ で切り替える。
+         .collapsed > .xml-fold-content を display:none にする。
+       ===================================================================== */
+    .xml-foldable {
+      display: inline;
     }
-    /* Syntax highlight */
-    .sql-keyword {
-      color: var(--keyword-color);
-      font-weight: bold;
+
+    .xml-fold-btn {
+      cursor: pointer;
+      user-select: none;
+      /* テキスト選択を防ぐ */
+      color: var(--text-muted);
+      display: inline-block;
+      width: 1.2em;
+      text-align: center;
+      transition: color 0.15s;
     }
-    .sql-string {
-      color: var(--string-color);
+
+    .xml-fold-btn:hover {
+      color: var(--text);
     }
-    .sql-comment {
-      color: var(--comment-color);
+
+    .xml-fold-btn::before {
+      content: "▼";
+      /* 展開状態のアイコン */
+      font-size: 0.8em;
+    }
+
+    .collapsed>.xml-fold-btn::before {
+      content: "▶";
+      /* 折り畳み状態のアイコン */
+    }
+
+    /* 折り畳み時にコンテンツを非表示にする */
+    .collapsed>.xml-fold-content {
+      display: none;
+    }
+
+    /* =====================================================================
+       【XMLシンタックスカラーリング（ライトモード）】
+       各スパンの色は視認性と区別しやすさを優先して選定。
+       ===================================================================== */
+    .xml-tag {
+      color: #d946ef;
+      font-weight: 500;
+    }
+
+    /* タグ名: 紫 */
+    .xml-attr {
+      color: #0ea5e9;
+    }
+
+    /* 属性名: 青 */
+    .xml-attr-val {
+      color: #10b981;
+    }
+
+    /* 属性値: 緑 */
+    .xml-comment {
+      color: #64748b;
       font-style: italic;
     }
-    .sql-param {
-      color: var(--param-color);
+
+    /* コメント: グレー斜体 */
+    .xml-cdata {
+      color: #f59e0b;
     }
-    @media (max-width: 720px) {
-      .main-content {
-        flex-direction: column;
+
+    /* CDATA: オレンジ */
+
+    /* ダークモードでの色調整（ライトモードより少し明るくして視認性確保） */
+    [data-theme="dark"] .xml-tag {
+      color: #e879f9;
+    }
+
+    [data-theme="dark"] .xml-attr {
+      color: #38bdf8;
+    }
+
+    [data-theme="dark"] .xml-attr-val {
+      color: #34d399;
+    }
+
+    [data-theme="dark"] .xml-cdata {
+      color: #fbbf24;
+    }
+
+    /* =====================================================================
+       【チップ（タグ状の小さなバッジ）】
+       プレースホルダ表示などで使うラベル状のコンポーネント。
+       ===================================================================== */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-content: flex-start;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 16px;
+      background: var(--header-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: .85rem;
+    }
+
+    /* =====================================================================
+       【ハイライトチップ】
+       ハイライト文字列をチップ表示するときの追加スタイル。
+       チップ内に ✕ ボタンを持つ（削除用）。
+       ===================================================================== */
+    .highlight-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px 3px 10px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      color: #fff;
+      /* 背景色に関わらず白文字で視認性を確保 */
+      font-size: .85rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    /* チップ内の ✕ 削除ボタン */
+    .highlight-chip-remove {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, .8);
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      transition: color .15s;
+    }
+
+    .highlight-chip-remove:hover {
+      color: #fff;
+    }
+
+    /* =====================================================================
+       【ハイライトバー】
+       SQL表示パネルの上に配置する検索・ハイライト操作エリア。
+       ===================================================================== */
+    .highlight-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: var(--header-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 8px;
+      flex: 0 0 auto;
+      /* 固定サイズ（伸縮しない） */
+    }
+
+    /* ハイライト入力欄 */
+    .highlight-input {
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg);
+      color: var(--text);
+      font-size: .85rem;
+      height: 30px;
+      min-width: 200px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .highlight-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* チップエリア（追加されたハイライト文字列の一覧） */
+    .highlight-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      flex: 1;
+    }
+
+    /* 「クリア」ボタン: チップがないときは非表示 */
+    .highlight-clear {
+      font-size: .8rem;
+      padding: 4px 10px;
+      min-height: 28px;
+    }
+
+    /* =====================================================================
+       【プレースホルダー（未選択・空状態の案内表示）】
+       コンテンツが空のときに中央揃えで表示するメッセージエリア。
+       ===================================================================== */
+    .muted {
+      color: var(--text-muted);
+      font-size: .9rem;
+    }
+
+    .placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--text-muted);
+      padding: 64px 16px;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .placeholder .material-symbols-outlined {
+      font-size: 48px;
+      opacity: .5;
+      margin-bottom: 8px;
+    }
+
+    /* =====================================================================
+       【右パネル（スティッキー固定）】
+       スクロールしても右パネルが画面上部に固定されるようにする。
+       top: 20px は画面上端からのオフセット。
+       ===================================================================== */
+    .sticky-panel {
+      position: sticky;
+      top: 20px;
+      z-index: 50;
+      height: fit-content;
+      align-self: start;
+    }
+
+    .sticky-panel>.panel {
+      min-height: 100%;
+    }
+
+    /* 検索バーの左右コンテンツの間にスペースを入れる */
+    .search-spacer {
+      flex: 1;
+    }
+
+    /* =====================================================================
+       【フォルダ読み込み状態バッジ】
+       .not-loaded: 赤（未読み込み警告）
+       .loaded    : 青（読み込み完了）
+       ===================================================================== */
+    .folder-status {
+      font-size: .85rem;
+      font-weight: 500;
+    }
+
+    .folder-status.not-loaded {
+      color: var(--danger);
+    }
+
+    .folder-status.loaded {
+      color: #2563eb;
+    }
+
+    [data-theme="dark"] .folder-status.loaded {
+      color: #60a5fa;
+    }
+
+    /* =====================================================================
+       【トースト通知】
+       画面下部中央に一時的に表示するメッセージ。
+       .success: 緑背景 / .error: 赤背景 / デフォルト: テキスト色背景
+       アニメーション: 下から上にスライドイン → 1.2秒後にフェードアウト
+       ===================================================================== */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      padding: 14px 24px;
+      background: var(--text);
+      color: var(--bg);
+      border-radius: 10px;
+      font-size: .9rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, .2);
+      animation: toastIn .3s ease, toastOut .3s ease 1.2s forwards;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.success {
+      background: var(--success);
+      color: #fff;
+    }
+
+    .toast.error {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
       }
-      .panel+.panel {
-        border-left: none;
-        border-top: 2px solid var(--border-color);
+
+      to {
+        opacity: 1;
+        transform: none;
       }
-      body {
-        overflow: auto;
+    }
+
+    @keyframes toastOut {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
+    }
+
+    /* =====================================================================
+       【モーダルダイアログ】
+       .modal-overlay: 背景の暗幕（半透明黒）
+       .modal        : ダイアログ本体
+       .show         : 表示時に付与（opacity 1 + pointer-events 有効化）
+
+       transition: opacity でなめらかに表示・非表示を切り替える。
+       ===================================================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      /* top/right/bottom/left = 0 の短縮記法 */
+      background: rgba(0, 0, 0, .5);
+      z-index: 3000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      /* 非表示時はクリックを無効化 */
+      transition: opacity .2s ease;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      width: 90%;
+      max-width: 700px;
+      max-height: 90vh;
+      overflow: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--header-bg);
+    }
+
+    .modal-header h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* モーダルの ✕ 閉じるボタン */
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: var(--radius);
+      background: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .15s;
+    }
+
+    .modal-close:hover {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* =====================================================================
+       【フォルダ選択リスト（モーダル内）】
+       グリッドで「フォルダ名 / パス表示 / 選択ボタン」を横並びに整列する。
+       ===================================================================== */
+    .dir-picker-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .dir-picker-row {
+      display: grid;
+      grid-template-columns: 90px minmax(220px, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 4px 0;
+    }
+
+    .dir-name {
+      min-width: 90px;
+      font-weight: 600;
+      font-size: .95rem;
+    }
+
+    /* パス表示欄: overflow: auto でパスが長くても横スクロールできる */
+    .dir-path {
+      min-width: 200px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg);
+      color: var(--text);
+      overflow: auto;
+      white-space: nowrap;
+      font-size: .9rem;
+    }
+
+    .dir-path.empty {
+      color: var(--text-muted);
+    }
+
+    /* contenteditable=true のとき編集可能なスタイルにする */
+    .dir-path[contenteditable="true"] {
+      cursor: text;
+    }
+
+    .dir-path[contenteditable="true"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, .15);
+    }
+
+    /* 入力補助テキスト（推奨パスの表示） */
+    .dir-fix {
+      grid-column: 2 / 4;
+      color: red;
+      font-size: .8rem;
+      margin-top: -4px;
+    }
+
+    /* フォルダ選択状況テキスト */
+    .dir-status {
+      margin-top: 12px;
+      font-size: .9rem;
+      color: var(--text-muted);
+    }
+
+    /* 赤い注意書き */
+    #advice {
+      color: red;
+      font-size: .75rem;
+    }
+
+    /* =====================================================================
+       【IndexedDB 保存済みフォルダ情報（モーダル内）】
+       保存済みデータがあるときに表示するセクション。
+       ===================================================================== */
+    .idb-saved-section {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .idb-saved-title {
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .idb-saved-paths {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+
+    .idb-saved-path-item {
+      font-size: .85rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color: var(--text);
+      padding: 2px 0;
+    }
+
+    /* =====================================================================
+       【スマホ対応（600px以下）】
+       パネルヘッダーを小さくし、グリッドを縦積みに変更する。
+       ===================================================================== */
+    @media (max-width: 600px) {
+      .panel-header {
+        min-height: 48px;
+        padding: 8px 12px;
+      }
+
+      .search-bar input[type="text"] {
+        min-width: 100%;
+      }
+
+      .dir-picker-row {
+        grid-template-columns: 1fr;
+      }
+
+      .dir-name {
+        min-width: 100%;
+      }
+
+      .dir-fix {
+        grid-column: auto;
+      }
+
+      .modal {
+        width: 96%;
       }
     }
   </style>
 </head>
+
 <body>
-  <header>
-    <span class="material-symbols-outlined header-icon">transform</span>
-    <div>
-      <div class="app-title">iBatis SQL Converter</div>
-      <div class="app-subtitle">iBatis v2 → 通常のSQL (PostgreSQL)</div>
+  <div class="container">
+
+    <!-- =====================================================================
+         【ページヘッダー】
+         左: タイトル（アイコン + テキスト）
+         右: ダークモード切替ボタン
+         ===================================================================== -->
+    <header class="header">
+      <h1>
+        <span class="material-symbols-outlined">book_2</span>
+        iBATIS v2 SQL 検索ツール（会計DB）
+      </h1>
+      <div class="header-right">
+        <button class="theme-toggle" onclick="toggleTheme()" title="ダークモード切替">
+          <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- =====================================================================
+         【検索バー】
+         - サジェスト付きテキスト入力
+         - 検索ボタン / 入力クリアボタン
+         - フォルダ読み込み状態表示
+         - 参照フォルダモーダル開くボタン
+         - クイック再読み込みボタン（IndexedDB に保存済みの場合のみ表示）
+         ===================================================================== -->
+    <div class="search-bar">
+      <div class="suggest">
+        <input type="text" id="q" placeholder="例: findUserById" autocomplete="off" />
+        <div id="suggestBox" class="suggest-box" role="listbox" aria-label="候補"></div>
+      </div>
+      <button class="btn btn-primary" id="btnSearch">
+        <span class="material-symbols-outlined">search</span> 検索
+      </button>
+      <button class="btn" id="btnClearInput">
+        <span class="material-symbols-outlined">backspace</span> 入力クリア
+      </button>
+      <div class="search-spacer"></div>
+      <span class="folder-status not-loaded" id="folderStatus">読み込みが未完了です</span>
+      <button class="btn" id="btnOpenFolderModal">
+        <span class="material-symbols-outlined">folder_open</span> 参照フォルダ
+      </button>
+      <!--
+        クイック再読み込みボタン:
+        IndexedDB に前回のフォルダが保存されているときだけ表示される。
+        initIDB() 内で display: flex に切り替える。
+      -->
+      <button class="btn btn-primary" id="btnQuickReload" style="display:none;">
+        <span class="material-symbols-outlined">replay</span> 前回フォルダを再読み込み
+      </button>
     </div>
-    <div class="header-spacer"></div>
-    <button class="icon-btn" id="theme-toggle" title="テーマ切り替え">
-      <span class="material-symbols-outlined" id="theme-icon">dark_mode</span>
-    </button>
-  </header>
-  <div class="main-content">
-    <!-- ===== 入力パネル ===== -->
-    <div class="panel">
-      <div class="panel-header">
-        <span class="material-symbols-outlined">edit_note</span>
-        iBatis SQL（入力）
-        <div class="panel-spacer"></div>
-        <button class="btn" id="clear-btn" style="background:none; border:none; margin-right:4px;"><span class="material-symbols-outlined">delete_sweep</span>クリア</button>
-        <button class="btn" id="mask-input-btn" style="background:var(--bg-secondary); border:1px solid var(--border-color); margin-right:4px;"><span class="material-symbols-outlined">security</span>入力をマスキング</button>
-        <button class="btn btn-primary" id="convert-btn"><span
-            class="material-symbols-outlined">play_arrow</span>変換</button>
-      </div>
-      <div class="examples-bar">
-        <span class="example-label">サンプル:</span>
-        <button class="example-btn" data-example="ibatisAll">全タグ網羅検証</button>
-        <button class="example-btn" data-example="iterate">ITERATE</button>
-        <button class="example-btn" data-example="ibatisv2">isNotNull/dynamic</button>
-        <div class="panel-spacer"></div>
-      </div>
-      <textarea id="input-area" spellcheck="false" placeholder="iBatisのSQLをここに貼り付けてください...
-例:
-<select id=&quot;findEmployees&quot; resultClass=&quot;Employee&quot;>
-  SELECT * FROM employees
-  <dynamic prepend=&quot;WHERE&quot;>
-    <isNotNull prepend=&quot;AND&quot; property=&quot;empName&quot;>
-      emp_name = #empName#
-    </isNotNull>
-  </dynamic>
-</select>"></textarea>
-    </div>
-    <!-- ===== 出力パネル ===== -->
-    <div class="panel">
-      <div class="panel-header">
-        <span class="material-symbols-outlined">code</span>
-        変換結果（SQL）
-        <div class="panel-spacer"></div>
-        <span class="copy-msg" id="copy-msg">コピーしました!</span>
-        <button class="btn" id="copy-btn"><span class="material-symbols-outlined">content_copy</span>コピー</button>
-      </div>
-      <div class="output-wrap">
-        <div class="output-area" id="output-area">
-          <span class="output-placeholder">← 入力して「変換」ボタンを押してください</span>
+
+    <!-- =====================================================================
+         【メインコンテンツ: 2カラム】
+         左: SQL表示パネル
+         右: プレースホルダ（#...# / $...$）パネル
+         ===================================================================== -->
+    <div class="columns">
+
+      <!-- 左パネル: SQL 表示 -->
+      <section class="panel">
+        <div class="panel-header">
+          <h2><span class="material-symbols-outlined">code</span> SQL</h2>
+          <div class="panel-actions" style="display:flex; gap:8px;">
+            <button class="btn" id="btnCopy">
+              <span class="material-symbols-outlined">content_copy</span> コピー
+            </button>
+          </div>
         </div>
+        <div class="panel-body">
+
+          <!-- 初期状態の案内表示（SQL取得前） -->
+          <div id="placeholder-sql" class="placeholder">
+            <span class="material-symbols-outlined">code_blocks</span>
+            <h3>まず参照フォルダを選択して読み込んでください</h3>
+            <p class="muted">検索バーの「参照フォルダ」ボタンからフォルダを選択し、必要に応じて表示パスを書き換えてから読み込んでください</p>
+          </div>
+
+          <!--
+            ハイライトバー:
+            SQL 表示中に特定の文字列を色付きで強調表示するためのUI。
+            初期は非表示。SQL が表示されたら表示する。
+            - テキスト入力: ハイライトしたい文字列を入力
+            - 追加ボタン: HIGHLIGHT_TERMS 配列に追加
+            - チップエリア: 追加済みの文字列を表示（× で削除可能）
+            - 全クリア: HIGHLIGHT_TERMS をリセット
+          -->
+          <div class="highlight-bar" id="highlightBar" style="display:none;">
+            <span class="material-symbols-outlined" style="color:var(--text-muted); font-size:1rem;">
+              highlight
+            </span>
+            <input type="text" class="highlight-input" id="highlightInput" placeholder="強調したい文字列を入力..." />
+            <button class="btn btn-primary" id="btnAddHighlight"
+              style="padding:5px 12px; min-height:30px; font-size:.85rem;">
+              <span class="material-symbols-outlined" style="font-size:1rem;">add</span> 追加
+            </button>
+            <div class="highlight-chips" id="highlightChips"></div>
+            <button class="btn highlight-clear" id="btnClearHighlight" style="display:none;">
+              <span class="material-symbols-outlined" style="font-size:1rem;">clear_all</span> クリア
+            </button>
+          </div>
+
+          <!-- SQL 本体の表示エリア（シンタックスカラーリング + 折り畳み） -->
+          <div id="sql-viewer" class="xml-viewer" style="display:none;" aria-label="抽出SQL"></div>
+
+          <!-- コピー用の生テキスト（非表示: HTML タグを含まない生 XML を保持） -->
+          <pre id="sql-raw" style="display:none;"></pre>
+
+        </div>
+      </section>
+
+      <!-- 右パネル: プレースホルダ一覧（スティッキー固定） -->
+      <div class="sticky-panel">
+        <section class="panel">
+          <div class="panel-header">
+            <h2><span class="material-symbols-outlined">sell</span> プレースホルダ（#...# / $...$）</h2>
+          </div>
+          <div class="panel-body">
+            <!-- 未取得時の案内 -->
+            <div id="placeholder-ph" class="placeholder" style="padding:24px 16px;">
+              <span class="material-symbols-outlined">label_off</span>
+              <h3>プレースホルダは未抽出です</h3>
+              <p class="muted">検索で ID を指定すると表示されます</p>
+            </div>
+            <!-- 取得済みのプレースホルダチップ一覧 -->
+            <div id="phWrap" style="display:none;">
+              <div class="chips" id="phChips"></div>
+            </div>
+          </div>
+        </section>
       </div>
-      <div class="status-bar" id="status-bar">待機中</div>
+
+    </div>
+  </div><!-- /.container -->
+
+  <!-- =====================================================================
+       【参照フォルダ選択モーダル】
+       - 3つのフォルダハンドルを選択するUI
+       - IndexedDB に保存済みのパスがあれば「保存済みフォルダ」セクションも表示
+       ===================================================================== -->
+  <div class="modal-overlay" id="folderModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>
+          <span class="material-symbols-outlined">folder_open</span>
+          参照フォルダ
+          <span id="advice">※赤文字のPATHを選択してください。</span>
+        </h2>
+        <button class="modal-close" id="btnCloseModal" title="閉じる">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <!-- フォルダ選択行 × 3 -->
+        <div class="dir-picker-list">
+          <div class="dir-picker-row" data-dir-index="0">
+            <div class="dir-name">フォルダ1</div>
+            <div class="dir-path empty" id="dirLabel0">未選択</div>
+            <button class="btn" id="btnPickDir0">
+              <span class="material-symbols-outlined">folder</span> 選択
+            </button>
+            <div class="dir-fix">C:\workspaces\fuga\kaikeihub\src\kaikei\jp\kopt\kaikei\dao\sqlmap</div>
+          </div>
+
+          <div class="dir-picker-row" data-dir-index="1">
+            <div class="dir-name">フォルダ2</div>
+            <div class="dir-path empty" id="dirLabel1">未選択</div>
+            <button class="btn" id="btnPickDir1">
+              <span class="material-symbols-outlined">folder</span> 選択
+            </button>
+            <div class="dir-fix">C:\workspaces\fuga\kaikeihub\src\common\jp\kopt\kaikeishizai\common\dao\oraclesqlmap
+            </div>
+          </div>
+
+          <div class="dir-picker-row" data-dir-index="2">
+            <div class="dir-name">フォルダ3</div>
+            <div class="dir-path empty" id="dirLabel2">未選択</div>
+            <button class="btn" id="btnPickDir2">
+              <span class="material-symbols-outlined">folder</span> 選択
+            </button>
+            <div class="dir-fix">C:\workspaces\fuga\kaikeihub\src\common\jp\kopt\common\guardium\dao\oraclesqlmap</div>
+          </div>
+        </div>
+
+        <!-- フォルダ選択状況テキスト -->
+        <div class="dir-status" id="srcStat">0/3 フォルダ選択済み</div>
+
+        <!--
+          IndexedDB 保存済みセクション:
+          前回保存されたフォルダ情報がある場合のみ表示（initIDB で制御）。
+          保存されたフォルダ名の一覧と「保存データを削除」ボタンを表示。
+        -->
+        <div class="idb-saved-section" id="idbSavedSection" style="display:none;">
+          <div class="idb-saved-title">
+            <span class="material-symbols-outlined" style="font-size:.9rem; vertical-align:middle;">
+              save
+            </span>
+            前回保存されたフォルダ
+          </div>
+          <div class="idb-saved-paths" id="idbSavedPaths"></div>
+          <button class="btn" id="btnClearIdb" style="font-size:.8rem; padding:5px 12px; min-height:28px;">
+            <span class="material-symbols-outlined" style="font-size:.9rem;">delete_forever</span>
+            保存データを削除
+          </button>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn" id="btnCancelModal">キャンセル</button>
+        <button class="btn btn-primary" id="btnLoadDirs" disabled>
+          <span class="material-symbols-outlined">sync</span> 3フォルダを読み込む
+        </button>
+      </div>
     </div>
   </div>
+
+  <!-- トースト通知の表示コンテナ（JS で動的に追加される） -->
+  <div class="toast-container" id="toastContainer"></div>
+
   <script>
-    'use strict';
-    // ============================================================
-    //  IBatisSQLConverter クラス
-    //
-    //  【概要】
-    //  iBatis / MyBatis の動的SQL（XMLタグ）を受け取り、
-    //  通常の SQL 文字列に変換する。
-    //
-    //  【変換の流れ】
-    //    1. 入力テキストを <ibatis-root>…</ibatis-root> で包む
-    //    2. ブラウザ標準の DOMParser で XML としてパースする
-    //    3. DOMツリーをノード単位で再帰的にたどり、各タグを SQL に変換する
-    //    4. 最終的に空行・タブ等を整形して返す
-    //
-    //  【対応タグ一覧】
-    //  iBatis  v2: <iterate>, <dynamic>,
-    //              <isNull>, <isNotNull>, <isEmpty>, <isNotEmpty>,
-    //              <isEqual>, <isNotEqual>, <isGreaterThan>, <isGreaterEqual>,
-    //              <isLessThan>, <isLessEqual>,
-    //              <isParameterPresent>, <isNotParameterPresent>,
-    //              <isPropertyAvailable>, <isNotPropertyAvailable>
-    // ============================================================
-    class IBatisSQLConverter {
-      constructor() {
-        this.paramCount = 0;
-      }
-      /**
-       * メインの変換メソッド。外部から呼ぶのはここだけ。
-       *
-       * @param  {string} input  - iBatis/MyBatis SQL テキスト
-       * @returns {{ sql: string, error: string|null, params: number }}
-       *   sql    - 変換後の SQL 文字列
-       *   error  - エラーメッセージ（成功時は null）
-       *   params - ? の個数（位置パラメータモード時）
-       */
-      convert(input) {
-        // 変換開始時に ? カウンターをリセット
-        this.paramCount = 0;
-        // 空入力はすぐ返す
-        if (!input.trim()) return { sql: '', error: null, params: 0 };
-        // iBatis v2 (#name#, $name$) に対応するため
-        // まず XML としてパースを試みる。
-        // ただし入力が複数のルート要素を持つ場合や断片SQLの場合もあるので、
-        // 独自のラッパータグ <ibatis-root> で全体を包む。
-        const wrapped = `<ibatis-root>${input}</ibatis-root>`;
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(wrapped, 'text/xml');
-        // DOMParser だけでパースに失敗した場合（属性値に < 等が含まれる場合など）への対応。
-        // text/xml では厳格すぎて落ちる場合があるため、失敗時は text/html (DOMParser または innerHTML) で
-        // ゆるくパースすることで、属性内やタグ内の比較演算子 (<, >) に寛容にする。
-        const parseErr = doc.querySelector('parsererror');
-        if (parseErr) {
-          const container = document.createElement('div');
-          container.innerHTML = wrapped;
-          const root = Array.from(container.childNodes).find(n => n.nodeName.toLowerCase() === 'ibatis-root');
-          if (root) {
-            const sql = this._node(root);
-            return { sql: this._clean(sql), error: null, params: this.paramCount };
-          }
-          return { sql: '', error: 'XML解析エラー: タグの閉じ忘れや不整合を確認してください。' };
-        }
-        // 正常にパースできた場合はルート要素からノードをたどって SQL を生成する
-        const root = doc.documentElement;  // <ibatis-root> ノード
-        const sql = this._node(root);
-        return { sql: this._clean(sql), error: null, params: this.paramCount };
-      }
-      // ============================================================
-      //  ノード処理（DOM ツリーをたどる中核部分）
-      // ============================================================
-      /**
-       * 任意のノードを SQL 文字列に変換する「振り分け係」。
-       * DOM ツリーを再帰的にたどる際に、すべてのノードはここを経由する。
-       *
-       * DOM ノードには主に 3 種類ある:
-       *   TEXT_NODE    … タグでない普通のテキスト（SQL の本文）
-       *   COMMENT_NODE … XML コメント
-       *   ELEMENT_NODE … if, where などのタグ
-       */
-      _node(n) {
-        if (!n) return '';
-        switch (n.nodeType) {
-          // テキストノードおよびCDATAセクション: #param# や #{param} を変換する
-          case Node.TEXT_NODE:
-          case Node.CDATA_SECTION_NODE:
-            return this._text(n.textContent);
-          // XMLコメント: 削除する
-          case Node.COMMENT_NODE: return '';
-          // 要素ノード: タグ名に応じた専用ハンドラに委譲する
-          case Node.ELEMENT_NODE: return this._elem(n);
-          // その他（属性ノード等）は無視
-          default: return '';
-        }
-      }
-      /**
-       * あるノードのすべての子ノードを変換して結合する。
-       * 子ノードを順番に _node() に渡し、結果の文字列を連結する。
-       */
-      _children(n) {
-        return Array.from(n.childNodes).map(c => this._node(c)).join('');
-      }
-      // ============================================================
-      //  要素ハンドラ（タグ名ごとに処理を振り分ける）
-      // ============================================================
-      /**
-       * ELEMENT_NODE のタグ名を見て、対応するハンドラメソッドを呼ぶ「ルーター」。
-       * 知らないタグ（カスタムタグ等）は子ノードだけ処理してタグ自体は無視する。
-       */
-      _elem(n) {
-        // tagName は大文字で返ることもあるので小文字に統一する
-        const tag = n.tagName.toLowerCase();
-        switch (tag) {
-          // --- ラッパー・マッパータグ: タグ自体は不要なので子だけ処理 ---
-          case 'ibatis-root': // 変換のために自分で付けた仮のルートタグ
-          case 'm' + 'apper':      // mapper 部分
-            return this._children(n);
-          // --- SQL 文タグ: select, insert 等もタグ本体は不要で内容だけ取り出す ---
-          case 's' + 'elect':
-          case 'i' + 'nsert':
-          case 'u' + 'pdate':
-          case 'd' + 'elete':
-          case 's' + 'ql':   // 再利用フラグメント
-            return this._children(n);
-          // --- iBatis v2 固有タグ ---
-          case 'i' + 'terate': return this._iterate(n);   // v2版の foreach 相当
-          case 'd' + 'ynamic': return this._dynamic(n);   // v2版の where/set 相当コンテナ
-          // iBatis v2 の条件タグ（14種類）はまとめて _ibatisCondition() で処理
-          case 'isnull':               // property が null ならブロックを含める
-          case 'isnotnull':            // property が null でなければ含める
-          case 'isempty':              // property が空（null/空文字/空配列）なら含める
-          case 'isnotempty':           // property が空でなければ含める
-          case 'isequal':              // property == compareValue なら含める
-          case 'isnotequal':           // property != compareValue なら含める
-          case 'isgreaterthan':        // property >  compareValue なら含める
-          case 'isgreaterequal':       // property >= compareValue なら含める
-          case 'islessthan':           // property <  compareValue なら含める
-          case 'islessequal':          // property <= compareValue なら含める
-          case 'isparameterpresent':   // パラメータオブジェクト自体が存在するなら含める
-          case 'isnotparameterpresent':// パラメータオブジェクトが null なら含める
-          case 'ispropertyavailable':  // property キーが params に存在するなら含める
-          case 'isnotpropertyavailable':// property キーが params にないなら含める
-            return this._ibatisCondition(n);
-          // bind name="x" value="..." は変数バインド（変換後のSQLでは不要）
-          case 'b' + 'ind':
-            return '';
-          // include refid="someFragment" はフラグメント参照。
-          // 実際の内容は別ファイルにあることが多いのでコメントとして残す
-          case 'i' + 'nclude':
-            return `/* [INCLUDE: ${n.getAttribute('refid')}] */`;
-          // 未知のタグは無視してその子ノードだけ処理する（寛容な処理）
-          default:
-            return this._children(n);
-        }
-      }
-      // ============================================================
-      //  iBatis v2 固有タグのハンドラ
-      // ============================================================
-      /**
-       * &lt;iterate property="list" open="(" close=")" conjunction=","&gt;
-       *   #list[].field#
-       * &lt;/iterate&gt;
-       *
-       * iBatis v2 版の繰り返しタグ。
-       *
-       * 主な属性:
-       *   property    - 繰り返すコレクションのパラメータ名
-       *   open        - 全体の前に付ける文字（例: "("）
-       *   close       - 全体の後に付ける文字（例: ")"）
-       *   conjunction - 各要素の間に入れる文字（例: ","）
-       *   prepend     - このブロック全体の前に付けるSQL（例: "IN"）
-       *
-       * 内部の記法:
-       *   #list[]#        → コレクションの現在の要素そのもの（文字列/数値等）
-       *   #list[].field#  → 現在の要素オブジェクトの field プロパティ
-       *   #list[0].field# → インデックス指定アクセス（通常はタグ外で使う）
-       */
-      _iterate(n) {
-        const property = n.getAttribute('property') || 'list';
-        const open = n.getAttribute('open') || '';
-        const close = n.getAttribute('close') || '';
-        const conjunction = n.getAttribute('conjunction') || ',';
-        const prepend = n.getAttribute('prepend') || '';
-        // 内部テンプレートを変換する（#list[].field# は _processRawText() が処理する）
-        // 改行・連続空白を1スペースに正規化して1行にまとめる
-        let innerTemplate = this._children(n).trim().replace(/\s+/g, ' ');
-        if (!innerTemplate) return '';
-        // SqlBuilder向けにJava疑似コードのコメントでイテレートブロックをサンドイッチする
-        const loopStr = `for (item in ${property})`;
-        // リストの中身は1つを想定し、2つ以上の可能性を ... で示す
-        let bodyStr = '';
-        if (innerTemplate) {
-          if (open || close) {
-            bodyStr = `${open}\n  ${innerTemplate}${conjunction} ...\n${close}`;
-          } else {
-            bodyStr = `${innerTemplate}${conjunction} ...`;
-          }
-        }
-        const prependStr = prepend ? `${prepend} ` : '';
-        return `\n/* ${loopStr} { */\n${prependStr}${bodyStr}\n/* } */`;
-      }
-      /**
-       * &lt;dynamic prepend="WHERE"&gt; … &lt;/dynamic&gt;
-       *
-       * iBatis v2 の条件ブロック用コンテナ。
-       * 子タグ（isNotNull 等）がそれぞれ prepend="AND" を持っており、
-       * dynamic タグはその先頭の AND/OR を自動的に除去して prepend のキーワードを付ける。
-       *
-       * 主な用途:
-       *   dynamic prepend="WHERE" → WHERE 句の動的生成
-       *   dynamic prepend="SET"   → SET 句の動的生成
-       *
-       * 例:
-       *   &lt;dynamic prepend="WHERE"&gt;
-       *     &lt;isNotNull prepend="AND" property="empName"&gt;emp_name LIKE #empName#&lt;/isNotNull&gt;
-       *     &lt;isNotNull prepend="AND" property="hireYear"&gt; hire_year = #hireYear#&lt;/isNotNull&gt;
-       *   &lt;/dynamic&gt;
-       *   → WHERE emp_name LIKE ? AND hire_year = ?
-       */
-      _dynamic(n) {
-        const prepend = n.getAttribute('prepend') || '';
-        let inner = this._children(n).trim();
-        if (!inner) return '';
-        // 子タグの prepend="AND" が先頭に残っている場合は除去する
-        // 先頭に SQLBuilder 用のコメント /* if ... */ がある場合も考慮して
-        // コメント・改行・空白をスキップして最初の実体にある AND/OR を除去する
-        inner = inner.replace(/^(\s*|\/\*.*?\*\/)*\b(AND|OR)\b\s*/i, (match) => {
-          // match の中から AND/OR の部分だけ消して、コメント類は残す
-          return match.replace(/\b(AND|OR)\b\s*/i, '');
-        });
-        // SET 句用途での末尾カンマ除去
-        inner = inner.replace(/,\s*(\/\*.*?\*\/)*\s*$/, '');
-        inner = inner.trim();
-        // prepend キーワードを付けてインデントする
-        if (prepend) {
-          // inner の各行をインデントする
-          const indented = inner.split('\n').map(line => line.length > 0 ? '  ' + line : line).join('\n');
-          return `${prepend}\n${indented}\n`;
-        }
-        return `${inner}\n`;
-      }
-      /**
-       * iBatis v2 条件タグの共通ハンドラ（14種類すべてここで処理）
-       *
-       * iBatis v2 の条件タグは条件の種類ごとに別タグが用意されている。
-       *
-       * 共通の属性:
-       *   property     - チェック対象のパラメータ名（例: "name", "age"）
-       *   compareValue - 比較する値（isEqual等で使用, 例: "0", "admin"）
-       *   compareProperty - 比較する別のパラメータ名（compareValue の代わりに使用）
-       *   prepend      - このブロックの前に付けるSQL（例: "AND"）
-       *                  <dynamic> の中では先頭 AND は自動除去されるが、
-       *                  この prepend により各条件を AND で繋げられる
-       */
-      _ibatisCondition(n) {
-        const tag = n.tagName.toLowerCase();
-        // getAttribute は大文字小文字を区別する場合があるので両方試みる
-        const property = n.getAttribute('property') || '';
-        const compareValue = n.getAttribute('compareValue') || n.getAttribute('comparevalue') || '';
-        const compareProp = n.getAttribute('compareProperty') || n.getAttribute('compareproperty') || '';
-        const prepend = n.getAttribute('prepend') || '';
-        // タグ内部の SQL テキストを変換する
-        const content = this._children(n);
-        const inner = content.trim();
-        if (!inner) return '';
-        // SqlBuilder向けにJava疑似コードのコメントで条件ブロックをサンドイッチする
-        const conditionStr = this._ibatisCondToJava(tag, property, compareValue, compareProp);
-        const pre = prepend ? `${prepend} ` : '';
-        // inner が複数行になる場合も考慮して、前後にだけコメントを追加する
-        return `\n/* if (${conditionStr}) { */\n${pre}${inner}\n/* } */`;
-      }
-      /**
-       * 条件タグの「意味」をJavaに寄せた擬似コード文字列に変換する。
-       */
-      _ibatisCondToJava(tag, property, compareValue, compareProperty) {
-        const cmp = compareProperty || `"${compareValue}"`;
-        switch (tag) {
-          case 'isnull': return `${property} == null`;
-          case 'isnotnull': return `${property} != null`;
-          case 'isempty': return `${property}.isEmpty()`;
-          case 'isnotempty': return `!${property}.isEmpty()`;
-          case 'isparameterpresent': return `parameter != null`;
-          case 'isnotparameterpresent': return `parameter == null`;
-          case 'ispropertyavailable': return `hasProperty("${property}")`;
-          case 'isnotpropertyavailable': return `!hasProperty("${property}")`;
-          case 'isequal': return `${property}.equals(${cmp})`;
-          case 'isnotequal': return `!${property}.equals(${cmp})`;
-          case 'isgreaterthan': return `${property} > ${cmp}`;
-          case 'isgreaterequal': return `${property} >= ${cmp}`;
-          case 'islessthan': return `${property} < ${cmp}`;
-          case 'islessequal': return `${property} <= ${cmp}`;
-          default: return tag;
-        }
-      }
-      // ============================================================
-      //  テキストノードとパラメータ変換
-      // ============================================================
-      /**
-       * テキストノード（タグの外のSQL本文）の変換エントリポイント。
-       * _processRawText() に処理を委譲している。
-       */
-      _text(raw) {
-        return this._processRawText(raw);
-      }
-      /**
-       * iBatis の各種パラメータ記法を見つけて変換する。
-       * 正規表現の適用順序が重要: より具体的なパターン（v2配列記法）を
-       * 汎用パターン（#param#）より先に処理する。
-       *
-       * 変換対象の記法一覧:
-       *   iBatis  v2:  #list[].field#        → _param('field') で変換
-       *                #list[]#              → _param('list')  で変換
-       *                #list[0].field#       → インデックス付きも同様
-       *                #paramName#           → _param('paramName') で変換
-       *                $paramName$           → _subst('paramName') で変換
-       */
-      _processRawText(raw) {
-        let s = raw;
-        // 【1】iBatis v2 の配列・イテレート記法: #list[].field# / #list[]# / #list[0].field#
-        //   正規表現の解説:
-        //     #                           → # のリテラル
-        //     ([a-zA-Z_][a-zA-Z0-9_]*)   → コレクション名（英数字・アンダースコア）
-        //     (?:\[\d*\])                 → [0] や [] のインデックス部分（非キャプチャ）
-        //     (?:\.([a-zA-Z_][a-zA-Z0-9_.]*))? → .fieldName の部分（省略可）
-        //     #                           → 末尾 # のリテラル
-        //   field がある場合は field 名でパラメータ化、ない場合はコレクション名を使う
-        s = s.replace(
-          /#([a-zA-Z_][a-zA-Z0-9_]*)(?:\[\d*\])(?:\.([a-zA-Z_][a-zA-Z0-9_.]*))?#/g,
-          (_, list, field) => this._param(field || list)
-        );
-        // 【2】iBatis v2 の単純パラメータ記法: #paramName# または #obj.property#
-        //   正規表現: [a-zA-Z0-9_.] → ドット記法（obj.field）も拾う
-        s = s.replace(/#([a-zA-Z_][a-zA-Z0-9_.]*)#/g, (_, p) => this._param(p));
-        // 【3】iBatis v2 の文字列埋め込み: $paramName$
-        //   末尾の $ も含めて消費することで、後続の文字列中の $ を誤って削除しない
-        s = s.replace(/\$([a-zA-Z_][a-zA-Z0-9_.]*)\$/g, (_, p) => this._subst(p));
-        return s;
-      }
-      /**
-       * パラメータ名を選択中の paramStyle に応じた SQL 表現に変換する。
-       *
-       * @param {string} name - パラメータ名（例: "userId", "item.id"）
-       * @returns {string}    - SQL に埋め込む文字列
-       */
-      _param(name) {
-        this.paramCount++;
-        return `?`;
-      }
-      /**
-       * $param$ の「文字列置換」パラメータを処理する。
-       * プレースホルダーとして ？ をそのまま出力する。
-       */
-      _subst(name) {
-        this.paramCount++;
-        return `?`;
-      }
-      // ============================================================
-      //  出力整形
-      // ============================================================
-      /**
-       * 変換後の SQL テキストを見やすく整形する。
-       *   - タブをスペース2個に変換
-       *   - 行末の余分な空白を除去
-       *   - 3行以上連続する空行を2行に圧縮
-       *   - 前後の空白を除去して末尾に改行を1つ付ける
-       */
-      _clean(sql) {
-        return sql
-          .replace(/\t/g, '  ')    // タブ → スペース2個
-          .replace(/[ \t]+$/gm, '')      // 各行の末尾スペース除去（gm: 全行対象）
-          .replace(/\n\s*\n+/g, '\n')      // 連続する空行を1つの改行に圧縮
-          .trim() + '\n';                  // 前後トリムして末尾改行を保証
-      }
-    }
-    // ============================================================
-    //  ユーティリティ関数
-    // ============================================================
+    /* =====================================================================
+       【定数: テーマ・ファビコン】
+       THEME_KEY     : localStorage に保存するキー名
+       FAV_LIGHT/DARK: ライト/ダークモード用のファビコン URL
+       ===================================================================== */
+    const THEME_KEY = 'ibatis_tool_theme';
+    const FAV_LIGHT = 'https://cdn.jsdelivr.net/npm/@material-symbols/svg-400/outlined/book_2.svg';
+    const FAV_DARK = 'https://cdn.jsdelivr.net/npm/@material-symbols/svg-400/outlined/book_2-fill.svg';
+
+    /* =====================================================================
+       【定数: ハイライト】
+       HIGHLIGHT_COLORS : ハイライト文字列に順番に割り当てる背景色（6色）。
+                          7件目以降は循環して使い回す。
+                          変更するにはここの色コードを書き換えるだけでOK。
+       ===================================================================== */
+    const HIGHLIGHT_COLORS = [
+      '#e63946', // 赤
+      '#f4a261', // オレンジ
+      '#2a9d8f', // ティール
+      '#e9c46a', // 黄
+      '#457b9d', // ブルー
+      '#a8dadc', // ライトシアン
+    ];
+
+    /* =====================================================================
+       【状態変数: ハイライト】
+       HIGHLIGHT_TERMS : 現在ハイライト中の文字列の配列。
+                         [ "WHERE", "AND" ] のように複数保持できる。
+                         配列のインデックスが HIGHLIGHT_COLORS の色と対応する。
+       ===================================================================== */
+    let HIGHLIGHT_TERMS = [];
+
+    /* =====================================================================
+       【定数: IndexedDB】
+       IDB_NAME  : IndexedDB のデータベース名
+       IDB_STORE : オブジェクトストア（テーブル）名
+       IDB_VER   : データベースのバージョン（スキーマ変更時にインクリメントする）
+
+       ※ IndexedDB の仕組み:
+          - ブラウザにデータをローカル保存する仕組み。localStorage と違い
+            FileSystemDirectoryHandle（フォルダハンドル）などのオブジェクトも保存できる。
+          - データは「データベース > オブジェクトストア > キー:値」の階層で管理する。
+          - キー 0/1/2 に3つのフォルダのデータを保存する。
+       ===================================================================== */
+    const IDB_NAME = 'ibatis-tool-v1';
+    const IDB_STORE = 'dir-handles';
+    const IDB_VER = 1;
+
+    /* =====================================================================
+       【ユーティリティ関数】
+       ===================================================================== */
+
     /**
-     * 文字列を正規表現のパターンとして安全に使えるようにエスケープする。
-     * 正規表現の特殊文字（. * + ? ^ $ { } ( ) | [ ] \）の前に \ を付ける。
-     *
-     * 使用例:
-     *   _escRe("AND ")  → "AND\\ "  （スペースはエスケープ不要だが他の文字は必要）
-     *   _escRe("(val)") → "\\(val\\)"
-     *
-     * @param {string} s - エスケープしたい文字列
-     * @returns {string}   - 正規表現で使えるエスケープ済み文字列
+     * document.querySelector の短縮形。
+     * @param {string} s - CSS セレクタ文字列
+     * @returns {Element|null}
      */
-    function _escRe(s) {
-      return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      // \$& は「マッチした文字列全体」を意味する置換文字
-    }
-    // ============================================================
-    //  SQL シンタックスハイライター（トークナイザー方式）
-    //
-    //  【なぜ正規表現の単純置換ではなくトークナイザーを使うのか?】
-    //  SQL には /* コメント */ や '文字列' が含まれることがある。
-    //  単純な正規表現で「SELECT などのキーワードを太字に」しようとすると、
-    //  コメントや文字列リテラルの中にある "SELECT" も太字になってしまう。
-    //
-    //  トークナイザー方式では SQL を意味のある塊（トークン）に分解してから
-    //  種類ごとに色付けするため、上記の問題を回避できる。
-    //
-    //  トークンの種類:
-    //    'comment' → /* ... */ や -- ... （グレー・斜体）
-    //    'string'  → 'シングルクォート文字列' （緑）
-    //    'param'   → ?, :name, #{name}, ${name} （赤・オレンジ）
-    //    'text'    → その他（キーワードはここでさらに色付け）
-    // ============================================================
+    const qs = s => document.querySelector(s);
+
     /**
-     * ハイライト対象の SQL キーワード一覧（大文字で統一して比較する）。
-     * Set を使うことで includes() より高速に検索できる。
+     * HTML エスケープ関数。
+     * innerHTML にユーザー入力を埋め込む際に XSS を防ぐために使う。
+     * & < > " ' の5文字を HTML エンティティに変換する。
+     * @param {*} s - エスケープする文字列
+     * @returns {string}
      */
-    const SQL_KEYWORDS = new Set([
-      'SELECT', 'FROM', 'WHERE', 'AND', 'OR', 'NOT', 'IN', 'LIKE', 'IS', 'NULL',
-      'INSERT', 'INTO', 'VALUES', 'UPDATE', 'SET', 'DELETE', 'JOIN',
-      'LEFT', 'RIGHT', 'INNER', 'OUTER', 'FULL', 'CROSS', 'NATURAL',
-      'ON', 'GROUP', 'BY', 'ORDER', 'HAVING', 'LIMIT', 'OFFSET',
-      'DISTINCT', 'AS', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END',
-      'EXISTS', 'BETWEEN', 'ALL', 'ANY', 'UNION', 'INTERSECT', 'EXCEPT',
-      'CREATE', 'TABLE', 'ASC', 'DESC', 'WITH', 'USING', 'RETURNING', 'TOP',
-    ]);
+    const enc = s => String(s ?? '').replace(/[&<>"']/g, ch => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[ch]));
+
+    /* =====================================================================
+       【DOM 要素の参照（キャッシュ）】
+       querySelector は毎回 DOM を走査するため、起動時に1度だけ取得して
+       変数に保持しておくことでパフォーマンスを改善する。
+       ===================================================================== */
+    const $q = qs('#q');
+    const $suggest = qs('#suggestBox');
+    const $btnSearch = qs('#btnSearch');
+    const $btnClearInput = qs('#btnClearInput');
+    const $sqlViewer = qs('#sql-viewer');
+    const $sqlRaw = qs('#sql-raw');
+    const $phChips = qs('#phChips');
+    const $phWrap = qs('#phWrap');
+    const $phPlaceholder = qs('#placeholder-ph');
+    const $sqlPlaceholder = qs('#placeholder-sql');
+    const $btnCopy = qs('#btnCopy');
+    const $btnPickDir0 = qs('#btnPickDir0');
+    const $btnPickDir1 = qs('#btnPickDir1');
+    const $btnPickDir2 = qs('#btnPickDir2');
+    const $btnLoadDirs = qs('#btnLoadDirs');
+    const $srcStat = qs('#srcStat');
+    const $folderModal = qs('#folderModal');
+    const $btnOpenFolderModal = qs('#btnOpenFolderModal');
+    const $btnCloseModal = qs('#btnCloseModal');
+    const $btnCancelModal = qs('#btnCancelModal');
+    const $highlightBar = qs('#highlightBar');
+    const $highlightInput = qs('#highlightInput');
+    const $btnAddHighlight = qs('#btnAddHighlight');
+    const $highlightChips = qs('#highlightChips');
+    const $btnClearHighlight = qs('#btnClearHighlight');
+    const $btnQuickReload = qs('#btnQuickReload');
+    const $idbSavedSection = qs('#idbSavedSection');
+    const $idbSavedPaths = qs('#idbSavedPaths');
+    const $btnClearIdb = qs('#btnClearIdb');
+
     /**
-     * SQL 文字列を先頭から1文字ずつ読んでトークンに分割する（字句解析）。
-     *
-     * トークンは { type, v } のオブジェクト配列として返す:
-     *   type: 'comment' | 'string' | 'param' | 'text'
-     *   v:    そのトークンの元の文字列
-     *
-     * @param {string} sql - 変換済み SQL テキスト
-     * @returns {Array<{type:string, v:string}>}
+     * 3つのフォルダハンドルを保持する配列。
+     * インデックス 0/1/2 がそれぞれフォルダ1/2/3 に対応する。
+     * null = 未選択, FileSystemDirectoryHandle = 選択済み
+     * @type {Array<FileSystemDirectoryHandle|null>}
      */
-    function tokenize(sql) {
-      const tokens = [];
-      let i = 0;
-      const n = sql.length;
-      while (i < n) {
-        // ── ブロックコメント: /* ... */ ──────────────────────────
-        if (sql[i] === '/' && sql[i + 1] === '*') {
-          const e = sql.indexOf('*/', i + 2);       // 閉じ */ を探す
-          const end = e < 0 ? n : e + 2;            // 見つからなければ末尾まで
-          tokens.push({ type: 'comment', v: sql.slice(i, end) });
-          i = end;
-          continue;
-        }
-        // ── 行コメント: -- ... (改行まで) ───────────────────────
-        if (sql[i] === '-' && sql[i + 1] === '-') {
-          const e = sql.indexOf('\n', i);            // 改行を探す
-          const end = e < 0 ? n : e;                // 見つからなければ末尾まで
-          tokens.push({ type: 'comment', v: sql.slice(i, end) });
-          i = end;
-          continue;
-        }
-        // ── シングルクォート文字列: '...' ───────────────────────
-        if (sql[i] === "'") {
-          let j = i + 1;
-          while (j < n) {
-            // '' はエスケープされたシングルクォート（文字列内の ' の表現）
-            if (sql[j] === "'" && sql[j + 1] === "'") { j += 2; continue; }
-            // 通常の閉じクォート
-            if (sql[j] === "'") { j++; break; }
-            j++;
-          }
-          tokens.push({ type: 'string', v: sql.slice(i, j) });
-          i = j;
-          continue;
-        }
-        // ── 名前付きパラメータ: :paramName ──────────────────────
-        // コロンの次が英字またはアンダースコアであることを確認（演算子の : と区別）
-        if (sql[i] === ':' && i + 1 < n && /[a-zA-Z_]/.test(sql[i + 1])) {
-          let j = i + 1;
-          while (j < n && /[a-zA-Z0-9_]/.test(sql[j])) j++; // 識別子を読み切る
-          tokens.push({ type: 'param', v: sql.slice(i, j) });
-          i = j;
-          continue;
-        }
-        // ── 位置パラメータ: ? ────────────────────────────────────
-        if (sql[i] === '?') {
-          tokens.push({ type: 'param', v: '?' });
-          i++;
-          continue;
-        }
-        // ── iBatis v2 プレースホルダー: #...# ───────────────────
-        if (sql[i] === '#') {
-          const e = sql.indexOf('#', i + 1);
-          if (e > 0) {
-            tokens.push({ type: 'param', v: sql.slice(i, e + 1) });
-            i = e + 1;
-            continue;
-          }
-        }
-        // ── iBatis プレースホルダー: #{...} または ${...} ───────
-        if ((sql[i] === '#' || sql[i] === '$') && sql[i + 1] === '{') {
-          const e = sql.indexOf('}', i + 2);        // 閉じ } を探す
-          const end = e < 0 ? n : e + 1;
-          tokens.push({ type: 'param', v: sql.slice(i, end) });
-          i = end;
-          continue;
-        }
-        // ── その他のテキスト（SQL本文・キーワード等）────────────
-        // 次の特殊文字の手前まで一気に読み込む（効率化のため）
-        let j = i;
-        while (j < n) {
-          const c = sql[j];
-          // 各種トークン開始文字が来たらここで止める
-          if (c === '/' && sql[j + 1] === '*') break;         // ブロックコメント開始
-          if (c === '-' && sql[j + 1] === '-') break;         // 行コメント開始
-          if (c === "'") break;                             // 文字列開始
-          if (c === ':' && /[a-zA-Z_]/.test(sql[j + 1])) break; // 名前付きパラメータ
-          if (c === '?') break;                             // 位置パラメータ
-          if ((c === '#' || c === '$') && sql[j + 1] === '{') break; // iBatisプレースホルダー
-          j++;
-        }
-        if (j > i) {
-          tokens.push({ type: 'text', v: sql.slice(i, j) });
-          i = j;
-        } else {
-          // 1文字ずつ進む（無限ループ防止）
-          tokens.push({ type: 'text', v: sql[i] });
-          i++;
-        }
-      }
-      return tokens;
-    }
+    const DIR_HANDLES = [null, null, null];
+
     /**
-     * HTML の特殊文字をエンティティにエスケープする。
-     * innerHTML に安全に挿入するために必要。
-     *   & → &amp;   < → &lt;   > → &gt;
+     * フォルダ選択後に表示するパス表示欄の DOM 要素。
+     * dirLabel0/1/2 が各フォルダのラベル要素に対応する。
+     * @type {HTMLElement[]}
      */
-    function escapeHTML(s) {
-      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
+    const DIR_LABELS = [
+      qs('#dirLabel0'),
+      qs('#dirLabel1'),
+      qs('#dirLabel2')
+    ];
+
     /**
-     * テキストトークン内の SQL キーワードに <span class="sql-keyword"> を付ける。
-     * 単語境界 \b を使ってキーワード全体にのみマッチさせる（部分一致防止）。
+     * 埋め込みXML用のインデックス（フォールバック）。
+     * フォルダ選択なしで HTML 内に XML を埋め込む旧来の使い方用。
+     * id -> { raw, tag } のマッピング。
+     * @type {Map<string, {raw:string, tag:string}>}
      */
-    function highlightText(t) {
-      return t.replace(/\b([A-Za-z_][A-Za-z0-9_]*)\b/g, m =>
-        SQL_KEYWORDS.has(m.toUpperCase())
-          ? `<span class="sql-keyword">${m}</span>` // キーワードなら色付き span で囲む
-          : m                                        // キーワード以外はそのまま
-      );
-    }
+    let INDEX = new Map();
+
     /**
-     * SQL 文字列全体にシンタックスハイライトを適用して HTML 文字列を返す。
-     * トークナイザーで分割してから各種類に応じた span タグを付ける。
-     *
-     * @param {string} sql - 変換済みの SQL テキスト
-     * @returns {string}     - カラー span タグを含む HTML 文字列
+     * 埋め込みXMLの全 ID リスト（ソート済み）。
+     * @type {string[]}
      */
-    function highlightSQL(sql) {
-      if (!sql.trim()) return '';
-      return tokenize(sql).map(({ type, v }) => {
-        const e = escapeHTML(v); // XSS 防止のため必ず HTML エスケープしてから span を付ける
-        switch (type) {
-          case 'comment': return `<span class="sql-comment">${e}</span>`; // グレー・斜体
-          case 'string': return `<span class="sql-string">${e}</span>`;  // 緑
-          case 'param': return `<span class="sql-param">${e}</span>`;   // 赤・オレンジ
-          case 'text': return highlightText(e); // キーワードをさらに色付け
-          default: return e;
-        }
-      }).join('');
-    }
-    // ============================================================
-    //  サンプル SQL（サンプルボタンクリック時に入力エリアに貼り付けられる）
-    //
-    //  各キーはサンプルボタンの data-example 属性と対応している。
-    //  iBatis の代表的なパターンを網羅している。
-    // ============================================================
-    const EXAMPLES = {
-      ibatisv2: `<select id="findEmployees" parameterType="EmployeeSearch">
-  SELECT emp_id, emp_name, dept_code, hire_year, grade
-  FROM employees
-  <dynamic prepend="WHERE">
-    <isNotNull prepend="AND" property="empName">
-      emp_name LIKE #empName#
-    </isNotNull>
-    <isNotEmpty prepend="AND" property="gradeList">
-      grade IN
-      <iterate property="gradeList" open="(" close=")" conjunction=",">
-        #gradeList[]#
-      </iterate>
-    </isNotEmpty>
-    <isGreaterThan prepend="AND" property="minHireYear" compareValue="0">
-      hire_year >= #minHireYear#
-    </isGreaterThan>
-    <isEqual prepend="AND" property="position" compareValue="manager">
-      is_manager = 1
-    </isEqual>
-  </dynamic>
-  ORDER BY emp_id DESC
-</select>`,
-      iterate: `<select id="findByCompositeKeys" parameterType="TransactionSearch">
-  SELECT
-    processYm, slipTypeCd, slipNo, amount
-  FROM transactions
-  WHERE (processYm, slipTypeCd, slipNo) IN
-  <iterate property="processlist" open="(" close=")" conjunction=",">
-      (#processlist[].processYm#,
-      #processlist[].slipTypeCd#,
-      #processlist[].slipNo#)
-  </iterate>
-  ORDER BY processYm, slipNo
-</select>`,
-      ibatisAll: `<!-- iBatis v2 の全ての動的タグを網羅した確認用SQL (PostgreSQL想定) -->
-<select id="findAllTags" parameterType="Map">
-  SELECT
-    product_id,
-    product_name,
-    availability,
-    registered_at
-  FROM products
-  <dynamic prepend="WHERE">
-    <!-- 1. 単純なNullチェック -->
-    <isNotNull prepend="AND" property="productName">
-      product_name = #productName#
-    </isNotNull>
-    <isNull prepend="AND" property="archivedAt">
-      archived_at IS NULL
-    </isNull>
-    <!-- 2. 空チェック (StringやCollection向け) -->
-    <isNotEmpty prepend="AND" property="division">
-      division = #division#
-    </isNotEmpty>
-    <isEmpty prepend="AND" property="labels">
-      label_count = 0
-    </isEmpty>
-    <!-- 3. 値の等価比較 -->
-    <isEqual prepend="AND" property="availability" compareValue="ACTIVE">
-      availability = 1
-    </isEqual>
-    <isNotEqual prepend="AND" property="availability" compareValue="INACTIVE">
-      availability != 0
-    </isNotEqual>
-    <!-- 4. 大小比較 -->
-    <isGreaterThan prepend="AND" property="unitPrice" compareValue="1000">
-      unit_price > 1000
-    </isGreaterThan>
-    <isGreaterEqual prepend="AND" property="unitPrice" compareValue="500">
-      unit_price >= 500
-    </isGreaterEqual>
-    <isLessThan prepend="AND" property="stockQty" compareValue="10">
-      stock_qty < 10
-    </isLessThan>
-    <isLessEqual prepend="AND" property="stockQty" compareValue="50">
-      stock_qty <= 50
-    </isLessEqual>
-    <!-- 5. パラメータの存在チェック -->
-    <isParameterPresent prepend="AND">
-      1 = 1
-    </isParameterPresent>
-    <isNotParameterPresent prepend="AND">
-      0 = 1
-    </isNotParameterPresent>
-    <!-- 6. プロパティの存在チェック -->
-    <isPropertyAvailable prepend="AND" property="priorityFlag">
-      priority_flag = #priorityFlag#
-    </isPropertyAvailable>
-    <isNotPropertyAvailable prepend="AND" property="priorityFlag">
-      priority_flag IS NULL
-    </isNotPropertyAvailable>
-    <!-- 7. 反復処理 (IN句など) -->
-    <isNotEmpty prepend="AND" property="productIdList">
-      product_id IN
-      <iterate property="productIdList" open="(" close=")" conjunction=",">
-        #productIdList[]#
-      </iterate>
-    </isNotEmpty>
-  </dynamic>
-</select>`,
-    };
-    // ============================================================
-    //  UI 状態管理（localStorage への保存・復元）
-    //
-    //  ページをリロードしても入力内容・設定・テーマが維持されるよう、
-    //  ユーザーの操作のたびに localStorage に状態を保存する。
-    // ============================================================
-    /** localStorage に使うキー名。他のアプリと衝突しないよう固有の名前にする */
-    const STORAGE_KEY = 'ibatis_converter_state';
+    let ALL_IDS = [];
+
     /**
-     * 現在の UI 状態を localStorage に保存する。
+     * 3フォルダ読み込み後の検索インデックス。
+     * id -> [{ raw, file }] のマッピング。同一 ID が複数ファイルにある場合は配列が増える。
+     * @type {Map<string, Array<{raw:string, file:string}>>}
      */
-    function saveState() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-          input: document.getElementById('input-area').value,
-          theme: document.documentElement.getAttribute('data-theme'),
-        }));
-      } catch { /* localStorage が使えない環境（プライベートブラウジング等）では無視 */ }
-    }
+    let DB = new Map();
+
     /**
-     * 前回保存した UI 状態を localStorage から読み込んで復元する。
-     * ページ読み込み時（init()）に呼ばれる。
+     * 3フォルダ読み込み後の全エントリリスト。
+     * サジェスト候補の生成に使う。
+     * @type {Array<{id:string, file:string}>}
      */
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return; // 保存データがなければ何もしない
-        const s = JSON.parse(raw); // JSON 文字列をオブジェクトに変換
-        // 各 UI 要素に保存値を反映する（値がある項目だけ）
-        if (s.input) document.getElementById('input-area').value = s.input;
-        // テーマを復元する
-        if (s.theme) {
-          document.documentElement.setAttribute('data-theme', s.theme);
-          updateThemeIcon(s.theme);
-        }
-        // 入力が復元されていれば自動で変換も実行する
-        if (s.input) runConvert();
-      } catch { /* JSON 解析エラー等は無視（壊れたデータを読んでも落ちないように） */ }
-    }
+    let ALL_ITEMS = [];
+
+    /* =====================================================================
+       【テーマ管理（ライト/ダーク）】
+       ===================================================================== */
+
     /**
-     * 変換を実行してその結果を出力パネルに表示するメイン関数。
-     * 変換ボタンのクリック・Ctrl+Enter時に呼ばれる。
+     * 指定したテーマをページに適用し、localStorage に保存する。
+     * - data-theme 属性をルート要素に設定 → CSS 変数が切り替わる
+     * - アイコン・ファビコンも合わせて更新する
+     * @param {'light'|'dark'} theme
      */
-    function runConvert() {
-      // UI から現在の設定値を取得する
-      let input = document.getElementById('input-area').value;
-      // コンバーターを設定付きでインスタンス化して変換を実行する
-      const converter = new IBatisSQLConverter();
-      const { sql, error, params: pCount } = converter.convert(input);
-      const outputEl = document.getElementById('output-area');
-      const statusEl = document.getElementById('status-bar');
-      // エラーがあればエラーメッセージを表示して終了
-      if (error) {
-        outputEl.innerHTML = `<span style="color:var(--error-color)">${escapeHTML(error)}</span>`;
-        statusEl.innerHTML = `<span class="status-err">エラー: ${escapeHTML(error)}</span>`;
-        return;
-      }
-      // 変換結果が空（入力が空など）
-      if (!sql.trim()) {
-        outputEl.innerHTML = '<span class="output-placeholder">入力が空です</span>';
-        statusEl.textContent = '待機中';
-        return;
-      }
-      // シンタックスハイライトを適用して出力パネルに表示する
-      outputEl.innerHTML = highlightSQL(sql);
-      // ステータスバーに変換情報を表示する
-      const lines = sql.split('\n').filter(l => l.trim()).length; // 空行を除いた行数
-      const paramInfo = pCount > 0 ? ` | パラメータ数: ${pCount}個` : '';
-      statusEl.innerHTML = `<span class="status-ok">変換完了</span> | ${lines}行${paramInfo}`;
-      // 変換後の状態を保存する（次回リロード時に復元される）
-      saveState();
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      document.getElementById('themeIcon').textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+      const fav = document.getElementById('favicon-runtime');
+      if (fav) fav.href = (theme === 'dark') ? FAV_DARK : FAV_LIGHT;
+      localStorage.setItem(THEME_KEY, theme);
     }
-    // ============================================================
-    //  テーマ切り替え（ライト ↔ ダーク）
-    // ============================================================
+
     /**
-     * テーマに応じてヘッダーのアイコンを切り替える。
-     * ダークモードのときは「明るくする（light_mode）」アイコン、
-     * ライトモードのときは「暗くする（dark_mode）」アイコンを表示する。
-     *
-     * @param {string} theme - 'dark' または 'light'
+     * ページ起動時にテーマを初期化する。
+     * localStorage に保存済みのテーマがあればそれを使い、なければライトモードにする。
      */
-    function updateThemeIcon(theme) {
-      document.getElementById('theme-icon').textContent =
-        theme === 'dark' ? 'light_mode' : 'dark_mode';
+    function initTheme() {
+      const saved = localStorage.getItem(THEME_KEY);
+      setTheme(saved || 'light');
     }
+
     /**
-     * ライト/ダークテーマをトグル（切り替え）する。
-     * <html> 要素の data-theme 属性を変更することで CSS 変数が切り替わり、
-     * 全体の色がリアルタイムで変わる。
+     * ダークモードとライトモードを切り替える。
+     * ヘッダーのテーマ切替ボタンから呼ばれる。
      */
     function toggleTheme() {
-      const cur = document.documentElement.getAttribute('data-theme') || 'light';
-      const next = cur === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next); // CSS に反映
-      updateThemeIcon(next);
-      saveState(); // テーマ設定も保存する
+      const cur = document.documentElement.getAttribute('data-theme');
+      setTheme(cur === 'dark' ? 'light' : 'dark');
     }
-    // ============================================================
-    //  SQL マスキング（難読化）処理
-    // ============================================================
+
+    /* =====================================================================
+       【トースト通知】
+       ===================================================================== */
+
     /**
-     * 入力された iBatis (XML) の生テキストから機密情報（テーブル名、カラム名、変数名）をダミー名に置換する。
-     * XMLタグや主要なキーワード、構造を壊さずに中身の識別子だけを置き換える。
+     * 画面下部に一時的なメッセージを表示する。
+     * 1.5秒後に自動で消える（CSS アニメーションで 1.2s 後にフェードアウト）。
+     * @param {string} message - 表示するメッセージ
+     * @param {'success'|'error'|''} type - 背景色の種類
      */
-    const maskDict = new Map();
-    let maskCounter = 1;
-    function maskInputXML() {
-      const inputEl = document.getElementById('input-area');
-      let rawXML = inputEl.value;
-      if (!rawXML.trim()) return;
-      const IBATIS_ATTRS = new Set([
-        'ID', 'PARAMETERCLASS', 'PARAMETERMAP', 'RESULTCLASS', 'RESULTMAP',
-        'PREPEND', 'PROPERTY', 'COMPAREPROPERTY', 'COMPAREVALUE',
-        'OPEN', 'CLOSE', 'CONJUNCTION', 'REMOVEFIRSTPREPEND', 'CLASS'
-      ]);
-      let masked = rawXML.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\b/g, (match, word, offset, string) => {
-        const upper = word.toUpperCase();
-        // 1. SQLキーワードやiBatisタグ属性名などのスキップ
-        if (SQL_KEYWORDS.has(upper) || IBATIS_ATTRS.has(upper) || upper === 'CDATA') return match;
-        // 2. iBatisのタグ要素自体（例: select, isNotNull, dynamic）かどうかの判定
-        // 直前が `<` や `</` になっている単語はタグ名とみなす
-        const prevText = string.substring(Math.max(0, offset - 2), offset);
-        if (prevText.includes('<')) return match;
-        // 3. 基本的なスキップルール（数字のみ、1文字）
-        if (/^[0-9]+$/.test(word) || word.length === 1) return match;
-        // 辞書に未登録なら新しいダミー名を割り当て
-        if (!maskDict.has(word)) {
-          maskDict.set(word, `dummy_${maskCounter++}`);
-        }
-        return maskDict.get(word);
-      });
-      // 最後にSQL上のシングルクォート文字列の中身をマスク
-      // '%' や '_' などのワイルドカード記号やスペースは残し、それ以外の文字だけを '*' に置換する
-      // LIKE '%' || #employeeName# || '%' などのSQLに対応
-      masked = masked.replace(/'([^']*)'/g, (match, inner) => {
-        // もし中身がワイルドカード記号や空白だけなら、そのまま（例: '%'）にする
-        if (/^[%_\s]+$/.test(inner)) {
-          return match;
-        }
-        // それ以外の場合は該当する文字だけを * に置換
-        return "'" + inner.replace(/[^%_\s]/g, "*") + "'";
-      });
-      // テキストエリアを上書きして保存・再描画
-      inputEl.value = masked;
-      saveState();
-      runConvert();
-      // ボタンフィードバック
-      const btn = document.getElementById('mask-input-btn');
-      const originalText = btn.innerHTML;
-      btn.innerHTML = `<span class="material-symbols-outlined" style="color:var(--success-color)">check</span>マスク完了`;
-      setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+    function showToast(message, type = '') {
+      const box = qs('#toastContainer');
+      const el = document.createElement('div');
+      el.className = `toast ${type}`;
+      el.textContent = message;
+      box.appendChild(el);
+      setTimeout(() => el.remove(), 1500);
     }
-    // ============================================================
-    //  アプリケーション初期化
-    // ============================================================
+
+    /* =====================================================================
+       【XML インデックス構築（埋め込みXMLフォールバック用）】
+       ===================================================================== */
+
     /**
-     * アプリの初期化処理。ページ読み込み完了後（DOMContentLoaded）に呼ばれる。
-     * すべてのボタン・セレクト・テキストエリアにイベントリスナーを登録してから、
-     * 前回の状態を復元する（loadState）。
+     * HTML 内に埋め込まれた XML を取得する。
+     * - id="ibatis-xml" の script/template タグの内容を優先
+     * - なければ IBATIS_SQL_BEGIN/END コメント間を抽出
+     * - どちらもなければ空文字を返す
+     * @returns {string} XML 文字列
      */
-    function init() {
-      // ── 変換ボタン ────────────────────────────────────────────
-      // クリックで変換を実行する
-      document.getElementById('convert-btn').addEventListener('click', runConvert);
-      // ── Ctrl+Enter ショートカット ─────────────────────────────
-      // 入力エリアでのキー押下を監視し、Ctrl（またはMac: Cmd）+ Enter で変換する
-      document.getElementById('input-area').addEventListener('keydown', e => {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-          e.preventDefault(); // ブラウザデフォルトの改行挿入を防ぐ
-          runConvert();
+    function getSourceBlob() {
+      const el = document.getElementById('ibatis-xml');
+      if (el && el.textContent.trim()) return el.textContent;
+
+      const html = document.documentElement.innerHTML;
+      const rx = new RegExp('<' + '!--\\s*IBATIS_SQL_BEGIN\\s*--' + '>([\\s\\S]*?)<' + '!--\\s*IBATIS_SQL_END\\s*--' + '>');
+      const m = rx.exec(html);
+      if (m && m.length > 1) return m[1];
+
+      return '';
+    }
+
+    /**
+     * XML 文字列の先頭にある BOM・XML 宣言・DOCTYPE を除去する。
+     * iBATIS の XML ファイルは <?xml ... ?> で始まることが多いが、
+     * 検索時には邪魔になるため取り除く。
+     * @param {string} s - 生の XML 文字列
+     * @returns {string} クリーニング後の XML 文字列
+     */
+    function trimBomPrologDoctype(s) {
+      return String(s ?? '')
+        .replace(/^\uFEFF/, '')              // BOM（バイトオーダーマーク）を除去
+        .replace(/<\?xml[\s\S]*?\?>/gi, '')  // <?xml ... ?> を除去
+        .replace(/<!DOCTYPE[\s\S]*?>/gi, '');// <!DOCTYPE ... > を除去
+    }
+
+    /**
+     * XML 文字列を DOMParser でパースせずに正規表現で検索し、
+     * iBATIS の SQL ブロック（select/insert/update/delete 等）を抽出して
+     * id をキーとした Map を構築する。
+     *
+     * ※ DOMParser を使わない理由:
+     *    iBATIS の XML には <isNotNull> などの独自タグや
+     *    CDATA セクション内に不完全な SQL が含まれることがあり、
+     *    厳格な XML パーサーではエラーになりやすいため。
+     *
+     * @param {string} raw - クリーニング済みの XML 文字列
+     * @returns {{ map: Map<string, {raw:string, tag:string}>, ids: string[] }}
+     */
+    function buildIndexFromRaw(raw) {
+      const map = new Map();
+      const ids = [];
+
+      const src = trimBomPrologDoctype(raw);
+
+      // 検索対象とする XML タグ名の一覧（iBATIS v2 の主要タグ）
+      const tags = [
+        'select', 'insert', 'update', 'delete',
+        'statement', 'sql', 'procedure',
+        'resultMap', 'parameterMap', 'cacheModel'
+      ];
+      const tagAlternation = tags.join('|');
+
+      // ペア型タグ（<select id="..."> ... </select>）の正規表現
+      // フラグ: g=全件検索, i=大小文字無視, m=^$が行頭行末に対応
+      const pairRe = new RegExp(
+        `(^[ \\t]*<(${tagAlternation})\\b([^>]*?)\\bid\\s*=\\s*(["'])(.*?)\\4([^>]*)>[\\s\\S]*?^[ \\t]*<\\/\\2>[ \\t]*(?:\\r?\\n)?)`,
+        'gim'
+      );
+
+      // 自己終了型タグ（<sql id="..." />）の正規表現
+      const selfCloseRe = new RegExp(
+        `(^[ \\t]*<(${tagAlternation})\\b([^>]*?)\\bid\\s*=\\s*(["'])(.*?)\\4([^>]*)\\/\\s*>[ \\t]*(?:\\r?\\n)?)`,
+        'gim'
+      );
+
+      let m;
+
+      // ペア型タグを抽出
+      while ((m = pairRe.exec(src)) !== null) {
+        const rawBlock = m[1]; // マッチした XML ブロック全体
+        const tag = m[2];      // タグ名（select, insert, ...）
+        const id = m[5];      // id 属性の値
+        if (!map.has(id)) {
+          map.set(id, { raw: rawBlock, tag });
+          ids.push(id);
         }
+      }
+
+      // 自己終了型タグを抽出（ペア型で見つかっていない ID のみ）
+      while ((m = selfCloseRe.exec(src)) !== null) {
+        const rawBlock = m[1];
+        const tag = m[2];
+        const id = m[5];
+        if (!map.has(id)) {
+          map.set(id, { raw: rawBlock, tag });
+          ids.push(id);
+        }
+      }
+
+      ids.sort((a, b) => a.localeCompare(b));
+      return { map, ids };
+    }
+
+    /**
+     * XML 文字列から iBATIS のプレースホルダ（#param# / $param$）を抽出する。
+     * #...# は PreparedStatement のパラメータ（SQL インジェクション安全）。
+     * $...$ は文字列置換のパラメータ（動的テーブル名などに使う）。
+     * @param {string} xmlString - SQL ブロックの XML 文字列
+     * @returns {{ hash: string[], dollar: string[] }}
+     */
+    function extractPlaceholders(xmlString) {
+      const hs = new Set(); // #...# のセット（重複除去のため Set を使う）
+      const ds = new Set(); // $...$ のセット
+      const rxH = /#([^#\s][^#]*?)#/g;
+      const rxD = /\$([^$\s][^$]*?)\$/g;
+      let m;
+      while ((m = rxH.exec(xmlString))) hs.add(m[1].trim());
+      while ((m = rxD.exec(xmlString))) ds.add(m[1].trim());
+      return { hash: [...hs].sort(), dollar: [...ds].sort() };
+    }
+
+    /**
+     * ファイルのフルパス文字列からファイル名だけを取り出す。
+     * 例: "C:/foo/bar/Test.xml" → "Test.xml"
+     * @param {string} path
+     * @returns {string}
+     */
+    function getFileName(path) {
+      return String(path || '').split('/').pop() || '';
+    }
+
+    /**
+     * 表示用のフルパスを構築する。
+     * ユーザーが dirLabel に入力したパスをルートとして、
+     * ファイル名を「\」で結合して返す。
+     * @param {number} dirIndex - フォルダのインデックス（0/1/2）
+     * @param {string} relPath  - dirHandle 基準の相対パス（例: "sub/Test.xml"）
+     * @returns {string}
+     */
+    function buildDisplayPathFromLabel(dirIndex, relPath = '') {
+      const rootText = String(DIR_LABELS[dirIndex]?.textContent || '').trim();
+      const fileName = getFileName(relPath);
+
+      const root = rootText && rootText !== '未選択'
+        ? rootText.replace(/[\\/]+$/, '') // 末尾スラッシュを除去
+        : (DIR_HANDLES[dirIndex]?.name || `フォルダ${dirIndex + 1}`);
+
+      if (!fileName) return root;
+      return `${root}\\${fileName}`;
+    }
+
+    /* =====================================================================
+       【XML → 表示用 HTML 変換】
+       ===================================================================== */
+
+    /**
+     * 開きタグ文字列（例: <select id="findAll">）を HTML 表示用に整形する。
+     * 1. enc() で HTML エスケープ
+     * 2. タグ名・属性名・属性値を span でラップして色付け
+     * @param {string} tagStr - 生の開きタグ文字列
+     * @returns {string} カラーリング済みの HTML 文字列
+     */
+    function formatTagContent(tagStr) {
+      let s = enc(tagStr);
+
+      // タグ名（先頭の < の直後）を span.xml-tag でラップ
+      s = s.replace(/^&lt;(\/?[\w:-]+)/, '&lt;<span class="xml-tag">$1</span>');
+
+      // 属性名="属性値"（ダブルクォート）をそれぞれ色付け
+      s = s.replace(/([\w:-]+)=&quot;(.*?)&quot;/g,
+        '<span class="xml-attr">$1</span>=&quot;<span class="xml-attr-val">$2</span>&quot;');
+
+      // 属性名='属性値'（シングルクォート）をそれぞれ色付け
+      s = s.replace(/([\w:-]+)=&#39;(.*?)&#39;/g,
+        '<span class="xml-attr">$1</span>=&#39;<span class="xml-attr-val">$2</span>&#39;');
+
+      return s;
+    }
+
+    /**
+     * 生の XML 文字列を折り畳み可能な HTML に変換する。
+     *
+     * 処理の流れ:
+     * 1. XML をトークン（cdata / comment / open / close / selfclose / text）に分割
+     * 2. 各トークンを HTML に変換
+     *    - open タグ → <span class="xml-foldable"> でラップ（折り畳みボタン付き）
+     *    - close タグ → </span> で閉じる
+     *    - それ以外 → enc() でエスケープして色付け span
+     *
+     * ※ この関数は表示用 HTML を返すだけ。生テキストは $sqlRaw に別途保持する。
+     * @param {string} rawSql - 生の XML 文字列
+     * @returns {string} 折り畳み可能な HTML 文字列
+     */
+    function buildCollapsibleFromRaw(rawSql) {
+      const tokens = [];
+      let i = 0;
+
+      // ---- トークン分割 ----
+      while (i < rawSql.length) {
+
+        // CDATA セクション: <![CDATA[ ... ]]>
+        if (rawSql.startsWith('<![CDATA[', i)) {
+          const end = rawSql.indexOf(']]>', i);
+          if (end === -1) { tokens.push({ type: 'cdata', val: rawSql.slice(i) }); break; }
+          tokens.push({ type: 'cdata', val: rawSql.slice(i, end + 3) });
+          i = end + 3;
+          continue;
+        }
+
+        // XML コメント: <!-- ... -->
+        if (rawSql.startsWith('<!--', i)) {
+          const end = rawSql.indexOf('-->', i);
+          if (end === -1) { tokens.push({ type: 'comment', val: rawSql.slice(i) }); break; }
+          tokens.push({ type: 'comment', val: rawSql.slice(i, end + 3) });
+          i = end + 3;
+          continue;
+        }
+
+        // タグ: < で始まる部分
+        if (rawSql[i] === '<') {
+          const end = rawSql.indexOf('>', i);
+          if (end === -1) { tokens.push({ type: 'text', val: rawSql.slice(i) }); break; }
+          const tagStr = rawSql.slice(i, end + 1);
+
+          if (/^<\//.test(tagStr)) tokens.push({ type: 'close', val: tagStr });
+          else if (/\/>$/.test(tagStr)) tokens.push({ type: 'selfclose', val: tagStr });
+          else tokens.push({ type: 'open', val: tagStr });
+
+          i = end + 1;
+          continue;
+        }
+
+        // テキストノード: < が現れる手前まで
+        const nextTag = rawSql.indexOf('<', i);
+        if (nextTag === -1) { tokens.push({ type: 'text', val: rawSql.slice(i) }); break; }
+        tokens.push({ type: 'text', val: rawSql.slice(i, nextTag) });
+        i = nextTag;
+      }
+
+      // ---- HTML 生成 ----
+      let html = '';
+      for (const t of tokens) {
+        if (t.type === 'text') html += enc(t.val);
+        else if (t.type === 'cdata') html += `<span class="xml-cdata">${enc(t.val)}</span>`;
+        else if (t.type === 'comment') html += `<span class="xml-comment">${enc(t.val)}</span>`;
+        else if (t.type === 'selfclose') html += formatTagContent(t.val);
+        else if (t.type === 'open') {
+          // 開きタグ: 折り畳みボタン + タグ + コンテンツを包む span
+          html += `<span class="xml-foldable"><span class="xml-fold-btn" onclick="this.parentElement.classList.toggle('collapsed')" title="折り畳み"></span>${formatTagContent(t.val)}<span class="xml-fold-content">`;
+        } else if (t.type === 'close') {
+          // 閉じタグ: xml-fold-content を閉じ、xml-foldable も閉じる
+          html += `</span>${formatTagContent(t.val)}</span>`;
+        }
+      }
+
+      return html;
+    }
+
+    /* =====================================================================
+       【ハイライト機能】
+       SQL 表示エリア（$sqlViewer）内の特定文字列を色付きで強調表示する。
+
+       仕組み:
+       - applyHighlights() は $sqlViewer の DOM を直接操作する。
+       - TreeWalker でテキストノードのみを走査することで、
+         既存の <span class="xml-tag"> などの構造を壊さずにマッチ箇所だけ
+         <span style="background-color:..."> に置換できる。
+
+       注意:
+       - HIGHLIGHT_TERMS が空のときは何もしない。
+       - 長い文字列から先にマッチさせることで、
+         短い文字列が長い文字列を分断するのを防ぐ。
+       ===================================================================== */
+
+    /**
+     * ハイライトチップ（チップエリアの表示）を更新する。
+     * HIGHLIGHT_TERMS の内容をもとに、色付きチップを再描画する。
+     * × ボタンを押すと removeHighlightTerm() が呼ばれる。
+     */
+    function renderHighlightChips() {
+      if (!HIGHLIGHT_TERMS.length) {
+        $highlightChips.innerHTML = '';
+        $btnClearHighlight.style.display = 'none';
+        return;
+      }
+
+      $highlightChips.innerHTML = HIGHLIGHT_TERMS.map((term, i) => {
+        const color = HIGHLIGHT_COLORS[i % HIGHLIGHT_COLORS.length];
+        return `
+          <span class="highlight-chip" style="background:${color}; border-color:${color};">
+            ${enc(term)}
+            <button class="highlight-chip-remove" onclick="removeHighlightTerm(${i})" title="削除">×</button>
+          </span>
+        `;
+      }).join('');
+
+      $btnClearHighlight.style.display = 'inline-flex';
+    }
+
+    /**
+     * 入力欄の文字列を HIGHLIGHT_TERMS 配列に追加し、ハイライトを再適用する。
+     * 空文字・重複・すでにある文字列は無視する。
+     */
+    function addHighlightTerm() {
+      const term = ($highlightInput.value || '').trim();
+      if (!term) return;
+
+      // 重複チェック（大文字小文字を区別して完全一致）
+      if (HIGHLIGHT_TERMS.includes(term)) {
+        showToast(`「${term}」は既に追加されています`);
+        return;
+      }
+
+      HIGHLIGHT_TERMS.push(term);
+      $highlightInput.value = '';
+      renderHighlightChips();
+      applyHighlights();
+    }
+
+    /**
+     * 指定インデックスのハイライト文字列を HIGHLIGHT_TERMS から削除し、
+     * ハイライトを再適用する。
+     * @param {number} index - HIGHLIGHT_TERMS の削除対象インデックス
+     */
+    function removeHighlightTerm(index) {
+      HIGHLIGHT_TERMS.splice(index, 1);
+      renderHighlightChips();
+      applyHighlights();
+    }
+
+    /**
+     * HIGHLIGHT_TERMS をすべてクリアし、ハイライトを解除する。
+     * 「クリア」ボタンから呼ばれる。
+     */
+    function clearAllHighlights() {
+      HIGHLIGHT_TERMS = [];
+      renderHighlightChips();
+      applyHighlights();
+    }
+
+    /**
+     * $sqlViewer の DOM を走査し、HIGHLIGHT_TERMS に一致する文字列を
+     * 色付きの <span> で囲んでハイライト表示する。
+     *
+     * 処理の流れ:
+     * 1. HIGHLIGHT_TERMS が空 or SQL 未表示なら何もしない
+     * 2. 現在表示中の生 XML（$sqlRaw）から再度 HTML を生成してリセット
+     *    （前回のハイライトスパンをクリアするため）
+     * 3. TreeWalker でテキストノードのみを走査
+     * 4. 各テキストノードで全ハイライト文字列を検索
+     * 5. マッチした箇所を <span style="background-color:..."> に置換
+     *
+     * ※ TreeWalker を使う理由:
+     *    innerHTML を直接操作すると既存の <span class="xml-tag"> 等が
+     *    テキストとして扱われてしまい、構造が壊れる恐れがある。
+     *    TreeWalker はテキストノード（要素の中のテキスト部分）だけを
+     *    安全に走査できるため、既存の span を壊さずに済む。
+     */
+    function applyHighlights() {
+      // SQL が表示されていない場合は処理しない
+      if ($sqlViewer.style.display === 'none') return;
+
+      // 生の XML テキストを取得
+      const rawSql = $sqlRaw.textContent;
+      if (!rawSql) return;
+
+      // HTML を再生成してハイライトをリセット（前回のスパンを消す）
+      $sqlViewer.innerHTML = buildCollapsibleFromRaw(rawSql);
+
+      // ハイライト文字列がなければここで終了
+      if (!HIGHLIGHT_TERMS.length) return;
+
+      // 長い文字列から先にマッチさせる（短い文字列が長い文字列を分断しないため）
+      const sortedTerms = [...HIGHLIGHT_TERMS].sort((a, b) => b.length - a.length);
+
+      // 正規表現の特殊文字をエスケープするユーティリティ
+      // 例: "WHERE(" → "WHERE\(" にして、( が正規表現の特殊文字として解釈されないようにする
+      const escapeRegExp = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+      // TreeWalker でテキストノードのみを走査する
+      // NodeFilter.SHOW_TEXT = テキストノードだけを対象にするフィルター
+      const walker = document.createTreeWalker(
+        $sqlViewer,
+        NodeFilter.SHOW_TEXT,
+        null
+      );
+
+      // 置換対象のテキストノードを収集する
+      // （walker の走査中に DOM を変更すると走査がおかしくなるため、先に全収集する）
+      const textNodes = [];
+      let node;
+      while ((node = walker.nextNode())) textNodes.push(node);
+
+      // 収集したテキストノードに対してハイライトを適用する
+      for (const textNode of textNodes) {
+        const text = textNode.nodeValue;
+        if (!text.trim()) continue; // 空白のみのノードはスキップ
+
+        // いずれかのハイライト文字列がこのテキストノードに含まれるか確認
+        const hasMatch = sortedTerms.some(term => text.includes(term));
+        if (!hasMatch) continue;
+
+        // テキストを分割して HTML を構築する
+        // 仕組み: 全ハイライト文字列を OR で結合した正規表現でテキストを split+match
+        const pattern = sortedTerms.map(escapeRegExp).join('|');
+        const re = new RegExp(`(${pattern})`, 'g');
+        const parts = text.split(re);
+
+        // 元のテキストノードを置換する DOM フラグメントを構築
+        const fragment = document.createDocumentFragment();
+        for (const part of parts) {
+          const termIndex = sortedTerms.indexOf(part);
+          if (termIndex !== -1 || HIGHLIGHT_TERMS.includes(part)) {
+            // ハイライト対象: 色付きスパンで囲む
+            const originalIndex = HIGHLIGHT_TERMS.indexOf(part);
+            const color = HIGHLIGHT_COLORS[
+              originalIndex !== -1
+                ? originalIndex % HIGHLIGHT_COLORS.length
+                : 0
+            ];
+            const span = document.createElement('span');
+            span.style.backgroundColor = color;
+            span.style.color = '#fff';
+            span.style.borderRadius = '2px';
+            span.style.padding = '0 2px';
+            span.textContent = part;
+            fragment.appendChild(span);
+          } else {
+            // ハイライト対象外: そのままテキストノードとして追加
+            fragment.appendChild(document.createTextNode(part));
+          }
+        }
+
+        // 元のテキストノードをフラグメントで置換
+        textNode.parentNode.replaceChild(fragment, textNode);
+      }
+    }
+
+    /* =====================================================================
+       【IndexedDB（IDB）操作】
+       フォルダハンドルをブラウザのローカルストレージに永続保存する機能。
+
+       なぜ IndexedDB を使うのか:
+       - localStorage は文字列しか保存できない
+       - IndexedDB は FileSystemDirectoryHandle（フォルダへの参照オブジェクト）を
+         そのまま保存できる
+       - 保存されたハンドルを使えば、次回起動時にフォルダ選択ダイアログを
+         省略して素早く再読み込みできる
+
+       保存データの構造:
+         キー 0 → { handle: FileSystemDirectoryHandle, label: "C:\...\sqlmap" }
+         キー 1 → { handle: ..., label: "..." }
+         キー 2 → { handle: ..., label: "..." }
+       ===================================================================== */
+
+    /**
+     * IndexedDB を開いて DB オブジェクトを返す Promise。
+     * DB が存在しない場合は新規作成し、オブジェクトストアも作成する。
+     * @returns {Promise<IDBDatabase>}
+     */
+    function openIDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(IDB_NAME, IDB_VER);
+
+        // DB のスキーマが存在しない / バージョンアップ時に呼ばれる
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          // オブジェクトストアが存在しない場合だけ作成する
+          if (!db.objectStoreNames.contains(IDB_STORE)) {
+            db.createObjectStore(IDB_STORE); // キーは手動指定（autoIncrement なし）
+          }
+        };
+
+        req.onsuccess = (e) => resolve(e.target.result);
+        req.onerror = (e) => reject(e.target.error);
       });
-      // ── クリアボタン ──────────────────────────────────────────
-      // 入力・出力・ステータスをすべてリセットする
-      document.getElementById('clear-btn').addEventListener('click', () => {
-        document.getElementById('input-area').value = '';
-        document.getElementById('output-area').innerHTML =
-          '<span class="output-placeholder">← 入力して「変換」ボタンを押してください</span>';
-        document.getElementById('status-bar').textContent = '待機中';
-        saveState(); // クリア後の空状態も保存する
-      });
-      // ── コピーボタン ──────────────────────────────────────────
-      // 出力パネルのテキストをクリップボードにコピーし、完了メッセージを一時表示する
-      document.getElementById('copy-btn').addEventListener('click', () => {
-        // innerText で HTML タグを除いた純粋なテキストを取得する
-        const text = document.getElementById('output-area').innerText;
-        // 出力が空またはプレースホルダーテキストの場合はコピーしない
-        if (!text.trim() || text.includes('入力して')) return;
-        // Clipboard API でコピー（非同期）
-        navigator.clipboard.writeText(text).then(() => {
-          // コピー成功時に「コピーしました!」を 2 秒間表示してフェードアウト
-          const msg = document.getElementById('copy-msg');
-          msg.classList.add('show');
-          setTimeout(() => msg.classList.remove('show'), 2000);
+    }
+
+    /**
+     * 3つのフォルダハンドルとラベルを IndexedDB に保存する。
+     * キー 0/1/2 に { handle, label } オブジェクトを書き込む。
+     * @returns {Promise<void>}
+     */
+    async function saveHandlesToIDB() {
+      try {
+        const db = await openIDB();
+        const tx = db.transaction(IDB_STORE, 'readwrite');
+        const store = tx.objectStore(IDB_STORE);
+
+        for (let i = 0; i < 3; i++) {
+          const label = String(DIR_LABELS[i]?.textContent || '').trim();
+          // handle と label をセットで保存する
+          store.put({ handle: DIR_HANDLES[i], label }, i);
+        }
+
+        // トランザクション完了を待つ
+        await new Promise((res, rej) => {
+          tx.oncomplete = res;
+          tx.onerror = () => rej(tx.error);
         });
+      } catch (err) {
+        console.warn('IDB への保存に失敗しました:', err);
+      }
+    }
+
+    /**
+     * IndexedDB から保存済みのフォルダデータを読み込む。
+     * @returns {Promise<Array<{handle: FileSystemDirectoryHandle, label: string}|null>>}
+     *          要素数3の配列。保存されていないインデックスは null。
+     */
+    async function loadHandlesFromIDB() {
+      try {
+        const db = await openIDB();
+        const tx = db.transaction(IDB_STORE, 'readonly');
+        const store = tx.objectStore(IDB_STORE);
+
+        // キー 0/1/2 を並行して取得する
+        const results = await Promise.all([0, 1, 2].map(i =>
+          new Promise((res) => {
+            const req = store.get(i);
+            req.onsuccess = () => res(req.result || null);
+            req.onerror = () => res(null);
+          })
+        ));
+
+        return results;
+      } catch {
+        return [null, null, null];
+      }
+    }
+
+    /**
+     * IndexedDB の保存データを全件削除する。
+     * モーダル内の「保存データを削除」ボタンから呼ばれる。
+     * @returns {Promise<void>}
+     */
+    async function clearIDB() {
+      try {
+        const db = await openIDB();
+        const tx = db.transaction(IDB_STORE, 'readwrite');
+        tx.objectStore(IDB_STORE).clear();
+        await new Promise((res, rej) => {
+          tx.oncomplete = res;
+          tx.onerror = () => rej(tx.error);
+        });
+      } catch (err) {
+        console.warn('IDB の削除に失敗しました:', err);
+      }
+    }
+
+    /**
+     * 保存済みハンドルのパーミッションを確認・再要求する。
+     * ブラウザはセキュリティのため、再起動後は保存済みハンドルへの
+     * アクセス権を一度ユーザーに確認させる仕様になっている。
+     * @param {FileSystemDirectoryHandle} handle
+     * @returns {Promise<boolean>} アクセス可能なら true
+     */
+    async function verifyPermission(handle) {
+      try {
+        // まず現在の状態を確認
+        const permission = await handle.queryPermission({ mode: 'read' });
+        if (permission === 'granted') return true;
+
+        // 'granted' でなければユーザーに許可を求める
+        const requested = await handle.requestPermission({ mode: 'read' });
+        return requested === 'granted';
+      } catch {
+        return false;
+      }
+    }
+
+    /**
+     * IndexedDB に保存済みのフォルダデータを使って素早く再読み込みを行う。
+     * 「前回フォルダを再読み込み」ボタンから呼ばれる。
+     *
+     * 処理の流れ:
+     * 1. IDB からハンドルとラベルを読み込む
+     * 2. 各ハンドルのパーミッションをユーザーに再要求
+     * 3. DIR_HANDLES と DIR_LABELS を更新
+     * 4. loadSelectedDirectories() で XML を読み込む（IDB 保存はスキップ）
+     * @returns {Promise<void>}
+     */
+    async function quickReload() {
+      const saved = await loadHandlesFromIDB();
+
+      // 保存データが1件でも欠けていたら中断
+      if (saved.some(x => !x)) {
+        showToast('保存されたフォルダデータが不完全です', 'error');
+        return;
+      }
+
+      // パーミッションを確認・要求しながら DIR_HANDLES を復元する
+      for (let i = 0; i < 3; i++) {
+        const { handle, label } = saved[i];
+        const ok = await verifyPermission(handle);
+        if (!ok) {
+          showToast(`フォルダ${i + 1} へのアクセスが拒否されました`, 'error');
+          return;
+        }
+        DIR_HANDLES[i] = handle;
+
+        // ラベルが保存されていればそれを使う（なければ handle.name を使う）
+        if (label && label !== '未選択') {
+          DIR_LABELS[i].textContent = label;
+          DIR_LABELS[i].classList.remove('empty');
+        }
+      }
+
+      updateDirectoryUI();
+
+      // skipSave: true にすることで読み込み後の IDB 保存を二重実行しない
+      await loadSelectedDirectories(true);
+    }
+
+    /**
+     * ページ起動時に IndexedDB を確認し、保存済みデータがあれば
+     * クイック再読み込みボタンとモーダル内のセクションを表示する。
+     * @returns {Promise<void>}
+     */
+    async function initIDB() {
+      const saved = await loadHandlesFromIDB();
+
+      // 3件すべて保存されているか確認
+      const allSaved = saved.every(x => x && x.handle);
+      if (!allSaved) return;
+
+      // クイック再読み込みボタンを表示（検索バー右端）
+      $btnQuickReload.style.display = 'inline-flex';
+
+      // モーダル内に保存済みフォルダ情報を表示
+      $idbSavedSection.style.display = 'block';
+      $idbSavedPaths.innerHTML = saved.map((x, i) => {
+        const label = x.label && x.label !== '未選択' ? x.label : x.handle.name;
+        return `<div class="idb-saved-path-item">フォルダ${i + 1}: ${enc(label)}</div>`;
+      }).join('');
+    }
+
+    /* =====================================================================
+       【初期化処理（DOMContentLoaded）】
+       HTML が完全に読み込まれた後に実行する。
+       各機能の初期化・イベント登録を一元管理する。
+       ===================================================================== */
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+
+      // 埋め込みXML のパース（フォールバック）
+      try {
+        const blob = getSourceBlob();
+        if (blob && blob.trim()) {
+          const { map, ids } = buildIndexFromRaw(blob);
+          INDEX = map;
+          ALL_IDS = ids;
+        }
+      } catch (err) {
+        showToast(err.message || String(err), 'error');
+        INDEX = new Map();
+        ALL_IDS = [];
+      }
+
+      wireSearchUI();          // 検索バーのイベント登録
+      wireDirectoryPickerUI(); // フォルダ選択のイベント登録
+      wireModalUI();           // モーダルのイベント登録
+      wireEditableLabels();    // パス表示欄の編集イベント登録
+      wireHighlightUI();       // ハイライト UI のイベント登録
+      updateDirectoryUI();     // フォルダ選択状態を UI に反映
+
+      // IDB の確認は非同期で行う（ページ表示をブロックしないため）
+      initIDB();
+    });
+
+    /* =====================================================================
+       【モーダル開閉】
+       ===================================================================== */
+
+    /** 参照フォルダ選択モーダルを開く */
+    function openFolderModal() {
+      $folderModal.classList.add('show');
+    }
+
+    /** 参照フォルダ選択モーダルを閉じる */
+    function closeFolderModal() {
+      $folderModal.classList.remove('show');
+    }
+
+    /**
+     * モーダル関連のイベントをすべて登録する。
+     * - 開くボタン / 閉じるボタン / キャンセルボタン
+     * - オーバーレイのクリックで閉じる
+     * - Escape キーで閉じる
+     */
+    function wireModalUI() {
+      $btnOpenFolderModal?.addEventListener('click', openFolderModal);
+      $btnCloseModal?.addEventListener('click', closeFolderModal);
+      $btnCancelModal?.addEventListener('click', closeFolderModal);
+
+      // オーバーレイ（背景暗幕）をクリックした場合も閉じる
+      $folderModal?.addEventListener('click', (e) => {
+        if (e.target === $folderModal) closeFolderModal();
       });
-      // ── テーマ切り替えボタン ──────────────────────────────────
-      document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
-      // ── サンプル SQL ボタン ───────────────────────────────────
-      // data-example 属性でどのサンプルを使うか判断する（例: data-example="select"）
-      document.querySelectorAll('.example-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const ex = EXAMPLES[btn.dataset.example]; // EXAMPLES オブジェクトから SQL を取得
-          if (ex) {
-            document.getElementById('input-area').value = ex; // 入力エリアに代入
-            runConvert(); // 即座に変換実行
+
+      // Escape キーで閉じる（モーダルが表示中のときだけ）
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && $folderModal.classList.contains('show')) {
+          closeFolderModal();
+        }
+      });
+
+      // IDB 保存データ削除ボタン
+      $btnClearIdb?.addEventListener('click', async () => {
+        await clearIDB();
+        $idbSavedSection.style.display = 'none';
+        $btnQuickReload.style.display = 'none';
+        showToast('保存されたフォルダデータを削除しました');
+      });
+
+      // クイック再読み込みボタン
+      $btnQuickReload?.addEventListener('click', quickReload);
+    }
+
+    /* =====================================================================
+       【フォルダラベル編集（contenteditable）】
+       ===================================================================== */
+
+    /**
+     * フォルダパス表示欄（contenteditable）の入力・ペーストイベントを登録する。
+     * - 入力時に empty クラスを切り替えてスタイルを更新
+     * - Enter キーで編集を終了する
+     * - ペースト時にプレーンテキストのみを許可する（書式付きコピペを防ぐ）
+     */
+    function wireEditableLabels() {
+      DIR_LABELS.forEach((label) => {
+        // 入力時: 空かどうかで .empty クラスを切り替える
+        label?.addEventListener('input', () => {
+          const txt = String(label.textContent || '').trim();
+          if (txt && txt !== '未選択') label.classList.remove('empty');
+          else label.classList.add('empty');
+        });
+
+        // Enter キーでフォーカスを外す（編集終了）
+        label?.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); label.blur(); }
+        });
+
+        // ペーストはプレーンテキストのみ許可（HTML の混入を防ぐ）
+        label?.addEventListener('paste', (e) => {
+          e.preventDefault();
+          const text = (e.clipboardData || window.clipboardData).getData('text');
+          if (document.queryCommandSupported && document.queryCommandSupported('insertText')) {
+            document.execCommand('insertText', false, text);
+          } else {
+            label.textContent = text;
           }
         });
       });
-      // ── 入力変更時の自動保存 ─────────────────────────────────
-      // テキストエリアへの入力のたびに状態を保存する
-      // （変換の自動実行はしない。ボタン押下 or Ctrl+Enter が必要）
-      document.getElementById('input-area').addEventListener('input', saveState);
-      // マスキング実行ボタン
-      document.getElementById('mask-input-btn').addEventListener('click', maskInputXML);
-      // ── 前回の状態を復元 ──────────────────────────────────────
-      // 最後に呼ぶことで、上記のリスナー登録が完了した状態で復元処理が走る
-      loadState();
     }
-    // ページの HTML が完全に読み込まれてから init() を実行する
-    // （<script> が <body> の前にあると DOM 要素が存在しないためここで待つ）
-    document.addEventListener('DOMContentLoaded', init);
+
+    /* =====================================================================
+       【ハイライト UI イベント登録】
+       ===================================================================== */
+
+    /**
+     * ハイライトバーの各イベントを登録する。
+     * - 追加ボタン: addHighlightTerm()
+     * - Enter キー: addHighlightTerm()
+     * - 全クリアボタン: clearAllHighlights()
+     */
+    function wireHighlightUI() {
+      $btnAddHighlight?.addEventListener('click', addHighlightTerm);
+
+      // Enter キーでも追加できる
+      $highlightInput?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') addHighlightTerm();
+      });
+
+      $btnClearHighlight?.addEventListener('click', clearAllHighlights);
+    }
+
+    /* =====================================================================
+       【検索 UI イベント登録】
+       ===================================================================== */
+
+    /**
+     * 検索バーの各イベントを登録する。
+     * - 入力欄の変化 → オートサジェスト更新
+     * - Enter キー → 検索実行
+     * - 検索ボタン → 検索実行
+     * - クリアボタン → 入力欄とサジェストをリセット
+     * - サジェスト候補クリック → その ID で検索
+     * - 入力欄以外クリック → サジェストを閉じる
+     */
+    function wireSearchUI() {
+      // 入力欄以外をクリックしたらサジェストを閉じる
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.suggest')) $suggest.classList.remove('show');
+      });
+
+      $btnSearch?.addEventListener('click', () => doSearch());
+
+      $btnClearInput?.addEventListener('click', () => {
+        $q.value = '';
+        renderSuggest();
+      });
+
+      $q?.addEventListener('keydown', e => {
+        if (e.key === 'Enter') doSearch();
+      });
+
+      $q?.addEventListener('input', renderSuggest);
+
+      // サジェスト候補をクリックしたときの処理
+      $suggest?.addEventListener('click', (e) => {
+        const item = e.target.closest('.suggest-item');
+        if (!item) return;
+        const id = item.dataset.id || '';
+        const file = item.dataset.file || '';
+        $q.value = id;
+        $suggest.classList.remove('show');
+        doSearch(file); // クリックしたファイルを優先して表示
+      });
+    }
+
+    /* =====================================================================
+       【フォルダ選択 UI イベント登録】
+       ===================================================================== */
+
+    /**
+     * フォルダ選択ボタンと読み込みボタンのイベントを登録する。
+     */
+    function wireDirectoryPickerUI() {
+      $btnPickDir0?.addEventListener('click', () => pickDirectoryAt(0));
+      $btnPickDir1?.addEventListener('click', () => pickDirectoryAt(1));
+      $btnPickDir2?.addEventListener('click', () => pickDirectoryAt(2));
+      $btnLoadDirs?.addEventListener('click', () => loadSelectedDirectories(false));
+    }
+
+    /**
+     * 3つのフォルダがすべて選択済みかを確認する。
+     * @returns {boolean}
+     */
+    function allDirectoriesSelected() {
+      return DIR_HANDLES.every(Boolean);
+    }
+
+    /**
+     * フォルダ選択後の UI 状態を更新する。
+     * - 各ラベルにフォルダ名を表示
+     * - 3つすべて選択済みなら「読み込む」ボタンを有効化
+     */
+    function updateDirectoryUI() {
+      for (let i = 0; i < 3; i++) {
+        const label = DIR_LABELS[i];
+        const handle = DIR_HANDLES[i];
+        const current = String(label.textContent || '').trim();
+
+        if (handle) {
+          // フォルダが選択済みで、ラベルが空またはデフォルト値のときだけフォルダ名を設定
+          if (!current || current === '未選択') label.textContent = handle.name;
+          label.classList.remove('empty');
+        } else {
+          if (!current || current === '未選択') {
+            label.textContent = '未選択';
+            label.classList.add('empty');
+          }
+        }
+      }
+
+      const selectedCount = DIR_HANDLES.filter(Boolean).length;
+      if (allDirectoriesSelected()) {
+        $srcStat.textContent = '3フォルダ選択済み（ラベルを書き換える場合は読み込み前に編集してください）';
+        $btnLoadDirs.disabled = false;
+      } else {
+        $srcStat.textContent = `${selectedCount}/3 フォルダ選択済み`;
+        $btnLoadDirs.disabled = true;
+      }
+    }
+
+    /**
+     * 指定インデックスのフォルダ選択ダイアログを開く。
+     * File System Access API（showDirectoryPicker）を使用する。
+     * 非対応ブラウザ（IE, Firefox 旧版など）ではエラーを表示する。
+     * @param {number} index - フォルダのインデックス（0/1/2）
+     * @returns {Promise<void>}
+     */
+    async function pickDirectoryAt(index) {
+      if (!('showDirectoryPicker' in window)) {
+        showToast('このブラウザはフォルダ選択に対応していません', 'error');
+        return;
+      }
+
+      try {
+        const handle = await window.showDirectoryPicker();
+        DIR_HANDLES[index] = handle;
+        updateDirectoryUI();
+      } catch {
+        // ユーザーがダイアログをキャンセルした場合は何もしない
+      }
+    }
+
+    /**
+     * 検索インデックスをリセットし、表示結果もクリアする。
+     * 新しいフォルダを読み込む前に呼ぶ。
+     */
+    function resetMultiIndex() {
+      DB = new Map();
+      ALL_ITEMS = [];
+      clearResult();
+    }
+
+    /**
+     * ディレクトリを再帰的に走査し、ファイルエントリを yield するジェネレータ。
+     *
+     * ※ ジェネレータ（function*）を使う理由:
+     *    フォルダの中にフォルダがある階層構造を走査する際、
+     *    「次のファイルが見つかったら処理する」という
+     *    遅延評価（必要になったときだけ値を取り出す）ができる。
+     *    すべてのファイルを配列に溜め込んでから処理するよりメモリ効率が良い。
+     *
+     * @param {FileSystemDirectoryHandle} dirHandle - 走査するフォルダのハンドル
+     * @param {string} prefix - 再帰呼び出し時に積み上げる相対パスのプレフィックス
+     * @yields {{ handle: FileSystemFileHandle, relPath: string }}
+     */
+    async function* walkDirectoryRecursive(dirHandle, prefix = '') {
+      for await (const [name, handle] of dirHandle.entries()) {
+        const relPath = prefix ? `${prefix}/${name}` : name;
+
+        if (handle.kind === 'file') {
+          yield { handle, relPath };
+        } else if (handle.kind === 'directory') {
+          // サブフォルダも再帰的に走査する（yield* で再帰的に委譲）
+          yield* walkDirectoryRecursive(handle, relPath);
+        }
+      }
+    }
+
+    /**
+     * 選択済みの3フォルダ配下の XML ファイルをすべて読み込み、
+     * 検索インデックス（DB / ALL_ITEMS）を構築する。
+     *
+     * @param {boolean} [skipSave=false] - true のときは IDB への再保存をスキップする
+     *   （quickReload からの呼び出し時に二重保存を防ぐため）
+     * @returns {Promise<void>}
+     */
+    async function loadSelectedDirectories(skipSave = false) {
+      if (!allDirectoriesSelected()) {
+        showToast('フォルダを3つすべて選択してください', 'error');
+        return;
+      }
+
+      resetMultiIndex();
+      let xmlFileCount = 0;
+
+      // 3つのフォルダを順番に走査する
+      for (let dirIndex = 0; dirIndex < 3; dirIndex++) {
+        const dirHandle = DIR_HANDLES[dirIndex];
+
+        for await (const entry of walkDirectoryRecursive(dirHandle)) {
+          const { handle: fileHandle, relPath } = entry;
+
+          // .xml 以外のファイルはスキップ（大文字小文字を区別しない）
+          if (!relPath.toLowerCase().endsWith('.xml')) continue;
+
+          try {
+            const file = await fileHandle.getFile();
+            const text = await file.text();
+            const blob = trimBomPrologDoctype(text);
+            if (!blob.trim()) continue; // 空ファイルはスキップ
+
+            const { map, ids } = buildIndexFromRaw(blob);
+            xmlFileCount++;
+
+            // 各 SQL ブロックをインデックスに追加する
+            for (const id of ids) {
+              const entryData = map.get(id);
+              const fileLabel = buildDisplayPathFromLabel(dirIndex, relPath);
+              const entryObj = { raw: entryData.raw, file: fileLabel };
+
+              if (!DB.has(id)) DB.set(id, []);
+              DB.get(id).push(entryObj);
+              ALL_ITEMS.push({ id, file: fileLabel });
+            }
+          } catch (err) {
+            showToast(`読込失敗: ${relPath}`, 'error');
+          }
+        }
+      }
+
+      // ID 名・ファイル名の昇順でソート（サジェストの表示順を安定させる）
+      ALL_ITEMS.sort((a, b) => a.id.localeCompare(b.id) || a.file.localeCompare(b.file));
+
+      const uniqueIds = DB.size;
+      $srcStat.textContent = `3フォルダ読込済み / ${xmlFileCount}ファイル / ${uniqueIds} ID`;
+      showToast(`3フォルダから ${xmlFileCount} 件のXMLを読み込みました`, 'success');
+
+      // フォルダ状態バッジを「読み込み完了」に更新
+      const $folderStatus = qs('#folderStatus');
+      $folderStatus.textContent = `読み込み完了済み（${uniqueIds} ID）`;
+      $folderStatus.classList.remove('not-loaded');
+      $folderStatus.classList.add('loaded');
+
+      // SQL 表示エリアの初期案内文を更新
+      const h3 = $sqlPlaceholder.querySelector('h3');
+      const p = $sqlPlaceholder.querySelector('p.muted');
+      if (h3) h3.textContent = 'ID を検索してください';
+      if (p) p.innerHTML = '選択した3つのフォルダ配下の XML から検索します';
+
+      closeFolderModal();
+
+      // skipSave が false のときだけ IDB に保存する
+      if (!skipSave) {
+        await saveHandlesToIDB();
+
+        // 保存完了後、クイック再読み込みボタンを表示する
+        $btnQuickReload.style.display = 'inline-flex';
+
+        // モーダル内の保存済みセクションを更新する
+        $idbSavedSection.style.display = 'block';
+        $idbSavedPaths.innerHTML = DIR_HANDLES.map((h, i) => {
+          const label = String(DIR_LABELS[i]?.textContent || '').trim();
+          return `<div class="idb-saved-path-item">フォルダ${i + 1}: ${enc(label || h.name)}</div>`;
+        }).join('');
+      }
+    }
+
+    /* =====================================================================
+       【オートサジェスト描画】
+       ===================================================================== */
+
+    /**
+     * テキスト入力欄の内容を元にサジェスト候補を描画する。
+     * ALL_ITEMS（フォルダ読み込み後）か ALL_IDS（埋め込みXML）を使う。
+     * 最大 100 件まで表示する（パフォーマンスのため）。
+     */
+    function renderSuggest() {
+      const q = ($q.value || '').trim();
+
+      // 入力が空ならサジェストを閉じる
+      if (!q) { $suggest.classList.remove('show'); return; }
+
+      // フォルダ読み込み済みの場合（id + ファイル名を表示）
+      if (ALL_ITEMS.length) {
+        const list = ALL_ITEMS
+          .filter(x => x.id.toLowerCase().includes(q.toLowerCase()))
+          .slice(0, 100);
+
+        $suggest.innerHTML = list.map(({ id, file }) => `
+          <div class="suggest-item" role="option" data-id="${enc(id)}" data-file="${enc(file)}">
+            <strong>${enc(id)}</strong>
+            <div class="muted" style="font-size:.8rem;">${enc(file)}</div>
+          </div>
+        `).join('');
+
+        if (list.length) $suggest.classList.add('show');
+        else $suggest.classList.remove('show');
+        return;
+      }
+
+      // 埋め込みXMLの場合（id のみ表示）
+      if (ALL_IDS.length) {
+        const list = ALL_IDS
+          .filter(id => id.toLowerCase().includes(q.toLowerCase()))
+          .slice(0, 100);
+
+        $suggest.innerHTML = list.map(id =>
+          `<div class="suggest-item" role="option" data-id="${enc(id)}">${enc(id)}</div>`
+        ).join('');
+
+        if (list.length) $suggest.classList.add('show');
+        else $suggest.classList.remove('show');
+        return;
+      }
+
+      $suggest.classList.remove('show');
+    }
+
+    /* =====================================================================
+       【検索結果の描画】
+       ===================================================================== */
+
+    /**
+     * SQL ブロックの生 XML を受け取り、表示用 HTML を生成して画面に反映する。
+     * あわせてプレースホルダチップも更新し、ハイライトも適用する。
+     * @param {string} xml - 表示する SQL ブロックの生 XML 文字列
+     */
+    function renderResult(xml) {
+      const ph = extractPlaceholders(xml);
+
+      // SQL ビューアにコンテンツをセットする
+      $sqlPlaceholder.style.display = 'none';
+      $sqlViewer.style.display = 'block';
+      $sqlViewer.innerHTML = buildCollapsibleFromRaw(xml);
+      $sqlRaw.textContent = xml;         // コピー・再ハイライト用の生テキスト
+
+      // ハイライトバーを表示し、現在のハイライト設定を適用する
+      $highlightBar.style.display = 'flex';
+      applyHighlights();
+
+      // プレースホルダチップを更新する
+      if (!ph.hash.length && !ph.dollar.length) {
+        $phChips.innerHTML = '';
+        $phWrap.style.display = 'none';
+        $phPlaceholder.style.display = 'flex';
+      } else {
+        const chips = [];
+        if (ph.hash.length) chips.push(...ph.hash.map(s => `<span class="chip">#${enc(s)}#</span>`));
+        if (ph.dollar.length) chips.push(...ph.dollar.map(s => `<span class="chip">$${enc(s)}$</span>`));
+        $phChips.innerHTML = chips.join('');
+        $phPlaceholder.style.display = 'none';
+        $phWrap.style.display = 'block';
+      }
+    }
+
+    /**
+     * 検索を実行する。
+     * preferredFile が指定された場合は、そのファイルの定義を優先して表示する。
+     * 同一 ID が複数ファイルに定義されている場合はサジェストで選択を促す。
+     * @param {string} [preferredFile=''] - 優先して表示するファイルの表示パス
+     */
+    function doSearch(preferredFile = '') {
+      const id = ($q.value || '').trim();
+
+      if (!id) { showToast('ID を入力してください', 'error'); return; }
+
+      // フォルダ読み込み済みの場合
+      if (ALL_ITEMS.length) {
+        if (!allDirectoriesSelected()) {
+          showToast('フォルダを3つすべて選択してください', 'error');
+          return;
+        }
+
+        const list = DB.get(id) || [];
+        if (!list.length) {
+          showToast(`「${id}」は見つかりませんでした`, 'error');
+          clearResult();
+          return;
+        }
+
+        let entry = null;
+
+        if (preferredFile) {
+          // サジェストからの選択時: 指定ファイルを優先し、なければ先頭
+          entry = list.find(x => x.file === preferredFile) || list[0];
+        } else if (list.length === 1) {
+          // 1件のみの場合: そのまま表示
+          entry = list[0];
+        } else {
+          // 複数ファイルにある場合: サジェストで選択肢を表示する
+          $suggest.innerHTML = list.map(x => `
+            <div class="suggest-item" role="option" data-id="${enc(id)}" data-file="${enc(x.file)}">
+              <strong>${enc(id)}</strong>
+              <div class="muted" style="font-size:.8rem;">${enc(x.file)}</div>
+            </div>
+          `).join('');
+          $suggest.classList.add('show');
+          showToast(`「${id}」は複数ファイルにあります。候補から選択してください。`);
+          return;
+        }
+
+        renderResult(entry.raw);
+        return;
+      }
+
+      // 埋め込みXMLの場合
+      if (ALL_IDS.length) {
+        const entry = INDEX.get(id);
+        if (!entry) {
+          showToast(`「${id}」は見つかりませんでした`, 'error');
+          clearResult();
+          return;
+        }
+        renderResult(entry.raw);
+        return;
+      }
+
+      showToast('まず参照フォルダを選択して読み込んでください', 'error');
+    }
+
+    /**
+     * SQL 表示エリアとプレースホルダを初期状態（空）に戻す。
+     * 検索失敗時や新しいフォルダを読み込む前に呼ぶ。
+     */
+    function clearResult() {
+      $sqlViewer.style.display = 'none';
+      $sqlViewer.innerHTML = '';
+      $sqlRaw.textContent = '';
+      $sqlPlaceholder.style.display = 'flex';
+      $highlightBar.style.display = 'none'; // ハイライトバーも非表示
+      $phChips.innerHTML = '';
+      $phWrap.style.display = 'none';
+      $phPlaceholder.style.display = 'flex';
+    }
+
+    /* =====================================================================
+       【コピーボタン】
+       ===================================================================== */
+
+    /**
+     * 現在表示中の SQL を生テキスト（HTML タグなし）でクリップボードにコピーする。
+     * コピー元は $sqlRaw（生 XML）なので、シンタックスカラーの span タグは含まれない。
+     */
+    $btnCopy?.addEventListener('click', async () => {
+      const txt = $sqlViewer.style.display === 'none' ? '' : $sqlRaw.textContent;
+      if (!txt.trim()) {
+        showToast('コピーする内容がありません', 'error');
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(txt);
+        showToast('ソース元の内容をコピーしました', 'success');
+      } catch {
+        showToast('コピーに失敗しました', 'error');
+      }
+    });
   </script>
 </body>
+
 </html>
