@@ -537,91 +537,18 @@
     }
 
     /* =====================================================================
-       【ハイライトチップ】
-       ハイライト文字列をチップ表示するときの追加スタイル。
-       チップ内に ✕ ボタンを持つ（削除用）。
+       【ハイライト警告テキスト】
+       HIGHLIGHT_TERMS にマッチする箇所が1件以上あるときに
+       SQL パネルヘッダー右側に表示する警告文。
        ===================================================================== */
-    .highlight-chip {
-      display: inline-flex;
+    .highlight-warning {
+      display: none;
+      /* デフォルトは非表示。JS で inline-flex に切り替える */
       align-items: center;
       gap: 6px;
-      padding: 3px 8px 3px 10px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      color: #fff;
-      /* 背景色に関わらず白文字で視認性を確保 */
       font-size: .85rem;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
-
-    /* チップ内の ✕ 削除ボタン */
-    .highlight-chip-remove {
-      background: none;
-      border: none;
-      color: rgba(255, 255, 255, .8);
-      cursor: pointer;
-      padding: 0;
-      line-height: 1;
-      font-size: 1rem;
-      display: inline-flex;
-      align-items: center;
-      transition: color .15s;
-    }
-
-    .highlight-chip-remove:hover {
-      color: #fff;
-    }
-
-    /* =====================================================================
-       【ハイライトバー】
-       SQL表示パネルの上に配置する検索・ハイライト操作エリア。
-       ===================================================================== */
-    .highlight-bar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 10px;
-      background: var(--header-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      margin-bottom: 8px;
-      flex: 0 0 auto;
-      /* 固定サイズ（伸縮しない） */
-    }
-
-    /* ハイライト入力欄 */
-    .highlight-input {
-      padding: 5px 10px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--bg);
-      color: var(--text);
-      font-size: .85rem;
-      height: 30px;
-      min-width: 200px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
-
-    .highlight-input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    /* チップエリア（追加されたハイライト文字列の一覧） */
-    .highlight-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
-      flex: 1;
-    }
-
-    /* 「クリア」ボタン: チップがないときは非表示 */
-    .highlight-clear {
-      font-size: .8rem;
-      padding: 4px 10px;
-      min-height: 28px;
+      font-weight: 600;
+      color: var(--danger);
     }
 
     /* =====================================================================
@@ -1050,7 +977,11 @@
       <section class="panel">
         <div class="panel-header">
           <h2><span class="material-symbols-outlined">code</span> SQL</h2>
-          <div class="panel-actions" style="display:flex; gap:8px;">
+          <div class="panel-actions" style="display:flex; gap:8px; align-items:center;">
+            <span class="highlight-warning" id="highlightWarning">
+              <span class="material-symbols-outlined" style="font-size:1rem;">warning</span>
+              ハイライトされている箇所があります。
+            </span>
             <button class="btn" id="btnCopy">
               <span class="material-symbols-outlined">content_copy</span> コピー
             </button>
@@ -1063,30 +994,6 @@
             <span class="material-symbols-outlined">code_blocks</span>
             <h3>まず参照フォルダを選択して読み込んでください</h3>
             <p class="muted">検索バーの「参照フォルダ」ボタンからフォルダを選択し、必要に応じて表示パスを書き換えてから読み込んでください</p>
-          </div>
-
-          <!--
-            ハイライトバー:
-            SQL 表示中に特定の文字列を色付きで強調表示するためのUI。
-            初期は非表示。SQL が表示されたら表示する。
-            - テキスト入力: ハイライトしたい文字列を入力
-            - 追加ボタン: HIGHLIGHT_TERMS 配列に追加
-            - チップエリア: 追加済みの文字列を表示（× で削除可能）
-            - 全クリア: HIGHLIGHT_TERMS をリセット
-          -->
-          <div class="highlight-bar" id="highlightBar" style="display:none;">
-            <span class="material-symbols-outlined" style="color:var(--text-muted); font-size:1rem;">
-              highlight
-            </span>
-            <input type="text" class="highlight-input" id="highlightInput" placeholder="強調したい文字列を入力..." />
-            <button class="btn btn-primary" id="btnAddHighlight"
-              style="padding:5px 12px; min-height:30px; font-size:.85rem;">
-              <span class="material-symbols-outlined" style="font-size:1rem;">add</span> 追加
-            </button>
-            <div class="highlight-chips" id="highlightChips"></div>
-            <button class="btn highlight-clear" id="btnClearHighlight" style="display:none;">
-              <span class="material-symbols-outlined" style="font-size:1rem;">clear_all</span> クリア
-            </button>
           </div>
 
           <!-- SQL 本体の表示エリア（シンタックスカラーリング + 折り畳み） -->
@@ -1219,26 +1126,22 @@
 
     /* =====================================================================
        【定数: ハイライト】
-       HIGHLIGHT_COLORS : ハイライト文字列に順番に割り当てる背景色（6色）。
-                          7件目以降は循環して使い回す。
-                          変更するにはここの色コードを書き換えるだけでOK。
+       HIGHLIGHT_COLOR : ハイライト時の背景色（赤1色固定）
+       HIGHLIGHT_TERMS : ハイライト対象の文字列リスト（固定・変更不可）
+                         ここに追加・削除することでハイライト対象を管理する。
        ===================================================================== */
-    const HIGHLIGHT_COLORS = [
-      '#e63946', // 赤
-      '#f4a261', // オレンジ
-      '#2a9d8f', // ティール
-      '#e9c46a', // 黄
-      '#457b9d', // ブルー
-      '#a8dadc', // ライトシアン
-    ];
+    const HIGHLIGHT_COLOR = '#e63946'; // 赤
 
-    /* =====================================================================
-       【状態変数: ハイライト】
-       HIGHLIGHT_TERMS : 現在ハイライト中の文字列の配列。
-                         [ "WHERE", "AND" ] のように複数保持できる。
-                         配列のインデックスが HIGHLIGHT_COLORS の色と対応する。
-       ===================================================================== */
-    let HIGHLIGHT_TERMS = [];
+    /**
+     * ハイライト対象の文字列リスト（固定定数）。
+     * この配列に含まれる文字列が SQL に1件でもマッチすると
+     * パネルヘッダーに警告テキストが表示される。
+     * @type {string[]}
+     */
+    const HIGHLIGHT_TERMS = [
+      // ここにハイライトしたい文字列を追加する（大文字小文字を区別する）
+      // 例: 'ROWNUM', 'CONNECT BY', 'NVL', 'DECODE'
+    ];
 
     /* =====================================================================
        【定数: IndexedDB】
@@ -1307,11 +1210,7 @@
     const $btnOpenFolderModal = qs('#btnOpenFolderModal');
     const $btnCloseModal = qs('#btnCloseModal');
     const $btnCancelModal = qs('#btnCancelModal');
-    const $highlightBar = qs('#highlightBar');
-    const $highlightInput = qs('#highlightInput');
-    const $btnAddHighlight = qs('#btnAddHighlight');
-    const $highlightChips = qs('#highlightChips');
-    const $btnClearHighlight = qs('#btnClearHighlight');
+    const $highlightWarning = qs('#highlightWarning');
     const $btnQuickReload = qs('#btnQuickReload');
     const $idbSavedSection = qs('#idbSavedSection');
     const $idbSavedPaths = qs('#idbSavedPaths');
@@ -1696,167 +1595,75 @@
        ===================================================================== */
 
     /**
-     * ハイライトチップ（チップエリアの表示）を更新する。
-     * HIGHLIGHT_TERMS の内容をもとに、色付きチップを再描画する。
-     * × ボタンを押すと removeHighlightTerm() が呼ばれる。
-     */
-    function renderHighlightChips() {
-      if (!HIGHLIGHT_TERMS.length) {
-        $highlightChips.innerHTML = '';
-        $btnClearHighlight.style.display = 'none';
-        return;
-      }
-
-      $highlightChips.innerHTML = HIGHLIGHT_TERMS.map((term, i) => {
-        const color = HIGHLIGHT_COLORS[i % HIGHLIGHT_COLORS.length];
-        return `
-          <span class="highlight-chip" style="background:${color}; border-color:${color};">
-            ${enc(term)}
-            <button class="highlight-chip-remove" onclick="removeHighlightTerm(${i})" title="削除">×</button>
-          </span>
-        `;
-      }).join('');
-
-      $btnClearHighlight.style.display = 'inline-flex';
-    }
-
-    /**
-     * 入力欄の文字列を HIGHLIGHT_TERMS 配列に追加し、ハイライトを再適用する。
-     * 空文字・重複・すでにある文字列は無視する。
-     */
-    function addHighlightTerm() {
-      const term = ($highlightInput.value || '').trim();
-      if (!term) return;
-
-      // 重複チェック（大文字小文字を区別して完全一致）
-      if (HIGHLIGHT_TERMS.includes(term)) {
-        showToast(`「${term}」は既に追加されています`);
-        return;
-      }
-
-      HIGHLIGHT_TERMS.push(term);
-      $highlightInput.value = '';
-      renderHighlightChips();
-      applyHighlights();
-    }
-
-    /**
-     * 指定インデックスのハイライト文字列を HIGHLIGHT_TERMS から削除し、
-     * ハイライトを再適用する。
-     * @param {number} index - HIGHLIGHT_TERMS の削除対象インデックス
-     */
-    function removeHighlightTerm(index) {
-      HIGHLIGHT_TERMS.splice(index, 1);
-      renderHighlightChips();
-      applyHighlights();
-    }
-
-    /**
-     * HIGHLIGHT_TERMS をすべてクリアし、ハイライトを解除する。
-     * 「クリア」ボタンから呼ばれる。
-     */
-    function clearAllHighlights() {
-      HIGHLIGHT_TERMS = [];
-      renderHighlightChips();
-      applyHighlights();
-    }
-
-    /**
      * $sqlViewer の DOM を走査し、HIGHLIGHT_TERMS に一致する文字列を
-     * 色付きの <span> で囲んでハイライト表示する。
-     *
-     * 処理の流れ:
-     * 1. HIGHLIGHT_TERMS が空 or SQL 未表示なら何もしない
-     * 2. 現在表示中の生 XML（$sqlRaw）から再度 HTML を生成してリセット
-     *    （前回のハイライトスパンをクリアするため）
-     * 3. TreeWalker でテキストノードのみを走査
-     * 4. 各テキストノードで全ハイライト文字列を検索
-     * 5. マッチした箇所を <span style="background-color:..."> に置換
+     * 赤色の <span> で囲んでハイライト表示する。
+     * マッチが1件でもあれば true を返す（警告テキストの表示制御に使う）。
      *
      * ※ TreeWalker を使う理由:
      *    innerHTML を直接操作すると既存の <span class="xml-tag"> 等が
      *    テキストとして扱われてしまい、構造が壊れる恐れがある。
-     *    TreeWalker はテキストノード（要素の中のテキスト部分）だけを
-     *    安全に走査できるため、既存の span を壊さずに済む。
+     *    TreeWalker はテキストノードだけを安全に走査できるため、
+     *    既存の span を壊さずに済む。
+     *
+     * @returns {boolean} ハイライトが1件以上あれば true
      */
     function applyHighlights() {
       // SQL が表示されていない場合は処理しない
-      if ($sqlViewer.style.display === 'none') return;
+      if ($sqlViewer.style.display === 'none') return false;
 
-      // 生の XML テキストを取得
       const rawSql = $sqlRaw.textContent;
-      if (!rawSql) return;
+      if (!rawSql) return false;
 
       // HTML を再生成してハイライトをリセット（前回のスパンを消す）
       $sqlViewer.innerHTML = buildCollapsibleFromRaw(rawSql);
 
       // ハイライト文字列がなければここで終了
-      if (!HIGHLIGHT_TERMS.length) return;
+      if (!HIGHLIGHT_TERMS.length) return false;
 
       // 長い文字列から先にマッチさせる（短い文字列が長い文字列を分断しないため）
       const sortedTerms = [...HIGHLIGHT_TERMS].sort((a, b) => b.length - a.length);
-
-      // 正規表現の特殊文字をエスケープするユーティリティ
-      // 例: "WHERE(" → "WHERE\(" にして、( が正規表現の特殊文字として解釈されないようにする
       const escapeRegExp = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-      // TreeWalker でテキストノードのみを走査する
-      // NodeFilter.SHOW_TEXT = テキストノードだけを対象にするフィルター
-      const walker = document.createTreeWalker(
-        $sqlViewer,
-        NodeFilter.SHOW_TEXT,
-        null
-      );
+      let anyMatch = false;
 
-      // 置換対象のテキストノードを収集する
-      // （walker の走査中に DOM を変更すると走査がおかしくなるため、先に全収集する）
+      const walker = document.createTreeWalker($sqlViewer, NodeFilter.SHOW_TEXT, null);
       const textNodes = [];
       let node;
       while ((node = walker.nextNode())) textNodes.push(node);
 
-      // 収集したテキストノードに対してハイライトを適用する
       for (const textNode of textNodes) {
         const text = textNode.nodeValue;
-        if (!text.trim()) continue; // 空白のみのノードはスキップ
+        if (!text.trim()) continue;
 
-        // いずれかのハイライト文字列がこのテキストノードに含まれるか確認
         const hasMatch = sortedTerms.some(term => text.includes(term));
         if (!hasMatch) continue;
 
-        // テキストを分割して HTML を構築する
-        // 仕組み: 全ハイライト文字列を OR で結合した正規表現でテキストを split+match
+        anyMatch = true;
+
         const pattern = sortedTerms.map(escapeRegExp).join('|');
         const re = new RegExp(`(${pattern})`, 'g');
         const parts = text.split(re);
 
-        // 元のテキストノードを置換する DOM フラグメントを構築
         const fragment = document.createDocumentFragment();
         for (const part of parts) {
-          const termIndex = sortedTerms.indexOf(part);
-          if (termIndex !== -1 || HIGHLIGHT_TERMS.includes(part)) {
-            // ハイライト対象: 色付きスパンで囲む
-            const originalIndex = HIGHLIGHT_TERMS.indexOf(part);
-            const color = HIGHLIGHT_COLORS[
-              originalIndex !== -1
-                ? originalIndex % HIGHLIGHT_COLORS.length
-                : 0
-            ];
+          if (sortedTerms.includes(part)) {
+            // ハイライト対象: 赤色スパンで囲む
             const span = document.createElement('span');
-            span.style.backgroundColor = color;
+            span.style.backgroundColor = HIGHLIGHT_COLOR;
             span.style.color = '#fff';
             span.style.borderRadius = '2px';
             span.style.padding = '0 2px';
             span.textContent = part;
             fragment.appendChild(span);
           } else {
-            // ハイライト対象外: そのままテキストノードとして追加
             fragment.appendChild(document.createTextNode(part));
           }
         }
 
-        // 元のテキストノードをフラグメントで置換
         textNode.parentNode.replaceChild(fragment, textNode);
       }
+
+      return anyMatch;
     }
 
     /* =====================================================================
@@ -2087,7 +1894,6 @@
       wireDirectoryPickerUI(); // フォルダ選択のイベント登録
       wireModalUI();           // モーダルのイベント登録
       wireEditableLabels();    // パス表示欄の編集イベント登録
-      wireHighlightUI();       // ハイライト UI のイベント登録
       updateDirectoryUI();     // フォルダ選択状態を UI に反映
 
       // IDB の確認は非同期で行う（ページ表示をブロックしないため）
@@ -2183,23 +1989,6 @@
     /* =====================================================================
        【ハイライト UI イベント登録】
        ===================================================================== */
-
-    /**
-     * ハイライトバーの各イベントを登録する。
-     * - 追加ボタン: addHighlightTerm()
-     * - Enter キー: addHighlightTerm()
-     * - 全クリアボタン: clearAllHighlights()
-     */
-    function wireHighlightUI() {
-      $btnAddHighlight?.addEventListener('click', addHighlightTerm);
-
-      // Enter キーでも追加できる
-      $highlightInput?.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') addHighlightTerm();
-      });
-
-      $btnClearHighlight?.addEventListener('click', clearAllHighlights);
-    }
 
     /* =====================================================================
        【検索 UI イベント登録】
@@ -2516,9 +2305,9 @@
       $sqlViewer.innerHTML = buildCollapsibleFromRaw(xml);
       $sqlRaw.textContent = xml;         // コピー・再ハイライト用の生テキスト
 
-      // ハイライトバーを表示し、現在のハイライト設定を適用する
-      $highlightBar.style.display = 'flex';
-      applyHighlights();
+      // ハイライトを適用し、マッチがあれば警告テキストを表示する
+      const hasHighlight = applyHighlights();
+      $highlightWarning.style.display = hasHighlight ? 'inline-flex' : 'none';
 
       // プレースホルダチップを更新する
       if (!ph.hash.length && !ph.dollar.length) {
@@ -2609,7 +2398,7 @@
       $sqlViewer.innerHTML = '';
       $sqlRaw.textContent = '';
       $sqlPlaceholder.style.display = 'flex';
-      $highlightBar.style.display = 'none'; // ハイライトバーも非表示
+      $highlightWarning.style.display = 'none';
       $phChips.innerHTML = '';
       $phWrap.style.display = 'none';
       $phPlaceholder.style.display = 'flex';
