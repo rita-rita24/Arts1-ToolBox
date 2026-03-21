@@ -6,816 +6,720 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CSV/TSV エディタ</title>
 
-  <!-- ファビコン -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%232563eb' d='M10 10.02h5V21h-5zM17 21h3c1.1 0 2-.9 2-2v-9h-5v11zm3-18H5c-1.1 0-2 .9-2 2v3h19V5c0-1.1-.9-2-2-2zM3 19c0 1.1.9 2 2 2h3V10.02H3V19z'/></svg>">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%232563eb' d='M10 10.02h5V21h-5zM17 21h3c1.1 0 2-.9 2-2v-9h-5v11zm3-18H5c-1.1 0-2 .9-2 2v3h19V5c0-1.1-.9-2-2-2zM3 19c0 1.1.9 2 2 2h3V10.02H3V19z'/></svg>">
 
-  <!-- Material Symbols アイコンフォント -->
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
-  <!--
-  ============================================================
-  CSS スタイル定義
-  ============================================================
-  -->
   <style>
-    /* ========================================
-       カラーテーマ設定
-       ======================================== */
-    /* ライトモード用のカラーパレット定義 */
-    :root {
-      --primary: #2563eb;           /* メインカラー（青） */
-      --primary-hover: #1d4ed8;     /* メインカラーのホバー時 */
-      --danger: #dc2626;            /* 危険アクション用（赤） */
-      --danger-hover: #b91c1c;      /* 危険アクションのホバー時 */
-      --success: #16a34a;           /* 成功メッセージ用（緑） */
-      --warning: #f59e0b;           /* 警告メッセージ用（オレンジ） */
-      --bg: #f8fafc;                /* 背景色 */
-      --surface: #ffffff;           /* カード等の表面色 */
-      --border: #e2e8f0;            /* ボーダー色 */
-      --text: #1e293b;              /* 通常のテキスト色 */
-      --text-muted: #64748b;        /* 補助テキスト色（薄め） */
-      --header-bg: #f1f5f9;         /* ヘッダー背景色 */
-      --highlight: #fef08a;         /* ハイライト色（検索結果など） */
-    }
-
-    /* ダークモード用のカラーパレット定義 */
-    [data-theme="dark"] {
-      --primary: #3b82f6;           /* メインカラー（明るめの青） */
-      --primary-hover: #60a5fa;     /* メインカラーのホバー時 */
-      --danger: #ef4444;            /* 危険アクション用（明るめの赤） */
-      --danger-hover: #f87171;      /* 危険アクションのホバー時 */
-      --success: #22c55e;           /* 成功メッセージ用（明るめの緑） */
-      --warning: #fbbf24;           /* 警告メッセージ用（明るめのオレンジ） */
-      --bg: #000000;                /* 背景色（黒） */
-      --surface: #121212;           /* カード等の表面色（ダークグレー） */
-      --border: #404040;            /* ボーダー色 */
-      --text: #ffffff;              /* 通常のテキスト色（白） */
-      --text-muted: #a3a3a3;        /* 補助テキスト色（グレー） */
-      --header-bg: #262626;         /* ヘッダー背景色 */
-      --highlight: #854d0e;         /* ハイライト色 */
-    }
-
-    /* ========================================
-       ベーススタイル
-       ======================================== */
-    /* すべての要素に適用される基本設定 */
-    * {
-      box-sizing: border-box;       /* パディング・ボーダーを幅に含める */
-      margin: 0;                    /* デフォルトマージンをリセット */
-      padding: 0;                   /* デフォルトパディングをリセット */
-    }
-
-    /* ========================================
-       Material Symbols アイコンスタイル
-       ======================================== */
-    /* Material Symbols アイコンの基本設定 */
-    .material-symbols-outlined {
-      font-variation-settings:
-        'FILL' 0,
-        'wght' 400,
-        'GRAD' 0,
-        'opsz' 24;
-      font-size: 1.25em;
-      line-height: 1;
-      display: inline-block;
-      vertical-align: middle;
-    }
-
-    /* アイコン配置の調整 */
-    button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .header h1 .material-symbols-outlined {
-      font-size: 2rem;
-      color: var(--primary);
-    }
-
-    /* ボタン内のアイコンサイズ調整 */
-    /* ボタン内のアイコンサイズ調整 */
-    .btn .material-symbols-outlined {
-      font-size: 1.15rem;
-    }
-
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    /* ヘッダー */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-      margin-bottom: 8px;
-    }
-
-    .header h1 {
-      font-size: 1.5rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .stats {
-      display: flex;
-      gap: 16px;
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      background: var(--surface);
-      padding: 8px 16px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }
-
-    .stats span {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .stats .value {
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    /* ダークモードトグル */
-    .theme-toggle {
-      width: 36px;
-      height: 36px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
-      cursor: pointer;
-      font-size: 1.2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-
-    .theme-toggle:hover {
-      background: var(--header-bg);
-    }
-
-    /* ツールバー */
-    .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      /* グループ間の間隔 */
-      margin-bottom: 8px;
-      padding: 8px 12px;
-      background: var(--surface);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      align-items: center;
-    }
-
-    .toolbar-group {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      /* グループ内のボタン間隔 */
-      position: relative;
-    }
-
-    .toolbar-group:not(:last-child)::after {
-      content: '';
-      display: block;
-      width: 1px;
-      height: 20px;
-      background: var(--border);
-      margin-left: 2px;
-    }
-
-    .ml-auto {
-      margin-left: auto;
-    }
-
-    .ml-auto::after {
-      display: none !important;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      min-height: 36px;
-      background: var(--header-bg);
-      color: var(--text);
-    }
-
-    .btn:hover {
-      background: var(--border);
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-hover);
-    }
-
-    .btn-danger {
-      background: var(--danger);
-      color: white;
-    }
-
-    .btn-danger:hover {
-      background: var(--danger-hover);
-    }
-
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-
-
-    /* ヘッダー切り替え */
-    .toggle-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 0 12px;
-      height: 36px;
-      /* ボタンと同じ高さに固定 */
-      background: var(--header-bg);
-      border-radius: 6px;
-      border: 1px solid transparent;
-      /* ボーダー分の高さ調整 */
-    }
-
-    .toggle-label {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    .toggle {
-      position: relative;
-      width: 42px;
-      height: 24px;
-      background: var(--border);
-      border-radius: 14px;
-      cursor: pointer;
-      transition: background 0.2s;
-      flex-shrink: 0;
-    }
-
-    .toggle.active {
-      background: var(--primary);
-    }
-
-    .toggle::after {
-      content: '';
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 18px;
-      height: 18px;
-      background: white;
-      border-radius: 50%;
-      transition: transform 0.2s;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    }
-
-    .toggle.active::after {
-      transform: translateX(20px);
-    }
-
-    /* 検索バー */
-    .search-bar {
-      display: flex;
-      padding: 12px 16px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      margin-bottom: 8px;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .search-bar input {
-      padding: 6px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.9rem;
-      background: var(--bg);
-      color: var(--text);
-      min-width: 200px;
-      height: 36px;
-    }
-
-    .search-bar input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    .search-info {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    .search-nav {
-      display: flex;
-      gap: 4px;
-    }
-
-    .search-nav button {
-      width: 36px;
-      height: 36px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 1rem;
-      color: var(--text);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .search-nav button:hover {
-      background: var(--header-bg);
-    }
-
-
-    /* ペーストエリア */
-    .paste-area {
-      position: relative;
-      margin-bottom: 8px;
-    }
-
-    .paste-zone {
-      border: 2px dashed var(--border);
-      border-radius: 12px;
-      padding: 40px;
-      text-align: center;
-      background: var(--surface);
-      transition: all 0.2s;
-      cursor: pointer;
-    }
-
-    .paste-zone:hover {
-      border-color: var(--primary);
-      background: var(--header-bg);
-    }
-
-    .paste-zone h2 {
-      font-size: 1.2rem;
-      margin-bottom: 8px;
-      color: var(--text);
-    }
-
-    .paste-zone p {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-
-    .paste-zone.has-data {
-      display: none;
-    }
-
-    /* テーブルコンテナ */
-    .table-container {
-      display: none;
-      background: var(--surface);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      overflow: hidden;
-    }
-
-    .table-container.show {
-      display: block;
-    }
-
-    .table-scroll {
-      overflow: auto;
-      max-height: 70vh;
-    }
-
-    /* テーブル */
-    table {
-      width: max-content;
-      /* min-width: 100%; removed to prevent stretching */
-      border-collapse: collapse;
-      font-size: 0.9rem;
-      table-layout: fixed;
-    }
-
-    th,
-    td {
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      text-align: left;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    /* thのパディングを削除（ラッパーに移動するため） */
-    th {
-      padding: 0;
-      background: var(--header-bg);
-      font-weight: 600;
-      position: sticky;
-      top: -1px;
-      z-index: 10;
-      user-select: none;
-    }
-
-    td {
-      padding: 10px 12px;
-    }
-
-    th:hover {
-      background: var(--border);
-    }
-
-    /* 列リサイズハンドル */
-    .resize-handle {
-      position: absolute;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      width: 6px;
-      cursor: col-resize;
-      background: transparent;
-      z-index: 100;
-    }
-
-    .resize-handle:hover,
-    .resize-handle.resizing {
-      background: var(--primary);
-    }
-
-    .th-wrapper {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      display: flex;
-    }
-
-    .th-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      cursor: pointer;
-      padding: 10px 12px;
-      /* thから移動 */
-      flex: 1;
-      width: 100%;
-    }
-
-    .th-colnum {
-      font-size: 0.65rem;
-      color: var(--text-muted);
-      font-weight: 600;
-      flex-shrink: 0;
-      background: var(--border);
-      padding: 1px 4px;
-      border-radius: 3px;
-      line-height: 1.4;
-    }
-
-    .th-text {
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .th-menu-btn {
-      padding: 4px;
-      border-radius: 4px;
-      opacity: 0.5;
-      transition: opacity 0.15s;
-    }
-
-    th:hover .th-menu-btn {
-      opacity: 1;
-    }
-
-    .row-num {
-      background: var(--header-bg);
-      color: var(--text-muted);
-      font-size: 0.8rem;
-      text-align: center;
-      width: 70px !important;
-      min-width: 70px !important;
-      max-width: 70px !important;
-      font-weight: normal;
-      padding: 0 !important;
-      /* wrapperでpadding制御 */
-      position: sticky;
-      left: -1px;
-      z-index: 20;
-      border-right: 1px solid var(--border);
-      /* overflow: hidden; Removed to allow menu overflow if needed, but wrapper handles it */
-    }
-
-    .row-num-wrapper {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      /* 番号とメニューボタンを配置 */
-      width: 100%;
-      height: 100%;
-      padding: 0 4px;
-      position: relative;
-    }
-
-    .row-num-text {
-      flex: 1;
-      text-align: center;
-    }
-
-    .row-menu-btn {
-      width: 24px;
-      height: 24px;
-      border: none;
-      background: transparent;
-      color: var(--text-muted);
-      cursor: pointer;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0.5;
-      /* デフォルトで半透明表示 */
-      transition: all 0.15s;
-    }
-
-    .row-num:hover .row-menu-btn,
-    .row-menu-btn:focus-visible {
-      opacity: 1;
-      /* ホバー時に強調 */
-    }
-
-    .row-menu-btn:hover {
-      background: var(--border);
-      color: var(--text);
-    }
-
-    th.row-num {
-      z-index: 30;
-      /* ヘッダー扱いなので手前に */
-      padding: 10px 0 !important;
-      /* ヘッダーは通常padding */
-    }
-
-    td {
-      background: var(--surface);
-    }
-
-    tr:hover td:not(.row-num) {
-      background: var(--header-bg);
-    }
-
-    td[contenteditable] {
-      outline: none;
-    }
-
-    td[contenteditable]:focus,
-    td.selected {
-      background: var(--header-bg);
-      box-shadow: inset 0 0 0 2px var(--primary);
-    }
-
-    td.highlight {
-      background: var(--highlight) !important;
-    }
-
-    td.current-match {
-      background: var(--warning) !important;
-    }
-
-    /* 列メニュー */
-    .column-menu {
-      display: none;
-      position: absolute;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-      z-index: 1000;
-      min-width: 200px;
-      overflow: hidden;
-    }
-
-    .column-menu.show {
-      display: block;
-    }
-
-    .menu-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 16px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: background 0.1s;
-    }
-
-    .menu-item:hover {
-      background: var(--header-bg);
-    }
-
-    .menu-item.danger {
-      color: var(--danger);
-    }
-
-    .menu-item.danger:hover {
-      background: #fee2e2;
-    }
-
-    [data-theme="dark"] .menu-item.danger:hover {
-      background: #262626;
-    }
-
-    .menu-divider {
-      height: 1px;
-      background: var(--border);
-      margin: 4px 0;
-    }
-
-    /* トースト */
-    .toast-container {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 2000;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .toast {
-      padding: 14px 24px;
-      background: var(--text);
-      color: var(--bg);
-      border-radius: 10px;
-      font-size: 0.9rem;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-      animation: toastIn 0.3s ease, toastOut 0.3s ease 1.2s forwards;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .toast.success {
-      background: var(--success);
-      color: white;
-    }
-
-    .toast.error {
-      background: var(--danger);
-      color: white;
-    }
-
-    @keyframes toastIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
+    /* ================================================================
+       Layer Architecture
+       ================================================================ */
+    @layer reset, base, component, utility;
+
+    /* ----------------------------------------------------------------
+       Reset
+       ---------------------------------------------------------------- */
+    @layer reset {
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
     }
 
-    @keyframes toastOut {
-      from {
-        opacity: 1;
+    /* ----------------------------------------------------------------
+       Base – Theme & Typography
+       ---------------------------------------------------------------- */
+    @layer base {
+      :root {
+        color-scheme: light;
+
+        --primary:       light-dark(oklch(0.55 0.20 260), oklch(0.62 0.20 260));
+        --primary-hover: light-dark(oklch(0.48 0.22 260), oklch(0.72 0.18 260));
+        --danger:        light-dark(oklch(0.53 0.22 25),  oklch(0.60 0.22 25));
+        --danger-hover:  light-dark(oklch(0.45 0.22 25),  oklch(0.68 0.20 25));
+        --success:       light-dark(oklch(0.55 0.18 145), oklch(0.65 0.20 145));
+        --warning:       light-dark(oklch(0.80 0.16 80),  oklch(0.70 0.16 80));
+        --bg:            light-dark(oklch(0.98 0.005 250), oklch(0.0 0.0 0));
+        --surface:       light-dark(oklch(1.0 0.0 0),     oklch(0.13 0.005 250));
+        --border:        light-dark(oklch(0.91 0.01 250),  oklch(0.32 0.01 250));
+        --text:          light-dark(oklch(0.20 0.02 260),  oklch(1.0 0.0 0));
+        --text-muted:    light-dark(oklch(0.50 0.02 255),  oklch(0.68 0.005 250));
+        --header-bg:     light-dark(oklch(0.96 0.01 250),  oklch(0.20 0.005 250));
+        --highlight:     light-dark(oklch(0.93 0.12 95),   oklch(0.40 0.10 60));
       }
 
-      to {
-        opacity: 0;
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        min-block-size: 100vh;
+      }
+
+      h1, h2, h3 {
+        text-wrap: balance;
+      }
+
+      p {
+        text-wrap: pretty;
+      }
+
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        font-size: 1.25em;
+        line-height: 1;
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
       }
     }
 
-    /* モーダル */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 3000;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
+    /* ----------------------------------------------------------------
+       Components
+       ---------------------------------------------------------------- */
+    @layer component {
 
-    .modal-overlay.show {
-      display: flex;
-    }
-
-    .modal {
-      background: var(--surface);
-      border-radius: 16px;
-      max-width: 400px;
-      width: 100%;
-      padding: 24px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-
-    .modal h3 {
-      font-size: 1.1rem;
-      margin-bottom: 8px;
-    }
-
-    .modal p {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      margin-bottom: 8px;
-    }
-
-    .modal-actions {
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
-    }
-
-    /* ショートカットヒント */
-    .shortcut-hint {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-left: 4px;
-    }
-
-    /* レスポンシブ */
-    @media (max-width: 768px) {
+      /* === Container & Header === */
       .container {
-        padding: 12px;
+        max-inline-size: 1400px;
+        margin-inline: auto;
+        padding: 20px;
       }
 
       .header {
-        flex-direction: column;
-        align-items: stretch;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-block-end: 8px;
+
+        & h1 {
+          font-size: 1.5rem;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+          & .material-symbols-outlined {
+            font-size: 2rem;
+            color: var(--primary);
+          }
+        }
+      }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
       }
 
       .stats {
-        justify-content: center;
-        flex-wrap: wrap;
+        display: flex;
+        gap: 16px;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        background: var(--surface);
+        padding: 8px 16px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+
+        & span {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        & .value {
+          font-weight: 600;
+          color: var(--text);
+        }
       }
 
+      .theme-toggle {
+        inline-size: 36px;
+        block-size: 36px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: background 0.2s;
+
+        &:hover {
+          background: var(--header-bg);
+        }
+      }
+
+      /* === Toolbar === */
       .toolbar {
-        padding: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-block-end: 8px;
+        padding: 8px 12px;
+        background: var(--surface);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        align-items: center;
       }
 
+      .toolbar-group {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        position: relative;
+
+        &:not(:last-child)::after {
+          content: '';
+          display: block;
+          inline-size: 1px;
+          block-size: 20px;
+          background: var(--border);
+          margin-inline-start: 2px;
+        }
+      }
+
+      /* === Buttons === */
       .btn {
-        padding: 6px 12px;
-        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        min-block-size: 36px;
+        background: var(--header-bg);
+        color: var(--text);
+
+        &:hover { background: var(--border); }
+        &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        & .material-symbols-outlined {
+          font-size: 1.15rem;
+        }
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: #fff;
+        &:hover { background: var(--primary-hover); }
+      }
+
+      .btn-danger {
+        background: var(--danger);
+        color: #fff;
+        &:hover { background: var(--danger-hover); }
+      }
+
+      /* === Toggle === */
+      .toggle-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-inline: 12px;
+        block-size: 36px;
+        background: var(--header-bg);
+        border-radius: 6px;
+        border: 1px solid transparent;
+      }
+
+      .toggle-label {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+
+      .toggle {
+        position: relative;
+        inline-size: 42px;
+        block-size: 24px;
+        background: var(--border);
+        border-radius: 14px;
+        cursor: pointer;
+        transition: background 0.2s;
+        flex-shrink: 0;
+
+        &.active {
+          background: var(--primary);
+        }
+
+        &::after {
+          content: '';
+          position: absolute;
+          inset-block-start: 3px;
+          inset-inline-start: 3px;
+          inline-size: 18px;
+          block-size: 18px;
+          background: #fff;
+          border-radius: 50%;
+          transition: transform 0.2s;
+          box-shadow: 0 1px 3px oklch(0 0 0 / 0.2);
+        }
+
+        &.active::after {
+          transform: translateX(20px);
+        }
+      }
+
+      /* === Search Bar === */
+      .search-bar {
+        display: flex;
+        padding: 12px 16px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        margin-block-end: 8px;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+
+        & input {
+          padding: 6px 12px;
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          font-size: 0.9rem;
+          background: var(--bg);
+          color: var(--text);
+          min-inline-size: 200px;
+          block-size: 36px;
+
+          &:focus {
+            outline: none;
+            border-color: var(--primary);
+          }
+        }
+      }
+
+      .search-info {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+
+      .search-nav {
+        display: flex;
+        gap: 4px;
+
+        & button {
+          inline-size: 36px;
+          block-size: 36px;
+          border: 1px solid var(--border);
+          background: var(--bg);
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 1rem;
+          color: var(--text);
+
+          &:hover {
+            background: var(--header-bg);
+          }
+        }
+      }
+
+      /* === Paste Zone === */
+      .paste-area {
+        position: relative;
+        margin-block-end: 8px;
       }
 
       .paste-zone {
-        padding: 24px;
+        border: 2px dashed var(--border);
+        border-radius: 12px;
+        padding: 40px;
+        text-align: center;
+        background: var(--surface);
+        transition: all 0.2s;
+        cursor: pointer;
+
+        &:hover {
+          border-color: var(--primary);
+          background: var(--header-bg);
+        }
+
+        & h2 {
+          font-size: 1.2rem;
+          margin-block-end: 8px;
+        }
+
+        & p {
+          color: var(--text-muted);
+          font-size: 0.9rem;
+        }
+
+        &.has-data {
+          display: none;
+        }
       }
 
-      th,
+      /* === Table === */
+      .table-container {
+        display: none;
+        background: var(--surface);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+
+        &.show {
+          display: block;
+        }
+      }
+
+      .table-scroll {
+        overflow: auto;
+        max-block-size: 70vh;
+      }
+
+      table {
+        inline-size: max-content;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+        table-layout: fixed;
+      }
+
+      th, td {
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        text-align: start;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      th {
+        padding: 0;
+        background: var(--header-bg);
+        font-weight: 600;
+        position: sticky;
+        inset-block-start: -1px;
+        z-index: 10;
+        user-select: none;
+
+        &:hover {
+          background: var(--border);
+        }
+      }
+
       td {
-        padding: 8px;
+        padding: 10px 12px;
+        background: var(--surface);
+      }
+
+      tr:hover td:not(.row-num) {
+        background: var(--header-bg);
+      }
+
+      td[contenteditable] {
+        outline: none;
+
+        &:focus, &.selected {
+          background: var(--header-bg);
+          box-shadow: inset 0 0 0 2px var(--primary);
+        }
+      }
+
+      td.highlight {
+        background: var(--highlight) !important;
+      }
+
+      td.current-match {
+        background: var(--warning) !important;
+      }
+
+      /* === Row Number === */
+      .row-num {
+        background: var(--header-bg);
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        text-align: center;
+        inline-size: 70px !important;
+        min-inline-size: 70px !important;
+        max-inline-size: 70px !important;
+        font-weight: normal;
+        padding: 0 !important;
+        position: sticky;
+        inset-inline-start: -1px;
+        z-index: 20;
+        border-inline-end: 1px solid var(--border);
+      }
+
+      .row-num-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        inline-size: 100%;
+        block-size: 100%;
+        padding-inline: 4px;
+        position: relative;
+      }
+
+      .row-num-text {
+        flex: 1;
+        text-align: center;
+      }
+
+      .row-menu-btn {
+        inline-size: 24px;
+        block-size: 24px;
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        border-radius: 4px;
+        opacity: 0.5;
+        transition: all 0.15s;
+
+        &:hover {
+          background: var(--border);
+          color: var(--text);
+        }
+      }
+
+      .row-num:hover .row-menu-btn,
+      .row-menu-btn:focus-visible {
+        opacity: 1;
+      }
+
+      th.row-num {
+        z-index: 30;
+        padding: 10px 0 !important;
+      }
+
+      /* === Column Resize === */
+      .resize-handle {
+        position: absolute;
+        inset-inline-end: 0;
+        inset-block: 0;
+        inline-size: 6px;
+        cursor: col-resize;
+        background: transparent;
+        z-index: 100;
+
+        &:hover, &.resizing {
+          background: var(--primary);
+        }
+      }
+
+      .th-wrapper {
+        position: relative;
+        inline-size: 100%;
+        block-size: 100%;
+        display: flex;
+      }
+
+      .th-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        cursor: pointer;
+        padding: 10px 12px;
+        flex: 1;
+        inline-size: 100%;
+      }
+
+      .th-colnum {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        flex-shrink: 0;
+        background: var(--border);
+        padding: 1px 4px;
+        border-radius: 3px;
+        line-height: 1.4;
+      }
+
+      .th-text {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .th-menu-btn {
+        padding: 4px;
+        border-radius: 4px;
+        opacity: 0.5;
+        transition: opacity 0.15s;
+      }
+
+      th:hover .th-menu-btn {
+        opacity: 1;
+      }
+
+      /* === Context Menus === */
+      .column-menu {
+        display: none;
+        position: absolute;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        box-shadow: 0 10px 40px oklch(0 0 0 / 0.15);
+        z-index: 1000;
+        min-inline-size: 200px;
+        overflow: hidden;
+
+        &.show {
+          display: block;
+        }
+      }
+
+      .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background 0.1s;
+
+        &:hover {
+          background: var(--header-bg);
+        }
+
+        &.danger {
+          color: var(--danger);
+
+          &:hover {
+            background: light-dark(oklch(0.95 0.04 25), oklch(0.20 0.005 250));
+          }
+        }
+      }
+
+      .menu-divider {
+        block-size: 1px;
+        background: var(--border);
+        margin-block: 4px;
+      }
+
+      /* === Toast === */
+      .toast-container {
+        position: fixed;
+        inset-block-end: 24px;
+        inset-inline-start: 50%;
+        transform: translateX(-50%);
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .toast {
+        padding: 14px 24px;
+        background: var(--text);
+        color: var(--bg);
+        border-radius: 10px;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 20px oklch(0 0 0 / 0.2);
+        animation: toast-in 0.3s ease, toast-out 0.3s ease 1.2s forwards;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        &.success {
+          background: var(--success);
+          color: #fff;
+        }
+
+        &.error {
+          background: var(--danger);
+          color: #fff;
+        }
+      }
+
+      /* === Modal === */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: oklch(0 0 0 / 0.5);
+        z-index: 3000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+
+        &.show {
+          display: flex;
+        }
+      }
+
+      .modal {
+        background: var(--surface);
+        border-radius: 16px;
+        max-inline-size: 400px;
+        inline-size: 100%;
+        padding: 24px;
+        box-shadow: 0 20px 60px oklch(0 0 0 / 0.3);
+
+        & h3 {
+          font-size: 1.1rem;
+          margin-block-end: 8px;
+        }
+
+        & p {
+          color: var(--text-muted);
+          font-size: 0.9rem;
+          margin-block-end: 8px;
+        }
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
       }
 
       .shortcut-hint {
-        display: none;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-inline-start: 4px;
+      }
+    }
+
+    /* ----------------------------------------------------------------
+       Utilities
+       ---------------------------------------------------------------- */
+    @layer utility {
+      .ml-auto {
+        margin-inline-start: auto;
+
+        &::after {
+          display: none !important;
+        }
+      }
+
+      @keyframes toast-in {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes toast-out {
+        from { opacity: 1; }
+        to   { opacity: 0; }
+      }
+
+      @media (max-width: 768px) {
+        .container { padding: 12px; }
+        .header { flex-direction: column; align-items: stretch; }
+        .stats { justify-content: center; flex-wrap: wrap; }
+        .toolbar { padding: 12px; }
+        .btn { padding: 6px 12px; font-size: 0.8rem; }
+        .paste-zone { padding: 24px; }
+        th, td { padding: 8px; }
+        .shortcut-hint { display: none; }
       }
     }
   </style>
@@ -833,7 +737,7 @@
           <span>サイズ: <span class="value" id="dataSize">0 KB</span></span>
           <span>形式: <span class="value" id="dataFormat">-</span></span>
         </div>
-        <button class="theme-toggle" onclick="toggleTheme()" title="ダークモード切替">
+        <button class="theme-toggle" id="themeToggle" title="ダークモード切替">
           <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
         </button>
       </div>
@@ -841,84 +745,52 @@
 
     <!-- 検索バー -->
     <div class="search-bar" id="searchBar">
-      <input type="text" id="searchInput" placeholder="検索..." oninput="performSearch()">
+      <input type="text" id="searchInput" placeholder="検索...">
       <input type="text" id="replaceInput" placeholder="置換...">
-      <button class="btn" onclick="replaceNext()">置換</button>
-      <button class="btn" onclick="replaceAll()">すべて置換</button>
+      <button class="btn" id="replaceNextBtn">置換</button>
+      <button class="btn" id="replaceAllBtn">すべて置換</button>
       <div class="search-nav">
-        <button onclick="navigateMatch(-1)" title="前へ"><span
-            class="material-symbols-outlined">expand_less</span></button>
-        <button onclick="navigateMatch(1)" title="次へ"><span
-            class="material-symbols-outlined">expand_more</span></button>
+        <button id="searchPrevBtn" title="前へ"><span class="material-symbols-outlined">expand_less</span></button>
+        <button id="searchNextBtn" title="次へ"><span class="material-symbols-outlined">expand_more</span></button>
       </div>
       <span class="search-info" id="searchInfo"></span>
     </div>
 
     <!-- ツールバー -->
     <div class="toolbar">
-      <!-- 履歴グループ -->
       <div class="toolbar-group">
-        <button class="btn" id="undoBtn" onclick="undo()" disabled title="元に戻す">
-          <span class="material-symbols-outlined">undo</span>
-        </button>
-        <button class="btn" id="redoBtn" onclick="redo()" disabled title="やり直し">
-          <span class="material-symbols-outlined">redo</span>
-        </button>
+        <button class="btn" id="undoBtn" disabled title="元に戻す"><span class="material-symbols-outlined">undo</span></button>
+        <button class="btn" id="redoBtn" disabled title="やり直し"><span class="material-symbols-outlined">redo</span></button>
       </div>
-
-      <!-- 編集グループ -->
       <div class="toolbar-group">
-        <button class="btn" onclick="triggerPaste()" title="クリップボードから貼り付け">
-          <span class="material-symbols-outlined">content_paste</span> 貼り付け
-        </button>
-        <button class="btn" onclick="addRow()" title="行を追加">
-          <span class="material-symbols-outlined">add_box</span> 行追加
-        </button>
-        <button class="btn" onclick="addColumn()" title="列を追加">
-          <span class="material-symbols-outlined">add_box</span> 列追加
-        </button>
+        <button class="btn" id="pasteBtn" title="クリップボードから貼り付け"><span class="material-symbols-outlined">content_paste</span> 貼り付け</button>
+        <button class="btn" id="addRowBtn" title="行を追加"><span class="material-symbols-outlined">add_box</span> 行追加</button>
+        <button class="btn" id="addColBtn" title="列を追加"><span class="material-symbols-outlined">add_box</span> 列追加</button>
       </div>
-
-      <!-- 表示グループ -->
       <div class="toolbar-group">
         <div class="toggle-group" title="ヘッダー行の有無を切り替え">
           <span class="toggle-label">ヘッダー</span>
-          <div class="toggle" id="headerToggle" onclick="toggleHeader()"></div>
+          <div class="toggle" id="headerToggle"></div>
         </div>
       </div>
-
-      <!-- エクスポートグループ -->
       <div class="toolbar-group">
-        <button class="btn" onclick="copyAsCSV()" title="CSVとしてコピー">
-          <span class="material-symbols-outlined">content_copy</span> CSVコピー
-        </button>
-        <button class="btn" onclick="copyAsTSV()" title="TSVとしてコピー">
-          <span class="material-symbols-outlined">content_copy</span> TSVコピー
-        </button>
-        <button class="btn" onclick="downloadCSV()" title="CSVダウンロード">
-          <span class="material-symbols-outlined">save</span> CSV保存
-        </button>
-        <button class="btn" onclick="downloadTSV()" title="TSVダウンロード">
-          <span class="material-symbols-outlined">save</span> TSV保存
-        </button>
+        <button class="btn" id="copyCSVBtn" title="CSVとしてコピー"><span class="material-symbols-outlined">content_copy</span> CSVコピー</button>
+        <button class="btn" id="copyTSVBtn" title="TSVとしてコピー"><span class="material-symbols-outlined">content_copy</span> TSVコピー</button>
+        <button class="btn" id="dlCSVBtn" title="CSVダウンロード"><span class="material-symbols-outlined">save</span> CSV保存</button>
+        <button class="btn" id="dlTSVBtn" title="TSVダウンロード"><span class="material-symbols-outlined">save</span> TSV保存</button>
       </div>
-
-      <!-- 削除グループ -->
       <div class="toolbar-group ml-auto">
-        <button class="btn btn-danger" onclick="confirmClearAll()" title="すべてクリア">
-          <span class="material-symbols-outlined">delete</span> クリア
-        </button>
+        <button class="btn btn-danger" id="clearBtn" title="すべてクリア"><span class="material-symbols-outlined">delete</span> クリア</button>
       </div>
     </div>
 
     <!-- ペーストエリア -->
     <div class="paste-area">
-      <div class="paste-zone" id="pasteZone" tabindex="0" onclick="triggerPaste()">
-        <span class="material-symbols-outlined"
-          style="font-size: 48px; color: var(--text-muted); margin-bottom: 8px;">content_paste</span>
+      <div class="paste-zone" id="pasteZone" tabindex="0">
+        <span class="material-symbols-outlined" style="font-size:48px;color:var(--text-muted);margin-block-end:8px;">content_paste</span>
         <h2>クリックしてCSV/TSVデータを貼り付け</h2>
         <p>Ctrl+V でもペーストできます</p>
-        <p style="margin-top: 8px; font-size: 0.8rem;">カンマ区切り(CSV)・タブ区切り(TSV) 自動判定</p>
+        <p style="margin-block-start:8px;font-size:0.8rem;">カンマ区切り(CSV)・タブ区切り(TSV) 自動判定</p>
       </div>
     </div>
 
@@ -935,35 +807,21 @@
 
   <!-- 列メニュー -->
   <div class="column-menu" id="columnMenu">
-    <div class="menu-item" onclick="sortColumn('asc')"><span class="material-symbols-outlined">arrow_upward</span>
-      昇順に並び替え</div>
-    <div class="menu-item" onclick="sortColumn('desc')"><span class="material-symbols-outlined">arrow_downward</span>
-      降順に並び替え</div>
+    <div class="menu-item" data-action="sort-asc"><span class="material-symbols-outlined">arrow_upward</span> 昇順に並び替え</div>
+    <div class="menu-item" data-action="sort-desc"><span class="material-symbols-outlined">arrow_downward</span> 降順に並び替え</div>
     <div class="menu-divider"></div>
-    <div class="menu-item" onclick="copyColumn()"><span class="material-symbols-outlined">content_copy</span> 列をコピー
-    </div>
-    <div class="menu-item" onclick="duplicateColumn()"><span class="material-symbols-outlined">content_copy</span> 列を複製
-    </div>
+    <div class="menu-item" data-action="copy-col"><span class="material-symbols-outlined">content_copy</span> 列をコピー</div>
+    <div class="menu-item" data-action="dup-col"><span class="material-symbols-outlined">content_copy</span> 列を複製</div>
     <div class="menu-divider"></div>
-    <div class="menu-item danger" onclick="confirmDeleteColumn()"><span class="material-symbols-outlined">delete</span>
-      列を削除</div>
+    <div class="menu-item danger" data-action="del-col"><span class="material-symbols-outlined">delete</span> 列を削除</div>
   </div>
 
   <!-- 行メニュー -->
   <div class="column-menu" id="rowMenu">
-    <div class="menu-item" onclick="copyRow()">
-      <span class="material-symbols-outlined">content_copy</span>
-      行をコピー
-    </div>
-    <div class="menu-item" onclick="duplicateRow()">
-      <span class="material-symbols-outlined">content_copy</span>
-      行を複製
-    </div>
+    <div class="menu-item" data-action="copy-row"><span class="material-symbols-outlined">content_copy</span> 行をコピー</div>
+    <div class="menu-item" data-action="dup-row"><span class="material-symbols-outlined">content_copy</span> 行を複製</div>
     <div class="menu-divider"></div>
-    <div class="menu-item danger" onclick="confirmDeleteRowFromMenu()">
-      <span class="material-symbols-outlined">delete</span>
-      行を削除
-    </div>
+    <div class="menu-item danger" data-action="del-row"><span class="material-symbols-outlined">delete</span> 行を削除</div>
   </div>
 
   <!-- トースト -->
@@ -975,1196 +833,716 @@
       <h3 id="modalTitle">確認</h3>
       <p id="modalMessage"></p>
       <div class="modal-actions">
-        <button class="btn" onclick="closeModal()">キャンセル</button>
+        <button class="btn" id="modalCancelBtn">キャンセル</button>
         <button class="btn btn-danger" id="modalConfirmBtn">削除</button>
       </div>
     </div>
   </div>
 
-  <!--
-  ============================================================
-  JavaScript プログラム
-  ============================================================
-  -->
   <script>
-    // ========================================
-    // グローバル変数定義
-    // ========================================
+    /* ==============================================================
+       Utility Helpers
+       ============================================================== */
+    const qs  = (sel, root = document) => root.querySelector(sel);
+    const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];
 
-    // ===== アプリケーション状態管理 =====
-    // データやヘッダー情報、区切り文字などを保持するオブジェクト
-    let state = {
-      data: [],              // 2次元配列でCSVデータを保存
-      hasHeader: false,      // 1行目をヘッダーとして扱うかどうか
-      delimiter: ',',        // 区切り文字（カンマまたはタブ）
-      originalText: '',      // 元のテキストデータ
-      columnWidths: {}       // 各列の幅設定を保存
+    const escapeHTML = (str) => {
+      const $tmp = document.createElement('div');
+      $tmp.textContent = str;
+      return $tmp.innerHTML;
     };
 
-    // ===== Undo/Redo機能用の変数 =====
-    let undoStack = [];           // 元に戻す用の履歴
-    let redoStack = [];           // やり直し用の履歴
-    const MAX_HISTORY = 20;       // 保存する履歴の最大数
-    let activeColumnIndex = -1;   // 現在選択中の列番号
+    const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-    // ===== 検索機能用の変数 =====
-    let searchMatches = [];       // 検索にヒットしたセルの位置
-    let currentMatchIndex = -1;   // 現在表示中の検索結果の番号
+    /* ==============================================================
+       Theme
+       ============================================================== */
+    const $themeIcon = qs('#themeIcon');
 
-    // ===== 列リサイズ機能用の変数 =====
-    let isResizing = false;       // リサイズ中かどうか
-    let resizeColumnIndex = -1;   // リサイズ中の列番号
-    let resizeStartX = 0;         // リサイズ開始時のマウスX座標
-    let resizeStartWidth = 0;     // リサイズ開始時の列幅
+    const setTheme = (theme) => {
+      document.documentElement.style.colorScheme = theme;
+      $themeIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+    };
 
-    // ========================================
-    // 初期化処理
-    // ========================================
-
-    // ===== ページ読み込み時の初期化 =====
-    // DOMContentLoaded: HTMLの読み込みが完了したときに実行される
-    document.addEventListener('DOMContentLoaded', () => {
-      initEventListeners();    // イベントリスナーを登録
-      initTheme();              // テーマ（ライト/ダーク）を初期化
-    });
-
-    /**
-     * イベントリスナーの登録
-     * ユーザーの操作（ペースト、ドラッグ&ドロップ、クリックなど）を監視
-     */
-    function initEventListeners() {
-      document.addEventListener('keydown', handleKeyDown);
-      document.addEventListener('paste', handlePaste);
-
-      document.addEventListener('click', (e) => {
-        const menu = document.getElementById('columnMenu');
-        if (!menu.contains(e.target) && !e.target.closest('.th-menu-btn')) {
-          menu.classList.remove('show');
-        }
-      });
-
-      document.addEventListener('mousemove', handleResizeMove);
-      document.addEventListener('mouseup', handleResizeEnd);
-    }
-
-    // ========================================
-    // キーボード操作処理
-    // ========================================
-
-    // ===== ショートカットキーの処理 =====
-    // Ctrl+Z（元に戻す）、Ctrl+F（検索）、Escなどを処理
-    function handleKeyDown(e) {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-        e.preventDefault();
-        undo();
-        return;
-      }
-
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
-        e.preventDefault();
-        redo();
-        return;
-      }
-
-      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-        e.preventDefault();
-        openSearch();
-        return;
-      }
-
-      if (e.key === 'Escape') {
-        closeSearch();
-        return;
-      }
-
-      const activeElement = document.activeElement;
-      if (activeElement.tagName === 'TD' && activeElement.isContentEditable) {
-        handleCellNavigation(e, activeElement);
-      }
-    }
-
-    function handleCellNavigation(e, cell) {
-      const row = parseInt(cell.dataset.row);
-      const col = parseInt(cell.dataset.col);
-      let newRow = row;
-      let newCol = col;
-      let shouldMove = false;
-
-      switch (e.key) {
-        case 'Tab':
-          e.preventDefault();
-          if (e.shiftKey) {
-            newCol = col - 1;
-            if (newCol < 0) {
-              newCol = state.data[0].length - 1;
-              newRow = row - 1;
-            }
-          } else {
-            newCol = col + 1;
-            if (newCol >= state.data[0].length) {
-              newCol = 0;
-              newRow = row + 1;
-            }
-          }
-          shouldMove = true;
-          break;
-        case 'Enter':
-          if (!e.shiftKey) {
-            e.preventDefault();
-            newRow = row + 1;
-            shouldMove = true;
-          }
-          break;
-        case 'ArrowUp':
-          if (e.altKey) {
-            e.preventDefault();
-            newRow = row - 1;
-            shouldMove = true;
-          }
-          break;
-        case 'ArrowDown':
-          if (e.altKey) {
-            e.preventDefault();
-            newRow = row + 1;
-            shouldMove = true;
-          }
-          break;
-        case 'ArrowLeft':
-          if (e.altKey) {
-            e.preventDefault();
-            newCol = col - 1;
-            shouldMove = true;
-          }
-          break;
-        case 'ArrowRight':
-          if (e.altKey) {
-            e.preventDefault();
-            newCol = col + 1;
-            shouldMove = true;
-          }
-          break;
-      }
-
-      if (shouldMove) {
-        const dataStartIndex = state.hasHeader ? 1 : 0;
-        if (newRow >= dataStartIndex && newRow < state.data.length && newCol >= 0 && newCol < state.data[0].length) {
-          const newCell = document.querySelector(`td[data-row="${newRow}"][data-col="${newCol}"]`);
-          if (newCell) {
-            newCell.focus();
-          }
-        }
-      }
-    }
-
-    // ========================================
-    // テーマ切り替え機能
-    // ========================================
-
-    // ===== ライトモード・ダークモードの切り替え =====
-    // ユーザーの設定またはシステム設定に基づいてテーマを適用
-    function initTheme() {
-      const saved = localStorage.getItem('csvEditor_theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const theme = saved || (prefersDark ? 'dark' : 'light');
-      setTheme(theme);
-    }
-
-    function toggleTheme() {
-      const current = document.documentElement.getAttribute('data-theme');
+    const toggleTheme = () => {
+      const current = document.documentElement.style.colorScheme || 'light';
       const next = current === 'dark' ? 'light' : 'dark';
       setTheme(next);
       localStorage.setItem('csvEditor_theme', next);
-    }
+    };
 
-    /**
-     * テーマを適用する
-     * @param {string} theme - 'light' または 'dark'
-     */
-    function setTheme(theme) {
-      document.documentElement.setAttribute('data-theme', theme);
-      document.getElementById('themeIcon').textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
-    }
+    const initTheme = () => {
+      const saved = localStorage.getItem('csvEditor_theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(saved ?? (prefersDark ? 'dark' : 'light'));
+    };
 
-    // ========================================
-    // データ入力処理
-    // ========================================
+    qs('#themeToggle').addEventListener('click', toggleTheme);
 
-    // ===== ペースト処理 =====
-    // クリップボードからデータを読み込む
-    function handlePaste(e) {
-      // テーブルが表示されている場合は通常のペースト動作に任せる（セル編集を妨げない）
-      const pasteZone = document.getElementById('pasteZone');
-      if (pasteZone.classList.contains('has-data')) return;
+    /* ==============================================================
+       Shared UI: Toast / Modal
+       ============================================================== */
+    const $toastContainer  = qs('#toastContainer');
+    const $modalOverlay    = qs('#modalOverlay');
+    const $modalTitle      = qs('#modalTitle');
+    const $modalMessage    = qs('#modalMessage');
+    const $modalConfirmBtn = qs('#modalConfirmBtn');
+    const $modalCancelBtn  = qs('#modalCancelBtn');
 
-      const text = e.clipboardData?.getData('text');
-      if (text) {
-        e.preventDefault();
-        processData(text);
-      }
-    }
+    const showToast = (message, type = '') => {
+      const $toast = document.createElement('div');
+      $toast.className = `toast ${type}`;
+      $toast.textContent = message;
+      $toastContainer.appendChild($toast);
+      setTimeout(() => $toast.remove(), 1500);
+    };
 
-    async function triggerPaste() {
-      try {
-        const text = await navigator.clipboard.readText();
-        if (text) {
-          processData(text);
-        }
-      } catch (err) {
-        showToast('クリップボードにアクセスできません', 'error');
-      }
-    }
+    let _modalCallback = null;
 
-    // ========================================
-    // データ解析処理
-    // ========================================
+    const openModal = (title, message, onConfirm) => {
+      $modalTitle.textContent   = title;
+      $modalMessage.textContent = message;
+      _modalCallback = onConfirm;
+      $modalOverlay.classList.add('show');
+    };
 
-    // ===== CSVデータの解析とパース =====
-    // 区切り文字の自動判定、引用符の処理など
-    /**
-     * データを解析してテーブルに読み込む
-     * @param {string} text - ペーストされたテキストデータ
-     */
-    function processData(text) {
-      if (!text.trim()) {
-        showToast('データが空です', 'error');
-        return;
-      }
+    const closeModal = () => {
+      $modalOverlay.classList.remove('show');
+      _modalCallback = null;
+    };
 
-      state.originalText = text;
-      state.delimiter = detectDelimiter(text);            // 区切り文字を自動判定
-      state.data = parseCSV(text, state.delimiter);       // CSVをパース
+    $modalConfirmBtn.addEventListener('click', () => { _modalCallback?.(); closeModal(); });
+    $modalCancelBtn.addEventListener('click', closeModal);
 
-      if (state.data.length === 0) {
-        showToast('データを解析できませんでした', 'error');
-        return;
-      }
+    /* ==============================================================
+       Editor Module (IIFE)
+       ============================================================== */
+    const Editor = (() => {
+      /* --- DOM References --- */
+      const $pasteZone      = qs('#pasteZone');
+      const $tableContainer = qs('#tableContainer');
+      const $tableHead      = qs('#tableHead');
+      const $tableBody      = qs('#tableBody');
+      const $dataTable      = qs('#dataTable');
+      const $searchInput    = qs('#searchInput');
+      const $replaceInput   = qs('#replaceInput');
+      const $searchInfo     = qs('#searchInfo');
+      const $undoBtn        = qs('#undoBtn');
+      const $redoBtn        = qs('#redoBtn');
+      const $headerToggle   = qs('#headerToggle');
+      const $columnMenu     = qs('#columnMenu');
+      const $rowMenu        = qs('#rowMenu');
+      const $rowCount       = qs('#rowCount');
+      const $colCount       = qs('#colCount');
+      const $dataSize       = qs('#dataSize');
+      const $dataFormat     = qs('#dataFormat');
 
-      state.hasHeader = false;                            // ヘッダーは常にOFF
-      state.columnWidths = {};                            // 列幅をリセット
+      /* --- State --- */
+      let state = {
+        data: [],
+        hasHeader: false,
+        delimiter: ',',
+        originalText: '',
+        columnWidths: {}
+      };
 
-      undoStack = [];                                     // 履歴をクリア
-      redoStack = [];
-      updateHistoryButtons();
+      let undoStack = [], redoStack = [];
+      const MAX_HISTORY = 20;
+      let activeColumnIndex = -1, activeRowIndex = -1;
+      let searchMatches = [], currentMatchIndex = -1;
+      let isResizing = false, resizeColumnIndex = -1, resizeStartX = 0, resizeStartWidth = 0;
 
-      renderTable();                                      // テーブルを表示
-      updateStats();                                      // 統計情報を更新
-      saveToStorage();                                    // ローカルストレージに保存
+      /* --- Persistence --- */
+      const saveToStorage = () => {
+        try { localStorage.setItem('csvEditor_state', JSON.stringify(state)); }
+        catch (e) { console.warn('LocalStorage save failed:', e); }
+      };
 
-      showToast(`${state.data.length}行のデータを読み込みました`, 'success');
-    }
+      const loadFromStorage = () => {
+        try {
+          const saved = JSON.parse(localStorage.getItem('csvEditor_state') ?? 'null');
+          if (saved) state = saved;
+        } catch { /* ignore */ }
+      };
 
-    /**
-     * 区切り文字を自動判定する（カンマ or タブ）
-     * @param {string} text - 判定対象のテキスト
-     * @returns {string} ',' または '\t'
-     */
-    function detectDelimiter(text) {
-      const firstLines = text.split('\n').slice(0, 5).join('\n');
-      const commaCount = (firstLines.match(/,/g) || []).length;
-      const tabCount = (firstLines.match(/\t/g) || []).length;
-      return tabCount > commaCount ? '\t' : ',';
-    }
+      /* --- History --- */
+      const saveToHistory = () => {
+        undoStack.push(structuredClone(state));
+        if (undoStack.length > MAX_HISTORY) undoStack.shift();
+        redoStack = [];
+        updateHistoryButtons();
+      };
 
-    /**
-     * CSVテキストを2次元配列にパースする
-     * 引用符やエスケープ文字も正しく処理する
-     * @param {string} text - パース対象のCSVテキスト
-     * @param {string} delimiter - 区切り文字（',' または '\t'）
-     * @returns {Array<Array<string>>} 2次元配列
-     */
-    function parseCSV(text, delimiter) {
-      const rows = [];
-      let currentRow = [];
-      let currentCell = '';
-      let inQuotes = false;
+      const updateHistoryButtons = () => {
+        $undoBtn.disabled = undoStack.length === 0;
+        $redoBtn.disabled = redoStack.length === 0;
+      };
 
-      for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-        const nextChar = text[i + 1];
+      const undo = () => {
+        if (undoStack.length === 0) return;
+        redoStack.push(structuredClone(state));
+        state = undoStack.pop();
+        renderTable(); updateStats(); saveToStorage(); updateHistoryButtons();
+        showToast('↩ 元に戻しました');
+      };
 
-        if (inQuotes) {
-          if (char === '"') {
-            if (nextChar === '"') {
-              currentCell += '"';
-              i++;
-            } else {
-              inQuotes = false;
-            }
-          } else {
-            currentCell += char;
-          }
-        } else {
-          if (char === '"') {
+      const redo = () => {
+        if (redoStack.length === 0) return;
+        undoStack.push(structuredClone(state));
+        state = redoStack.pop();
+        renderTable(); updateStats(); saveToStorage(); updateHistoryButtons();
+        showToast('↪ やり直しました');
+      };
+
+      /* --- Stats --- */
+      const updateStats = () => {
+        const rc = state.hasHeader ? state.data.length - 1 : state.data.length;
+        const cc = state.data[0]?.length ?? 0;
+        const text = state.data.map(r => r.join(state.delimiter)).join('\n');
+        const bytes = new Blob([text]).size;
+        const sizeStr = bytes < 1024 ? `${bytes} B`
+          : bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB`
+          : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+
+        $rowCount.textContent  = rc.toLocaleString();
+        $colCount.textContent  = cc;
+        $dataSize.textContent  = sizeStr;
+        $dataFormat.textContent = state.delimiter === '\t' ? 'TSV' : 'CSV';
+      };
+
+      /* --- CSV Parse --- */
+      const detectDelimiter = (text) => {
+        const sample = text.split('\n').slice(0, 5).join('\n');
+        return (sample.match(/\t/g) ?? []).length > (sample.match(/,/g) ?? []).length ? '\t' : ',';
+      };
+
+      const parseCSV = (text, delimiter) => {
+        const rows = [];
+        let currentRow = [], currentCell = '', inQuotes = false;
+
+        for (let i = 0; i < text.length; i++) {
+          const char = text[i], nextChar = text[i + 1];
+          if (inQuotes) {
+            if (char === '"') { nextChar === '"' ? (currentCell += '"', i++) : (inQuotes = false); }
+            else currentCell += char;
+          } else if (char === '"') {
             inQuotes = true;
           } else if (char === delimiter) {
-            currentRow.push(currentCell);
-            currentCell = '';
+            currentRow.push(currentCell); currentCell = '';
           } else if (char === '\n' || (char === '\r' && nextChar === '\n')) {
             currentRow.push(currentCell);
-            if (currentRow.some(cell => cell.trim())) {
-              rows.push(currentRow);
-            }
-            currentRow = [];
-            currentCell = '';
+            if (currentRow.some(c => c.trim())) rows.push(currentRow);
+            currentRow = []; currentCell = '';
             if (char === '\r') i++;
           } else if (char !== '\r') {
             currentCell += char;
           }
         }
-      }
+        currentRow.push(currentCell);
+        if (currentRow.some(c => c.trim())) rows.push(currentRow);
 
-      currentRow.push(currentCell);
-      if (currentRow.some(cell => cell.trim())) {
-        rows.push(currentRow);
-      }
+        const maxCols = Math.max(...rows.map(r => r.length));
+        return rows.map(row => { while (row.length < maxCols) row.push(''); return row; });
+      };
 
-      const maxCols = Math.max(...rows.map(r => r.length));
-      return rows.map(row => {
-        while (row.length < maxCols) row.push('');
-        return row;
-      });
-    }
+      /* --- Process Data --- */
+      const processData = (text) => {
+        if (!text.trim()) { showToast('データが空です', 'error'); return; }
+        state.originalText = text;
+        state.delimiter = detectDelimiter(text);
+        state.data = parseCSV(text, state.delimiter);
+        if (state.data.length === 0) { showToast('データを解析できませんでした', 'error'); return; }
+        state.hasHeader = false;
+        state.columnWidths = {};
+        undoStack = []; redoStack = [];
+        updateHistoryButtons(); renderTable(); updateStats(); saveToStorage();
+        showToast(`${state.data.length}行のデータを読み込みました`, 'success');
+      };
 
-    // ========================================
-    // テーブル表示処理
-    // ========================================
+      const triggerPaste = async () => {
+        try { const text = await navigator.clipboard.readText(); if (text) processData(text); }
+        catch { showToast('クリップボードにアクセスできません', 'error'); }
+      };
 
-    // ===== HTMLテーブルの生成とレンダリング =====
-    // データを画面上のテーブルとして表示する
-    function renderTable() {
-      const tableHead = document.getElementById('tableHead');
-      const tableBody = document.getElementById('tableBody');
-      const container = document.getElementById('tableContainer');
-      const pasteZone = document.getElementById('pasteZone');
+      /* --- Render --- */
+      const renderTable = () => {
+        if (state.data.length === 0) {
+          $tableContainer.classList.remove('show');
+          $pasteZone.classList.remove('has-data');
+          return;
+        }
+        $tableContainer.classList.add('show');
+        $pasteZone.classList.add('has-data');
 
-      if (state.data.length === 0) {
-        container.classList.remove('show');
-        pasteZone.classList.remove('has-data');
-        return;
-      }
+        const colCount = state.data[0]?.length ?? 0;
+        const dataStart = state.hasHeader ? 1 : 0;
+        const headers = state.hasHeader ? state.data[0] : Array.from({ length: colCount }, (_, i) => `${i + 1}`);
 
-      container.classList.add('show');
-      pasteZone.classList.add('has-data');
+        $tableHead.innerHTML = `<tr><th class="row-num">#</th>${
+          headers.map((h, i) => {
+            const w = state.columnWidths[i] ?? 150;
+            const colNum = state.hasHeader ? `<span class="th-colnum">${i + 1}</span>` : '';
+            const style = state.hasHeader ? '' : 'color:var(--text-muted);';
+            return `<th style="width:${w}px;min-width:${w}px;" data-col="${i}">
+              <div class="th-wrapper">
+                <div class="th-content">${colNum}<span class="th-text" style="${style}">${escapeHTML(h)}</span>
+                  <span class="th-menu-btn material-symbols-outlined" style="font-size:1.1rem;">more_vert</span>
+                </div>
+                <div class="resize-handle" data-resize-col="${i}"></div>
+              </div></th>`;
+          }).join('')
+        }</tr>`;
 
-      const colCount = state.data[0]?.length || 0;
-      const dataStartIndex = state.hasHeader ? 1 : 0;
-      const headers = state.hasHeader ? state.data[0] : Array.from({ length: colCount }, (_, i) => `${i + 1}`);
-
-      let headHTML = '<tr><th class="row-num">#</th>';
-      headers.forEach((header, i) => {
-        const width = state.columnWidths[i] || 150;
-        const textStyle = state.hasHeader ? '' : 'color: var(--text-muted);';
-
-        headHTML += `
-          <th style="width: ${width}px; min-width: ${width}px;" data-col="${i}">
-            <div class="th-wrapper">
-              <div class="th-content" onclick="openColumnMenu(event, ${i})">
-                ${state.hasHeader ? `<span class="th-colnum">${i + 1}</span>` : ''}
-                <span class="th-text" style="${textStyle}">${escapeHTML(header)}</span>
-                <span class="th-menu-btn material-symbols-outlined" style="font-size: 1.1rem;">more_vert</span>
-              </div>
-              <div class="resize-handle" onmousedown="startResize(event, ${i})"></div>
-            </div>
-          </th>
-        `;
-      });
-      headHTML += '</tr>';
-      tableHead.innerHTML = headHTML;
-
-      let bodyHTML = '';
-      for (let i = dataStartIndex; i < state.data.length; i++) {
-        const row = state.data[i];
-        const rowNum = state.hasHeader ? i : i + 1;
-
-        bodyHTML += `<tr data-row="${i}">
-          <td class="row-num">
-            <div class="row-num-wrapper">
+        $tableBody.innerHTML = state.data.slice(dataStart).map((row, idx) => {
+          const i = idx + dataStart;
+          const rowNum = state.hasHeader ? i : i + 1;
+          return `<tr data-row="${i}">
+            <td class="row-num"><div class="row-num-wrapper">
               <span class="row-num-text">${rowNum}</span>
-              <button class="row-menu-btn" onclick="openRowMenu(event, ${i})" title="行メニュー">
-                <span class="material-symbols-outlined" style="font-size: 1.0rem;">more_vert</span>
+              <button class="row-menu-btn" data-row-menu="${i}" title="行メニュー">
+                <span class="material-symbols-outlined" style="font-size:1rem;">more_vert</span>
               </button>
-            </div>
-          </td>`;
-        row.forEach((cell, j) => {
-          const width = state.columnWidths[j] || 150;
-          bodyHTML += `<td contenteditable="true" data-row="${i}" data-col="${j}"
-            style="width: ${width}px; min-width: ${width}px;"
-            onblur="handleCellBlur(this)">${escapeHTML(cell)}</td>`;
-        });
-        bodyHTML += `</tr>`;
-      }
-      tableBody.innerHTML = bodyHTML;
+            </div></td>${
+              row.map((c, j) => {
+                const w = state.columnWidths[j] ?? 150;
+                return `<td contenteditable="true" data-row="${i}" data-col="${j}" style="width:${w}px;min-width:${w}px;">${escapeHTML(c)}</td>`;
+              }).join('')
+            }</tr>`;
+        }).join('');
 
-      updateHeaderToggle();
-
-      if (document.getElementById('searchBar').classList.contains('show')) {
+        $headerToggle.classList.toggle('active', state.hasHeader);
         performSearch();
-      }
-    }
+      };
 
-    function escapeHTML(str) {
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
-    }
+      /* --- Toggle Header --- */
+      const toggleHeader = () => {
+        if (state.data.length === 0) return;
+        saveToHistory();
+        state.hasHeader = !state.hasHeader;
+        renderTable(); updateStats(); saveToStorage();
+        showToast(state.hasHeader ? 'ヘッダーを有効にしました' : 'ヘッダーを無効にしました');
+      };
 
-    function updateHeaderToggle() {
-      const toggle = document.getElementById('headerToggle');
-      toggle.classList.toggle('active', state.hasHeader);
-    }
+      /* --- Resize --- */
+      const startResize = (e, colIndex) => {
+        e.stopPropagation();
+        isResizing = true; resizeColumnIndex = colIndex; resizeStartX = e.clientX;
+        resizeStartWidth = qs(`th[data-col="${colIndex}"]`).offsetWidth;
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+      };
 
-    function toggleHeader() {
-      const rowCount = state.data.length;
-      const colCount = state.data[0]?.length || 0;
-      if (rowCount === 0 || colCount === 0) return;
-
-      saveToHistory();
-      state.hasHeader = !state.hasHeader;
-      renderTable();
-      updateStats();
-      saveToStorage();
-      showToast(state.hasHeader ? 'ヘッダーを有効にしました' : 'ヘッダーを無効にしました');
-    }
-
-    // ========================================
-    // 列リサイズ機能
-    // ========================================
-
-    // ===== マウスドラッグによる列幅変更 =====
-    /**
-     * 列リサイズの開始
-     * @param {MouseEvent} e - マウスイベント
-     * @param {number} colIndex - 列番号
-     */
-    function startResize(e, colIndex) {
-      e.stopPropagation();
-      isResizing = true;
-      resizeColumnIndex = colIndex;
-      resizeStartX = e.clientX;
-      const th = document.querySelector(`th[data-col="${colIndex}"]`);
-      resizeStartWidth = th.offsetWidth;
-      document.body.style.cursor = 'col-resize';
-      document.body.style.userSelect = 'none';
-    }
-
-    function handleResizeMove(e) {
-      if (!isResizing) return;
-
-      const diff = e.clientX - resizeStartX;
-      const newWidth = Math.max(60, resizeStartWidth + diff);
-
-      state.columnWidths[resizeColumnIndex] = newWidth;
-
-      const ths = document.querySelectorAll(`th[data-col="${resizeColumnIndex}"]`);
-      ths.forEach(th => {
-        th.style.width = `${newWidth}px`;
-        th.style.minWidth = `${newWidth}px`;
+      document.addEventListener('mousemove', (e) => {
+        if (!isResizing) return;
+        const w = Math.max(60, resizeStartWidth + (e.clientX - resizeStartX));
+        state.columnWidths[resizeColumnIndex] = w;
+        qsa(`[data-col="${resizeColumnIndex}"]`, $dataTable).forEach($el => {
+          $el.style.width = `${w}px`; $el.style.minWidth = `${w}px`;
+        });
       });
 
-      const cells = document.querySelectorAll(`td[data-col="${resizeColumnIndex}"]`);
-      cells.forEach(cell => {
-        cell.style.width = `${newWidth}px`;
-        cell.style.minWidth = `${newWidth}px`;
-      });
-    }
-
-    function handleResizeEnd() {
-      if (isResizing) {
+      document.addEventListener('mouseup', () => {
+        if (!isResizing) return;
         isResizing = false;
         document.body.style.cursor = '';
         document.body.style.userSelect = '';
         saveToStorage();
-      }
-    }
+      });
 
-    // ========================================
-    // セル編集機能
-    // ========================================
+      /* --- Cell Edit --- */
+      const handleCellBlur = ($cell) => {
+        const row = parseInt($cell.dataset.row), col = parseInt($cell.dataset.col);
+        const val = $cell.textContent;
+        if (state.data[row]?.[col] !== val) {
+          saveToHistory(); state.data[row][col] = val; updateStats(); saveToStorage();
+        }
+      };
 
-    // ===== セルの値が変更されたときの処理 =====
-    function handleCellBlur(cell) {
-      const row = parseInt(cell.dataset.row);
-      const col = parseInt(cell.dataset.col);
-      const newValue = cell.textContent;
+      /* --- Cell Navigation --- */
+      const handleCellNavigation = (e, $cell) => {
+        const row = parseInt($cell.dataset.row), col = parseInt($cell.dataset.col);
+        const colCount = state.data[0]?.length ?? 0;
+        let nr = row, nc = col, move = false;
 
-      if (state.data[row] && state.data[row][col] !== newValue) {
-        saveToHistory();
-        state.data[row][col] = newValue;
-        updateStats();
-        saveToStorage();
-      }
-    }
+        switch (e.key) {
+          case 'Tab': e.preventDefault();
+            if (e.shiftKey) { nc = col - 1; if (nc < 0) { nc = colCount - 1; nr--; } }
+            else { nc = col + 1; if (nc >= colCount) { nc = 0; nr++; } }
+            move = true; break;
+          case 'Enter': if (!e.shiftKey) { e.preventDefault(); nr++; move = true; } break;
+          case 'ArrowUp':    if (e.altKey) { e.preventDefault(); nr--; move = true; } break;
+          case 'ArrowDown':  if (e.altKey) { e.preventDefault(); nr++; move = true; } break;
+          case 'ArrowLeft':  if (e.altKey) { e.preventDefault(); nc--; move = true; } break;
+          case 'ArrowRight': if (e.altKey) { e.preventDefault(); nc++; move = true; } break;
+        }
 
-    // ========================================
-    // 検索・置換機能
-    // ========================================
+        if (move) {
+          const start = state.hasHeader ? 1 : 0;
+          if (nr >= start && nr < state.data.length && nc >= 0 && nc < colCount) {
+            qs(`td[data-row="${nr}"][data-col="${nc}"]`)?.focus();
+          }
+        }
+      };
 
-    // ===== データ内のテキスト検索と置換 =====
-    // ハイライト表示、複数一致のナビゲーション、一括置換など
-    function openSearch() {
-      document.getElementById('searchInput').focus();
-    }
-
-    function closeSearch() {
-      clearSearch();
-    }
-
-    function clearSearch() {
-      document.getElementById('searchInput').value = '';
-      document.getElementById('replaceInput').value = '';
-      clearHighlights();
-      searchMatches = [];
-      currentMatchIndex = -1;
-      updateSearchInfo();
-    }
-
-    function performSearch() {
-      const query = document.getElementById('searchInput').value.toLowerCase();
-      clearHighlights();
-      searchMatches = [];
-      currentMatchIndex = -1;
-
-      if (!query) {
-        updateSearchInfo();
-        return;
-      }
-
-      const dataStartIndex = state.hasHeader ? 1 : 0;
-
-      for (let i = dataStartIndex; i < state.data.length; i++) {
-        for (let j = 0; j < state.data[i].length; j++) {
-          if (state.data[i][j].toLowerCase().includes(query)) {
-            searchMatches.push({ row: i, col: j });
-            const cell = document.querySelector(`td[data-row="${i}"][data-col="${j}"]`);
-            if (cell) {
-              cell.classList.add('highlight');
+      /* --- Search / Replace --- */
+      const performSearch = () => {
+        const query = $searchInput.value.toLowerCase();
+        clearHighlights(); searchMatches = []; currentMatchIndex = -1;
+        if (!query) { updateSearchInfo(); return; }
+        const start = state.hasHeader ? 1 : 0;
+        state.data.forEach((row, i) => {
+          if (i < start) return;
+          row.forEach((cell, j) => {
+            if (cell.toLowerCase().includes(query)) {
+              searchMatches.push({ row: i, col: j });
+              qs(`td[data-row="${i}"][data-col="${j}"]`)?.classList.add('highlight');
             }
-          }
-        }
-      }
-
-      if (searchMatches.length > 0) {
-        currentMatchIndex = 0;
-        highlightCurrentMatch();
-      }
-
-      updateSearchInfo();
-    }
-
-    function navigateMatch(direction) {
-      if (searchMatches.length === 0) return;
-
-      currentMatchIndex += direction;
-      if (currentMatchIndex < 0) currentMatchIndex = searchMatches.length - 1;
-      if (currentMatchIndex >= searchMatches.length) currentMatchIndex = 0;
-
-      highlightCurrentMatch();
-      updateSearchInfo();
-    }
-
-    function highlightCurrentMatch() {
-      document.querySelectorAll('td.current-match').forEach(el => el.classList.remove('current-match'));
-
-      if (currentMatchIndex >= 0 && currentMatchIndex < searchMatches.length) {
-        const match = searchMatches[currentMatchIndex];
-        const cell = document.querySelector(`td[data-row="${match.row}"][data-col="${match.col}"]`);
-        if (cell) {
-          cell.classList.add('current-match');
-          cell.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }
-    }
-
-    function clearHighlights() {
-      document.querySelectorAll('td.highlight, td.current-match').forEach(el => {
-        el.classList.remove('highlight', 'current-match');
-      });
-    }
-
-    function updateSearchInfo() {
-      const info = document.getElementById('searchInfo');
-      if (searchMatches.length === 0) {
-        const query = document.getElementById('searchInput').value;
-        info.textContent = query ? '一致なし' : '';
-      } else {
-        info.textContent = `${currentMatchIndex + 1} / ${searchMatches.length}件`;
-      }
-    }
-
-    function replaceNext() {
-      if (currentMatchIndex < 0 || searchMatches.length === 0) return;
-
-      const replaceValue = document.getElementById('replaceInput').value;
-      const searchValue = document.getElementById('searchInput').value;
-      const match = searchMatches[currentMatchIndex];
-
-      saveToHistory();
-
-      state.data[match.row][match.col] = state.data[match.row][match.col].replace(
-        new RegExp(escapeRegExp(searchValue), 'i'),
-        replaceValue
-      );
-
-      renderTable();
-      saveToStorage();
-      performSearch();
-
-      showToast('1件置換しました', 'success');
-    }
-
-    function replaceAll() {
-      const replaceValue = document.getElementById('replaceInput').value;
-      const searchValue = document.getElementById('searchInput').value;
-
-      if (!searchValue) return;
-
-      saveToHistory();
-
-      let count = 0;
-      const regex = new RegExp(escapeRegExp(searchValue), 'gi');
-      const dataStartIndex = state.hasHeader ? 1 : 0;
-
-      for (let i = dataStartIndex; i < state.data.length; i++) {
-        for (let j = 0; j < state.data[i].length; j++) {
-          const original = state.data[i][j];
-          const replaced = original.replace(regex, replaceValue);
-          if (original !== replaced) {
-            state.data[i][j] = replaced;
-            count++;
-          }
-        }
-      }
-
-      renderTable();
-      saveToStorage();
-      performSearch();
-
-      showToast(`${count}件置換しました`, 'success');
-    }
-
-    function escapeRegExp(string) {
-      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-
-    // ========================================
-    // 列操作機能
-    // ========================================
-
-    // ===== 列の並び替え、コピー、複製、削除など =====
-    function openColumnMenu(e, colIndex) {
-      e.stopPropagation();
-      activeColumnIndex = colIndex;
-
-      closeRowMenu(); // 行メニューを閉じる
-
-      const menu = document.getElementById('columnMenu');
-      const rect = e.target.closest('th').getBoundingClientRect();
-
-      menu.style.top = `${rect.bottom + window.scrollY + 4}px`;
-      menu.style.left = `${Math.min(rect.left, window.innerWidth - 220)}px`;
-      menu.classList.add('show');
-    }
-
-    function sortColumn(direction) {
-      if (activeColumnIndex < 0) return;
-
-      saveToHistory();
-
-      const dataStartIndex = state.hasHeader ? 1 : 0;
-      const sortableData = state.data.slice(dataStartIndex);
-
-      sortableData.sort((a, b) => {
-        const valA = a[activeColumnIndex] || '';
-        const valB = b[activeColumnIndex] || '';
-
-        const numA = parseFloat(valA);
-        const numB = parseFloat(valB);
-
-        if (!isNaN(numA) && !isNaN(numB)) {
-          return direction === 'asc' ? numA - numB : numB - numA;
-        }
-
-        return direction === 'asc'
-          ? valA.localeCompare(valB, 'ja')
-          : valB.localeCompare(valA, 'ja');
-      });
-
-      state.data = state.hasHeader
-        ? [state.data[0], ...sortableData]
-        : sortableData;
-
-      renderTable();
-      saveToStorage();
-      closeColumnMenu();
-
-      const colName = state.hasHeader ? state.data[0][activeColumnIndex] : `列${activeColumnIndex + 1}`;
-      showToast(`📌 「${colName}」を${direction === 'asc' ? '昇順' : '降順'}に並び替えました`, 'success');
-    }
-
-    function copyColumn() {
-      if (activeColumnIndex < 0) return;
-
-      const columnData = state.data.map(row => row[activeColumnIndex] || '');
-      const text = columnData.join('\n');
-
-      navigator.clipboard.writeText(text)
-        .then(() => {
-          const colName = state.hasHeader
-            ? state.data[0][activeColumnIndex]
-            : `列${activeColumnIndex + 1}`;
-          showToast(`📋 「${colName}」をコピーしました`, 'success');
-        })
-        .catch(() => {
-          showToast('コピーに失敗しました', 'error');
+          });
         });
+        if (searchMatches.length > 0) { currentMatchIndex = 0; highlightCurrentMatch(); }
+        updateSearchInfo();
+      };
 
-      closeColumnMenu();
-    }
+      const navigateMatch = (dir) => {
+        if (searchMatches.length === 0) return;
+        currentMatchIndex += dir;
+        if (currentMatchIndex < 0) currentMatchIndex = searchMatches.length - 1;
+        if (currentMatchIndex >= searchMatches.length) currentMatchIndex = 0;
+        highlightCurrentMatch(); updateSearchInfo();
+      };
 
-    function duplicateColumn() {
-      if (activeColumnIndex < 0) return;
+      const highlightCurrentMatch = () => {
+        qsa('td.current-match').forEach($el => $el.classList.remove('current-match'));
+        if (currentMatchIndex < 0 || currentMatchIndex >= searchMatches.length) return;
+        const { row, col } = searchMatches[currentMatchIndex];
+        const $c = qs(`td[data-row="${row}"][data-col="${col}"]`);
+        $c?.classList.add('current-match');
+        $c?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      };
 
-      saveToHistory();
+      const clearHighlights = () =>
+        qsa('td.highlight, td.current-match').forEach($el => $el.classList.remove('highlight', 'current-match'));
 
-      state.data = state.data.map(row => {
-        const newRow = [...row];
-        newRow.splice(activeColumnIndex + 1, 0, row[activeColumnIndex]);
-        return newRow;
-      });
-
-      const newWidths = {};
-      Object.keys(state.columnWidths).forEach(key => {
-        const idx = parseInt(key);
-        if (idx <= activeColumnIndex) {
-          newWidths[idx] = state.columnWidths[idx];
+      const updateSearchInfo = () => {
+        if (searchMatches.length === 0) {
+          $searchInfo.textContent = $searchInput.value ? '一致なし' : '';
         } else {
-          newWidths[idx + 1] = state.columnWidths[idx];
+          $searchInfo.textContent = `${currentMatchIndex + 1} / ${searchMatches.length}件`;
         }
-      });
-      newWidths[activeColumnIndex + 1] = state.columnWidths[activeColumnIndex] || 150;
-      state.columnWidths = newWidths;
+      };
 
-      renderTable();
-      updateStats();
-      saveToStorage();
-      closeColumnMenu();
+      const clearSearch = () => {
+        $searchInput.value = ''; $replaceInput.value = '';
+        clearHighlights(); searchMatches = []; currentMatchIndex = -1; updateSearchInfo();
+      };
 
-      showToast('列を複製しました', 'success');
-    }
+      const replaceNext = () => {
+        if (currentMatchIndex < 0 || searchMatches.length === 0) return;
+        const { row, col } = searchMatches[currentMatchIndex];
+        saveToHistory();
+        state.data[row][col] = state.data[row][col].replace(
+          new RegExp(escapeRegExp($searchInput.value), 'i'), $replaceInput.value
+        );
+        renderTable(); saveToStorage(); performSearch();
+        showToast('1件置換しました', 'success');
+      };
 
-    function confirmDeleteColumn() {
-      const colName = state.hasHeader
-        ? state.data[0][activeColumnIndex]
-        : `列${activeColumnIndex + 1}`;
-
-      openModal(
-        '列を削除',
-        `「${colName}」を削除しますか？この操作は元に戻せます。`,
-        deleteColumn
-      );
-      closeColumnMenu();
-    }
-
-    function deleteColumn() {
-      if (activeColumnIndex < 0) return;
-
-      saveToHistory();
-
-      state.data = state.data.map(row => {
-        const newRow = [...row];
-        newRow.splice(activeColumnIndex, 1);
-        return newRow;
-      });
-
-      if (state.data[0]?.length === 0) {
-        state.data = [];
-        state.hasHeader = false;
-        state.columnWidths = {};
-        renderTable();
-        updateStats();
-        localStorage.removeItem('csvEditor_state');
-        closeModal();
-        showToast('すべての列が削除されました。データをクリアしました', 'success');
-        return;
-      }
-
-      const newWidths = {};
-      Object.keys(state.columnWidths).forEach(key => {
-        const idx = parseInt(key);
-        if (idx < activeColumnIndex) {
-          newWidths[idx] = state.columnWidths[idx];
-        } else if (idx > activeColumnIndex) {
-          newWidths[idx - 1] = state.columnWidths[idx];
-        }
-      });
-      state.columnWidths = newWidths;
-
-      renderTable();
-      updateStats();
-      saveToStorage();
-      closeModal();
-
-      showToast('列を削除しました', 'success');
-    }
-
-    function closeColumnMenu() {
-      document.getElementById('columnMenu').classList.remove('show');
-    }
-
-    // ========================================
-    // 行操作機能
-    // ========================================
-
-    // ===== 行のコピー、削除、追加など =====
-    let activeRowIndex = -1;
-
-    function openRowMenu(e, rowIndex) {
-      e.stopPropagation();
-      activeRowIndex = rowIndex;
-
-      closeColumnMenu(); // 列メニューを閉じる
-
-      const menu = document.getElementById('rowMenu');
-      const rect = e.target.getBoundingClientRect();
-
-      menu.style.top = `${rect.bottom + window.scrollY + 4}px`;
-      menu.style.left = `${Math.min(rect.left, window.innerWidth - 220)}px`;
-      menu.classList.add('show');
-    }
-
-    function copyRow() {
-      if (activeRowIndex < 0) return;
-
-      const rowData = state.data[activeRowIndex];
-      const text = rowData.map(cell => {
-        if (cell.includes('\t') || cell.includes('"') || cell.includes('\n')) {
-          return `"${cell.replace(/"/g, '""')}"`;
-        }
-        return cell;
-      }).join('\t');
-
-      navigator.clipboard.writeText(text)
-        .then(() => {
-          const rowNum = state.hasHeader ? activeRowIndex : activeRowIndex + 1;
-          showToast(`📋 ${rowNum}行目をコピーしました`, 'success');
-        })
-        .catch(() => {
-          showToast('コピーに失敗しました', 'error');
+      const replaceAll = () => {
+        const search = $searchInput.value;
+        if (!search) return;
+        saveToHistory();
+        let count = 0;
+        const regex = new RegExp(escapeRegExp(search), 'gi');
+        const start = state.hasHeader ? 1 : 0;
+        state.data.forEach((row, i) => {
+          if (i < start) return;
+          row.forEach((cell, j) => {
+            const next = cell.replace(regex, $replaceInput.value);
+            if (cell !== next) { state.data[i][j] = next; count++; }
+          });
         });
+        renderTable(); saveToStorage(); performSearch();
+        showToast(`${count}件置換しました`, 'success');
+      };
 
-      closeRowMenu();
-    }
+      /* --- Column Menu --- */
+      const closeColumnMenu = () => $columnMenu.classList.remove('show');
+      const closeRowMenu    = () => $rowMenu.classList.remove('show');
 
-    function duplicateRow() {
-      if (activeRowIndex < 0) return;
+      const openColumnMenu = (e, idx) => {
+        e.stopPropagation(); activeColumnIndex = idx; closeRowMenu();
+        const rect = e.target.closest('th').getBoundingClientRect();
+        $columnMenu.style.top  = `${rect.bottom + window.scrollY + 4}px`;
+        $columnMenu.style.left = `${Math.min(rect.left, window.innerWidth - 220)}px`;
+        $columnMenu.classList.add('show');
+      };
 
-      saveToHistory();
+      const openRowMenu = (e, idx) => {
+        e.stopPropagation(); activeRowIndex = idx; closeColumnMenu();
+        const rect = e.target.getBoundingClientRect();
+        $rowMenu.style.top  = `${rect.bottom + window.scrollY + 4}px`;
+        $rowMenu.style.left = `${Math.min(rect.left, window.innerWidth - 220)}px`;
+        $rowMenu.classList.add('show');
+      };
 
-      const newRow = [...state.data[activeRowIndex]];
-      state.data.splice(activeRowIndex + 1, 0, newRow);
+      /* --- Column Operations --- */
+      const getColName = () => state.hasHeader ? state.data[0][activeColumnIndex] : `列${activeColumnIndex + 1}`;
 
-      renderTable();
-      updateStats();
-      saveToStorage();
-      closeRowMenu();
+      const sortColumn = (dir) => {
+        if (activeColumnIndex < 0) return;
+        saveToHistory();
+        const start = state.hasHeader ? 1 : 0;
+        const sorted = state.data.slice(start).toSorted((a, b) => {
+          const vA = a[activeColumnIndex] ?? '', vB = b[activeColumnIndex] ?? '';
+          const nA = parseFloat(vA), nB = parseFloat(vB);
+          if (!isNaN(nA) && !isNaN(nB)) return dir === 'asc' ? nA - nB : nB - nA;
+          return dir === 'asc' ? vA.localeCompare(vB, 'ja') : vB.localeCompare(vA, 'ja');
+        });
+        state.data = state.hasHeader ? [state.data[0], ...sorted] : sorted;
+        renderTable(); saveToStorage();
+        showToast(`📌 「${getColName()}」を${dir === 'asc' ? '昇順' : '降順'}に並び替えました`, 'success');
+      };
 
-      const rowNum = state.hasHeader ? activeRowIndex : activeRowIndex + 1;
-      showToast(`${rowNum}行目を複製しました`, 'success');
-    }
+      const copyColumn = async () => {
+        if (activeColumnIndex < 0) return;
+        try {
+          await navigator.clipboard.writeText(state.data.map(r => r[activeColumnIndex] ?? '').join('\n'));
+          showToast(`📋 「${getColName()}」をコピーしました`, 'success');
+        } catch { showToast('コピーに失敗しました', 'error'); }
+      };
 
-    function confirmDeleteRowFromMenu() {
-      closeRowMenu();
-      if (activeRowIndex < 0) return;
-      confirmDeleteRow(activeRowIndex);
-    }
+      const duplicateColumn = () => {
+        if (activeColumnIndex < 0) return;
+        saveToHistory();
+        state.data = state.data.map(r => { const n = [...r]; n.splice(activeColumnIndex + 1, 0, r[activeColumnIndex]); return n; });
 
-    function closeRowMenu() {
-      document.getElementById('rowMenu').classList.remove('show');
-    }
+        const newWidths = {};
+        Object.entries(state.columnWidths).forEach(([key, val]) => {
+          const idx = parseInt(key);
+          newWidths[idx <= activeColumnIndex ? idx : idx + 1] = val;
+        });
+        newWidths[activeColumnIndex + 1] = state.columnWidths[activeColumnIndex] ?? 150;
+        state.columnWidths = newWidths;
 
-    // クリックでメニューを閉じる処理に追加
-    document.addEventListener('click', () => {
-      closeColumnMenu();
-      closeRowMenu();
-      if (document.getElementById('searchBar')) {
-        // search bar usually stays open until closed explicitly
-      }
-    });
+        renderTable(); updateStats(); saveToStorage();
+        showToast('列を複製しました', 'success');
+      };
 
-    function addRow() {
-      saveToHistory();
+      const deleteColumn = () => {
+        if (activeColumnIndex < 0) return;
+        saveToHistory();
+        state.data = state.data.map(r => { const n = [...r]; n.splice(activeColumnIndex, 1); return n; });
 
-      const colCount = state.data[0]?.length || 1;
-      state.data.push(Array(colCount).fill(''));
+        if (state.data[0]?.length === 0) {
+          state.data = []; state.hasHeader = false; state.columnWidths = {};
+          renderTable(); updateStats(); localStorage.removeItem('csvEditor_state');
+          showToast('すべての列が削除されました。データをクリアしました', 'success');
+          return;
+        }
 
-      renderTable();
-      updateStats();
-      saveToStorage();
+        const newWidths = {};
+        Object.entries(state.columnWidths).forEach(([key, val]) => {
+          const idx = parseInt(key);
+          if (idx < activeColumnIndex) newWidths[idx] = val;
+          else if (idx > activeColumnIndex) newWidths[idx - 1] = val;
+        });
+        state.columnWidths = newWidths;
 
-      showToast('行を追加しました', 'success');
-    }
+        renderTable(); updateStats(); saveToStorage();
+        showToast('列を削除しました', 'success');
+      };
 
-    function addColumn() {
-      saveToHistory();
+      const confirmDeleteColumn = () => {
+        openModal('列を削除', `「${getColName()}」を削除しますか？この操作は元に戻せます。`, deleteColumn);
+      };
 
-      state.data = state.data.map(row => {
-        return [...row, ''];
+      /* --- Row Operations --- */
+      const copyRow = async () => {
+        if (activeRowIndex < 0) return;
+        const text = state.data[activeRowIndex].map(cell =>
+          (cell.includes('\t') || cell.includes('"') || cell.includes('\n')) ? `"${cell.replace(/"/g, '""')}"` : cell
+        ).join('\t');
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast(`📋 ${state.hasHeader ? activeRowIndex : activeRowIndex + 1}行目をコピーしました`, 'success');
+        } catch { showToast('コピーに失敗しました', 'error'); }
+      };
+
+      const duplicateRow = () => {
+        if (activeRowIndex < 0) return;
+        saveToHistory();
+        state.data.splice(activeRowIndex + 1, 0, [...state.data[activeRowIndex]]);
+        renderTable(); updateStats(); saveToStorage();
+        showToast(`${state.hasHeader ? activeRowIndex : activeRowIndex + 1}行目を複製しました`, 'success');
+      };
+
+      const deleteRow = (rowIndex) => {
+        saveToHistory();
+        state.data.splice(rowIndex, 1);
+        if (state.data.length === 0) {
+          state.hasHeader = false; state.columnWidths = {};
+          renderTable(); updateStats(); localStorage.removeItem('csvEditor_state');
+          showToast('すべての行が削除されました。データをクリアしました', 'success');
+          return;
+        }
+        renderTable(); updateStats(); saveToStorage();
+        showToast('行を削除しました', 'success');
+      };
+
+      const confirmDeleteRow = () => {
+        if (activeRowIndex < 0) return;
+        const rowNum = state.hasHeader ? activeRowIndex : activeRowIndex + 1;
+        openModal('行を削除', `${rowNum}行目を削除しますか？`, () => deleteRow(activeRowIndex));
+      };
+
+      /* --- Add Row / Column --- */
+      const addRow = () => {
+        saveToHistory();
+        state.data.push(Array(state.data[0]?.length ?? 1).fill(''));
+        renderTable(); updateStats(); saveToStorage();
+        showToast('行を追加しました', 'success');
+      };
+
+      const addColumn = () => {
+        saveToHistory();
+        state.data = state.data.map(r => [...r, '']);
+        renderTable(); updateStats(); saveToStorage();
+        showToast('列を追加しました', 'success');
+      };
+
+      /* --- Export --- */
+      const generateOutput = (dlm) =>
+        state.data.map(r => r.map(c =>
+          (c.includes(dlm) || c.includes('"') || c.includes('\n')) ? `"${c.replace(/"/g, '""')}"` : c
+        ).join(dlm)).join('\n');
+
+      const copyData = async (dlm) => {
+        if (state.data.length === 0) { showToast('コピーするデータがありません', 'error'); return; }
+        try {
+          await navigator.clipboard.writeText(generateOutput(dlm));
+          showToast(`📋 ${dlm === ',' ? 'CSV' : 'TSV'}としてコピーしました`, 'success');
+        } catch { showToast('コピーに失敗しました', 'error'); }
+      };
+
+      const downloadData = (dlm, ext) => {
+        if (state.data.length === 0) { showToast('ダウンロードするデータがありません', 'error'); return; }
+        const blob = new Blob([`\uFEFF${generateOutput(dlm)}`], { type: 'text/plain; charset=utf-8' });
+        const $a = document.createElement('a');
+        $a.href = URL.createObjectURL(blob);
+        $a.download = `data_${new Date().toISOString().slice(0, 10)}.${ext}`;
+        $a.click();
+        URL.revokeObjectURL($a.href);
+        showToast(`💾 ${ext.toUpperCase()}ファイルをダウンロードしました`, 'success');
+      };
+
+      /* --- Clear --- */
+      const confirmClearAll = () => {
+        if (state.data.length === 0) return;
+        openModal('データをクリア', 'すべてのデータを削除しますか？この操作は元に戻せます。', () => {
+          saveToHistory();
+          state.data = []; state.hasHeader = false; state.columnWidths = {};
+          renderTable(); updateStats(); localStorage.removeItem('csvEditor_state');
+          showToast('🗑 すべてのデータをクリアしました');
+        });
+      };
+
+      /* --- Menu Delegation --- */
+      const colActions = {
+        'sort-asc':  () => sortColumn('asc'),
+        'sort-desc': () => sortColumn('desc'),
+        'copy-col':  copyColumn,
+        'dup-col':   duplicateColumn,
+        'del-col':   confirmDeleteColumn,
+      };
+
+      const rowActions = {
+        'copy-row': copyRow,
+        'dup-row':  duplicateRow,
+        'del-row':  confirmDeleteRow,
+      };
+
+      $columnMenu.addEventListener('click', (e) => {
+        const action = e.target.closest('.menu-item')?.dataset.action;
+        if (action) { colActions[action]?.(); closeColumnMenu(); }
       });
 
-      renderTable();
-      updateStats();
-      saveToStorage();
+      $rowMenu.addEventListener('click', (e) => {
+        const action = e.target.closest('.menu-item')?.dataset.action;
+        if (action) { rowActions[action]?.(); closeRowMenu(); }
+      });
 
-      showToast('列を追加しました', 'success');
-    }
+      /* --- Table Event Delegation --- */
+      $dataTable.addEventListener('click', (e) => {
+        const $th = e.target.closest('.th-content');
+        if ($th) { const ci = parseInt($th.closest('th').dataset.col); if (!isNaN(ci)) openColumnMenu(e, ci); return; }
+        const $rm = e.target.closest('[data-row-menu]');
+        if ($rm) { openRowMenu(e, parseInt($rm.dataset.rowMenu)); return; }
+      });
 
-    function confirmDeleteRow(rowIndex) {
-      openModal(
-        '行を削除',
-        `${state.hasHeader ? rowIndex : rowIndex + 1}行目を削除しますか？`,
-        () => deleteRow(rowIndex)
-      );
-    }
+      $dataTable.addEventListener('mousedown', (e) => {
+        const $h = e.target.closest('.resize-handle');
+        if ($h) startResize(e, parseInt($h.dataset.resizeCol));
+      });
 
-    function deleteRow(rowIndex) {
-      saveToHistory();
+      $dataTable.addEventListener('blur', (e) => {
+        if (e.target.tagName === 'TD' && e.target.isContentEditable) handleCellBlur(e.target);
+      }, true);
 
-      state.data.splice(rowIndex, 1);
+      /* --- Global Listeners --- */
+      document.addEventListener('click', (e) => {
+        if (!$columnMenu.contains(e.target) && !e.target.closest('.th-menu-btn')) closeColumnMenu();
+        if (!$rowMenu.contains(e.target) && !e.target.closest('.row-menu-btn')) closeRowMenu();
+      });
 
-      if (state.data.length === 0) {
-        state.hasHeader = false;
-        state.columnWidths = {};
-        renderTable();
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); return; }
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); redo(); return; }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'f') { e.preventDefault(); $searchInput.focus(); return; }
+        if (e.key === 'Escape') { clearSearch(); return; }
+        if (document.activeElement.tagName === 'TD' && document.activeElement.isContentEditable) handleCellNavigation(e, document.activeElement);
+      });
+
+      document.addEventListener('paste', (e) => {
+        if ($pasteZone.classList.contains('has-data')) return;
+        const text = e.clipboardData?.getData('text');
+        if (text) { e.preventDefault(); processData(text); }
+      });
+
+      /* --- Toolbar Wiring --- */
+      $undoBtn.addEventListener('click', undo);
+      $redoBtn.addEventListener('click', redo);
+      qs('#pasteBtn').addEventListener('click', triggerPaste);
+      $pasteZone.addEventListener('click', triggerPaste);
+      qs('#addRowBtn').addEventListener('click', addRow);
+      qs('#addColBtn').addEventListener('click', addColumn);
+      $headerToggle.addEventListener('click', toggleHeader);
+      qs('#copyCSVBtn').addEventListener('click', () => copyData(','));
+      qs('#copyTSVBtn').addEventListener('click', () => copyData('\t'));
+      qs('#dlCSVBtn').addEventListener('click', () => downloadData(',', 'csv'));
+      qs('#dlTSVBtn').addEventListener('click', () => downloadData('\t', 'tsv'));
+      qs('#clearBtn').addEventListener('click', confirmClearAll);
+
+      $searchInput.addEventListener('input', performSearch);
+      qs('#replaceNextBtn').addEventListener('click', replaceNext);
+      qs('#replaceAllBtn').addEventListener('click', replaceAll);
+      qs('#searchPrevBtn').addEventListener('click', () => navigateMatch(-1));
+      qs('#searchNextBtn').addEventListener('click', () => navigateMatch(1));
+
+      /* --- Init --- */
+      const init = () => {
+        loadFromStorage();
+        if (state.data.length > 0) renderTable();
         updateStats();
-        localStorage.removeItem('csvEditor_state');
-        closeModal();
-        showToast('すべての行が削除されました。データをクリアしました', 'success');
-        return;
-      }
+      };
 
-      renderTable();
-      updateStats();
-      saveToStorage();
-      closeModal();
+      return { init };
+    })();
 
-      showToast('行を削除しました', 'success');
-    }
-
-    // ========================================
-    // データコピー機能
-    // ========================================
-
-    // ===== CSVまたはTSV形式でクリップボードにコピー =====
-    function copyAsCSV() {
-      copyData(',');
-    }
-
-    function copyAsTSV() {
-      copyData('\t');
-    }
-
-    function copyData(delimiter) {
-      if (state.data.length === 0) {
-        showToast('コピーするデータがありません', 'error');
-        return;
-      }
-
-      const text = generateOutput(delimiter);
-
-      navigator.clipboard.writeText(text)
-        .then(() => {
-          const format = delimiter === ',' ? 'CSV' : 'TSV';
-          showToast(`📋 ${format}としてコピーしました`, 'success');
-        })
-        .catch(() => {
-          showToast('コピーに失敗しました', 'error');
-        });
-    }
-
-    function generateOutput(delimiter) {
-      return state.data.map(row =>
-        row.map(cell => {
-          if (cell.includes(delimiter) || cell.includes('"') || cell.includes('\n')) {
-            return `"${cell.replace(/"/g, '""')}"`;
-          }
-          return cell;
-        }).join(delimiter)
-      ).join('\n');
-    }
-
-    // ========================================
-    // ファイルダウンロード機能
-    // ========================================
-
-    // ===== CSVまたはTSVファイルとしてダウンロード =====
-    function downloadCSV() {
-      downloadData(',', 'csv');
-    }
-
-    function downloadTSV() {
-      downloadData('\t', 'tsv');
-    }
-
-    function downloadData(delimiter, extension) {
-      if (state.data.length === 0) {
-        showToast('ダウンロードするデータがありません', 'error');
-        return;
-      }
-
-      const text = generateOutput(delimiter);
-      const bom = '\uFEFF';
-      const blob = new Blob([bom + text], { type: 'text/plain; charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `data_${new Date().toISOString().slice(0, 10)}.${extension}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      showToast(`💾 ${extension.toUpperCase()}ファイルをダウンロードしました`, 'success');
-    }
-
-    // ========================================
-    // Undo / Redo 機能
-    // ========================================
-
-    // ===== 変更履歴の管理と元に戻す・やり直し =====
-    // 最大20件の変更履歴を保存
-    function saveToHistory() {
-      undoStack.push(structuredClone(state));
-      if (undoStack.length > MAX_HISTORY) {
-        undoStack.shift();
-      }
-      redoStack = [];
-      updateHistoryButtons();
-    }
-
-    function undo() {
-      if (undoStack.length === 0) return;
-
-      redoStack.push(structuredClone(state));
-      state = undoStack.pop();
-
-      renderTable();
-      updateStats();
-      saveToStorage();
-      updateHistoryButtons();
-
-      showToast('↩ 元に戻しました');
-    }
-
-    function redo() {
-      if (redoStack.length === 0) return;
-
-      undoStack.push(structuredClone(state));
-      state = redoStack.pop();
-
-      renderTable();
-      updateStats();
-      saveToStorage();
-      updateHistoryButtons();
-
-      showToast('↪ やり直しました');
-    }
-
-    function updateHistoryButtons() {
-      document.getElementById('undoBtn').disabled = undoStack.length === 0;
-      document.getElementById('redoBtn').disabled = redoStack.length === 0;
-    }
-
-    // ========================================
-    // 統計情報表示
-    // ========================================
-
-    // ===== 行数、列数、データサイズなどを表示 =====
-    function updateStats() {
-      const rowCount = state.hasHeader ? state.data.length - 1 : state.data.length;
-      const colCount = state.data[0]?.length || 0;
-
-      const text = state.data.map(row => row.join(state.delimiter)).join('\n');
-      const bytes = new Blob([text]).size;
-      const sizeStr = bytes < 1024
-        ? `${bytes} B`
-        : bytes < 1024 * 1024
-          ? `${(bytes / 1024).toFixed(1)} KB`
-          : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-
-      document.getElementById('rowCount').textContent = rowCount.toLocaleString();
-      document.getElementById('colCount').textContent = colCount;
-      document.getElementById('dataSize').textContent = sizeStr;
-      document.getElementById('dataFormat').textContent = state.delimiter === '\t' ? 'TSV' : 'CSV';
-    }
-
-    // ========================================
-    // ローカルストレージ機能
-    // ========================================
-
-    // ===== データの自動保存と復元 =====
-    // ブラウザを閉じても作業内容を保持
-    function saveToStorage() {
-      try {
-        localStorage.setItem('csvEditor_state', JSON.stringify(state));
-      } catch (e) {
-        console.warn('LocalStorage save failed:', e);
-      }
-    }
-
-    // ========================================
-    // データクリア機能
-    // ========================================
-
-    // ===== すべてのデータを削除 =====
-    function confirmClearAll() {
-      if (state.data.length === 0) return;
-
-      openModal(
-        'データをクリア',
-        'すべてのデータを削除しますか？この操作は元に戻せます。',
-        clearAll
-      );
-    }
-
-    function clearAll() {
-      saveToHistory();
-      state.data = [];
-      state.hasHeader = false;
-      state.columnWidths = {};
-      renderTable();
-      updateStats();
-      localStorage.removeItem('csvEditor_state');
-      closeModal();
-      showToast('🗑 すべてのデータをクリアしました');
-    }
-
-    // ========================================
-    // UI（ユーザーインターフェース）機能
-    // ========================================
-
-    // ===== トースト通知、モーダルダイアログなど =====
-    function showToast(message, type = '') {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      toast.textContent = message;
-      container.appendChild(toast);
-
-      setTimeout(() => toast.remove(), 1500);
-    }
-
-    function openModal(title, message, onConfirm) {
-      document.getElementById('modalTitle').textContent = title;
-      document.getElementById('modalMessage').textContent = message;
-      document.getElementById('modalConfirmBtn').onclick = onConfirm;
-      document.getElementById('modalOverlay').classList.add('show');
-    }
-
-    function closeModal() {
-      document.getElementById('modalOverlay').classList.remove('show');
-    }
+    /* ==============================================================
+       App Init
+       ============================================================== */
+    initTheme();
+    Editor.init();
   </script>
 </body>
-
 </html>
