@@ -1,0 +1,4049 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[demo]manural - マニュアル作成ツール</title>
+  <style>
+    :root {
+      --primary: #0ea5e9;
+      --primary-rgb: 14, 165, 233;
+      --primary-light: #e0f2fe;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-900: #0f172a;
+      --white: #fff;
+      --radius: 8px;
+      --radius-lg: 12px;
+      --danger: #dc2626;
+      --success: #16a34a
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      font-size: 14px
+    }
+
+    @media (pointer:fine) {
+      ::-webkit-scrollbar {
+        width: 5px
+      }
+
+      ::-webkit-scrollbar-track {
+        background: var(--gray-100)
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: var(--gray-300);
+        border-radius: 3px
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--gray-400)
+      }
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 52px;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      flex-shrink: 0;
+      gap: 12px;
+      position: relative;
+      z-index: 100
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .header-brand .logo {
+      font-size: 20px;
+      line-height: 1
+    }
+
+    .header-brand h1 {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -.01em
+    }
+
+    .badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 999px;
+      letter-spacing: .03em
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      justify-content: center
+    }
+
+    .platform-label {
+      font-size: 11px;
+      color: var(--gray-400);
+      font-weight: 600
+    }
+
+    .platform-select {
+      padding: 5px 10px;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--gray-900);
+      background: var(--white);
+      cursor: pointer;
+      outline: none;
+      transition: border-color .15s
+    }
+
+    .platform-select:focus {
+      border-color: var(--primary)
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center
+    }
+
+    .divider {
+      width: 1px;
+      height: 22px;
+      background: var(--gray-200)
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .15s;
+      white-space: nowrap;
+      font-family: inherit;
+      line-height: 1
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--gray-600);
+      border: 1px solid var(--gray-200)
+    }
+
+    .btn-ghost:hover {
+      background: var(--gray-100)
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff
+    }
+
+    .btn-primary:hover {
+      opacity: .88;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(var(--primary-rgb), .3)
+    }
+
+    .btn-primary:active {
+      transform: translateY(0)
+    }
+
+    .btn-sm {
+      font-size: 11px;
+      padding: 4px 9px
+    }
+
+    .btn-danger-ghost {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid #fecaca
+    }
+
+    .btn-danger-ghost:hover {
+      background: #fef2f2
+    }
+
+    .app-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden
+    }
+
+    .sidebar {
+      width: 370px;
+      flex-shrink: 0;
+      background: var(--white);
+      border-right: 1px solid var(--gray-200);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden
+    }
+
+    .sidebar-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--gray-200);
+      flex-shrink: 0
+    }
+
+    .sidebar-tab {
+      flex: 1;
+      padding: 11px 0;
+      border: none;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-400);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all .15s;
+      font-family: inherit
+    }
+
+    .sidebar-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary)
+    }
+
+    .sidebar-tab:hover:not(.active) {
+      color: var(--gray-600)
+    }
+
+    .sidebar-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px
+    }
+
+    .form-section {
+      margin-bottom: 20px
+    }
+
+    .form-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 10px
+    }
+
+    .form-field {
+      margin-bottom: 9px
+    }
+
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gray-600);
+      margin-bottom: 3px
+    }
+
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      padding: 7px 9px;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      color: var(--gray-900);
+      background: var(--white);
+      transition: border-color .15s, box-shadow .15s
+    }
+
+    .form-input:focus,
+    .form-textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(var(--primary-rgb), .08)
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 72px;
+      line-height: 1.55
+    }
+
+    .module-topbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-bottom: 12px
+    }
+
+    .module-search {
+      position: relative;
+      margin-bottom: 12px
+    }
+
+    .module-search input {
+      padding-left: 28px
+    }
+
+    .module-search-icon {
+      position: absolute;
+      left: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-400);
+      font-size: 13px;
+      pointer-events: none
+    }
+
+    .cat-group {
+      margin-bottom: 14px
+    }
+
+    .cat-header {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 12px;
+      background: var(--primary-light);
+      border: 1px solid rgba(var(--primary-rgb), .25);
+      border-left: 4px solid var(--primary);
+      border-radius: var(--radius);
+      cursor: pointer;
+      user-select: none;
+      margin-bottom: 6px;
+      transition: background .15s, box-shadow .15s
+    }
+
+    .cat-header:hover {
+      background: rgba(var(--primary-rgb), .15);
+      box-shadow: 0 2px 8px rgba(var(--primary-rgb), .12)
+    }
+
+    .cat-icon {
+      font-size: 14px
+    }
+
+    .cat-name {
+      font-size: 12px;
+      font-weight: 700;
+      flex: 1;
+      color: var(--primary)
+    }
+
+    .cat-cnt {
+      background: var(--primary);
+      color: #fff;
+      border-radius: 10px;
+      padding: 1px 6px;
+      font-size: 10px;
+      font-weight: 700;
+      min-width: 18px;
+      text-align: center
+    }
+
+    .cat-arrow {
+      font-size: 10px;
+      color: var(--primary);
+      opacity: .7;
+      transition: transform .2s
+    }
+
+    .cat-arrow.open {
+      transform: rotate(90deg)
+    }
+
+    .cat-items {
+      display: flex;
+      flex-direction: column;
+      gap: 4px
+    }
+
+    .mod-card {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      background: var(--white);
+      overflow: hidden;
+      transition: border-color .15s, box-shadow .15s, background .15s
+    }
+
+    .mod-card:hover:not(.sel) {
+      border-color: var(--gray-300)
+    }
+
+    .mod-card.sel {
+      border-color: var(--primary);
+      border-left: 3px solid var(--primary);
+      background: var(--primary-light);
+      box-shadow: 0 2px 10px rgba(var(--primary-rgb), .18)
+    }
+
+    .mod-card-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      cursor: pointer
+    }
+
+    .mod-card-head:hover {
+      background: rgba(0, 0, 0, .02)
+    }
+
+    .mod-card.sel .mod-card-head:hover {
+      background: rgba(var(--primary-rgb), .06)
+    }
+
+    .mod-check {
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+      accent-color: var(--primary);
+      flex-shrink: 0
+    }
+
+    .mod-name {
+      font-size: 12px;
+      font-weight: 500;
+      flex: 1;
+      color: #334155
+    }
+
+    .mod-card.sel .mod-name {
+      color: var(--primary);
+      font-weight: 700
+    }
+
+    .mod-edited-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--primary);
+      flex-shrink: 0
+    }
+
+    .mod-edit-btn {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--gray-200);
+      background: var(--white);
+      cursor: pointer;
+      color: var(--gray-500);
+      white-space: nowrap;
+      font-family: inherit
+    }
+
+    .mod-edit-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light)
+    }
+
+    .edit-empty {
+      padding: 48px 20px;
+      text-align: center;
+      color: var(--gray-400)
+    }
+
+    .edit-empty-icon {
+      font-size: 36px;
+      margin-bottom: 10px
+    }
+
+    .edit-empty-text {
+      font-size: 12px;
+      line-height: 1.7
+    }
+
+    .edit-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding-bottom: 13px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--gray-200)
+    }
+
+    .edit-back {
+      padding: 5px 9px;
+      font-size: 11px;
+      color: var(--gray-500);
+      background: var(--gray-100);
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      flex-shrink: 0
+    }
+
+    .edit-back:hover {
+      background: var(--gray-200)
+    }
+
+    .edit-mod-info {
+      flex: 1;
+      min-width: 0
+    }
+
+    .edit-mod-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gray-900)
+    }
+
+    .edit-mod-cat {
+      font-size: 11px;
+      color: var(--gray-400);
+      margin-top: 2px
+    }
+
+    .edit-section {
+      margin-bottom: 16px
+    }
+
+    .edit-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between
+    }
+
+    .reset-link {
+      font-size: 10px;
+      color: var(--gray-400);
+      cursor: pointer;
+      text-decoration: underline;
+      font-weight: 400
+    }
+
+    .reset-link:hover {
+      color: var(--primary)
+    }
+
+    .content-editor {
+      width: 100%;
+      min-height: 210px;
+      padding: 8px;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      font-size: 11px;
+      font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+      line-height: 1.55;
+      resize: vertical;
+      outline: none;
+      color: var(--gray-900)
+    }
+
+    .content-editor:focus {
+      border-color: var(--primary)
+    }
+
+    .ss-slot {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 1px dashed var(--gray-300);
+      border-radius: var(--radius);
+      margin-bottom: 5px;
+      background: var(--gray-50)
+    }
+
+    .ss-slot-num {
+      width: 20px;
+      height: 20px;
+      background: var(--gray-200);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--gray-600);
+      flex-shrink: 0
+    }
+
+    .ss-slot-num.has {
+      background: var(--primary);
+      color: #fff
+    }
+
+    .ss-slot-label {
+      font-size: 11px;
+      color: var(--gray-500);
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    .ss-label-input {
+      flex: 1;
+      min-width: 0;
+      padding: 3px 7px;
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: inherit;
+      color: var(--gray-900);
+      background: var(--white);
+      outline: none
+    }
+
+    .ss-label-input:focus {
+      border-color: var(--primary)
+    }
+
+    .ss-thumb {
+      width: 42px;
+      height: 30px;
+      border-radius: 4px;
+      object-fit: cover;
+      border: 1px solid var(--gray-200);
+      flex-shrink: 0
+    }
+
+    .ss-upload-btn {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--gray-200);
+      background: var(--white);
+      cursor: pointer;
+      color: var(--gray-500);
+      font-family: inherit;
+      white-space: nowrap;
+      flex-shrink: 0
+    }
+
+    .ss-upload-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary)
+    }
+
+    .ss-clear-btn {
+      font-size: 10px;
+      padding: 3px 6px;
+      border-radius: 4px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--gray-400);
+      flex-shrink: 0
+    }
+
+    .ss-clear-btn:hover {
+      color: var(--danger)
+    }
+
+    .ss-size-wrap {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex-shrink: 0
+    }
+
+    .ss-size-input {
+      width: 42px;
+      font-size: 10px;
+      padding: 2px 4px;
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      background: var(--white);
+      font-family: inherit;
+      color: var(--gray-600);
+      text-align: right;
+      outline: none
+    }
+
+    .ss-size-input:focus {
+      border-color: var(--primary)
+    }
+
+    .ss-size-unit {
+      font-size: 10px;
+      color: var(--gray-500)
+    }
+
+    .note-editor {
+      width: 100%;
+      min-height: 65px;
+      padding: 7px 9px;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-family: inherit;
+      resize: vertical;
+      outline: none;
+      line-height: 1.55
+    }
+
+    .note-editor:focus {
+      border-color: var(--primary)
+    }
+
+    .rte-wrap {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--white)
+    }
+
+    .rte-wrap:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(var(--primary-rgb), .08)
+    }
+
+    .rte-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1px;
+      padding: 4px 6px;
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--gray-200)
+    }
+
+    .rte-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 7px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      background: transparent;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--gray-600);
+      font-family: inherit;
+      line-height: 1.4;
+      transition: all .1s;
+      white-space: nowrap
+    }
+
+    .rte-btn:hover {
+      background: var(--white);
+      border-color: var(--gray-200);
+      color: var(--gray-900)
+    }
+
+    .rte-sep {
+      width: 1px;
+      height: 16px;
+      background: var(--gray-200);
+      margin: 0 3px;
+      flex-shrink: 0;
+      align-self: center
+    }
+
+    .rte-body {
+      min-height: 500px;
+      max-height: calc(100vh - 360px);
+      overflow-y: auto;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif;
+      line-height: 1.75;
+      color: var(--gray-900);
+      outline: none
+    }
+
+    .rte-body:empty::before {
+      content: attr(data-placeholder);
+      color: var(--gray-400);
+      pointer-events: none
+    }
+
+    .rte-body h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin: 14px 0 7px;
+      padding-left: 9px;
+      border-left: 3px solid var(--primary)
+    }
+
+    .rte-body h3:first-child {
+      margin-top: 0
+    }
+
+    .rte-body p {
+      margin-bottom: 10px;
+      font-size: 13px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif;
+      font-weight: 400;
+      color: var(--gray-900);
+      line-height: 1.75
+    }
+
+    .rte-body ol,
+    .rte-body ul {
+      padding-left: 20px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px
+    }
+
+    .rte-body a {
+      color: var(--primary)
+    }
+
+    .rte-body code {
+      background: var(--gray-100);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-family: monospace
+    }
+
+    .rte-body .ss-box {
+      border: 2px dashed var(--gray-300);
+      border-radius: 6px;
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--gray-400);
+      font-size: 12px;
+      margin: 10px 0;
+      background: var(--gray-50);
+      user-select: none;
+      cursor: default
+    }
+
+    .rte-body .ss-box .ss-box-num {
+      width: 20px;
+      height: 20px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      flex-shrink: 0
+    }
+
+    .rte-body .ss-box .ss-box-thumb {
+      width: 42px;
+      height: 30px;
+      object-fit: cover;
+      border-radius: 3px;
+      flex-shrink: 0;
+      pointer-events: none
+    }
+
+    .rte-body .ss-box .ss-box-caption {
+      flex: 1;
+      min-width: 0;
+      font-size: 11px;
+      color: var(--gray-600);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    .rte-body .ss-box .ss-box-del {
+      margin-left: auto;
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      border: none;
+      background: transparent;
+      color: var(--gray-400);
+      cursor: pointer;
+      border-radius: 3px;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      padding: 0;
+      font-family: inherit
+    }
+
+    .rte-body .ss-box .ss-box-del:hover {
+      background: var(--gray-200);
+      color: var(--danger)
+    }
+
+    .rte-body .tip {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #1d4ed8;
+      margin: 8px 0;
+      line-height: 1.6
+    }
+
+    .rte-body .tip.warn {
+      background: #fff7ed;
+      border-color: #fed7aa;
+      color: #c2410c
+    }
+
+    .rte-body blockquote {
+      border-left: 3px solid var(--primary);
+      padding: 8px 12px;
+      margin: 8px 0;
+      color: var(--gray-500);
+      background: var(--gray-50);
+      border-radius: 0 4px 4px 0;
+      font-style: italic
+    }
+
+    .rte-body .tbl-wrap {
+      overflow-x: auto;
+      margin: 10px 0
+    }
+
+    .rte-body table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px
+    }
+
+    .rte-body th {
+      background: var(--gray-100);
+      padding: 7px 10px;
+      text-align: left;
+      font-weight: 700;
+      border: 1px solid var(--gray-200)
+    }
+
+    .rte-body td {
+      padding: 7px 10px;
+      border: 1px solid var(--gray-200);
+      vertical-align: top;
+      min-width: 60px
+    }
+
+    .rte-body table.tbl-equal {
+      table-layout: fixed
+    }
+
+    .rte-btn.active {
+      background: var(--primary-light);
+      border-color: rgba(var(--primary-rgb), .4);
+      color: var(--primary)
+    }
+
+    .rte-fs-select {
+      font-size: 11px;
+      padding: 2px 4px;
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      background: var(--white);
+      font-family: inherit;
+      color: var(--gray-600);
+      cursor: pointer;
+      height: 24px;
+      outline: none
+    }
+
+    .rte-fs-select:focus {
+      border-color: var(--primary)
+    }
+
+    .rte-color-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      padding: 1px 5px 1px 3px;
+      height: 24px;
+      background: var(--white)
+    }
+
+    .rte-color-swatch {
+      width: 16px;
+      height: 16px;
+      border: 1px solid rgba(0, 0, 0, .15);
+      border-radius: 3px;
+      padding: 0;
+      cursor: pointer;
+      flex-shrink: 0;
+      background: transparent
+    }
+
+    .rte-hex-input {
+      width: 60px;
+      border: none;
+      outline: none;
+      font-size: 11px;
+      font-family: monospace;
+      color: var(--gray-900);
+      background: transparent;
+      letter-spacing: .03em
+    }
+
+    .rte-hex-input::placeholder {
+      color: var(--gray-400)
+    }
+
+    .tbl-ctrl {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      padding: 4px 8px;
+      background: rgba(var(--primary-rgb), .04);
+      border-bottom: 1px solid rgba(var(--primary-rgb), .15)
+    }
+
+    .tbl-ctrl-label {
+      font-size: 10px;
+      color: var(--primary);
+      font-weight: 600;
+      margin-right: 4px;
+      white-space: nowrap
+    }
+
+    .ss-preview-img {
+      margin: 2px 0 10px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--gray-200);
+      background: var(--gray-50);
+      user-select: none;
+      pointer-events: none;
+      display: block
+    }
+
+    .ss-preview-img img {
+      max-width: 100%;
+      max-height: 180px;
+      object-fit: contain;
+      display: block
+    }
+
+    .ss-slot {
+      transition: border-color .15s, background .15s
+    }
+
+    .ss-slot.dragover {
+      border-color: var(--primary) !important;
+      background: var(--primary-light) !important;
+      border-style: solid !important
+    }
+
+    .add-custom-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: 2px dashed var(--gray-300);
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--gray-400);
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+      transition: all .15s
+    }
+
+    .add-custom-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light)
+    }
+
+    .mod-del-btn {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid #fecaca;
+      background: var(--white);
+      cursor: pointer;
+      color: var(--danger);
+      white-space: nowrap;
+      font-family: inherit
+    }
+
+    .mod-del-btn:hover {
+      background: #fef2f2
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .45);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .modal-box {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      width: 400px;
+      max-width: calc(100vw - 32px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .25)
+    }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 16px
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 18px
+    }
+
+    .preview-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0
+    }
+
+    .preview-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      flex-shrink: 0;
+      gap: 12px
+    }
+
+    .preview-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .preview-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: .06em
+    }
+
+    .selected-count {
+      font-size: 12px;
+      color: var(--gray-600)
+    }
+
+    .selected-count strong {
+      color: var(--primary)
+    }
+
+    .preview-toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .view-toggle {
+      display: flex;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      overflow: hidden
+    }
+
+    .view-btn {
+      padding: 4px 10px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 11px;
+      color: var(--gray-500);
+      font-family: inherit
+    }
+
+    .view-btn.active {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 600
+    }
+
+    .preview-bg {
+      flex: 1;
+      overflow: auto;
+      background: var(--primary-light);
+      background-image: radial-gradient(circle at 20px 20px, rgba(var(--primary-rgb), .07) 2px, transparent 0);
+      background-size: 40px 40px;
+      display: flex;
+      flex-direction: column;
+      padding: 0
+    }
+
+    .preview-bg.mobile-mode {
+      padding: 12px;
+      align-items: center
+    }
+
+    #preview {
+      border: none;
+      background: #fff;
+      width: 100%;
+      height: 100%;
+      display: block
+    }
+
+    .preview-bg.mobile-mode #preview {
+      width: 375px;
+      height: 100%;
+      box-shadow: 0 4px 28px rgba(0, 0, 0, .18);
+      border-radius: 16px;
+      overflow: hidden;
+      flex-shrink: 0
+    }
+
+    .color-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 4px
+    }
+
+    .color-chip {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all .15s;
+      border: 2px solid transparent;
+      outline: 2px solid transparent;
+      outline-offset: 2px
+    }
+
+    .color-chip:hover {
+      transform: scale(1.15)
+    }
+
+    .color-chip.active {
+      outline-color: var(--gray-900)
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gray-900);
+      color: #fff;
+      padding: 9px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      z-index: 500;
+      opacity: 0;
+      transition: opacity .2s;
+      pointer-events: none;
+      white-space: nowrap
+    }
+
+    .toast.show {
+      opacity: 1
+    }
+
+    .header-actions-full {
+      display: flex;
+      gap: 6px;
+      align-items: center
+    }
+
+    .header-actions-compact {
+      display: none;
+      gap: 6px;
+      align-items: center
+    }
+
+    @media (max-width:1180px) {
+      .header-actions-full {
+        display: none
+      }
+
+      .header-actions-compact {
+        display: flex
+      }
+
+      .platform-label {
+        display: none
+      }
+    }
+
+    @media (max-width:860px) {
+      .header-center {
+        display: none
+      }
+    }
+
+    .dropdown-wrap {
+      position: relative
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 7px);
+      right: 0;
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, .14);
+      min-width: 200px;
+      padding: 5px;
+      z-index: 200;
+      display: none;
+      animation: ddIn .12s ease
+    }
+
+    .dropdown-menu.open {
+      display: block
+    }
+
+    @keyframes ddIn {
+      from {
+        opacity: 0;
+        transform: translateY(-6px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 12px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--gray-700);
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+      transition: background .1s;
+      white-space: nowrap
+    }
+
+    .dropdown-item:hover {
+      background: var(--gray-100)
+    }
+
+    .dropdown-sep {
+      height: 1px;
+      background: var(--gray-200);
+      margin: 4px 0
+    }
+
+    .edit-drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .28);
+      z-index: 400;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s
+    }
+
+    .edit-drawer-overlay.open {
+      opacity: 1;
+      pointer-events: auto
+    }
+
+    .edit-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      width: 50vw;
+      max-width: 100vw;
+      background: var(--white);
+      box-shadow: -6px 0 40px rgba(0, 0, 0, .18);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform .26s cubic-bezier(.32, .72, 0, 1);
+      z-index: 401
+    }
+
+    @media (max-width:768px) {
+      .edit-drawer {
+        width: 90vw
+      }
+    }
+
+    .edit-drawer.open {
+      transform: translateX(0)
+    }
+
+    .edit-drawer-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--gray-200);
+      flex-shrink: 0;
+      background: var(--gray-50)
+    }
+
+    .edit-drawer-meta {
+      flex: 1;
+      min-width: 0
+    }
+
+    .edit-drawer-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gray-900);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .edit-drawer-cat {
+      font-size: 11px;
+      color: var(--gray-400);
+      margin-top: 1px
+    }
+
+    .edit-drawer-close {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: none;
+      background: var(--gray-200);
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-600);
+      flex-shrink: 0;
+      transition: background .1s
+    }
+
+    .edit-drawer-close:hover {
+      background: var(--gray-300);
+      color: var(--gray-900)
+    }
+
+    .edit-drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 18px
+    }
+
+    #tab-btn-preview {
+      display: none
+    }
+
+    @media (max-width:768px) {
+      .app-body {
+        flex-direction: column;
+        overflow: hidden
+      }
+
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--gray-200);
+        flex: 1;
+        min-height: 0
+      }
+
+      #tab-btn-preview {
+        display: block
+      }
+
+      .preview-pane {
+        display: none
+      }
+
+      .sidebar-body {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0
+      }
+
+      .app-body.preview-active .sidebar {
+        flex: 0 0 auto
+      }
+
+      .app-body.preview-active .sidebar-body {
+        display: none
+      }
+
+      .app-body.preview-active .preview-pane {
+        display: flex !important;
+        flex: 1;
+        min-height: 0
+      }
+    }
+
+    @media (max-width:568px) {
+      .app-header {
+        height: auto;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 8px 12px;
+        gap: 8px
+      }
+
+      .header-brand {
+        flex-shrink: 0
+      }
+
+      .header-center {
+        display: none !important
+      }
+
+      .header-actions {
+        width: 100%
+      }
+
+      .header-actions-compact {
+        width: 100%;
+        gap: 8px
+      }
+
+      .header-actions-compact>.dropdown-wrap {
+        flex: 1
+      }
+
+      .header-actions-compact .btn {
+        width: 100%;
+        justify-content: center;
+        font-size: 11px;
+        padding: 6px 8px
+      }
+
+      .header-actions-compact>.dropdown-wrap:first-child .dropdown-menu {
+        left: 0;
+        right: auto
+      }
+    }
+
+    @media (max-width:400px) {
+      .sidebar {
+        min-width: 0
+      }
+
+      .sidebar-body {
+        padding: 10px 8px
+      }
+
+      .sidebar-tab {
+        font-size: 10px;
+        padding: 9px 3px;
+        min-width: 0
+      }
+
+      .cat-header {
+        padding: 7px 8px;
+        gap: 4px
+      }
+
+      .cat-name {
+        font-size: 11px
+      }
+
+      .mod-card-head {
+        padding: 6px 7px;
+        gap: 4px
+      }
+
+      .mod-name {
+        font-size: 11px
+      }
+
+      .mod-edit-btn,
+      .mod-del-btn {
+        padding: 2px 5px;
+        font-size: 9px
+      }
+
+      .module-topbar {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 4px
+      }
+
+      .btn-sm {
+        padding: 3px 7px;
+        font-size: 10px
+      }
+
+      .add-custom-btn {
+        font-size: 11px;
+        padding: 8px
+      }
+    }
+
+    .comp-topbar {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+      flex-wrap: wrap
+    }
+
+    #comp-area {
+      max-height: min(400px, 38vh);
+      overflow-y: auto;
+      margin-bottom: 2px
+    }
+
+    #comp-area::-webkit-scrollbar {
+      width: 4px
+    }
+
+    #comp-area::-webkit-scrollbar-track {
+      background: transparent
+    }
+
+    #comp-area::-webkit-scrollbar-thumb {
+      background: var(--gray-300);
+      border-radius: 3px
+    }
+
+    #comp-area::-webkit-scrollbar-thumb:hover {
+      background: var(--gray-400)
+    }
+
+    .comp-empty {
+      padding: 18px;
+      text-align: center;
+      color: var(--gray-400);
+      font-size: 12px;
+      border: 2px dashed var(--gray-200);
+      border-radius: var(--radius);
+      line-height: 1.8;
+      background: var(--gray-50)
+    }
+
+    #comp-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px
+    }
+
+    .comp-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 8px;
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      transition: box-shadow .15s, border-color .15s
+    }
+
+    .comp-item:hover {
+      border-color: var(--gray-300);
+      box-shadow: 0 1px 5px rgba(0, 0, 0, .06)
+    }
+
+    .comp-item.sortable-ghost {
+      opacity: .3;
+      background: var(--primary-light)
+    }
+
+    .comp-item.sortable-chosen {
+      box-shadow: 0 4px 16px rgba(var(--primary-rgb), .18);
+      border-color: var(--primary)
+    }
+
+    .comp-drag-handle {
+      cursor: grab;
+      color: var(--gray-300);
+      font-size: 15px;
+      flex-shrink: 0;
+      user-select: none;
+      line-height: 1;
+      padding: 0 1px
+    }
+
+    .comp-drag-handle:hover {
+      color: var(--gray-500)
+    }
+
+    .comp-drag-handle:active {
+      cursor: grabbing
+    }
+
+    .comp-item-info {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden
+    }
+
+    .comp-item-title {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--gray-700);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    .comp-item-cat {
+      display: block;
+      font-size: 10px;
+      color: var(--gray-400);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    .comp-act-btn {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid var(--gray-200);
+      background: var(--white);
+      cursor: pointer;
+      color: var(--gray-500);
+      white-space: nowrap;
+      font-family: inherit;
+      flex-shrink: 0;
+      transition: all .1s
+    }
+
+    .comp-act-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light)
+    }
+
+    .comp-del-btn {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--gray-400);
+      font-size: 12px;
+      flex-shrink: 0;
+      transition: all .1s
+    }
+
+    .comp-del-btn:hover {
+      background: #fef2f2;
+      color: var(--danger)
+    }
+
+    .comp-item-num {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      line-height: 1
+    }
+
+    .comp-item.is-heading {
+      border: 1px solid #fcd34d;
+      border-left: 6px solid #f59e0b;
+      background: linear-gradient(135deg, #fefce8 0%, #fff7ed 100%);
+      box-shadow: 0 2px 8px rgba(245, 158, 11, .18);
+      padding: 9px 10px;
+      position: relative
+    }
+
+    .comp-item.is-heading::after {
+      content: '章区切り';
+      position: absolute;
+      top: 50%;
+      right: 28px;
+      transform: translateY(-50%);
+      font-size: 9px;
+      font-weight: 700;
+      color: #b45309;
+      letter-spacing: .06em;
+      opacity: .6;
+      pointer-events: none
+    }
+
+    .comp-item.is-heading:hover {
+      border-left-color: #d97706;
+      background: linear-gradient(135deg, #fef9c3 0%, #fef3c7 100%);
+      box-shadow: 0 3px 12px rgba(245, 158, 11, .28)
+    }
+
+    .comp-heading-icon {
+      font-size: 9px;
+      font-weight: 800;
+      flex-shrink: 0;
+      color: #92400e;
+      background: #fde68a;
+      border: 1px solid #f59e0b;
+      border-radius: 3px;
+      padding: 2px 5px;
+      line-height: 1.4;
+      letter-spacing: .04em
+    }
+
+    .comp-heading-input {
+      font-size: 13px;
+      font-weight: 700;
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+      color: #78350f;
+      font-family: inherit;
+      min-width: 0;
+      letter-spacing: .01em
+    }
+
+    .comp-heading-input:focus {
+      color: #451a03
+    }
+
+    .comp-heading-input::placeholder {
+      color: #fcd34d;
+      font-weight: 400
+    }
+
+    .comp-module-divider {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 16px 0 10px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: .08em
+    }
+
+    .comp-module-divider::before,
+    .comp-module-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--gray-200)
+    }
+
+    .mod-action-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 4px;
+      margin-bottom: 10px
+    }
+
+    .mod-action-bar .btn {
+      justify-content: center;
+      padding: 5px 4px;
+      font-size: 11px;
+      min-width: 0
+    }
+
+    .mod-action-bar-bottom {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--gray-200)
+    }
+
+    .free-mode-hint {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 28px 16px;
+      border: 2px dashed var(--gray-200);
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, #fafbff 0%, #f5f3ff 100%);
+      margin: 4px 0
+    }
+
+    .free-mode-icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+      line-height: 1
+    }
+
+    .free-mode-text {
+      font-size: 12px;
+      color: var(--gray-500);
+      line-height: 1.8;
+      margin: 0
+    }
+
+    .free-mode-text strong {
+      color: var(--primary)
+    }
+
+    .toggle-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      padding: 4px 0
+    }
+
+    .toggle-label .form-label {
+      margin: 0;
+      cursor: pointer
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 36px;
+      height: 20px;
+      flex-shrink: 0
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute
+    }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--gray-300);
+      border-radius: 10px;
+      transition: background .2s;
+      cursor: pointer
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      left: 3px;
+      top: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform .2s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .25)
+    }
+
+    .toggle-switch input:checked+.toggle-slider {
+      background: var(--primary)
+    }
+
+    .toggle-switch input:checked+.toggle-slider::before {
+      transform: translateX(16px)
+    }
+  </style>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WRM7PV7BBK"></script>
+  <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-WRM7PV7BBK');</script>
+</head>
+
+<body><noscript>
+    <meta HTTP-EQUIV="refresh" content="0;url='https://tools.corto.jp/demo/manural-demo/?PageSpeed=noscript'" />
+    <style>
+      <!--table,div,span,font,p{display:none} 
+      -->
+    </style>
+    <div style="display:block">Please click <a
+        href="https://tools.corto.jp/demo/manural-demo/?PageSpeed=noscript">here</a> if you are not redirected within a
+      few seconds.</div>
+  </noscript>
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="header-brand">
+      <span class="logo">📖</span>
+      <h1>manural</h1>
+    </div>
+    <div class="header-center">
+      <span class="platform-label">対応プラットフォーム:</span>
+      <select class="platform-select" id="platform-select" onchange="onPlatformChange(this.value)"></select>
+    </div>
+    <div class="header-actions">
+      <!-- 通常幅：全ボタン表示 -->
+      <div class="header-actions-full">
+        <button class="btn btn-ghost" onclick="loadProject()">📂 プロジェクトの読込</button>
+        <button class="btn btn-ghost" onclick="saveProject()">💾 プロジェクトの保存</button>
+        <div class="divider"></div>
+        <button class="btn btn-ghost" onclick="copyMarkdown()">📋 マークダウンで出力</button>
+        <button class="btn btn-ghost" onclick="printManual()">🖨️ PDF出力</button>
+        <button class="btn btn-primary" onclick="exportHTML()">▶ HTML出力</button>
+      </div>
+      <!-- 狭い幅（≤1180px）：折りたたみドロップダウン -->
+      <div class="header-actions-compact">
+        <div class="dropdown-wrap">
+          <button class="btn btn-ghost" id="dd-btn-project" onclick="toggleDropdown('dd-project')">
+            📁 プロジェクト <span style="font-size:9px;opacity:.7">▾</span>
+          </button>
+          <div class="dropdown-menu" id="dd-project">
+            <button class="dropdown-item" onclick="loadProject();closeDropdowns()">📂 プロジェクトの読込</button>
+            <button class="dropdown-item" onclick="saveProject();closeDropdowns()">💾 プロジェクトの保存</button>
+          </div>
+        </div>
+        <div class="dropdown-wrap">
+          <button class="btn btn-primary" id="dd-btn-export" onclick="toggleDropdown('dd-export')">
+            ▶ マニュアル出力 <span style="font-size:9px;opacity:.7">▾</span>
+          </button>
+          <div class="dropdown-menu" id="dd-export">
+            <button class="dropdown-item" onclick="copyMarkdown();closeDropdowns()">📋 マークダウンで出力</button>
+            <button class="dropdown-item" onclick="printManual();closeDropdowns()">🖨️ PDF出力</button>
+            <div class="dropdown-sep"></div>
+            <button class="dropdown-item" style="color:var(--primary);font-weight:600"
+              onclick="exportHTML();closeDropdowns()">▶ HTML出力</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- APP BODY -->
+  <div class="app-body">
+    <!-- LEFT: SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab" id="tab-btn-modules" onclick="switchTab('modules')">☑ 項目</button>
+        <button class="sidebar-tab" id="tab-btn-settings" onclick="switchTab('settings')">⚙ 設定</button>
+        <button class="sidebar-tab" id="tab-btn-preview" onclick="switchTab('preview')">👁 プレビュー</button>
+      </div>
+      <div class="sidebar-body" id="sidebar-body"></div>
+    </div>
+    <!-- RIGHT: PREVIEW -->
+    <div class="preview-pane">
+      <div class="preview-toolbar">
+        <div class="preview-toolbar-left">
+          <span class="preview-label">ライブプレビュー</span>
+          <span class="selected-count" id="selected-count"><strong>0</strong>項目選択中</span>
+        </div>
+        <div class="preview-toolbar-right">
+          <div class="view-toggle">
+            <button class="view-btn active" id="vbtn-pc" onclick="setViewMode('pc')">💻 PC</button>
+            <button class="view-btn" id="vbtn-mobile" onclick="setViewMode('mobile')">📱 Mobile</button>
+          </div>
+        </div>
+      </div>
+      <div class="preview-bg" id="preview-bg">
+        <iframe id="preview" frameborder="0" title="マニュアルプレビュー"></iframe>
+      </div>
+    </div>
+  </div>
+  <!-- Edit Drawer (slide-in from right) -->
+  <div class="edit-drawer-overlay" id="edit-drawer-overlay" onclick="closeEditDrawer()"></div>
+  <div class="edit-drawer" id="edit-drawer">
+    <div class="edit-drawer-head">
+      <div class="edit-drawer-meta">
+        <div class="edit-drawer-name" id="edit-drawer-name">項目を編集</div>
+        <div class="edit-drawer-cat" id="edit-drawer-cat"></div>
+      </div>
+      <button class="edit-drawer-close" onclick="closeEditDrawer()" title="閉じる">✕</button>
+    </div>
+    <div class="edit-drawer-body" id="edit-drawer-body"></div>
+  </div>
+  <!-- Hidden file inputs -->
+  <input type="file" id="file-ss" accept="image/*" style="display:none" onchange="handleSSFile(this)">
+  <input type="file" id="file-project" accept=".json" style="display:none" onchange="handleProjectFile(this)">
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+  <!-- Sortable.js for drag-and-drop composition reordering -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
+  <!-- Platform data (add new platform .js files here) -->
+  <script src="data/wordpress.js" onerror="console.warn('data/wordpress.js not found')"></script>
+  <script src="data/studio.js" onerror="console.warn('data/studio.js not found')"></script>
+  <script src="data/troubleshooting.js" onerror="console.warn('data/troubleshooting.js not found')"></script>
+  <script src="data/analytics.js" onerror="console.warn('data/analytics.js not found')"></script>
+  <script src="data/line.js" onerror="console.warn('data/line.js not found')"></script>
+  <script>
+    // ================================================================
+    // CONSTANTS
+    // ================================================================
+    const LS_KEY = 'mb-pro-v1';
+    const ACCENT_COLORS = ['#0EA5E9', '#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#64748B'];
+
+    // ================================================================
+    // FREE PLATFORM — カテゴリなしの自由構成モード
+    // ================================================================
+    window.MB_PLATFORMS = window.MB_PLATFORMS || {};
+    window.MB_PLATFORMS.free = {
+      id: 'free',
+      name: 'フリー（自由構成）',
+      icon: '✨',
+      categories: []
+    };
+
+    // ================================================================
+    // STATE
+    // ================================================================
+    let S = {
+      platformId: null,
+      activeTab: 'settings',
+      activeModuleId: null,
+      viewMode: 'pc',
+      settings: {
+        siteName: '', siteUrl: 'https://example.com',
+        company: '', contact: '',
+        date: new Date().toISOString().slice(0, 10),
+        intro: '', accentColor: '#0EA5E9',
+        showCover: true, version: ''
+      },
+      modules: {},      // moduleId: { selected, note, editedContent, screenshots:[{data?,url?,label}] }
+      catOpen: {},      // catGroupId: bool
+      customModules: [], // [{id, title, content, _custom:true}]
+      composition: []   // [{type:'module'|'custom'|'heading', id, title?}] — authoritative order
+    };
+
+    // ================================================================
+    // STATE ACCESSORS
+    // ================================================================
+    function plat(id) { return (window.MB_PLATFORMS || {})[id || S.platformId] || null; }
+    function allPlats() { return Object.values(window.MB_PLATFORMS || {}); }
+
+    function findMod(moduleId) {
+      // 全プラットフォームを横断して検索
+      for (const p of Object.values(window.MB_PLATFORMS || {})) {
+        for (const c of p.categories) { const m = c.modules.find(m => m.id === moduleId); if (m) return { m, c }; }
+      }
+      // カスタムモジュールを検索
+      const cm = S.customModules.find(m => m.id === moduleId);
+      if (cm) return { m: cm, c: { name: 'カスタム項目', icon: '📄' } };
+      return null;
+    }
+
+    function ms(moduleId) {
+      if (!S.modules[moduleId]) S.modules[moduleId] = { selected: false, note: '', editedContent: null, screenshots: [] };
+      return S.modules[moduleId];
+    }
+
+    function getContent(moduleId) {
+      const st = ms(moduleId);
+      if (st.editedContent !== null) return st.editedContent;
+      const r = findMod(moduleId); return r ? r.m.content : '';
+    }
+
+    function compositionItems() {
+      return S.composition.map(item => {
+        if (item.type === 'heading') return { _type: 'heading', id: item.id, title: item.title };
+        if (item.type === 'custom') {
+          const m = S.customModules.find(m => m.id === item.id);
+          return m ? { ...m, _type: 'module', catName: 'カスタム項目' } : null;
+        }
+        // type==='module'
+        const r = findMod(item.id);
+        return r ? { ...r.m, _type: 'module', catName: r.c.name } : null;
+      }).filter(Boolean);
+    }
+
+    function selectedMods() {
+      return compositionItems().filter(item => item._type === 'module');
+    }
+
+    // ================================================================
+    // STATE MUTATIONS
+    // ================================================================
+    function mutate(fn) { fn(); saveLS(); schedPrev(); }
+
+    function toggleMod(id) {
+      const adding = !ms(id).selected;
+      mutate(() => {
+        ms(id).selected = adding;
+        if (adding) {
+          if (!S.composition.find(c => c.id === id)) S.composition.push({ type: 'module', id });
+        } else {
+          S.composition = S.composition.filter(c => c.id !== id);
+        }
+      });
+      const card = document.getElementById('mc-' + id);
+      const cb = document.getElementById('cb-' + id);
+      if (card) card.classList.toggle('sel', adding);
+      if (cb) cb.checked = adding;
+      refreshCatCounts(); updateSelCount();
+      renderComposition();
+      if (adding) _pendingScroll = 's-' + id;
+    }
+
+    function refreshCatCounts() {
+      const p = plat(); if (!p) return;
+      p.categories.forEach((c, i) => {
+        const el = document.getElementById('catcnt-' + i); if (!el) return;
+        el.textContent = c.modules.filter(m => ms(m.id).selected).length;
+      });
+      // カスタム項目のカウント更新
+      const cel = document.getElementById('catcnt-custom'); if (!cel) return;
+      cel.textContent = S.customModules.filter(m => ms(m.id).selected).length;
+    }
+
+    function updateSelCount() {
+      const el = document.getElementById('selected-count'); if (!el) return;
+      const n = selectedMods().length; el.innerHTML = `<strong>${n}</strong>項目選択中`;
+    }
+
+    function onPlatformChange(pid) {
+      mutate(() => { S.platformId = pid; });
+      renderTab('modules');
+      if (S.activeTab === 'edit') renderTab('edit');
+    }
+
+    // ================================================================
+    // TAB MANAGEMENT
+    // ================================================================
+    function switchTab(tab) {
+      // 編集はドロワーで開く（タブ切り替えではない）
+      if (tab === 'edit') { openEditDrawer(); return; }
+
+      const appBody = document.querySelector('.app-body');
+
+      // ─── モバイルプレビュータブ ───
+      if (tab === 'preview') {
+        // サイドバーをタブ行のみに縮小し、プレビューペインを展開
+        if (appBody) appBody.classList.add('preview-active');
+        ['modules', 'settings', 'preview'].forEach(t => {
+          document.getElementById('tab-btn-' + t)?.classList.toggle('active', t === 'preview');
+        });
+        S.activeTab = 'preview';
+        saveLS();
+        return;
+      }
+
+      // ─── 通常タブ（モジュール / 設定）───
+      // プレビュー展開を解除してサイドバーを全高に戻す
+      if (appBody) appBody.classList.remove('preview-active');
+
+      S.activeTab = tab;
+      ['modules', 'settings', 'preview'].forEach(t => {
+        document.getElementById('tab-btn-' + t)?.classList.toggle('active', t === tab);
+      });
+      renderTab(tab);
+      saveLS();
+    }
+
+    function openEditMod(moduleId) {
+      S.activeModuleId = moduleId;
+      _pendingScroll = 's-' + moduleId;
+      saveLS();
+      openEditDrawer();
+    }
+
+    // ================================================================
+    // RENDERING
+    // ================================================================
+    function renderTab(tab) {
+      if (tab === 'edit') {
+        // 編集はドロワーに描画する
+        renderEditDrawer(); return;
+      }
+      const body = document.getElementById('sidebar-body');
+      switch (tab) {
+        case 'settings': body.innerHTML = tmplSettings(); bindSettings(); break;
+        case 'modules': body.innerHTML = tmplModules(); initSortable(); break;
+      }
+    }
+
+    // ---- SETTINGS ----
+    function tmplSettings() {
+      const s = S.settings;
+      return `
+  <div class="form-section">
+    <div class="form-section-title">基本情報</div>
+    <div class="form-field"><label class="form-label">サイト名 <span style="color:#EF4444">*</span></label>
+      <input class="form-input" id="si-name" value="${e(s.siteName)}" placeholder="例: 株式会社〇〇 公式サイト"></div>
+    <div class="form-field"><label class="form-label">管理画面URL</label>
+      <input class="form-input" id="si-url" value="${e(s.siteUrl)}" placeholder="https://example.com"></div>
+    <div class="form-field"><label class="form-label">制作会社名</label>
+      <input class="form-input" id="si-company" value="${e(s.company)}" placeholder="例: 〇〇デザイン"></div>
+    <div class="form-field"><label class="form-label">担当者・連絡先</label>
+      <input class="form-input" id="si-contact" value="${e(s.contact)}" placeholder="例: 田中 / tanaka@example.com"></div>
+    <div class="form-field"><label class="form-label">作成日</label>
+      <input class="form-input" type="date" id="si-date" value="${e(s.date)}"></div>
+    <div class="form-field"><label class="form-label">対象バージョン</label>
+      <input class="form-input" id="si-version" value="${e(s.version)}" placeholder="例: WordPress 6.7 / Studio 2025"></div>
+  </div>
+  <div class="form-section">
+    <div class="form-section-title">冒頭メッセージ（任意）</div>
+    <div class="form-field">
+      <textarea class="form-textarea" id="si-intro" placeholder="例: このマニュアルはWordPress 6.4で構築されたサイトの操作方法をまとめたものです。ご不明な点は担当者までお気軽にご連絡ください。">${e(s.intro)}</textarea>
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="form-section-title">アクセントカラー</div>
+    <div class="color-row" id="color-row">
+      ${ACCENT_COLORS.map(c => `<div class="color-chip${c === s.accentColor ? ' active' : ''}" style="background:${c}" title="${c}" onclick="setAccent('${c}')"></div>`).join('')}
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="form-section-title">出力オプション</div>
+    <label class="form-field toggle-label" for="si-show-cover">
+      <span class="form-label">PDF表紙を表示する</span>
+      <span class="toggle-switch">
+        <input type="checkbox" id="si-show-cover" ${s.showCover !== false ? 'checked' : ''}>
+        <span class="toggle-slider"></span>
+      </span>
+    </label>
+  </div>
+  <div class="form-section" style="margin-top:8px">
+    <div class="form-section-title">データ管理</div>
+    <button class="btn btn-danger-ghost" style="width:100%;justify-content:center" onclick="resetAll()">🔄 すべてをリセット</button>
+  </div>`;
+    }
+
+    function bindSettings() {
+      const map = [
+        ['si-name', 'siteName'], ['si-url', 'siteUrl'], ['si-company', 'company'],
+        ['si-contact', 'contact'], ['si-date', 'date'], ['si-intro', 'intro'], ['si-version', 'version']
+      ];
+      map.forEach(([id, key]) => {
+        const el = document.getElementById(id); if (!el) return;
+        el.addEventListener('input', () => mutate(() => { S.settings[key] = el.value; }));
+      });
+      const coverEl = document.getElementById('si-show-cover');
+      if (coverEl) coverEl.addEventListener('change', () => mutate(() => { S.settings.showCover = coverEl.checked; }));
+    }
+
+    function _applyAccentVars(color) {
+      const r = parseInt(color.slice(1, 3), 16), g = parseInt(color.slice(3, 5), 16), b = parseInt(color.slice(5, 7), 16);
+      document.documentElement.style.setProperty('--primary', color);
+      document.documentElement.style.setProperty('--primary-rgb', `${r},${g},${b}`);
+      const lr = Math.round(r * .15 + 255 * .85), lg = Math.round(g * .15 + 255 * .85), lb = Math.round(b * .15 + 255 * .85);
+      document.documentElement.style.setProperty('--primary-light', `#${[lr, lg, lb].map(v => v.toString(16).padStart(2, '0')).join('')}`);
+    }
+
+    function setAccent(color) {
+      mutate(() => { S.settings.accentColor = color; });
+      document.querySelectorAll('.color-chip').forEach(ch => {
+        ch.classList.toggle('active', ch.style.background === color || ch.getAttribute('title') === color);
+      });
+      _applyAccentVars(color);
+    }
+
+    // ---- MODULES ----
+    function tmplModules() {
+      const p = plat();
+
+      // 通常モード用アクションバー（4ボタン：見出し・独自項目・全選択・全削除）
+      const mkActionBar = (extraCls = '') => `<div class="mod-action-bar${extraCls}">
+    <button class="btn btn-ghost btn-sm" onclick="addHeading()">＋ 見出し</button>
+    <button class="btn btn-ghost btn-sm" onclick="showAddCustomModal()">＋ 独自項目</button>
+    <button class="btn btn-ghost btn-sm" onclick="selAll(true)">全選択</button>
+    <button class="btn btn-danger-ghost btn-sm" onclick="deleteAllCustomItems()">全削除</button>
+  </div>`;
+
+      // フリーモード用アクションバー（3ボタン：見出し・独自項目・全削除）
+      const mkActionBarFree = () => `<div class="mod-action-bar" style="grid-template-columns:1fr 1fr 1fr">
+    <button class="btn btn-ghost btn-sm" onclick="addHeading()">＋ 見出し</button>
+    <button class="btn btn-ghost btn-sm" onclick="showAddCustomModal()">＋ 独自項目</button>
+    <button class="btn btn-danger-ghost btn-sm" onclick="deleteAllCustomItems()">全削除</button>
+  </div>`;
+
+      // 上部：構成エリア（常に表示）
+      let html = `<div id="comp-area">${tmplCompInner()}</div>`;
+
+      if (!p) {
+        html += `<p style="color:var(--gray-400);text-align:center;padding:40px 20px;margin-top:16px">プラットフォームを選択するとモジュールを追加できます</p>`;
+        return html;
+      }
+
+      // ── フリーモード（カテゴリなし）──
+      if (p.categories.length === 0) {
+        html += `
+  <div class="comp-module-divider">コンテンツを追加</div>
+  ${mkActionBarFree()}
+  <div class="free-mode-hint">
+    <div class="free-mode-icon">✨</div>
+    <p class="free-mode-text">フリーモードです。<br>
+      <strong>「＋ 見出し」</strong>や<strong>「＋ 独自項目」</strong>を使って、<br>
+      ゼロから自由にマニュアルを構成してください。<br>
+      <span style="font-size:11px;opacity:.75;display:block;margin-top:6px">作成後は「プロジェクトの保存」で再利用可能なテンプレートとして保存できます。</span>
+    </p>
+  </div>`;
+        return html;
+      }
+
+      // ── 通常モード：プラットフォームモジュール選択 ──
+      html += `
+  <div class="comp-module-divider">モジュールを選択</div>
+  ${mkActionBar()}
+  <div class="module-search">
+    <span class="module-search-icon">🔍</span>
+    <input class="form-input" style="padding-left:28px" placeholder="項目を検索..." oninput="filterMods(this.value)">
+  </div>`;
+
+      p.categories.forEach((cat, ci) => {
+        const cId = 'cg-' + ci;
+        const isOpen = S.catOpen[cId] !== false;
+        const cnt = cat.modules.filter(m => ms(m.id).selected).length;
+        html += `
+    <div class="cat-group">
+      <div class="cat-header" onclick="toggleCat('${cId}')">
+        <span class="cat-icon">${cat.icon}</span>
+        <span class="cat-name">${cat.name}</span>
+        <span class="cat-cnt" id="catcnt-${ci}">${cnt}</span>
+        <span class="cat-arrow${isOpen ? ' open' : ''}" id="catarr-${cId}">▶</span>
+      </div>
+      <div class="cat-items" id="${cId}" style="display:${isOpen ? 'flex' : 'none'};flex-direction:column;gap:4px">`;
+        cat.modules.forEach(m => {
+          const sel = ms(m.id).selected, edited = ms(m.id).editedContent !== null;
+          html += `
+        <div class="mod-card${sel ? ' sel' : ''}" id="mc-${m.id}">
+          <div class="mod-card-head" onclick="toggleMod('${m.id}')">
+            <input type="checkbox" class="mod-check" id="cb-${m.id}" ${sel ? 'checked' : ''} onclick="event.stopPropagation();toggleMod('${m.id}')">
+            <span class="mod-name">${m.title}</span>
+            ${edited ? '<span class="mod-edited-dot" title="本文を編集済み"></span>' : ''}
+            <button class="mod-edit-btn" onclick="event.stopPropagation();openEditMod('${m.id}')">編集</button>
+          </div>
+        </div>`;
+        });
+        html += `</div></div>`;
+      });
+
+      // ボトムアクションバー（サイドバー最下部）
+      html += mkActionBar(' mod-action-bar-bottom');
+
+      return html;
+    }
+
+    function toggleCat(cId) {
+      const el = document.getElementById(cId), arr = document.getElementById('catarr-' + cId); if (!el) return;
+      const open = el.style.display !== 'none';
+      el.style.display = open ? 'none' : 'flex';
+      if (arr) arr.classList.toggle('open', !open);
+      S.catOpen[cId] = !open; saveLS();
+    }
+
+    // ================================================================
+    // COMPOSITION MANAGEMENT
+    // ================================================================
+    let _sortable = null;
+
+    function tmplCompInner() {
+      const items = compositionItems();
+      if (items.length === 0) {
+        return `<div class="comp-empty">モジュールにチェックを入れるか、<br>「＋ 見出しを追加」「＋ 独自項目を追加」を使ってください</div>`;
+      }
+      let _secNum = 0;
+      const rows = items.map(item => {
+        if (item._type === 'heading') {
+          return `<div class="comp-item is-heading" data-id="${item.id}">
+        <span class="comp-drag-handle">⠿</span>
+        <span class="comp-heading-icon">H</span>
+        <input class="comp-heading-input" value="${e(item.title)}" placeholder="見出しテキストを入力"
+               onchange="updateHeadingTitle('${item.id}',this.value)"
+               onblur="updateHeadingTitle('${item.id}',this.value)"
+               onkeydown="if(event.key==='Enter')this.blur()">
+        <button class="comp-del-btn" onclick="deleteCompItem('${item.id}')" title="削除">✕</button>
+      </div>`;
+        }
+        _secNum++;
+        const titleContent = item._custom
+          ? `<input class="comp-heading-input" value="${e(item.title)}" placeholder="項目タイトル"
+             onchange="updateCustomTitle('${item.id}',this.value)"
+             onblur="updateCustomTitle('${item.id}',this.value)"
+             onkeydown="if(event.key==='Enter')this.blur()">`
+          : `<span class="comp-item-title">${e(item.title)}</span>`;
+        return `<div class="comp-item" data-id="${item.id}">
+      <span class="comp-drag-handle">⠿</span>
+      <span class="comp-item-num">${_secNum}</span>
+      <div class="comp-item-info">
+        ${titleContent}
+        <span class="comp-item-cat">${e(item.catName)}</span>
+      </div>
+      <button class="comp-act-btn" onclick="openEditMod('${item.id}')">編集</button>
+      <button class="comp-del-btn" onclick="deleteCompItem('${item.id}')" title="削除">✕</button>
+    </div>`;
+      }).join('');
+      return `<div id="comp-list">${rows}</div>`;
+    }
+
+    function renderComposition() {
+      const area = document.getElementById('comp-area');
+      if (!area) return;
+      area.innerHTML = tmplCompInner();
+      initSortable();
+      updateSelCount();
+    }
+
+    function initSortable() {
+      const list = document.getElementById('comp-list');
+      if (!list || !window.Sortable) return;
+      if (_sortable) { try { _sortable.destroy(); } catch (_) { } _sortable = null; }
+      _sortable = Sortable.create(list, {
+        handle: '.comp-drag-handle',
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        onEnd() {
+          const newIds = Array.from(list.querySelectorAll('.comp-item')).map(el => el.dataset.id);
+          mutate(() => {
+            S.composition = newIds.map(id => S.composition.find(c => c.id === id)).filter(Boolean);
+          });
+        }
+      });
+    }
+
+    function addHeading() {
+      const id = 'h-' + Date.now();
+      mutate(() => { S.composition.push({ type: 'heading', id, title: '見出し' }); });
+      _pendingScroll = 's-' + id; // プレビューを新項目位置にスクロール
+      renderComposition();
+      // サイドバー構成リストを新項目にスクロール → その後フォーカス
+      requestAnimationFrame(() => {
+        const el = document.querySelector(`#comp-area .comp-item[data-id="${id}"]`);
+        if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        const inp = el?.querySelector('.comp-heading-input');
+        if (inp) setTimeout(() => { inp.select(); inp.focus(); }, 80);
+      });
+    }
+
+    function updateHeadingTitle(id, title) {
+      const item = S.composition.find(c => c.id === id);
+      if (item && item.title !== title) { mutate(() => { item.title = title; }); }
+    }
+
+    function updateCustomTitle(id, title) {
+      const m = S.customModules.find(m => m.id === id);
+      if (m && m.title !== title) { mutate(() => { m.title = title; }); }
+    }
+
+    function deleteCompItem(id) {
+      const item = S.composition.find(c => c.id === id);
+      if (!item) return;
+      if (item.type === 'custom' && !confirm('この独自項目を削除しますか？')) return;
+      mutate(() => {
+        S.composition = S.composition.filter(c => c.id !== id);
+        if (item.type === 'module') {
+          const mst = S.modules[id]; if (mst) mst.selected = false;
+        } else if (item.type === 'custom') {
+          S.customModules = S.customModules.filter(m => m.id !== id);
+          delete S.modules[id];
+        }
+      });
+      if (item.type === 'module') {
+        const card = document.getElementById('mc-' + id);
+        const cb = document.getElementById('cb-' + id);
+        if (card) card.classList.remove('sel');
+        if (cb) cb.checked = false;
+        refreshCatCounts();
+      }
+      renderComposition();
+      updateSelCount();
+    }
+
+    function filterMods(q) {
+      const lq = q.toLowerCase(); const p = plat(); if (!p) return;
+      p.categories.forEach(c => c.modules.forEach(m => {
+        const card = document.getElementById('mc-' + m.id);
+        if (card) card.style.display = (!lq || m.title.toLowerCase().includes(lq)) ? '' : 'none';
+      }));
+    }
+
+    function selAll(checked) {
+      const p = plat(); if (!p) return;
+      mutate(() => {
+        if (checked) {
+          p.categories.forEach(c => c.modules.forEach(m => {
+            ms(m.id).selected = true;
+            if (!S.composition.find(comp => comp.id === m.id)) S.composition.push({ type: 'module', id: m.id });
+          }));
+        } else {
+          const platIds = new Set(p.categories.flatMap(c => c.modules.map(m => m.id)));
+          p.categories.forEach(c => c.modules.forEach(m => { ms(m.id).selected = false; }));
+          S.composition = S.composition.filter(c => !(c.type === 'module' && platIds.has(c.id)));
+        }
+        // アコーディオンをすべて展開
+        p.categories.forEach(c => { S.catOpen[c.id] = true; });
+      });
+      renderTab('modules');
+    }
+
+    // ---- EDIT ----
+    function tmplEdit() {
+      const mid = S.activeModuleId;
+      if (!mid) return `
+    <div class="edit-empty">
+      <div class="edit-empty-icon">✏️</div>
+      <div class="edit-empty-text">「項目」タブでモジュールの<br>「編集」ボタンをクリックすると<br>ここで本文・画像・メモを編集できます</div>
+    </div>`;
+
+      const r = findMod(mid);
+      if (!r) return `<div class="edit-empty"><div class="edit-empty-text">モジュールが見つかりません</div></div>`;
+      const { m, c } = r, mst = ms(mid), content = getContent(mid), isEdited = mst.editedContent !== null;
+      // 編集済みコンテンツを使ってSSスロットを検出
+      const slots = getSSSlots(content);
+
+      let ssHTML = '';
+      slots.forEach((slot, i) => {
+        const ss = (mst.screenshots || [])[i], hasImg = ss && (ss.data || ss.url);
+        const curLabel = e((ss && ss.label) || ('画像' + (i + 1)));
+        ssHTML += `
+    <div class="ss-slot" id="ss-slot-${i}"
+         ondragover="event.preventDefault();this.classList.add('dragover')"
+         ondragleave="this.classList.remove('dragover')"
+         ondrop="handleSSDrop(event,'${mid}',${i})">
+      <div class="ss-slot-num${hasImg ? ' has' : ''}">${i + 1}</div>
+      ${hasImg ? `<img class="ss-thumb" src="${ss.data || ss.url}" alt="画像">` : ''}
+      ${hasImg
+            ? `<input class="ss-label-input" type="text" value="${curLabel}" placeholder="キャプション" oninput="onSSLabelEdit('${mid}',${i},this.value)">`
+            : `<span class="ss-slot-label">画像${i + 1}</span>`
+          }
+      ${hasImg
+            ? `<span class="ss-size-wrap" title="表示サイズ（%）">
+            <input class="ss-size-input" type="number" min="10" max="100" step="5"
+              value="${parseInt(ss.size) || 100}"
+              onchange="onSSSize('${mid}',${i},this.value+'%')"
+              oninput="onSSSize('${mid}',${i},this.value+'%')">
+            <span class="ss-size-unit">%</span>
+          </span>
+          <button class="ss-clear-btn" onclick="clearSS('${mid}',${i})" title="画像を削除">✕</button>`
+            : `<button class="ss-upload-btn" onclick="triggerSSUpload('${mid}',${i})">📁 追加</button>`
+          }
+    </div>`;
+      });
+
+      return `
+  <div class="edit-section">
+    <div class="edit-section-label">
+      本文
+      ${isEdited ? `<span class="reset-link" onclick="resetContent('${mid}')">↩ デフォルトに戻す</span>` : ''}
+    </div>
+    <div class="rte-wrap">
+      <div class="rte-toolbar">
+        <button class="rte-btn" onmousedown="rteCmd(event,'bold')"><b>B</b></button>
+        <button class="rte-btn" onmousedown="rteCmd(event,'italic')"><i>I</i></button>
+        <span class="rte-sep"></span>
+        <button class="rte-btn" onmousedown="rteBlock(event,'h3')">H3</button>
+        <button class="rte-btn" onmousedown="rteBlock(event,'p')">本文</button>
+        <span class="rte-sep"></span>
+        <button class="rte-btn" onmousedown="rteCmd(event,'insertUnorderedList')">• リスト</button>
+        <button class="rte-btn" onmousedown="rteCmd(event,'insertOrderedList')">1. リスト</button>
+        <span class="rte-sep"></span>
+        <button class="rte-btn" onmousedown="rteLink(event)">🔗 リンク</button>
+        <span class="rte-sep"></span>
+        <select class="rte-fs-select" title="文字サイズ（テキストを選択してから選択）"
+          onmousedown="saveRteSelection()"
+          onchange="rteApplyFontSize(this.value);this.value=''">
+          <option value="">サイズ</option>
+          <option value="10">10px</option>
+          <option value="11">11px</option>
+          <option value="12">12px</option>
+          <option value="13">13px（本文）</option>
+          <option value="14">14px</option>
+          <option value="16">16px（項目見出し）</option>
+          <option value="18">18px</option>
+          <option value="20">20px（章見出し）</option>
+          <option value="24">24px</option>
+          <option value="28">28px</option>
+          <option value="32">32px</option>
+        </select>
+        <span class="rte-sep"></span>
+        <span class="rte-color-wrap" title="文字色（テキストを選択してから指定）">
+          <input type="color" class="rte-color-swatch" id="rte-color-picker" value="#DC2626"
+            onmousedown="saveRteSelection()"
+            oninput="document.getElementById('rte-hex-input').value=this.value"
+            onchange="rteApplyColor(this.value)">
+          <input type="text" class="rte-hex-input" id="rte-hex-input" value="#DC2626"
+            placeholder="#000000" maxlength="7"
+            onmousedown="saveRteSelection()"
+            oninput="syncColorSwatch(this.value)"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();setTimeout(()=>rteApplyHexColor(this.value),0);}">
+        </span>
+        <button class="rte-btn" onmousedown="rteColor(event,'#0F172A')" title="文字色をリセット" style="font-size:10px">A↩</button>
+        <span class="rte-sep"></span>
+        <button class="rte-btn" onmousedown="rteInsert(event,'ss')">📸 画像枠</button>
+        <button class="rte-btn" onmousedown="rteInsert(event,'tip')">💡 ヒント</button>
+        <button class="rte-btn" onmousedown="rteInsert(event,'warn')">⚠️ 警告</button>
+        <span class="rte-sep"></span>
+        <button class="rte-btn" onmousedown="rteInsert(event,'bq')">❝ 引用</button>
+        <button class="rte-btn" onmousedown="rteInsert(event,'tbl')">⊞ 表</button>
+      </div>
+      <div class="tbl-ctrl" id="tbl-ctrl" style="display:none">
+        <span class="tbl-ctrl-label">表の操作：</span>
+        <button class="rte-btn" onmousedown="tblCtrl(event,'addRow')">＋ 行</button>
+        <button class="rte-btn" onmousedown="tblCtrl(event,'delRow')">－ 行</button>
+        <span class="rte-sep"></span>
+        <button class="rte-btn" onmousedown="tblCtrl(event,'addCol')">＋ 列</button>
+        <button class="rte-btn" onmousedown="tblCtrl(event,'delCol')">－ 列</button>
+        <span class="rte-sep"></span>
+        <button class="rte-btn" id="tbl-equal-btn" onmousedown="tblToggleEqual(event)">＝ 均等幅</button>
+      </div>
+      <div class="rte-body" id="rte-body" contenteditable="true"
+           data-placeholder="ここに本文を入力してください..."
+           oninput="onContentEdit('${mid}',this.innerHTML)"></div>
+    </div>
+  </div>
+
+  <div class="edit-section" id="ss-slots-section"${slots.length ? '' : ' style="display:none"'}>
+    <div class="edit-section-label">
+      画像（<span id="ss-slots-count">${slots.length}</span>箇所）
+      <span style="font-size:10px;color:var(--gray-400);font-weight:400">ドラッグ＆ドロップ可</span>
+    </div>
+    <div id="ss-slots-wrap">${ssHTML}</div>
+  </div>
+
+  <div class="edit-section">
+    <div class="edit-section-label">担当者からのメモ</div>
+    <textarea class="note-editor" id="note-editor" placeholder="例: 画像は必ず幅1200px以上でアップロードしてください。" oninput="onNoteEdit('${mid}',this.value)">${e(mst.note)}</textarea>
+  </div>`;
+    }
+
+    // ①②③… 丸付き数字を返す（1〜20対応）
+    function circledNum(n) {
+      return (n >= 1 && n <= 20) ? String.fromCharCode(0x245F + n) : `(${n})`;
+    }
+
+    // ss-box ごとに番号・サムネイル表示を更新し、テキスト編集を不可にする（保存対象外）
+    function updateRTESSPreviews(mid) {
+      const body = document.getElementById('rte-body');
+      if (!body) return;
+      const screenshots = ms(mid).screenshots || [];
+      body.querySelectorAll('.ss-box').forEach((box, i) => {
+        box.contentEditable = 'false'; // テキスト編集を禁止（選択・削除は可能）
+        const numBadge = `<span class="ss-box-num">${i + 1}</span>`;
+        const delBtn = `<button class="ss-box-del" onclick="removeSSBox(this)" title="画像枠を削除">×</button>`;
+        const ss = screenshots[i];
+        if (ss && (ss.data || ss.url)) {
+          // 画像あり：番号バッジ + サムネイル + キャプション + ×ボタン
+          const cap = e(ss.label || '');
+          box.innerHTML = `${numBadge}<img class="ss-box-thumb" src="${ss.data || ss.url}" alt="画像${i + 1}"><span class="ss-box-caption">${cap}</span>${delBtn}`;
+        } else {
+          // 画像なし：番号バッジ + プレースホルダー + ×ボタン
+          box.innerHTML = `${numBadge}<span>画像（未設定）</span>${delBtn}`;
+        }
+      });
+    }
+
+    function bindEdit() {
+      const mid = S.activeModuleId;
+      const body = document.getElementById('rte-body');
+      if (!body || !mid) return;
+
+      // 1. 初期コンテンツを注入（HTML文字列をそのまま）
+      body.innerHTML = getContent(mid);
+
+      // 2. ss-box にサムネイルを表示
+      updateRTESSPreviews(mid);
+
+      // 3. Enter キー脱出ロジックを登録
+      body.addEventListener('keydown', rteKeydownHandler);
+      body.addEventListener('mouseup', updateTblCtrl);
+      body.addEventListener('keyup', updateTblCtrl);
+
+      // 3. フォーカスを先頭に当てる（ドロワーが開いた直後に入力できる状態に）
+      requestAnimationFrame(() => {
+        body.focus();
+        // カーソルをコンテンツ末尾へ
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(body);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        updateTblCtrl();
+      });
+    }
+
+    // ================================================================
+    // RTE KEYDOWN: Enter キーでのスタイル枠脱出
+    // ================================================================
+
+    // bindEdit ごとに新しい rte-body が生成されるため、
+    // addEventListener は毎回クリーンな要素に対して呼ばれる（重複なし）
+    function rteKeydownHandler(ev) {
+      const body = document.getElementById('rte-body');
+      if (!body) return;
+
+      const sel = window.getSelection();
+      if (!sel || !sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+
+      // ── Table Tab navigation ──
+      if (ev.key === 'Tab') {
+        let cellEl = range.startContainer;
+        if (cellEl.nodeType === Node.TEXT_NODE) cellEl = cellEl.parentElement;
+        while (cellEl && cellEl !== body) {
+          if (cellEl.tagName === 'TD' || cellEl.tagName === 'TH') break;
+          cellEl = cellEl.parentElement;
+        }
+        if (cellEl && cellEl !== body && (cellEl.tagName === 'TD' || cellEl.tagName === 'TH')) {
+          ev.preventDefault();
+          const allCells = [...body.querySelectorAll('th,td')];
+          const idx = allCells.indexOf(cellEl);
+          if (!ev.shiftKey && idx === allCells.length - 1) {
+            // 最後のセルでTab → 新しい行を追加
+            const tbody = cellEl.closest('tbody');
+            if (tbody) {
+              const colCount = cellEl.closest('tr').cells.length;
+              const newRow = tbody.insertRow();
+              for (let i = 0; i < colCount; i++) {
+                const td = newRow.insertCell();
+                td.innerHTML = '<br>';
+              }
+              const newRange = document.createRange();
+              newRange.selectNodeContents(newRow.cells[0]);
+              newRange.collapse(false);
+              sel.removeAllRanges();
+              sel.addRange(newRange);
+              body.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+          } else {
+            const nextCell = allCells[ev.shiftKey ? idx - 1 : idx + 1];
+            if (nextCell) {
+              const newRange = document.createRange();
+              newRange.selectNodeContents(nextCell);
+              newRange.collapse(false);
+              sel.removeAllRanges();
+              sel.addRange(newRange);
+            }
+          }
+          requestAnimationFrame(updateTblCtrl);
+          return;
+        }
+      }
+
+      if (ev.key !== 'Enter' || ev.shiftKey) return;
+
+      // ── 1. カーソルが装飾ブロック(.tip / .ss-box / blockquote)の中にあるか検出 ──
+      let styledBlock = null;
+      let el = range.startContainer;
+      if (el.nodeType === Node.TEXT_NODE) el = el.parentElement;
+
+      while (el && el !== body) {
+        if (el.classList &&
+          (el.classList.contains('tip') || el.classList.contains('ss-box'))) {
+          styledBlock = el; break;
+        }
+        if (el.tagName === 'BLOCKQUOTE') { styledBlock = el; break; }
+        el = el.parentElement;
+      }
+      if (!styledBlock) return; // 装飾ブロック外 → デフォルトの改行を使う
+
+      // ── 2. カーソル以降のテキストが空か確認（末尾判定） ──
+      const afterRange = document.createRange();
+      try {
+        afterRange.setStart(range.endContainer, range.endOffset);
+        afterRange.setEnd(styledBlock, styledBlock.childNodes.length);
+      } catch (_) { return; }
+
+      const remainingText = afterRange.toString().trim();
+      if (remainingText !== '') return; // ブロック中間 → 通常の改行を許可
+
+      // ── 3. 末尾Enter → ブロックを脱出して新しい <p> を挿入 ──
+      ev.preventDefault();
+
+      // ブラウザが先行して追加した末尾の空行を除去
+      const lastChild = styledBlock.lastChild;
+      if (lastChild) {
+        if (lastChild.nodeName === 'BR') {
+          styledBlock.removeChild(lastChild);
+        } else if (lastChild.nodeType === Node.ELEMENT_NODE &&
+          !lastChild.textContent.trim() &&
+          (lastChild.nodeName === 'DIV' || lastChild.nodeName === 'P')) {
+          styledBlock.removeChild(lastChild);
+        }
+      }
+
+      // 新しい空段落をブロックの直後に挿入
+      const newP = document.createElement('p');
+      newP.appendChild(document.createElement('br')); // Chrome は空 <p> だとカーソルが入らない
+      styledBlock.insertAdjacentElement('afterend', newP);
+
+      // カーソルを新しい段落の先頭へ移動
+      const newRange = document.createRange();
+      newRange.setStartBefore(newP.firstChild);
+      newRange.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(newRange);
+
+      // input イベントをディスパッチして状態（editedContent）とプレビューを更新
+      body.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    function getSSSlots(content) {
+      const d = document.createElement('div'); d.innerHTML = content;
+      return Array.from(d.querySelectorAll('.ss-box')).map((box, i) => ({
+        index: i,
+        label: box.textContent.replace('📸', '').replace(/スクリーンショット[：:]/, '').trim()
+      }));
+    }
+
+    // ================================================================
+    // RICH TEXT EDITOR COMMANDS
+    // ================================================================
+    function rteCmd(ev, cmd) {
+      ev.preventDefault(); // フォーカスを奪わない
+      document.execCommand(cmd, false, null);
+    }
+
+    function rteBlock(ev, tag) {
+      ev.preventDefault();
+      document.execCommand('formatBlock', false, tag);
+    }
+
+    function rteLink(ev) {
+      ev.preventDefault();
+      const url = prompt('リンクURLを入力してください:', 'https://');
+      if (!url) return;
+      document.execCommand('createLink', false, url);
+      // 外部リンクは新タブで開く
+      const body = document.getElementById('rte-body');
+      if (body) body.querySelectorAll('a:not([target])').forEach(a => a.setAttribute('target', '_blank'));
+    }
+
+    function rteInsert(ev, type) {
+      ev.preventDefault();
+      const templates = {
+        ss: '<div class="ss-box">📸 画像（未設定）</div><p><br></p>',
+        tip: '<div class="tip">💡 ヒント：補足情報をここに記入してください。</div>',
+        warn: '<div class="tip warn">⚠️ 注意：注意事項をここに記入してください。</div>',
+        bq: '<blockquote>引用テキストをここに入力してください。</blockquote><p><br></p>',
+        tbl: '<div class="tbl-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td></td><td></td></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr></tbody></table></div><p><br></p>'
+      };
+      const body = document.getElementById('rte-body');
+      if (body) { body.focus(); document.execCommand('insertHTML', false, templates[type] || ''); }
+    }
+
+    // 選択範囲を一時保存（color picker / size input でフォーカスが移る前に呼ぶ）
+    let _savedRange = null;
+    document.addEventListener('selectionchange', function () {
+      const body = document.getElementById('rte-body');
+      if (!body) return;
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0);
+        if (body.contains(range.commonAncestorContainer)) {
+          _savedRange = range.cloneRange();
+        }
+      }
+    });
+    function saveRteSelection() {
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0);
+        const body = document.getElementById('rte-body');
+        if (body && body.contains(range.commonAncestorContainer)) {
+          _savedRange = range.cloneRange();
+        }
+      }
+    }
+    function restoreRteSelection() {
+      if (!_savedRange) return false;
+      const body = document.getElementById('rte-body');
+      if (!body) return false;
+      body.focus();
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(_savedRange);
+      return true;
+    }
+
+    // px指定でフォントサイズを適用
+    function rteApplyFontSize(px) {
+      const n = parseInt(px);
+      if (!n || n < 8 || n > 72) return;
+      if (!restoreRteSelection()) return;
+      const body = document.getElementById('rte-body');
+      if (!body) return;
+      document.execCommand('styleWithCSS', false, false);
+      document.execCommand('fontSize', false, '7');
+      body.querySelectorAll('font[size="7"]').forEach(el => {
+        const span = document.createElement('span');
+        span.style.fontSize = n + 'px';
+        span.innerHTML = el.innerHTML;
+        el.parentNode.replaceChild(span, el);
+      });
+      body.dispatchEvent(new Event('input', { bubbles: true }));
+      _savedRange = null;
+    }
+
+    // カラーピッカーからの色を適用
+    function rteApplyColor(color) {
+      if (!restoreRteSelection()) return;
+      document.execCommand('styleWithCSS', false, true);
+      document.execCommand('foreColor', false, color);
+      document.getElementById('rte-body')?.dispatchEvent(new Event('input', { bubbles: true }));
+      _savedRange = null;
+    }
+
+    function rteApplyHexColor(hex) {
+      hex = hex.trim();
+      if (!hex.startsWith('#')) hex = '#' + hex;
+      if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) return;
+      const picker = document.getElementById('rte-color-picker');
+      if (picker) picker.value = hex;
+      rteApplyColor(hex);
+    }
+    function syncColorSwatch(hex) {
+      hex = hex.trim();
+      if (!hex.startsWith('#')) hex = '#' + hex;
+      if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) return;
+      const picker = document.getElementById('rte-color-picker');
+      if (picker) picker.value = hex;
+    }
+
+    // onmousedown+preventDefault パターン（プリセットボタン・リセット用）
+    function rteColor(ev, color) {
+      ev.preventDefault();
+      document.execCommand('styleWithCSS', false, true);
+      document.execCommand('foreColor', false, color);
+    }
+
+    // ================================================================
+    // TABLE CONTROLS
+    // ================================================================
+    function _tblCtx() {
+      const body = document.getElementById('rte-body');
+      if (!body) return null;
+      const sel = window.getSelection();
+      if (!sel || !sel.rangeCount) return null;
+      let el = sel.getRangeAt(0).startContainer;
+      if (el.nodeType === Node.TEXT_NODE) el = el.parentElement;
+      let cell = null, table = null, cur = el;
+      while (cur && cur !== body) {
+        if (!cell && (cur.tagName === 'TD' || cur.tagName === 'TH')) cell = cur;
+        if (cur.tagName === 'TABLE') { table = cur; break; }
+        cur = cur.parentElement;
+      }
+      if (!table) return null;
+      return {
+        body, sel, table, cell,
+        cellIndex: cell ? cell.cellIndex : 0,
+        rowIndex: cell ? cell.closest('tr').rowIndex : table.rows.length - 1
+      };
+    }
+
+    function updateTblCtrl() {
+      const ctrl = document.getElementById('tbl-ctrl');
+      if (!ctrl) return;
+      const ctx = _tblCtx();
+      ctrl.style.display = ctx ? '' : 'none';
+      if (ctx) {
+        const btn = document.getElementById('tbl-equal-btn');
+        if (btn) btn.classList.toggle('active', ctx.table.classList.contains('tbl-equal'));
+      }
+    }
+
+    function tblToggleEqual(ev) {
+      ev.preventDefault();
+      const ctx = _tblCtx();
+      if (!ctx) return;
+      ctx.table.classList.toggle('tbl-equal');
+      ctx.body.dispatchEvent(new Event('input', { bubbles: true }));
+      requestAnimationFrame(updateTblCtrl);
+    }
+
+    function _moveCursor(sel, cell) {
+      if (!cell || !sel) return;
+      const r = document.createRange();
+      r.selectNodeContents(cell); r.collapse(false);
+      sel.removeAllRanges(); sel.addRange(r);
+    }
+
+    function tblCtrl(ev, action) {
+      ev.preventDefault();
+      const ctx = _tblCtx();
+      if (!ctx) return;
+      const { body, sel, table, cellIndex, rowIndex } = ctx;
+
+      switch (action) {
+        case 'addRow': {
+          const cols = table.rows[0].cells.length;
+          const nr = table.insertRow(rowIndex + 1);
+          for (let i = 0; i < cols; i++) nr.insertCell().innerHTML = '<br>';
+          _moveCursor(sel, nr.cells[Math.min(cellIndex, nr.cells.length - 1)]);
+          break;
+        }
+        case 'delRow': {
+          if (table.rows.length <= 1) return;
+          table.deleteRow(rowIndex);
+          const tr = table.rows[Math.min(rowIndex, table.rows.length - 1)];
+          if (tr) _moveCursor(sel, tr.cells[Math.min(cellIndex, tr.cells.length - 1)]);
+          break;
+        }
+        case 'addCol': {
+          const ins = cellIndex + 1;
+          Array.from(table.rows).forEach(row => {
+            if (row.cells[0] && row.cells[0].tagName === 'TH') {
+              const th = document.createElement('th'); th.innerHTML = '<br>';
+              row.cells[ins] ? row.insertBefore(th, row.cells[ins]) : row.appendChild(th);
+            } else {
+              row.insertCell(ins).innerHTML = '<br>';
+            }
+          });
+          const tr2 = table.rows[rowIndex];
+          if (tr2) _moveCursor(sel, tr2.cells[Math.min(ins, tr2.cells.length - 1)]);
+          break;
+        }
+        case 'delCol': {
+          if (table.rows[0].cells.length <= 1) return;
+          Array.from(table.rows).forEach(row => { if (row.cells[cellIndex]) row.cells[cellIndex].remove(); });
+          const tr3 = table.rows[rowIndex];
+          if (tr3) _moveCursor(sel, tr3.cells[Math.min(cellIndex, tr3.cells.length - 1)]);
+          break;
+        }
+      }
+      body.dispatchEvent(new Event('input', { bubbles: true }));
+      requestAnimationFrame(updateTblCtrl);
+    }
+
+    // 画像スロット欄のみを部分更新（RTEエディタには触れない）
+    function updateSSSlotsUI(mid) {
+      const section = document.getElementById('ss-slots-section');
+      const wrap = document.getElementById('ss-slots-wrap');
+      const countEl = document.getElementById('ss-slots-count');
+      if (!section || !wrap) return;
+      const mst = ms(mid);
+      const slots = getSSSlots(getContent(mid));
+      section.style.display = slots.length ? '' : 'none';
+      if (countEl) countEl.textContent = slots.length;
+      let html = '';
+      slots.forEach((slot, i) => {
+        const ss = (mst.screenshots || [])[i], hasImg = ss && (ss.data || ss.url);
+        const curLabel = e((ss && ss.label) || ('画像' + (i + 1)));
+        html += `<div class="ss-slot" id="ss-slot-${i}"
+      ondragover="event.preventDefault();this.classList.add('dragover')"
+      ondragleave="this.classList.remove('dragover')"
+      ondrop="handleSSDrop(event,'${mid}',${i})">
+      <div class="ss-slot-num${hasImg ? ' has' : ''}">${i + 1}</div>
+      ${hasImg ? `<img class="ss-thumb" src="${ss.data || ss.url}" alt="画像">` : ''}
+      ${hasImg
+            ? `<input class="ss-label-input" type="text" value="${curLabel}" placeholder="キャプション" oninput="onSSLabelEdit('${mid}',${i},this.value)">`
+            : `<span class="ss-slot-label">画像${i + 1}</span>`}
+      ${hasImg
+            ? `<button class="ss-clear-btn" onclick="clearSS('${mid}',${i})" title="画像を削除">✕</button>`
+            : `<button class="ss-upload-btn" onclick="triggerSSUpload('${mid}',${i})">📁 追加</button>`}
+    </div>`;
+      });
+      wrap.innerHTML = html;
+    }
+
+    function onContentEdit(mid, val) {
+      // ss-box の表示専用要素・属性を除去してクリーンな状態で保存
+      const d = document.createElement('div');
+      d.innerHTML = val;
+      d.querySelectorAll('.ss-preview-img').forEach(el => el.remove());
+      d.querySelectorAll('.ss-box').forEach(box => {
+        box.removeAttribute('contenteditable'); // 動的付与した属性は保存しない
+        box.innerHTML = '';                     // 番号・サムネイルは表示専用なので除去
+      });
+      const newCount = d.querySelectorAll('.ss-box').length;
+      mutate(() => { ms(mid).editedContent = d.innerHTML; });
+      // ss-box の数が変化したときだけスロット欄と番号表示を更新
+      const currentCount = document.querySelectorAll('#ss-slots-wrap .ss-slot').length;
+      if (newCount !== currentCount) {
+        updateSSSlotsUI(mid);
+        updateRTESSPreviews(mid); // 新しく追加されたboxに番号を付与
+      }
+    }
+    // RTE内の画像枠（ss-box）を×ボタンで削除
+    function removeSSBox(btn) {
+      const box = btn.closest('.ss-box');
+      const body = document.getElementById('rte-body');
+      const mid = S.activeModuleId;
+      if (!box || !body || !mid) return;
+      box.remove();
+      onContentEdit(mid, body.innerHTML); // 保存＋スロット欄の更新を即時反映
+    }
+
+    function onNoteEdit(mid, val) { mutate(() => { ms(mid).note = val; }); }
+    function onSSSize(mid, idx, val) {
+      mutate(() => { const m = ms(mid); if (m.screenshots && m.screenshots[idx]) m.screenshots[idx].size = val; });
+    }
+    function onSSLabelEdit(mid, idx, val) {
+      mutate(() => { const m = ms(mid); if (m.screenshots && m.screenshots[idx]) m.screenshots[idx].label = val; });
+      // RTE内の対応するss-boxのキャプション表示をリアルタイム更新
+      const body = document.getElementById('rte-body');
+      if (body) {
+        const captionEl = body.querySelectorAll('.ss-box')[idx]?.querySelector('.ss-box-caption');
+        if (captionEl) captionEl.textContent = val;
+      }
+    }
+
+    function resetContent(mid) {
+      if (!confirm('本文をデフォルトに戻しますか？')) return;
+      mutate(() => { ms(mid).editedContent = null; }); renderEditDrawer();
+    }
+
+    // ================================================================
+    // SCREENSHOTS
+    // ================================================================
+    let _ssMid = null, _ssIdx = null;
+
+    function triggerSSUpload(mid, idx) { _ssMid = mid; _ssIdx = idx; document.getElementById('file-ss').click(); }
+
+    function handleSSFile(input) {
+      const file = input.files[0]; if (!file) return;
+      loadImageFile(file, _ssMid, _ssIdx);
+      input.value = '';
+    }
+
+    // ファイル→Base64変換（canvas でリサイズ圧縮後に保存）
+    function loadImageFile(file, mid, idx) {
+      if (!file || !file.type.startsWith('image/')) { showToast('⚠️ 画像ファイルを指定してください'); return; }
+      const MAX_W = 1280;
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        const scale = img.width > MAX_W ? MAX_W / img.width : 1;
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        const data = canvas.toDataURL('image/jpeg', 0.8);
+        // 既存ラベルがあれば保持、なければデフォルト
+        const existingLabel = ms(mid).screenshots && ms(mid).screenshots[idx] && ms(mid).screenshots[idx].label;
+        const label = existingLabel || ('画像' + (idx + 1));
+        mutate(() => { const m = ms(mid); if (!m.screenshots) m.screenshots = []; m.screenshots[idx] = { data, label }; });
+        if (S.activeModuleId === mid) renderEditDrawer();
+        showToast('✅ 画像を追加しました');
+      };
+      img.onerror = () => { URL.revokeObjectURL(objectUrl); showToast('⚠️ 画像の読み込みに失敗しました'); };
+      img.src = objectUrl;
+    }
+
+    // ドラッグ＆ドロップ処理
+    function handleSSDrop(ev, mid, idx) {
+      ev.preventDefault();
+      ev.currentTarget.classList.remove('dragover');
+      const file = ev.dataTransfer.files[0];
+      loadImageFile(file, mid, idx);
+    }
+
+    function clearSS(mid, idx) {
+      mutate(() => { const m = ms(mid); if (m.screenshots) m.screenshots[idx] = null; });
+      if (S.activeModuleId === mid) renderEditDrawer();
+    }
+
+    // ================================================================
+    // CUSTOM MODULE MANAGEMENT
+    // ================================================================
+    const CUSTOM_TEMPLATES = {
+      blank: '<p>ここに内容を入力してください。</p>',
+      steps: '<h3>手順</h3><ol><li>手順1を入力してください</li><li>手順2を入力してください</li><li>手順3を入力してください</li></ol><div class="tip">💡 補足情報があればここに記入します。</div>',
+      rules: '<h3>ルール・注意事項</h3><ul><li>ルール1を入力してください</li><li>ルール2を入力してください</li></ul><div class="tip warn">⚠️ 注意事項があればここに記入します。</div>',
+      table: '<h3>一覧表</h3><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>項目1</td><td>内容1</td></tr><tr><td>項目2</td><td>内容2</td></tr></tbody></table>'
+    };
+
+    function showAddCustomModal() {
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay'; overlay.id = 'custom-modal';
+      overlay.innerHTML = `
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-title">📄 独自項目を追加</div>
+      <div class="form-field">
+        <label class="form-label">項目名 <span style="color:#EF4444">*</span></label>
+        <input class="form-input" id="cm-title" placeholder="例: 社内運用ルール・緊急時対応手順">
+      </div>
+      <div class="form-field">
+        <label class="form-label">テンプレート</label>
+        <select class="form-input" id="cm-template">
+          <option value="blank">空白（自由記述）</option>
+          <option value="steps">手順書（ステップ形式）</option>
+          <option value="rules">ルール・注意事項</option>
+          <option value="table">一覧表</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeCustomModal()">キャンセル</button>
+        <button class="btn btn-primary" onclick="addCustomMod()">追加して編集</button>
+      </div>
+    </div>`;
+      overlay.addEventListener('click', closeCustomModal);
+      document.body.appendChild(overlay);
+      setTimeout(() => document.getElementById('cm-title')?.focus(), 30);
+    }
+
+    function closeCustomModal() {
+      document.getElementById('custom-modal')?.remove();
+    }
+
+    function addCustomMod() {
+      const titleEl = document.getElementById('cm-title');
+      const tmplEl = document.getElementById('cm-template');
+      const title = (titleEl?.value || '').trim();
+      if (!title) { if (titleEl) { titleEl.style.borderColor = 'var(--danger)'; titleEl.focus(); } return; }
+      const id = 'custom-' + Date.now();
+      const content = CUSTOM_TEMPLATES[tmplEl?.value || 'blank'];
+      S.customModules.push({ id, title, content, _custom: true });
+      ms(id).selected = true;
+      S.composition.push({ type: 'custom', id });
+      closeCustomModal();
+      _pendingScroll = 's-' + id; // プレビューを新項目位置にスクロール
+      saveLS(); schedPrev();
+      S.activeModuleId = id;
+      renderComposition();
+      // サイドバー構成リストを新項目にスクロール
+      requestAnimationFrame(() => {
+        const el = document.querySelector(`#comp-area .comp-item[data-id="${id}"]`);
+        if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      });
+      openEditDrawer();
+      showToast('✅ 新規項目を追加しました');
+    }
+
+    function deleteCustomMod(id) {
+      if (!confirm('この項目を削除しますか？')) return;
+      S.customModules = S.customModules.filter(m => m.id !== id);
+      S.composition = S.composition.filter(c => c.id !== id);
+      if (S.activeModuleId === id) { S.activeModuleId = null; }
+      delete S.modules[id];
+      saveLS(); schedPrev(); renderTab('modules');
+    }
+
+    function resetAll() {
+      if (!confirm('設定・項目の選択・編集内容をすべてリセットします。\nこの操作は元に戻せません。続けますか？')) return;
+
+      // 設定を初期値に戻す
+      S.settings = {
+        siteName: '', siteUrl: 'https://example.com',
+        company: '', contact: '',
+        date: new Date().toISOString().slice(0, 10),
+        intro: '', accentColor: '#0EA5E9',
+        showCover: true, version: ''
+      };
+
+      // モジュール・構成をすべてクリア
+      S.modules = {};
+      S.catOpen = {};
+      S.customModules = [];
+      S.composition = [];
+
+      // プラットフォームを先頭に戻す
+      const plats = allPlats();
+      S.platformId = plats.length ? plats[0].id : null;
+      const ps = document.getElementById('platform-select');
+      if (ps && S.platformId) ps.value = S.platformId;
+
+      // ドロワーを開いていれば閉じる
+      if (S.activeModuleId) { S.activeModuleId = null; closeEditDrawer(); }
+
+      saveLS(); schedPrev();
+      switchTab('settings');
+      updateSelCount();
+      showToast('🔄 すべてをリセットしました');
+    }
+
+    function deleteAllCustomItems() {
+      if (!confirm('すべての選択を解除し、見出し・独自項目もすべて削除しますか？')) return;
+
+      // 全プラットフォームの全モジュールの selected をリセット
+      Object.values(window.MB_PLATFORMS || {}).forEach(p => {
+        p.categories.forEach(c => c.modules.forEach(m => {
+          if (S.modules[m.id]) S.modules[m.id].selected = false;
+        }));
+      });
+
+      // 独自項目の状態データをクリーンアップ
+      S.customModules.forEach(m => delete S.modules[m.id]);
+
+      // ドロワーを開いていれば閉じる
+      if (S.activeModuleId) { S.activeModuleId = null; closeEditDrawer(); }
+
+      S.composition = [];
+      S.customModules = [];
+
+      // アコーディオンをすべて展開
+      const curPlat = plat(); if (curPlat) curPlat.categories.forEach(c => { S.catOpen[c.id] = true; });
+      saveLS(); schedPrev();
+      renderTab('modules');
+      updateSelCount();
+      showToast('🔄 すべてをリセットしました');
+    }
+
+    function clearAllItems() {
+      if (!confirm('すべての選択を解除し、追加した「見出し」や「独自項目」もすべて削除しますか？')) return;
+
+      // 全プラットフォームの全モジュールの selected をリセット
+      Object.values(window.MB_PLATFORMS || {}).forEach(p => {
+        p.categories.forEach(c => c.modules.forEach(m => {
+          if (S.modules[m.id]) S.modules[m.id].selected = false;
+        }));
+      });
+
+      // 独自項目の状態データをクリーンアップ
+      S.customModules.forEach(m => delete S.modules[m.id]);
+
+      // ドロワーを開いていれば閉じる
+      if (S.activeModuleId) { S.activeModuleId = null; closeEditDrawer(); }
+
+      S.composition = [];
+      S.customModules = [];
+
+      saveLS(); schedPrev();
+      renderTab('modules');
+      updateSelCount();
+      showToast('🔄 すべての選択をリセットしました');
+    }
+
+    // ================================================================
+    // PREVIEW
+    // ================================================================
+    let _prevTimer = null;
+    let _pendingScroll = null; // 次のプレビュー再構築後にスクロールするセクションID
+    function schedPrev() { clearTimeout(_prevTimer); _prevTimer = setTimeout(doPreview, 300); }
+
+    function doPreview() {
+      updateSelCount(); refreshCatCounts();
+      const items = compositionItems();
+      const iframe = document.getElementById('preview');
+      if (!iframe) return;
+      if (items.length === 0) {
+        iframe.srcdoc = "<html><body style='display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#94A3B8;text-align:center'><div><div style='font-size:36px;margin-bottom:12px'>📋</div><p style='font-size:14px'>「項目」タブで表示する<br>マニュアル項目を選択してください</p></div></body></html>";
+        _pendingScroll = null;
+        return;
+      }
+      // スクロール位置を保存（再構築後に復元するため）
+      let savedScrollY = 0;
+      try { savedScrollY = iframe.contentWindow?.scrollY || 0; } catch (e) { }
+
+      // プレビューを構築し、ロード完了後にスクロールを実行
+      const scrollTarget = _pendingScroll;
+      _pendingScroll = null;
+      iframe.srcdoc = buildHTML();
+      iframe.addEventListener('load', function () {
+        if (!iframe.contentWindow) return;
+        if (scrollTarget) {
+          iframe.contentWindow.postMessage({ type: 'scrollTo', id: scrollTarget }, '*');
+        } else if (savedScrollY > 0) {
+          iframe.contentWindow.scrollTo(0, savedScrollY);
+        }
+      }, { once: true });
+    }
+
+    function setViewMode(mode) {
+      S.viewMode = mode;
+      const bg = document.getElementById('preview-bg');
+      bg.classList.toggle('mobile-mode', mode === 'mobile');
+      document.getElementById('vbtn-pc').classList.toggle('active', mode === 'pc');
+      document.getElementById('vbtn-mobile').classList.toggle('active', mode === 'mobile');
+      saveLS();
+    }
+
+    function printManual() {
+      const iframe = document.getElementById('preview');
+      if (iframe && iframe.contentWindow) { iframe.contentWindow.focus(); iframe.contentWindow.print(); }
+      else showToast('先にプレビューを表示してください');
+    }
+
+    // ================================================================
+    // HTML BUILD
+    // ================================================================
+    function buildHTML() { return genManualHTML({ ...getOpts(), isPreview: true }); }
+
+    function getOpts() {
+      const items = compositionItems(), s = S.settings;
+      return {
+        siteName: s.siteName || '（サイト名未設定）',
+        siteUrl: s.siteUrl || 'https://example.com',
+        company: s.company, contact: s.contact,
+        date: s.date || new Date().toISOString().slice(0, 10),
+        intro: s.intro, accentColor: s.accentColor || '#0EA5E9',
+        showCover: s.showCover !== false,
+        version: s.version || '',
+        platformId: S.platformId,
+        modules: items.map(item => {
+          if (item._type === 'heading') return { _isHeading: true, id: item.id, title: item.title };
+          const content = procSS(item.id, getContent(item.id).replace(/\{SITE_URL\}/g, s.siteUrl || 'https://example.com'));
+          return { id: item.id, title: item.title, category: item.catName, content, note: ms(item.id).note || '' };
+        })
+      };
+    }
+
+    function procSS(mid, content) {
+      // 常にDOMを通してSS枠を処理：画像あり→<figure>に変換、画像なし→出力から削除
+      const d = document.createElement('div'); d.innerHTML = content;
+      const screenshots = (ms(mid).screenshots) || [];
+      d.querySelectorAll('.ss-box').forEach((box, i) => {
+        const ss = screenshots[i];
+        if (ss && (ss.data || ss.url)) {
+          const src = ss.data || ss.url;
+          // キャプションは画像セクションのラベル入力欄から取得
+          const alt = e(ss.label || '');
+          const sizeStyle = (ss.size && ss.size !== '100%') ? ` style="max-width:${ss.size};margin-left:0"` : '';
+          box.outerHTML = `<figure class="ss-figure"${sizeStyle}><img class="ss-img" src="${src}" alt="${alt}" loading="lazy"><figcaption>${alt}</figcaption></figure>`;
+        } else {
+          box.remove(); // 画像未設定の空枠は出力HTMLから除去（プレビューには表示継続）
+        }
+      });
+      return d.innerHTML;
+    }
+
+    function genManualHTML(opts) {
+      const { siteName, siteUrl, company, contact, date, intro, accentColor, showCover, modules, isPreview, version, platformId } = opts;
+      const ac = accentColor || '#0EA5E9';
+
+      let tocIdx = 0;
+      const toc = modules.map(m => {
+        if (m._isHeading) return `<li><a href="#s-${m.id}" class="toc-heading-link" onclick="tocNav(event,this)">${m.title}</a></li>`;
+        tocIdx++;
+        return `<li><a href="#s-${m.id}" class="toc-link" data-id="${m.id}" onclick="tocNav(event,this)">${tocIdx}. ${m.title}</a></li>`;
+      }).join('');
+
+      let secIdx = 0;
+      const secs = modules.map(m => {
+        if (m._isHeading) return `<div class="manual-divider" id="s-${m.id}"><span>${m.title}</span></div>`;
+        secIdx++;
+        const noteHtml = m.note ? `<div class="custom-note"><div class="cn-title">📝 担当者からのメモ</div><div class="cn-body">${m.note.replace(/\n/g, '<br>')}</div></div>` : '';
+        const editBtn = isPreview ? `<button class="preview-edit-btn" onclick="notifyEdit('${m.id}')" title="この項目を編集">✏️ 編集</button>` : '';
+        return `<section id="s-${m.id}" class="section">
+      <div class="sec-inner">
+        ${editBtn}
+        <div class="sec-num">${secIdx}</div>
+        <h2 class="sec-title">${m.title}</h2>
+        <div class="sec-cat">${m.category}</div>
+        <div class="sec-body">${m.content}${noteHtml}</div>
+      </div></section>`;
+      }).join('');
+
+      const metaHtml = (version || company || contact) ? `<div class="man-meta-sub">${version ? `<span>対象バージョン: ${version}</span>` : ''}${company ? `<span>制作: ${company}</span>` : ''}${contact ? `<span>担当: ${contact}</span>` : ''}</div>` : '';
+      const introHtml = intro ? `<div class="intro-box"><p>${intro.replace(/\n/g, '<br>')}</p></div>` : '';
+
+      const css = getManualCSS(ac) + (isPreview ? getPreviewEditCSS() : '');
+
+      // 表紙は @media print でのみ表示（スクリーン・iframeプレビューでは display:none）
+      const coverHtml = `<div class="man-cover">
+  <div class="man-cover-inner">
+    <p class="man-cover-label">操作マニュアル</p>
+    <h1 class="man-cover-title">${siteName}</h1>
+    <div class="man-cover-rule"></div>
+    <dl class="man-cover-meta">
+      <div class="man-cover-meta-row"><dt>作成日</dt><dd>${date}</dd></div>
+      ${version ? `<div class="man-cover-meta-row"><dt>対象バージョン</dt><dd>${version}</dd></div>` : ''}
+      ${company ? `<div class="man-cover-meta-row"><dt>制作会社</dt><dd>${company}</dd></div>` : ''}
+      ${contact ? `<div class="man-cover-meta-row"><dt>担当者</dt><dd>${contact}</dd></div>` : ''}
+    </dl>
+  </div>
+</div>`;
+
+      return `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>【${siteName}】操作マニュアル</title>
+<style>${css}</style>
+</head>
+<body>
+<div id="app">
+${showCover !== false ? coverHtml : ''}
+<header class="man-header">
+  <div class="man-header-inner">
+    <div class="man-header-left">
+      <h1 class="man-title">${siteName}<span class="man-title-sub"> 操作マニュアル</span></h1>
+      <div class="man-meta">作成日: ${date}${metaHtml}</div>
+    </div>
+    <div class="man-header-right">
+      <div class="search-wrap"><input type="text" id="search" placeholder="🔍 検索..." oninput="doSearch(this.value)" autocomplete="off"></div>
+    </div>
+  </div>
+</header>
+<div class="man-body">
+  <nav class="man-nav">
+    <div class="nav-title">目次</div>
+    <ul class="toc-list">${toc}</ul>
+  </nav>
+  <main class="man-main">
+    ${introHtml}
+    ${secs}
+    <div id="no-result" style="display:none;text-align:center;padding:60px;color:#94A3B8">🔍 一致する項目が見つかりませんでした</div>
+  </main>
+</div>
+${platformId ? `<footer class="man-footer"><p class="man-footer-disclaimer">本マニュアルは非公式のサードパーティ製マニュアルです。掲載の各ツールの公式サービスおよびその運営会社とは一切関係ありません。</p></footer>` : ''}
+</div>
+<script>
+// 目次クリック：hash ナビゲーションを抑制し scrollIntoView で制御
+function tocNav(e,a){e.preventDefault();var id=a.getAttribute('href').slice(1);var el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+// 親フレームからの自動スクロール指示を受信
+window.addEventListener('message',function(ev){if(ev.data&&ev.data.type==='scrollTo'){var el=document.getElementById(ev.data.id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}});
+// プレビュー内の編集ボタン → 親ウィンドウに通知
+function notifyEdit(id){window.parent.postMessage({type:'openEdit',id:id},'*');}
+function doSearch(t){var q=t.toLowerCase().trim(),ss=document.querySelectorAll('.section'),found=0;ss.forEach(function(s){var show=!q||s.textContent.toLowerCase().indexOf(q)!==-1;s.style.display=show?'':'none';if(show)found++;});var nr=document.getElementById('no-result');if(nr)nr.style.display=(q&&found===0)?'block':'none';}
+var obs=new IntersectionObserver(function(en){en.forEach(function(e){var id=e.target.id.replace('s-',''),lk=document.querySelector('.toc-link[data-id="'+id+'"]');if(lk){if(e.isIntersecting)lk.classList.add('active');else lk.classList.remove('active');}});},{threshold:0.15,rootMargin:'-60px 0px -40% 0px'});
+document.querySelectorAll('.section').forEach(function(s){obs.observe(s);});
+<\/script>
+</body></html>`;
+    }
+
+    function getManualCSS(ac) {
+      const acLight = ac + '1a'; // approximate light version via transparency
+      return `
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',sans-serif;background:#F8FAFC;color:#1E293B;line-height:1.7}
+#app{display:flex;flex-direction:column;min-height:100vh}
+.man-header{background:${ac};color:white;position:relative;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.man-header-inner{max-width:1200px;margin:0 auto;padding:11px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.man-header-left{flex:1;min-width:0}
+.man-title{font-size:17px;font-weight:800;word-break:break-all;overflow-wrap:anywhere}
+.man-title-sub{font-weight:400;opacity:.85;font-size:14px}
+.man-meta{font-size:11px;opacity:.75;margin-top:2px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.man-meta-sub{display:flex;gap:10px}
+.man-header-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.search-wrap input{padding:7px 14px;border-radius:20px;border:none;outline:none;font-size:13px;width:200px;background:rgba(255,255,255,.2);color:white}
+.search-wrap input::placeholder{color:rgba(255,255,255,.65)}
+.search-wrap input:focus{background:rgba(255,255,255,.3)}
+.man-body{display:flex;flex:1;max-width:1200px;width:100%;margin:0 auto;padding:24px 16px;gap:24px;align-items:flex-start}
+.man-nav{width:230px;min-width:230px;position:sticky;top:24px;max-height:calc(100vh - 48px);overflow-y:auto;background:white;border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.nav-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94A3B8;margin-bottom:8px}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:2px}
+.toc-link{display:block;padding:5px 8px;border-radius:6px;text-decoration:none;font-size:12px;color:#64748B;transition:background .15s,color .15s;line-height:1.4}
+.toc-link:hover{background:#F1F5F9;color:#1E293B}
+.toc-link.active{background:${ac}18;color:${ac};font-weight:600}
+.toc-heading-link{display:block;padding:8px 8px 3px;text-decoration:none;font-size:10px;font-weight:700;color:#94A3B8;letter-spacing:.08em;margin-top:4px;cursor:pointer;text-transform:uppercase}
+.toc-heading-link:hover{color:#475569}
+.man-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:18px}
+.intro-box{background:white;border-left:4px solid ${ac};border-radius:0 10px 10px 0;padding:14px 18px;box-shadow:0 1px 4px rgba(0,0,0,.06);font-size:14px;color:#374151}
+.section{background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.07);overflow:hidden;transition:box-shadow .2s}
+.section:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.sec-inner{padding:22px 26px}
+.sec-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:${ac};color:white;border-radius:50%;font-size:11px;font-weight:700;margin-bottom:9px}
+.sec-title{font-size:19px;font-weight:700;color:#1E293B;margin-bottom:3px}
+.sec-cat{font-size:11px;color:#94A3B8;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #F1F5F9}
+.sec-body{font-size:14px;color:#374151}
+.sec-body h3{font-size:14px;font-weight:700;color:#1E293B;margin:18px 0 9px;padding-left:10px;border-left:3px solid ${ac}}
+.sec-body h3:first-child{margin-top:0}
+.sec-body p{margin-bottom:12px;line-height:1.75}
+.sec-body ol,.sec-body ul{padding-left:22px;margin-bottom:14px;display:flex;flex-direction:column;gap:5px}
+.sec-body li{line-height:1.7}
+.sec-body code{background:#F1F5F9;padding:2px 6px;border-radius:4px;font-size:12px;font-family:monospace;color:#DC2626;border:1px solid #E2E8F0}
+.sec-body a{color:${ac};text-decoration:none}
+.sec-body a:hover{text-decoration:underline}
+.sec-body table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
+.sec-body th{background:#F8FAFC;padding:8px 11px;text-align:left;font-size:12px;font-weight:700;color:#64748B;border:1px solid #E2E8F0}
+.sec-body td{padding:8px 11px;border:1px solid #E2E8F0;vertical-align:top}
+.sec-body tr:nth-child(even) td{background:#FAFBFC}
+.ss-box{border:2px dashed #CBD5E1;border-radius:8px;padding:22px;text-align:center;color:#94A3B8;font-size:13px;margin:14px 0;background:#F8FAFC;cursor:default}
+.ss-figure{margin:14px 0;border-radius:8px;overflow:hidden;border:1px solid #E2E8F0}
+.ss-img{width:100%;height:auto;display:block}
+.ss-figure figcaption{font-size:11px;color:#94A3B8;padding:6px 10px;background:#F8FAFC;text-align:center}
+.tip{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:10px 14px;font-size:13px;color:#1D4ED8;margin:10px 0;line-height:1.6}
+.tip.warn{background:#FFF7ED;border-color:#FED7AA;color:#C2410C}
+.sec-body blockquote{border-left:3px solid ${ac};padding:10px 14px;margin:10px 0;color:#64748B;background:#F8FAFC;border-radius:0 6px 6px 0;font-style:italic}
+.sec-body .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.sec-body .tbl-equal{table-layout:fixed}
+.custom-note{background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;padding:11px 14px;margin-top:14px}
+.cn-title{font-size:11px;font-weight:700;color:#15803D;margin-bottom:5px}
+.cn-body{font-size:13px;color:#166534;line-height:1.65}
+.manual-divider{display:flex;align-items:center;gap:12px;padding:8px 0 4px;font-size:15px;font-weight:700;color:#475569}
+.manual-divider::before,.manual-divider::after{content:'';flex:1;height:2px;background:linear-gradient(90deg,${ac}40,${ac}10)}
+.manual-divider span{white-space:nowrap}
+/* ===== COVER PAGE ===== */
+/* スクリーン（ブラウザ・iframeプレビュー）では非表示 */
+.man-cover{display:none}
+@media print{
+  /* 印刷時のみ表示：白背景・テキストのみ・プロ仕様 */
+  .man-cover{display:flex;align-items:center;min-height:100vh;background:white;color:#1E293B;padding:72pt 80pt;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .man-cover-inner{max-width:440pt;width:100%}
+  .man-cover-label{display:block;font-size:9pt;font-weight:400;color:#94A3B8;letter-spacing:.18em;text-transform:uppercase;margin-bottom:18pt}
+  .man-cover-title{font-size:34pt;font-weight:800;color:#0F172A;line-height:1.15;letter-spacing:-.01em;margin-bottom:32pt}
+  .man-cover-rule{width:32pt;height:3pt;background:${ac};margin-bottom:32pt;border-radius:1.5pt}
+  .man-cover-meta{display:flex;flex-direction:column;gap:11pt;border-top:0.75pt solid #E2E8F0;padding-top:24pt}
+  .man-cover-meta-row{display:flex;align-items:baseline;gap:18pt}
+  .man-cover-meta-row dt{font-size:8.5pt;color:#94A3B8;min-width:50pt;font-weight:400;letter-spacing:.04em}
+  .man-cover-meta-row dd{font-size:11.5pt;font-weight:600;color:#1E293B}
+  .man-header,.man-nav{display:none!important}
+  .man-body{display:block;padding:0}
+  .man-main{gap:28px}
+  .section{box-shadow:none;border:1px solid #E2E8F0;page-break-inside:avoid}
+  .sec-inner{padding:16px 20px}
+  .manual-divider{page-break-before:always;padding-top:16px;margin-top:0}
+}
+.man-footer{background:#F8FAFC;border-top:1px solid #E2E8F0;padding:16px 24px;text-align:center}
+.man-footer-disclaimer{font-size:11px;color:#94A3B8;line-height:1.6}
+@media(max-width:768px){.man-body{flex-direction:column}.man-nav{width:100%;min-width:0;position:static;max-height:none}.man-header-inner{flex-direction:column;align-items:flex-start;gap:8px}.man-header-right{width:100%}.search-wrap input{width:140px}}`;
+    }
+
+    function getPreviewEditCSS() {
+      return `
+.section{position:relative}
+.preview-edit-btn{position:absolute;top:10px;right:10px;display:inline-flex;align-items:center;gap:4px;padding:3px 9px;font-size:11px;font-weight:600;font-family:inherit;background:rgba(var(--primary-rgb),.08);color:var(--primary);border:1px solid rgba(var(--primary-rgb),.25);border-radius:5px;cursor:pointer;opacity:0;transition:opacity .15s,background .15s;z-index:10;white-space:nowrap;line-height:1.4}
+.section:hover .preview-edit-btn{opacity:1}
+.preview-edit-btn:hover{background:rgba(var(--primary-rgb),.16);border-color:rgba(var(--primary-rgb),.5)}
+@media(hover:none){.preview-edit-btn{opacity:1}}`;
+    }
+
+    // ================================================================
+    // MARKDOWN BUILD
+    // ================================================================
+    function buildMD() {
+      const opts = getOpts();
+      const { siteName, company, contact, date, intro, modules } = opts;
+      let md = `# ${siteName} 操作マニュアル\n\n`;
+      md += `> 作成日: ${date}`;
+      if (company) md += ` ｜ 制作: ${company}`;
+      if (contact) md += ` ｜ 担当: ${contact}`;
+      md += '\n\n';
+      if (intro) md += `${intro}\n\n---\n\n`;
+      md += '## 目次\n\n';
+      let mdTocIdx = 0;
+      modules.filter(m => !m._isHeading).forEach(m => { mdTocIdx++; md += `${mdTocIdx}. [${m.title}](#${mdTocIdx})\n`; });
+      md += '\n---\n\n';
+      let mdSecIdx = 0;
+      modules.forEach(m => {
+        if (m._isHeading) { md += `\n## ${m.title}\n\n`; return; }
+        mdSecIdx++;
+        md += `### ${mdSecIdx}. ${m.title}\n> ${m.category}\n\n`;
+        md += html2md(m.content);
+        if (m.note) md += `\n> 📝 **担当者メモ:** ${m.note.replace(/\n/g, ' ')}\n`;
+        md += '\n---\n\n';
+      });
+      return md;
+    }
+
+    function html2md(html) {
+      const d = document.createElement('div'); d.innerHTML = html;
+      return node2md(d).trim() + '\n\n';
+    }
+
+    function node2md(node) {
+      let r = '';
+      node.childNodes.forEach(n => {
+        if (n.nodeType === 3) { r += n.textContent; return; }
+        if (n.nodeType !== 1) return;
+        const t = n.tagName.toLowerCase(), cls = n.className || '';
+        switch (t) {
+          case 'h3': r += '\n### ' + n.textContent.trim() + '\n\n'; break;
+          case 'h4': r += '\n#### ' + n.textContent.trim() + '\n\n'; break;
+          case 'p': r += n.textContent.trim() + '\n\n'; break;
+          case 'blockquote': r += `\n> ${n.textContent.trim()}\n\n`; break;
+          case 'ol': { let i = 1; n.querySelectorAll(':scope>li').forEach(li => { r += `${i}. ${li.textContent.trim()}\n`; i++; }); r += '\n'; break; }
+          case 'ul': n.querySelectorAll(':scope>li').forEach(li => { r += `- ${li.textContent.trim()}\n`; }); r += '\n'; break;
+          case 'code': r += '`' + n.textContent + '`'; break;
+          case 'strong': r += '**' + n.textContent + '**'; break;
+          case 'em': r += '_' + n.textContent + '_'; break;
+          case 'a': r += `[${n.textContent}](${n.href})`; break;
+          case 'table': {
+            const rows = n.querySelectorAll('tr');
+            rows.forEach((row, ri) => {
+              const cells = row.querySelectorAll('th,td');
+              r += '| ' + Array.from(cells).map(c => c.textContent.trim()).join(' | ') + ' |\n';
+              if (ri === 0) r += '| ' + Array.from(cells).map(() => '---').join(' | ') + ' |\n';
+            }); r += '\n'; break;
+          }
+          case 'div':
+            if (cls.includes('ss-box')) r += `\n> 📸 ${n.textContent.trim()}\n\n`;
+            else if (cls.includes('warn')) r += `\n> ⚠️ ${n.textContent.trim()}\n\n`;
+            else if (cls.includes('tip')) r += `\n> 💡 ${n.textContent.trim()}\n\n`;
+            else r += node2md(n);
+            break;
+          default: r += node2md(n);
+        }
+      });
+      return r;
+    }
+
+    // ================================================================
+    // PERSISTENCE
+    // ================================================================
+    function saveLS() { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (er) { showToast('⚠️ 容量上限のため保存できませんでした。画像を減らしてください。'); } }
+
+    function loadLS() {
+      try {
+        const raw = localStorage.getItem(LS_KEY); if (!raw) return;
+        const saved = JSON.parse(raw);
+        S = {
+          ...S, ...saved,
+          settings: { ...S.settings, ...(saved.settings || {}) },
+          modules: { ...S.modules, ...(saved.modules || {}) },
+          catOpen: { ...S.catOpen, ...(saved.catOpen || {}) },
+          customModules: saved.customModules || [],
+          composition: saved.composition || []
+        };
+        // 旧データ（compositionなし）はinit()でマイグレーション
+        if (!saved.composition) S._needsMigration = true;
+      } catch (er) { }
+    }
+
+    function saveProject() {
+      const json = JSON.stringify(S, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url;
+      const name = (S.settings.siteName || 'project').replace(/[\\/:"*?<>|]/g, '-');
+      a.download = 'manual-project-' + name + '.json';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+      showToast('💾 プロジェクトを保存しました');
+    }
+
+    function loadProject() { document.getElementById('file-project').click(); }
+
+    function handleProjectFile(input) {
+      const file = input.files[0]; if (!file) return;
+      const r = new FileReader();
+      r.onload = ev => {
+        try {
+          const parsed = JSON.parse(ev.target.result);
+          S = {
+            ...S, ...parsed,
+            settings: { ...S.settings, ...(parsed.settings || {}) },
+            modules: { ...S.modules, ...(parsed.modules || {}) },
+            catOpen: { ...S.catOpen, ...(parsed.catOpen || {}) },
+            customModules: parsed.customModules || [],
+            composition: parsed.composition || []
+          };
+          // 旧データマイグレーション
+          if (!parsed.composition) migrateComposition();
+          saveLS();
+          const ps = document.getElementById('platform-select');
+          if (ps && S.platformId) ps.value = S.platformId;
+          switchTab(S.activeTab || 'settings');
+          schedPrev();
+          showToast('📂 プロジェクトを読み込みました');
+        } catch (er) { alert('プロジェクトファイルの読み込みに失敗しました。'); }
+      };
+      r.readAsText(file); input.value = '';
+    }
+
+    // ================================================================
+    // EXPORTS
+    // ================================================================
+    function exportHTML() {
+      const opts = getOpts();
+      if (!opts.modules.some(m => !m._isHeading)) { showToast('⚠️ 項目を選択してください'); return; }
+      const html = genManualHTML(opts);
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url;
+      a.download = 'manual-' + (opts.siteName || 'manual').replace(/[\\/:"*?<>|]/g, '-') + '.html';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+      showToast('✅ HTMLを出力しました');
+    }
+
+    async function copyMarkdown() {
+      const opts = getOpts();
+      if (!opts.modules.some(m => !m._isHeading)) { showToast('⚠️ 項目を選択してください'); return; }
+      const md = buildMD();
+      try {
+        await navigator.clipboard.writeText(md);
+      } catch (_) {
+        const ta = document.createElement('textarea'); ta.value = md;
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+      }
+      showToast('📋 Markdownをクリップボードにコピーしました');
+    }
+
+    // ================================================================
+    // EDIT DRAWER
+    // ================================================================
+    function openEditDrawer() {
+      renderEditDrawer();
+      const overlay = document.getElementById('edit-drawer-overlay');
+      const drawer = document.getElementById('edit-drawer');
+      if (!overlay || !drawer) return;
+      overlay.classList.add('open');
+      // 1フレーム後にクラス付与してトランジションを発火
+      requestAnimationFrame(() => { drawer.classList.add('open'); });
+    }
+
+    function closeEditDrawer() {
+      const overlay = document.getElementById('edit-drawer-overlay');
+      const drawer = document.getElementById('edit-drawer');
+      if (!overlay || !drawer) return;
+      drawer.classList.remove('open');
+      overlay.classList.remove('open');
+      schedPrev(); // プレビューを最新状態に
+    }
+
+    function renderEditDrawer() {
+      const mid = S.activeModuleId;
+      const body = document.getElementById('edit-drawer-body');
+      if (!body) return;
+
+      // ドロワーヘッダーにモジュール情報を反映
+      const r = mid ? findMod(mid) : null;
+      document.getElementById('edit-drawer-name').textContent = r ? r.m.title : '項目を編集';
+      document.getElementById('edit-drawer-cat').textContent = r ? r.c.name : '';
+
+      body.innerHTML = tmplEdit();
+      bindEdit();
+    }
+
+    // ================================================================
+    // DROPDOWN MENUS
+    // ================================================================
+    function toggleDropdown(id) {
+      const menu = document.getElementById(id);
+      if (!menu) return;
+      const wasOpen = menu.classList.contains('open');
+      // 一旦すべて閉じてから、閉じていた場合だけ開く
+      closeDropdowns();
+      if (!wasOpen) menu.classList.add('open');
+      // ※ 外クリックによる自動クローズは init() で登録した
+      //   document リスナー（closest('.dropdown-wrap') 判定）に委譲
+    }
+
+    function closeDropdowns() {
+      document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+    }
+
+    // ================================================================
+    // UTILITIES
+    // ================================================================
+    function e(str) { if (!str) return ''; return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+      clearTimeout(t._tid); t._tid = setTimeout(() => t.classList.remove('show'), 2600);
+    }
+
+    // ================================================================
+    // INIT
+    // ================================================================
+    function migrateComposition() {
+      // 旧データ（compositionなし）から selected 状態を元に composition を構築
+      S.composition = [];
+      const p = plat();
+      if (p) p.categories.forEach(c => c.modules.forEach(m => {
+        if (ms(m.id).selected) S.composition.push({ type: 'module', id: m.id });
+      }));
+      S.customModules.forEach(m => {
+        if (ms(m.id).selected) S.composition.push({ type: 'custom', id: m.id });
+      });
+    }
+
+    function init() {
+      loadLS();
+      _applyAccentVars(S.settings.accentColor || '#0EA5E9');
+
+      // Populate platform select
+      const ps = document.getElementById('platform-select');
+      const plats = allPlats();
+      if (plats.length === 0) {
+        // Fallback: no data files loaded (e.g. opened via file://)
+        const opt = document.createElement('option'); opt.value = ''; opt.textContent = '⚠️ data/*.js が読み込めません（ローカルサーバー経由で開いてください）';
+        ps.appendChild(opt);
+      } else {
+        plats.forEach(p => { const opt = document.createElement('option'); opt.value = p.id; opt.textContent = p.icon + ' ' + p.name; ps.appendChild(opt); });
+        if (!S.platformId || (window.MB_PLATFORMS && !window.MB_PLATFORMS[S.platformId])) S.platformId = plats[0].id;
+        ps.value = S.platformId;
+      }
+
+      // 旧データマイグレーション（compositionがない場合）
+      if (S._needsMigration) { delete S._needsMigration; migrateComposition(); saveLS(); }
+
+      // Set default date if not set
+      if (!S.settings.date) S.settings.date = new Date().toISOString().slice(0, 10);
+
+      // Restore view mode
+      if (S.viewMode === 'mobile') setViewMode('mobile');
+
+      // タブ復元:
+      //   'edit'    → 'modules'（ドロワーはタブではない）
+      //   'preview' → デスクトップなら 'modules'、モバイルなら復元
+      const isMobile = window.innerWidth <= 768;
+      let initTab = S.activeTab || 'modules';
+      if (initTab === 'edit') initTab = 'modules';
+      if (initTab === 'preview' && !isMobile) initTab = 'modules';
+      switchTab(initTab);
+
+      // Initial preview
+      schedPrev();
+
+      // ── ドロップダウン外クリックで自動クローズ（常駐リスナー）──
+      // .dropdown-wrap の外をクリックした場合だけ閉じる
+      // これにより toggleDropdown 内の setTimeout + {once} が不要になる
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest('.dropdown-wrap')) closeDropdowns();
+      });
+
+      // ── iframeプレビュー内の編集ボタンから openEdit メッセージを受信 ──
+      window.addEventListener('message', function (ev) {
+        if (ev.data && ev.data.type === 'openEdit') {
+          S.activeModuleId = ev.data.id;
+          _pendingScroll = 's-' + ev.data.id;
+          openEditDrawer();
+        }
+      });
+
+      // ── モバイル→デスクトップへのリサイズ時にプレビューモードを解除 ──
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 768 && S.activeTab === 'preview') {
+          document.querySelector('.app-body')?.classList.remove('preview-active');
+          switchTab('modules');
+        }
+      });
+    }
+
+    init();
+  </script>
+  <script src="./demo-lock.js"></script>
+  <script data-pagespeed-no-defer>//<![CDATA[
+    (function () {
+      function f(b) { var a = window; if (a.addEventListener) a.addEventListener("load", b, !1); else if (a.attachEvent) a.attachEvent("onload", b); else { var c = a.onload; a.onload = function () { b.call(this); c && c.call(this) } } }; window.pagespeed = window.pagespeed || {}; var k = window.pagespeed; function l(b, a, c, g, h) { this.h = b; this.i = a; this.l = c; this.j = g; this.b = h; this.c = []; this.a = 0 } l.prototype.f = function (b) { for (var a = 0; 250 > a && this.a < this.b.length; ++a, ++this.a)try { document.querySelector(this.b[this.a]) && this.c.push(this.b[this.a]) } catch (c) { } this.a < this.b.length ? window.setTimeout(this.f.bind(this), 0, b) : b() };
+      k.g = function (b, a, c, g, h) {
+        if (document.querySelector && Function.prototype.bind) {
+          var d = new l(b, a, c, g, h); f(function () {
+            window.setTimeout(function () {
+              d.f(function () {
+                for (var a = "oh=" + d.l + "&n=" + d.j, a = a + "&cs=", b = 0; b < d.c.length; ++b) { var c = 0 < b ? "," : "", c = c + encodeURIComponent(d.c[b]); if (131072 < a.length + c.length) break; a += c } k.criticalCssBeaconData = a; var b = d.h, c = d.i, e; if (window.XMLHttpRequest) e = new XMLHttpRequest; else if (window.ActiveXObject) try { e = new ActiveXObject("Msxml2.XMLHTTP") } catch (m) { try { e = new ActiveXObject("Microsoft.XMLHTTP") } catch (n) { } } e &&
+                  (e.open("POST", b + (-1 == b.indexOf("?") ? "?" : "&") + "url=" + encodeURIComponent(c)), e.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"), e.send(a))
+              })
+            }, 0)
+          })
+        }
+      }; k.criticalCssBeaconInit = k.g;
+    })();
+    pagespeed.selectors = ["#comp-area", "#comp-list", "#preview", "#tab-btn-preview", "*", ".add-custom-btn", ".app-body", ".app-body.preview-active .preview-pane", ".app-body.preview-active .sidebar", ".app-body.preview-active .sidebar-body", ".app-header", ".badge", ".btn", ".btn-danger-ghost", ".btn-ghost", ".btn-primary", ".btn-sm", ".cat-arrow", ".cat-arrow.open", ".cat-cnt", ".cat-group", ".cat-header", ".cat-icon", ".cat-items", ".cat-name", ".color-chip", ".color-chip.active", ".color-row", ".comp-act-btn", ".comp-del-btn", ".comp-drag-handle", ".comp-empty", ".comp-heading-icon", ".comp-heading-input", ".comp-item", ".comp-item-cat", ".comp-item-info", ".comp-item-num", ".comp-item-title", ".comp-item.is-heading", ".comp-item.sortable-chosen", ".comp-item.sortable-ghost", ".comp-module-divider", ".comp-topbar", ".content-editor", ".divider", ".dropdown-item", ".dropdown-menu", ".dropdown-menu.open", ".dropdown-sep", ".dropdown-wrap", ".edit-back", ".edit-drawer", ".edit-drawer-body", ".edit-drawer-cat", ".edit-drawer-close", ".edit-drawer-head", ".edit-drawer-meta", ".edit-drawer-name", ".edit-drawer-overlay", ".edit-drawer-overlay.open", ".edit-drawer.open", ".edit-empty", ".edit-empty-icon", ".edit-empty-text", ".edit-header", ".edit-mod-cat", ".edit-mod-info", ".edit-mod-title", ".edit-section", ".edit-section-label", ".form-field", ".form-input", ".form-label", ".form-section", ".form-section-title", ".form-textarea", ".free-mode-hint", ".free-mode-icon", ".free-mode-text", ".free-mode-text strong", ".header-actions", ".header-actions-compact", ".header-actions-compact .btn", ".header-actions-compact > .dropdown-wrap", ".header-actions-compact > .dropdown-wrap .dropdown-menu", ".header-actions-full", ".header-brand", ".header-brand .logo", ".header-brand h1", ".header-center", ".mod-action-bar", ".mod-action-bar .btn", ".mod-action-bar-bottom", ".mod-card", ".mod-card-head", ".mod-card.sel", ".mod-card.sel .mod-card-head", ".mod-card.sel .mod-name", ".mod-check", ".mod-del-btn", ".mod-edit-btn", ".mod-edited-dot", ".mod-name", ".modal-box", ".modal-footer", ".modal-overlay", ".modal-title", ".module-search", ".module-search input", ".module-search-icon", ".module-topbar", ".note-editor", ".platform-label", ".platform-select", ".preview-bg", ".preview-bg.mobile-mode", ".preview-bg.mobile-mode #preview", ".preview-label", ".preview-pane", ".preview-toolbar", ".preview-toolbar-left", ".preview-toolbar-right", ".reset-link", ".rte-body", ".rte-body .ss-box", ".rte-body .ss-box .ss-box-caption", ".rte-body .ss-box .ss-box-del", ".rte-body .ss-box .ss-box-num", ".rte-body .ss-box .ss-box-thumb", ".rte-body .tbl-wrap", ".rte-body .tip", ".rte-body .tip.warn", ".rte-body a", ".rte-body blockquote", ".rte-body code", ".rte-body h3", ".rte-body ol", ".rte-body p", ".rte-body table", ".rte-body table.tbl-equal", ".rte-body td", ".rte-body th", ".rte-body ul", ".rte-btn", ".rte-btn.active", ".rte-color-swatch", ".rte-color-wrap", ".rte-fs-select", ".rte-hex-input", ".rte-sep", ".rte-toolbar", ".rte-wrap", ".selected-count", ".selected-count strong", ".sidebar", ".sidebar-body", ".sidebar-tab", ".sidebar-tab.active", ".sidebar-tabs", ".ss-clear-btn", ".ss-label-input", ".ss-preview-img", ".ss-preview-img img", ".ss-size-input", ".ss-size-unit", ".ss-size-wrap", ".ss-slot", ".ss-slot-label", ".ss-slot-num", ".ss-slot-num.has", ".ss-slot.dragover", ".ss-thumb", ".ss-upload-btn", ".tbl-ctrl", ".tbl-ctrl-label", ".toast", ".toast.show", ".toggle-label", ".toggle-label .form-label", ".toggle-slider", ".toggle-switch", ".toggle-switch input", ".toggle-switch input + .toggle-slider", ".view-btn", ".view-btn.active", ".view-toggle", "body"]; pagespeed.criticalCssBeaconInit('/mod_pagespeed_beacon/', 'https://tools.corto.jp/demo/manural-demo/', '8UbGqKoKx5', 'D2Mp0WBSHV4', pagespeed.selectors);
+    //]]></script>
+</body>
+
+</html>

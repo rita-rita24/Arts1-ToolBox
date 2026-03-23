@@ -1,0 +1,2460 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEO 総合チェッカー | SEO・OGP・構造化データ・MEO・LLMO診断</title>
+  <!-- SEO -->
+  <meta name="description"
+    content="URLを入力するだけでSEO・OGP・構造化データ・MEO・LLMOを簡易チェックできる無料ツールです。Title・Meta・見出し・画像altなどをHTMLの静的解析で一括確認できます。">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tools.corto.jp/free/seo-checker/">
+  <!-- OGP -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://tools.corto.jp/free/seo-checker/">
+  <meta property="og:title" content="SEO 総合チェッカー | SEO・OGP・構造化データ・MEO・LLMO診断">
+  <meta property="og:description" content="URLを入力するだけでSEO・OGP・構造化データ・MEO・LLMOを簡易チェックできる無料ツールです。">
+  <meta property="og:image" content="https://tools.corto.jp/free/seo-checker/ogp.png">
+  <meta property="og:site_name" content="corto tools">
+  <meta property="og:locale" content="ja_JP">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SEO 総合チェッカー | SEO・OGP・構造化データ・MEO・LLMO診断">
+  <meta name="twitter:description" content="URLを入力するだけでSEO・OGP・構造化データ・MEO・LLMOを簡易チェックできる無料ツールです。">
+  <meta name="twitter:image" content="https://tools.corto.jp/free/seo-checker/ogp.png">
+  <!-- 構造化データ -->
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --primary: #3eb2d2;
+      --primary-rgb: 62, 178, 210;
+      --secondary: #255797;
+      --secondary-rgb: 37, 87, 151;
+      --accent-bg: #eef7fc;
+      --accent-border: #bae6fd;
+      --bg: #f1f5f9;
+      --white: #fff;
+      --s50: #f8fafc;
+      --s100: #f1f5f9;
+      --s200: #e2e8f0;
+      --s300: #cbd5e1;
+      --s400: #94a3b8;
+      --s500: #64748b;
+      --s600: #475569;
+      --s700: #334155;
+      --s800: #1e293b;
+      --pass: #15803d;
+      --pass-bg: #f0fdf4;
+      --pass-bdr: #bbf7d0;
+      --warn: #b45309;
+      --warn-bg: #fffbeb;
+      --warn-bdr: #fde68a;
+      --fail: #ef4444;
+      --fail-bg: #fef2f2;
+      --fail-bdr: #fecaca;
+      --info: #3b82f6;
+      --info-bg: #eff6ff;
+      --info-bdr: #bfdbfe;
+      --r-sm: 6px;
+      --r-md: 10px;
+      --r-lg: 14px;
+      --r-xl: 18px;
+      --sh-sm: 0 1px 3px rgba(0, 0, 0, .08);
+      --sh-md: 0 4px 12px rgba(37, 87, 151, .12)
+    }
+
+    html {
+      font-size: 16px
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      color: var(--s800);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 100px
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      background: none
+    }
+
+    input {
+      font-family: inherit
+    }
+
+    .app-header {
+      background: var(--white);
+      border-bottom: 1px solid var(--s200);
+      box-shadow: var(--sh-sm);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px
+    }
+
+    .app-header__icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: var(--r-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0
+    }
+
+    .app-header h1 {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      color: var(--s800)
+    }
+
+    .app-header p {
+      font-size: 11px;
+      color: var(--s500);
+      margin-top: 1px
+    }
+
+    .app-header__badge {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: 999px;
+      margin-left: auto;
+      white-space: nowrap
+    }
+
+    .input-wrap {
+      background: var(--white);
+      border-bottom: 1px solid var(--s200);
+      padding: 20px 24px
+    }
+
+    .url-form {
+      display: flex;
+      gap: 10px;
+      max-width: 860px
+    }
+
+    .url-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid var(--s200);
+      border-radius: var(--r-md);
+      font-size: 14px;
+      color: var(--s800);
+      background: var(--s50);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s
+    }
+
+    .url-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(var(--primary-rgb), .15);
+      background: var(--white)
+    }
+
+    .url-input::placeholder {
+      color: var(--s400)
+    }
+
+    .check-btn {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: var(--r-md);
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(var(--secondary-rgb), .2);
+      transition: opacity .15s, transform .1s;
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .check-btn:hover {
+      opacity: .9
+    }
+
+    .check-btn:active {
+      transform: scale(.97)
+    }
+
+    .check-btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      transform: none
+    }
+
+    .url-note {
+      font-size: 11px;
+      color: var(--s400);
+      margin-top: 8px
+    }
+
+    .url-note a {
+      color: var(--primary);
+      text-decoration: none
+    }
+
+    .url-note a:hover {
+      text-decoration: underline
+    }
+
+    .error-banner {
+      background: var(--fail-bg);
+      border: 1px solid var(--fail-bdr);
+      color: var(--fail);
+      padding: 10px 14px;
+      border-radius: var(--r-md);
+      font-size: 13px;
+      margin-top: 10px;
+      display: none;
+      max-width: 860px
+    }
+
+    .main {
+      padding: 24px;
+      max-width: 1200px
+    }
+
+    .welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 64px 32px;
+      gap: 14px
+    }
+
+    .welcome__icon {
+      font-size: 56px
+    }
+
+    .welcome h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--s800)
+    }
+
+    .welcome p {
+      font-size: 13px;
+      color: var(--s500);
+      line-height: 1.7;
+      max-width: 480px
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 6px
+    }
+
+    .pill {
+      background: var(--white);
+      border: 1px solid var(--s200);
+      color: var(--s600);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 999px
+    }
+
+    .loading {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 64px;
+      text-align: center
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--s200);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin .8s linear infinite
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading p {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--s700)
+    }
+
+    .loading small {
+      font-size: 12px;
+      color: var(--s400)
+    }
+
+    .results {
+      display: none
+    }
+
+    .result-meta {
+      background: var(--white);
+      border: 1px solid var(--s200);
+      border-radius: var(--r-xl);
+      box-shadow: var(--sh-sm);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 20px
+    }
+
+    .result-meta__url {
+      flex: 1;
+      font-size: 13px;
+      color: var(--s500);
+      word-break: break-all;
+      min-width: 0
+    }
+
+    .result-meta__url strong {
+      color: var(--s800)
+    }
+
+    .result-meta__time {
+      font-size: 11px;
+      color: var(--s400);
+      white-space: nowrap
+    }
+
+    .action-btns {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: var(--r-md);
+      font-size: 13px;
+      font-weight: 600;
+      transition: background .13s, border-color .13s, transform .1s;
+      white-space: nowrap
+    }
+
+    .btn-action:active {
+      transform: scale(.97)
+    }
+
+    .btn-action svg {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0
+    }
+
+    .btn-pdf {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(var(--secondary-rgb), .2)
+    }
+
+    .btn-pdf:hover {
+      opacity: .9
+    }
+
+    .btn-copy {
+      background: var(--white);
+      color: var(--s600);
+      border: 1px solid var(--s200)
+    }
+
+    .btn-copy:hover {
+      background: var(--s50);
+      border-color: var(--s300)
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px
+    }
+
+    .tabs {
+      display: flex;
+      gap: 2px;
+      border-bottom: 2px solid var(--s200);
+      margin-bottom: 16px;
+      overflow-x: auto
+    }
+
+    .margin-banner {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 230px;
+      background: var(--white);
+      border: 1px solid var(--s200);
+      border-radius: var(--r-xl);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+      overflow: hidden;
+      z-index: 1000
+    }
+
+    .margin-banner__accent {
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary))
+    }
+
+    .margin-banner__body {
+      padding: 14px 16px 16px
+    }
+
+    .margin-banner__logo {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      color: var(--s800);
+      margin-bottom: 4px
+    }
+
+    .margin-banner__logo span {
+      font-size: 9px;
+      font-weight: 400;
+      color: var(--s400);
+      letter-spacing: .06em;
+      margin-left: 4px;
+      vertical-align: middle
+    }
+
+    .margin-banner__copy {
+      font-size: 11px;
+      color: var(--s600);
+      line-height: 1.6;
+      margin-bottom: 12px
+    }
+
+    .margin-banner__link {
+      display: block;
+      text-align: center;
+      background: var(--s800);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      padding: 7px 0;
+      border-radius: var(--r-md);
+      text-decoration: none;
+      transition: background .15s
+    }
+
+    .margin-banner__link:hover {
+      background: var(--secondary)
+    }
+
+    .margin-banner__close {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 14px;
+      color: var(--s300);
+      cursor: pointer;
+      line-height: 1;
+      background: none;
+      border: none;
+      padding: 0
+    }
+
+    .margin-banner__close:hover {
+      color: var(--s500)
+    }
+
+    .print-header {
+      display: none
+    }
+
+    @media (max-width:600px) {
+
+      .app-header,
+      .input-wrap,
+      .main {
+        padding-left: 16px;
+        padding-right: 16px
+      }
+
+      .url-form {
+        flex-direction: column
+      }
+
+      .score-grid {
+        grid-template-columns: repeat(2, 1fr)
+      }
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--s200);
+      border-radius: 999px
+    }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "SEO 総合チェッカー",
+    "description": "URLを入力するだけでSEO・OGP・構造化データ・MEO・LLMOを簡易チェックできる無料ツールです。Title・Meta・見出し・画像altなどをHTMLの静的解析で一括確認できます。",
+    "url": "https://tools.corto.jp/free/seo-checker/",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "All",
+    "browserRequirements": "Requires JavaScript",
+    "inLanguage": "ja",
+    "isAccessibleForFree": true,
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "JPY"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "studio corto",
+      "url": "https://corto.jp/"
+    }
+  }
+  </script>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WRM7PV7BBK"></script>
+  <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-WRM7PV7BBK');</script>
+</head>
+
+<body><noscript>
+    <meta HTTP-EQUIV="refresh" content="0;url='https://tools.corto.jp/free/seo-checker/?PageSpeed=noscript'" />
+    <style>
+      <!--table,div,span,font,p{display:none} 
+      -->
+    </style>
+    <div style="display:block">Please click <a
+        href="https://tools.corto.jp/free/seo-checker/?PageSpeed=noscript">here</a> if you are not redirected within a
+      few seconds.</div>
+  </noscript>
+  <!-- ヘッダー -->
+  <header class="app-header">
+    <div class="app-header__icon">🔍</div>
+    <div>
+      <h1>SEO 総合チェッカー</h1>
+      <p>SEO・OGP・構造化データ・MEO・LLMO を網羅的に診断</p>
+    </div>
+    <span class="app-header__badge">v2.0</span>
+  </header>
+  <!-- 入力エリア -->
+  <div class="input-wrap">
+    <div class="url-form">
+      <input type="url" id="urlInput" class="url-input" placeholder="https://example.com" />
+      <button class="check-btn" id="checkBtn" onclick="startCheck()">
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+            d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
+        </svg>
+        診断スタート
+      </button>
+    </div>
+    <div class="url-note">
+      ⚡ CORSプロキシ経由でページを取得します。プライベートな内部URLは使用できません。
+      &nbsp;|&nbsp; <a href="#" onclick="loadExample(); return false;">サンプルURLで試す</a>
+    </div>
+    <div class="url-note" style="margin-top:6px; color: var(--s400);">
+      ※ HTMLの静的解析による簡易チェッカーです。ページ速度・被リンク等は対象外となります。
+    </div>
+    <div class="error-banner" id="errorBanner"></div>
+  </div>
+  <!-- メイン -->
+  <div class="main">
+    <!-- ウェルカム -->
+    <div class="welcome" id="welcome">
+      <div class="welcome__icon">🔎</div>
+      <h2>URLを入力して診断開始</h2>
+      <p>WebページのSEO・OGP・構造化データ・MEO・LLMOを<br>まとめて自動チェックします。</p>
+      <div class="pill-list">
+        <span class="pill">📝 SEO基本</span>
+        <span class="pill">📣 OGP / SNS</span>
+        <span class="pill">🏗 構造化データ</span>
+        <span class="pill">⚙️ テクニカルSEO</span>
+        <span class="pill">📍 MEO（ローカルSEO）</span>
+        <span class="pill">🤖 LLMO（AI最適化）</span>
+      </div>
+    </div>
+    <!-- ローディング -->
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>診断中...</p>
+      <small id="loadingStep">ページを取得しています</small>
+    </div>
+    <!-- 結果 -->
+    <div class="results" id="results">
+      <!-- 印刷用ヘッダー（画面非表示・印刷時のみ） -->
+      <div class="print-header" id="printHeader">
+        <div class="print-header__title">SEO 総合診断レポート</div>
+        <div class="print-header__meta" id="printMeta"></div>
+      </div>
+      <!-- メタ情報バー -->
+      <div class="result-meta">
+        <div class="result-meta__url">
+          診断URL: <strong id="reportUrl"></strong>
+        </div>
+        <span class="result-meta__time" id="reportTime"></span>
+        <div class="action-btns">
+          <button class="btn-action btn-pdf" onclick="exportPdf()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            PDFで保存
+          </button>
+          <button class="btn-action btn-copy" id="copyBtn" onclick="copyReport()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            クリップボードにコピー
+          </button>
+        </div>
+      </div>
+      <!-- スコアグリッド -->
+      <div class="score-grid" id="scoreGrid"></div>
+      <!-- タブ -->
+      <div class="tabs" id="tabsEl"></div>
+      <!-- パネル -->
+      <div id="panelsEl"></div>
+    </div>
+  </div>
+  <script>
+    /* ============================================================
+       ユーティリティ
+    ============================================================ */
+
+    function esc(s) {
+      if (!s) return '';
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function byteLen(s) {
+      if (!s) return 0;
+      return new TextEncoder().encode(s).length;
+    }
+    function setStep(msg) { document.getElementById('loadingStep').textContent = msg; }
+    function showError(msg) { const el = document.getElementById('errorBanner'); el.textContent = msg; el.style.display = 'block'; }
+    function hideError() { document.getElementById('errorBanner').style.display = 'none'; }
+    function loadExample() { document.getElementById('urlInput').value = 'https://www.wikipedia.org'; }
+
+    /* ============================================================
+       フェッチ
+    ============================================================ */
+    async function fetchPage(url) {
+      const encoded = encodeURIComponent(url);
+      const tryProxy = async (proxy) => {
+        const r = await fetch(proxy.url, { signal: AbortSignal.timeout(10000) });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const text = proxy.json ? (await r.json()).contents : await r.text();
+        if (!text || text.length < 100 || !/<html/i.test(text)) throw new Error('invalid response');
+        return text;
+      };
+      return Promise.any([
+        tryProxy({ url: `https://api.codetabs.com/v1/proxy?quest=${encoded}`, json: false }),
+        tryProxy({ url: `https://api.allorigins.win/get?url=${encoded}`, json: true }),
+        tryProxy({ url: `https://thingproxy.freeboard.io/fetch/${encoded}`, json: false }),
+      ]).catch(() => {
+        throw new Error('全プロキシへの接続に失敗しました。時間をおいて再試行してください。');
+      });
+    }
+
+    /* ============================================================
+       メタ取得ヘルパー
+    ============================================================ */
+    function getMeta(doc, name) {
+      const el = doc.querySelector(`meta[name="${name}"]`) || doc.querySelector(`meta[property="${name}"]`);
+      return el ? (el.getAttribute('content') || '').trim() : null;
+    }
+
+    /* ============================================================
+       チェック関数群
+    ============================================================ */
+    function checkSEO(doc, url) {
+      const out = [];
+
+      // タイトル
+      const title = doc.querySelector('title');
+      const tt = title ? title.textContent.trim() : null;
+      const tlen = byteLen(tt || '');
+      out.push({
+        name: 'タイトルタグ', status: !tt ? 'fail' : tlen < 20 || tlen > 70 ? 'warn' : 'pass',
+        desc: !tt ? 'タイトルタグが見つかりません' : `${tlen}文字（目安: 30〜60文字）`,
+        value: tt, tip: !tt ? 'タイトルタグは検索結果に表示される最重要要素です。必ず設定してください。' : tlen < 20 ? '短すぎます。より詳細なタイトルにしましょう。' : tlen > 70 ? '長すぎます。検索結果で切り詰められる可能性があります。' : '適切な文字数です。'
+      });
+
+      // メタディスクリプション
+      const desc = getMeta(doc, 'description');
+      const dlen = byteLen(desc || '');
+      out.push({
+        name: 'メタディスクリプション', status: !desc ? 'fail' : dlen < 60 || dlen > 160 ? 'warn' : 'pass',
+        desc: !desc ? '未設定' : `${dlen}文字（目安: 70〜120文字）`,
+        value: desc, tip: !desc ? '検索スニペットとして使用されます。必ず設定してください。' : dlen < 60 ? '短すぎます。より詳細な説明を記載しましょう。' : dlen > 160 ? '長すぎます。検索結果で切り詰められることがあります。' : '適切な文字数です。'
+      });
+
+      // H1
+      const h1s = doc.querySelectorAll('h1');
+      out.push({
+        name: 'H1タグ', status: h1s.length === 0 ? 'fail' : h1s.length > 1 ? 'warn' : 'pass',
+        desc: `H1タグ: ${h1s.length}個（推奨: 1個）`,
+        value: Array.from(h1s).map(h => h.textContent.trim()).join('\n') || null,
+        tip: h1s.length === 0 ? 'H1はページの主題を表す重要な要素です。' : h1s.length > 1 ? 'H1は1ページに1つが推奨です。' : '適切に設定されています。'
+      });
+
+      // 見出し構造
+      const hs = doc.querySelectorAll('h1,h2,h3,h4,h5,h6');
+      const hlist = Array.from(hs).map(h => `${h.tagName}: ${h.textContent.trim().substring(0, 50)}`);
+      out.push({
+        name: '見出し構造（H2〜H6）', status: hs.length < 2 ? 'warn' : 'pass',
+        desc: `見出し合計: ${hs.length}個`,
+        value: hlist.slice(0, 20).join('\n') + (hlist.length > 20 ? `\n...他${hlist.length - 20}個` : ''),
+        tip: hs.length < 2 ? '適切な見出し構造を作ることでコンテンツが整理され、SEOが向上します。' : '見出し構造が存在します。階層の論理性も確認してください。'
+      });
+
+      // 画像alt
+      const imgs = doc.querySelectorAll('img');
+      const noAlt = Array.from(imgs).filter(i => !i.getAttribute('alt'));
+      const noAltPreviews = noAlt.slice(0, 12).map(i => {
+        const raw = i.getAttribute('src') || '';
+        let resolved = raw;
+        try { resolved = new URL(raw, url).href; } catch (e) { }
+        return { src: resolved, rawSrc: raw };
+      });
+      out.push({
+        name: '画像 alt属性', status: imgs.length === 0 ? 'info' : noAlt.length === 0 ? 'pass' : noAlt.length > imgs.length * 0.5 ? 'fail' : 'warn',
+        desc: imgs.length === 0 ? '画像なし' : `${imgs.length}枚中 ${noAlt.length}枚がalt未設定`,
+        imgPreview: noAltPreviews.length > 0 ? noAltPreviews : null,
+        tip: noAlt.length > 0 ? '全画像にalt属性を設定するとSEOとアクセシビリティが向上します。' : '全ての画像にalt属性が設定されています。'
+      });
+
+      // lang属性
+      const lang = doc.documentElement.getAttribute('lang');
+      out.push({
+        name: 'HTML lang属性', status: !lang ? 'warn' : 'pass',
+        desc: lang ? `lang="${lang}"` : '未設定',
+        value: lang, tip: !lang ? '<html lang="ja"> のように言語を明示してください。' : '言語属性が設定されています。'
+      });
+
+      // リンク
+      const links = doc.querySelectorAll('a[href]');
+      const origin = new URL(url).origin;
+      let inn = 0, ext = 0;
+      Array.from(links).forEach(a => {
+        const h = a.getAttribute('href');
+        if (h.startsWith('http')) { if (h.startsWith(origin)) inn++; else ext++; }
+        else if (h.startsWith('//')) { ('https:' + h).startsWith(origin) ? inn++ : ext++; }
+        else if (!h.startsWith('#') && !h.startsWith('mailto:') && !h.startsWith('tel:') && !h.startsWith('javascript:')) inn++;
+      });
+      out.push({
+        name: 'リンク構造', status: links.length === 0 ? 'warn' : 'pass',
+        desc: `内部リンク: ${inn}本 / 外部リンク: ${ext}本`,
+        tip: '内部リンクの充実でユーザーの回遊性とSEOが向上します。'
+      });
+
+      return out;
+    }
+
+    function checkTechnical(doc, url) {
+      const out = [];
+      const p = new URL(url);
+
+      out.push({
+        name: 'HTTPS', status: p.protocol === 'https:' ? 'pass' : 'fail',
+        desc: p.protocol === 'https:' ? 'HTTPS対応済み' : 'HTTP（HTTPS未対応）',
+        tip: p.protocol !== 'https:' ? 'HTTPSはGoogleのランキング要因です。SSL証明書を設定してください。' : 'HTTPS対応済みです。'
+      });
+
+      const can = doc.querySelector('link[rel="canonical"]');
+      const canHref = can ? can.getAttribute('href') : null;
+      out.push({
+        name: 'canonical タグ', status: !canHref ? 'warn' : 'pass',
+        desc: canHref || '未設定',
+        value: canHref, tip: !canHref ? 'canonicalを設定することで重複コンテンツ問題を防止できます。' : 'canonicalが設定されています。'
+      });
+
+      const robots = getMeta(doc, 'robots');
+      const noindex = robots && /noindex/i.test(robots);
+      out.push({
+        name: 'robots metaタグ', status: noindex ? 'fail' : robots ? 'pass' : 'info',
+        desc: robots ? `robots="${robots}"` : '未設定（デフォルト: index, follow）',
+        value: robots, tip: noindex ? '⚠️ noindexが設定されています。インデックスされません。' : 'noindex設定はありません。'
+      });
+
+      const vp = getMeta(doc, 'viewport');
+      out.push({
+        name: 'viewport metaタグ', status: !vp ? 'fail' : vp.includes('width=device-width') ? 'pass' : 'warn',
+        desc: vp || '未設定',
+        value: vp, tip: !vp ? 'viewportがないとモバイル表示が崩れます。Googleはモバイルファーストインデックスを採用しています。' : 'viewport設定済みです。'
+      });
+
+      const cs = doc.querySelector('meta[charset]');
+      const charset = cs ? cs.getAttribute('charset') : null;
+      out.push({
+        name: '文字コード（charset）', status: !charset ? 'warn' : charset.toLowerCase() === 'utf-8' ? 'pass' : 'warn',
+        desc: charset ? `charset="${charset}"` : '未指定',
+        tip: 'UTF-8が推奨されます。'
+      });
+
+      const hreflang = doc.querySelectorAll('link[rel="alternate"][hreflang]');
+      out.push({
+        name: 'hreflang（多言語対応）', status: hreflang.length > 0 ? 'pass' : 'info',
+        desc: hreflang.length > 0 ? `${hreflang.length}言語設定` : '未設定（多言語サイトでなければ不要）',
+        value: hreflang.length > 0 ? Array.from(hreflang).map(l => `${l.getAttribute('hreflang')}: ${l.getAttribute('href')}`).join('\n') : null,
+        tip: hreflang.length === 0 ? '多言語サイトの場合はhreflangを設定してください。' : 'hreflangが設定されています。'
+      });
+
+      const manifest = doc.querySelector('link[rel="manifest"]');
+      out.push({
+        name: 'PWA Manifest', status: manifest ? 'pass' : 'info',
+        desc: manifest ? manifest.getAttribute('href') : '未設定',
+        tip: 'Manifestを設定するとPWA（プログレッシブウェブアプリ）化できます。'
+      });
+
+      return out;
+    }
+
+    function checkOGP(doc, url) {
+      const out = [];
+      const og = {};
+
+      const ogKeys = [
+        { k: 'og:title', req: true },
+        { k: 'og:description', req: true },
+        { k: 'og:image', req: true },
+        { k: 'og:url', req: true },
+        { k: 'og:type', req: true },
+        { k: 'og:site_name', req: false },
+        { k: 'og:locale', req: false },
+      ];
+      ogKeys.forEach(t => { og[t.k] = getMeta(doc, t.k); });
+
+      // OGPプレビューを先頭に
+      if (og['og:title'] || og['og:image']) {
+        out.push({
+          name: 'OGPプレビュー（SNSシェア時イメージ）', status: og['og:title'] && og['og:image'] ? 'pass' : 'warn',
+          desc: 'SNSでシェアされた際の見え方',
+          ogPreview: { title: og['og:title'], description: og['og:description'], image: og['og:image'], url: og['og:url'] || url }
+        });
+      }
+
+      ogKeys.forEach(t => {
+        const v = og[t.k];
+        out.push({
+          name: t.k, status: v ? 'pass' : t.req ? 'fail' : 'warn',
+          desc: v ? (v.length > 80 ? v.substring(0, 80) + '...' : v) : '未設定',
+          value: v, tip: !v ? (t.req ? `${t.k}はSNSシェア時に重要です。必ず設定してください。` : `${t.k}を設定するとSNSシェアがより豊かになります。`) : 'OK'
+        });
+      });
+
+      [
+        { k: 'twitter:card', req: true },
+        { k: 'twitter:title', req: false },
+        { k: 'twitter:description', req: false },
+        { k: 'twitter:image', req: false },
+        { k: 'twitter:site', req: false },
+      ].forEach(t => {
+        const v = getMeta(doc, t.k);
+        let resolved = v;
+        try { if (v) resolved = new URL(v, url).href; } catch (e) { }
+        const isImg = t.k === 'twitter:image';
+        out.push({
+          name: t.k, status: v ? 'pass' : t.req ? 'warn' : 'info',
+          desc: v || '未設定',
+          value: !isImg ? v : null,
+          imgPreview: isImg && v ? [{ src: resolved, rawSrc: v }] : null,
+          tip: !v ? `${t.k}が未設定です。X(Twitter)シェア時に影響します。` : 'OK'
+        });
+      });
+
+      return out;
+    }
+
+    function checkStructuredData(doc) {
+      const out = [];
+      const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
+      const flat = [];
+
+      scripts.forEach(s => {
+        try {
+          const d = JSON.parse(s.textContent);
+          const arr = Array.isArray(d) ? d : [d];
+          arr.forEach(item => { if (item['@graph']) item['@graph'].forEach(i => flat.push(i)); else flat.push(item); });
+        } catch (e) {
+          out.push({ name: 'JSON-LD 解析エラー', status: 'fail', desc: 'JSON-LDの構文エラー', value: e.message, tip: 'JSON-LDの構文を修正してください。' });
+        }
+      });
+
+      out.push({
+        name: 'JSON-LD 総数', status: scripts.length === 0 ? 'fail' : 'pass',
+        desc: `${scripts.length}件のスクリプト / ${flat.length}スキーマ検出`,
+        tip: scripts.length === 0 ? '構造化データが未設定です。主要ページにJSON-LDを追加しましょう。' : '構造化データが設定されています。'
+      });
+
+      if (flat.length) {
+        out.push({
+          name: '検出されたスキーマタイプ', status: 'info',
+          desc: flat.map(s => s['@type']).filter(Boolean).join(' / ') || '不明',
+          schemas: flat
+        });
+
+        const check = (id, name, re, tip) => {
+          const found = flat.find(s => re.test(s['@type'] || ''));
+          out.push({ name, status: found ? 'pass' : 'info', desc: found ? `${found['@type']}: ${found.name || found.headline || ''}` : '未設定', tip: !found ? tip : 'OK - 設定されています。' });
+        };
+        check('website', 'WebSite スキーマ', /website/i, 'WebSiteスキーマを設定するとサイト名が検索結果に表示されます。');
+        check('searchact', 'SearchAction（サイト内検索）', /website/i, 'SearchActionでGoogleにサイト内検索ボックスを表示できます。');
+        check('breadcrumb', 'BreadcrumbList スキーマ', /breadcrumb/i, 'パンくずリストをスキーマ化すると検索結果に表示されます。');
+        check('faqpage', 'FAQPage スキーマ', /faqpage/i, 'FAQ形式のコンテンツにはFAQPageスキーマを追加しましょう。');
+        check('article', 'Article / BlogPosting', /article|blogposting|newsarticle/i, 'ブログ記事にArticleスキーマを設定するとリッチリザルトが表示されます。');
+        check('product', 'Product スキーマ', /product/i, '商品ページにはProductスキーマで価格・評価を構造化しましょう。');
+      }
+
+      return out;
+    }
+
+    function checkMEO(doc) {
+      const out = [];
+      const flat = extractSchemas(doc);
+      const localRe = /localbusiness|restaurant|hotel|store|hospital|doctor|dentist|cafe|bar|gym|salon|shop|bakery|school|university|organization|place/i;
+      const lb = flat.find(s => localRe.test(s['@type'] || ''));
+
+      out.push({
+        name: 'LocalBusiness 構造化データ', status: lb ? 'pass' : 'warn',
+        desc: lb ? `${lb['@type']}スキーマを検出` : '未設定（ローカルビジネスは設定推奨）',
+        tip: !lb ? 'LocalBusinessスキーマを設定するとGoogle マップでの表示が向上します。' : 'LocalBusinessスキーマが設定されています。'
+      });
+
+      if (lb) {
+        out.push({ name: 'ビジネス名（name）', status: lb.name ? 'pass' : 'fail', desc: lb.name || '未設定', tip: !lb.name ? 'nameは必須プロパティです。' : 'OK' });
+        const addr = lb.address;
+        out.push({
+          name: '住所（address）', status: addr ? 'pass' : 'fail',
+          desc: addr ? (typeof addr === 'string' ? addr : `${addr.addressRegion || ''} ${addr.addressLocality || ''} ${addr.streetAddress || ''}`) : '未設定',
+          tip: !addr ? '住所情報はMEOで非常に重要です。PostalAddressで詳細に記載してください。' : 'OK'
+        });
+        out.push({ name: '電話番号（telephone）', status: lb.telephone ? 'pass' : 'warn', desc: lb.telephone || '未設定', tip: !lb.telephone ? '電話番号を設定するとGoogle マップ表示が向上します。' : 'OK' });
+        const hrs = lb.openingHours || lb.openingHoursSpecification;
+        out.push({
+          name: '営業時間（openingHours）', status: hrs ? 'pass' : 'warn',
+          desc: hrs ? (Array.isArray(hrs) ? hrs.join(', ') : JSON.stringify(hrs).substring(0, 80)) : '未設定',
+          tip: !hrs ? '営業時間を設定するとGoogle マップに表示されます。' : 'OK'
+        });
+        out.push({
+          name: 'GPS座標（geo）', status: lb.geo ? 'pass' : 'warn',
+          desc: lb.geo ? `lat: ${lb.geo.latitude}, lng: ${lb.geo.longitude}` : '未設定',
+          tip: !lb.geo ? 'GeoCoordinatesを設定するとGoogle マップのピン精度が向上します。' : 'OK'
+        });
+        out.push({
+          name: 'Google Maps URL（hasMap）', status: lb.hasMap ? 'pass' : 'info',
+          desc: lb.hasMap || '未設定',
+          value: lb.hasMap, tip: !lb.hasMap ? 'Google MapsのURLをhasMapに設定すると関連性が強化されます。' : 'OK'
+        });
+        const rt = lb.aggregateRating;
+        out.push({
+          name: '評価（aggregateRating）', status: rt ? 'pass' : 'info',
+          desc: rt ? `${rt.ratingValue}点（${rt.reviewCount}件）` : '未設定',
+          tip: !rt ? '評価スキーマを設定すると検索結果に★評価が表示されることがあります。' : 'OK'
+        });
+      }
+
+      return out;
+    }
+
+    function checkLLMO(doc) {
+      const out = [];
+      const flat = extractSchemas(doc);
+
+      const h2s = doc.querySelectorAll('h2');
+      const h3s = doc.querySelectorAll('h3');
+      const paras = doc.querySelectorAll('p');
+      const bodyText = doc.body ? doc.body.textContent.replace(/\s+/g, ' ') : '';
+      const charCount = bodyText.replace(/\s/g, '').length;
+      out.push({
+        name: 'コンテンツ構造の明確さ', status: h2s.length >= 2 && paras.length >= 3 ? 'pass' : h2s.length >= 1 ? 'warn' : 'fail',
+        desc: `H2: ${h2s.length}個 / H3: ${h3s.length}個 / 段落: ${paras.length}個 / 推定文字数: 約${charCount.toLocaleString()}字`,
+        tip: h2s.length < 2 ? 'LLMはコンテンツ構造を理解して回答します。H2/H3で論理的な見出し構造を作ることが重要です。' : '適切な見出し構造があります。'
+      });
+
+      const faq = flat.find(s => /faqpage/i.test(s['@type'] || ''));
+      out.push({
+        name: 'FAQPage スキーマ（LLM回答に重要）', status: faq ? 'pass' : 'warn',
+        desc: faq ? `${faq.mainEntity ? faq.mainEntity.length : 0}件のFAQ` : '未設定',
+        tip: !faq ? 'FAQPageスキーマはAI Overviewsや生成AI検索が回答時に引用しやすい形式です。' : 'FAQスキーマが設定されています。'
+      });
+
+      const howto = flat.find(s => /howto/i.test(s['@type'] || ''));
+      out.push({
+        name: 'HowTo スキーマ', status: howto ? 'pass' : 'info',
+        desc: howto ? `${howto.step ? howto.step.length : 0}ステップ` : '未設定（手順コンテンツは追加推奨）',
+        tip: !howto ? 'HowToスキーマを設定するとAI検索エンジンが手順を正確に引用しやすくなります。' : 'OK'
+      });
+
+      const person = flat.find(s => /person|author/i.test(s['@type'] || ''));
+      const author = getMeta(doc, 'author');
+      out.push({
+        name: '著者情報（Person / meta author）', status: person ? 'pass' : author ? 'warn' : 'fail',
+        desc: person ? `Person: ${person.name || ''}` : author ? `meta author: ${author}` : '未設定',
+        tip: !person ? 'E-E-A-T強化のため、著者情報をPersonスキーマで明示することがAI最適化で重要です。' : '著者情報が設定されています。'
+      });
+
+      const article = flat.find(s => /article|blogposting|newsarticle/i.test(s['@type'] || ''));
+      const dp = article ? article.datePublished : getMeta(doc, 'article:published_time');
+      const dm = article ? article.dateModified : getMeta(doc, 'article:modified_time');
+      out.push({
+        name: '公開日・更新日', status: dp ? (dm ? 'pass' : 'warn') : 'warn',
+        desc: dp ? `公開: ${dp}${dm ? ` / 更新: ${dm}` : ''}` : '未設定',
+        tip: !dp ? 'AI検索はコンテンツの鮮度を重視します。公開日・更新日を明示してください。' : !dm ? '更新日（dateModified）も設定するとコンテンツの鮮度がより明確になります。' : 'OK'
+      });
+
+      const org = flat.find(s => /organization|company|corporation/i.test(s['@type'] || ''));
+      out.push({
+        name: 'Organization スキーマ', status: org ? 'pass' : 'warn',
+        desc: org ? `${org['@type']}: ${org.name || ''}` : '未設定',
+        tip: !org ? 'Organizationスキーマを設定するとAIがビジネスエンティティを正確に識別できます。' : 'OK'
+      });
+
+      const about = doc.querySelector('a[href*="about"], a[href*="company"], a[href*="profile"], a[href*="contact"]');
+      out.push({
+        name: 'E-E-A-T シグナル（About・会社情報）', status: about ? 'pass' : 'warn',
+        desc: about ? `"${about.textContent.trim()}" リンクを検出` : 'About/会社情報へのリンクなし',
+        tip: !about ? '信頼性向上のため、会社概要・著者紹介・お問い合わせページへのリンクを配置しましょう。' : 'E-E-ATシグナルのリンクがあります。'
+      });
+
+      const sameAs = flat.find(s => s.sameAs);
+      out.push({
+        name: 'sameAs（権威サイトとの紐付け）', status: sameAs ? 'pass' : 'info',
+        desc: sameAs ? `設定済み: ${Array.isArray(sameAs.sameAs) ? sameAs.sameAs.slice(0, 2).join(', ') : sameAs.sameAs}` : '未設定',
+        tip: !sameAs ? 'WikipediaやSNS公式アカウントへのURLをsameAsに設定するとAIがエンティティを正確に識別します。' : 'OK'
+      });
+
+      const dls = doc.querySelectorAll('dl, dfn');
+      out.push({
+        name: '定義リスト・用語説明（dl, dfn）', status: dls.length > 0 ? 'pass' : 'info',
+        desc: dls.length > 0 ? `${dls.length}個の定義要素を検出` : '未使用',
+        tip: '専門用語を<dl><dt><dd>や<dfn>で定義するとAIが引用しやすくなります。'
+      });
+
+      return out;
+    }
+
+    function extractSchemas(doc) {
+      const flat = [];
+      doc.querySelectorAll('script[type="application/ld+json"]').forEach(s => {
+        try {
+          const d = JSON.parse(s.textContent);
+          const arr = Array.isArray(d) ? d : [d];
+          arr.forEach(item => { if (item['@graph']) item['@graph'].forEach(i => flat.push(i)); else flat.push(item); });
+        } catch { }
+      });
+      return flat;
+    }
+
+    /* ============================================================
+       スコア計算
+    ============================================================ */
+    function calcScore(items) {
+      let p = 0, w = 0, f = 0, t = 0;
+      items.forEach(i => { if (i.status === 'info' || i.status === 'na') return; t++; if (i.status === 'pass') p++; else if (i.status === 'warn') w++; else f++; });
+      return t === 0 ? 100 : Math.round((p * 100 + w * 50) / t);
+    }
+    function scoreColor(s) { return s >= 80 ? '#15803d' : s >= 50 ? '#b45309' : '#ef4444'; }
+    function countSt(items, st) { return items.filter(i => i.status === st).length; }
+
+    /* ============================================================
+       レンダリング
+    ============================================================ */
+    function renderRing(score) {
+      const color = scoreColor(score);
+      const r = 19, c = 2 * Math.PI * r, off = c - (score / 100) * c;
+      return `<div class="score-ring">
+    <svg width="48" height="48" viewBox="0 0 48 48">
+      <circle class="ring-bg" cx="24" cy="24" r="${r}" fill="none" stroke-width="4"/>
+      <circle class="ring-fg" cx="24" cy="24" r="${r}" fill="none"
+        stroke="${color}" stroke-width="4" stroke-linecap="round"
+        stroke-dasharray="${c}" stroke-dashoffset="${off}"/>
+    </svg>
+    <div class="score-val" style="color:${color}">${score}</div>
+  </div>`;
+    }
+
+    function renderItem(item) {
+      const icons = { pass: '✓', warn: '!', fail: '✗', info: 'i', na: '–' };
+      const tipClass = item.status === 'pass' ? 'ok' : item.status === 'fail' ? 'err' : 'hint';
+
+      // descと同一内容のvalueは重複なので非表示。tipが"OK"のみの場合も省略
+      const showValue = item.value && item.value !== item.desc;
+      const showTip = item.tip && item.tip !== 'OK';
+
+      let detailHtml = '';
+      if (showValue) detailHtml += `<div class="detail-value">${esc(item.value)}</div>`;
+      if (item.imgPreview) {
+        detailHtml += `<div class="img-preview-grid">${item.imgPreview.map(img =>
+          `<div class="img-preview-item">
+        <img src="${esc(img.src)}" alt="" loading="lazy"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="img-preview-err" style="display:none">読込失敗</div>
+        <div class="img-preview-src">${esc(img.rawSrc || '(src不明)')}</div>
+      </div>`
+        ).join('')}</div>`;
+      }
+      if (item.ogPreview) {
+        const og = item.ogPreview;
+        detailHtml += `<div class="og-preview">
+      <div class="og-preview__img">${og.image ? `<img src="${esc(og.image)}" alt="OG" onerror="this.parentElement.textContent='画像読込失敗'">` : '画像未設定'}</div>
+      <div class="og-preview__body">
+        <div class="og-preview__domain">${esc(new URL(og.url || 'https://example.com').hostname)}</div>
+        <div class="og-preview__title">${esc(og.title || '(タイトルなし)')}</div>
+        <div class="og-preview__desc">${esc(og.description || '(説明なし)')}</div>
+      </div></div>`;
+      }
+      if (item.schemas) {
+        item.schemas.slice(0, 4).forEach(s => {
+          const props = Object.entries(s).filter(([k]) => !k.startsWith('@')).slice(0, 7);
+          detailHtml += `<div class="schema-card"><div class="schema-type">🏷 ${esc(s['@type'] || '不明')}</div>
+        <div>${props.map(([k, v]) => `<div class="schema-prop"><span class="prop-k">${esc(k)}</span><span class="prop-v">${esc(typeof v === 'object' ? JSON.stringify(v).substring(0, 80) : String(v).substring(0, 80))}</span></div>`).join('')}</div>
+      </div>`;
+        });
+      }
+      if (showTip) {
+        detailHtml += `<div class="detail-tip ${tipClass}">${item.status === 'pass' ? '✓' : '💡'} ${esc(item.tip)}</div>`;
+      }
+
+      return `<div class="check-item">
+    <div class="si ${item.status}">${icons[item.status] || '?'}</div>
+    <div class="check-body">
+      <div class="check-name">${esc(item.name)}</div>
+      <div class="check-desc">${esc(item.desc)}</div>
+      ${detailHtml ? `<div class="check-detail">${detailHtml}</div>` : ''}
+    </div>
+  </div>`;
+    }
+
+    /* ============================================================
+       メイン描画
+    ============================================================ */
+    let lastData = null;
+    let lastUrl = '';
+    let lastTime = '';
+
+    function renderResults(data) {
+      const cats = [
+        { id: 'seo', label: '📝 SEO基本', items: data.seo },
+        { id: 'technical', label: '⚙️ テクニカル', items: data.technical },
+        { id: 'ogp', label: '📣 OGP/SNS', items: data.ogp },
+        { id: 'structured', label: '🏗 構造化データ', items: data.structured },
+        { id: 'meo', label: '📍 MEO', items: data.meo },
+        { id: 'llmo', label: '🤖 LLMO', items: data.llmo },
+      ];
+
+      // スコアグリッド
+      const sg = document.getElementById('scoreGrid');
+      sg.innerHTML = cats.map((cat, i) => {
+        const s = calcScore(cat.items);
+        const p = countSt(cat.items, 'pass'), w = countSt(cat.items, 'warn'), f = countSt(cat.items, 'fail');
+        return `<div class="score-card" id="sc-${cat.id}">
+      ${renderRing(s)}
+      <div class="score-info">
+        <div class="score-label">${cat.label}</div>
+        <div class="score-name" style="color:${scoreColor(s)}">${s}点</div>
+        <div class="score-tally"><span class="p">✓${p}</span><span class="w">!${w}</span><span class="f">✗${f}</span></div>
+      </div>
+    </div>`;
+      }).join('') + (() => {
+        const all = cats.flatMap(c => c.items);
+        const s = calcScore(all);
+        const p = countSt(all, 'pass'), w = countSt(all, 'warn'), f = countSt(all, 'fail');
+        return `<div class="score-card score-card--total" style="border-color:${scoreColor(s)}">
+      ${renderRing(s)}
+      <div class="score-info">
+        <div class="score-label">総合スコア</div>
+        <div class="score-name" style="color:${scoreColor(s)};font-size:14px">${s}点</div>
+        <div class="score-tally">全${p + w + f}項目</div>
+      </div>
+    </div>`;
+      })();
+
+      // タブ
+      const te = document.getElementById('tabsEl');
+      te.innerHTML = cats.map((cat, i) => {
+        const f = countSt(cat.items, 'fail'), w = countSt(cat.items, 'warn');
+        const pillTxt = f > 0 ? `×${f}` : w > 0 ? `!${w}` : '✓';
+        const pillStyle = f > 0 ? 'background:#fef2f2;color:#ef4444' : w > 0 ? 'background:#fffbeb;color:#b45309' : 'background:#f0fdf4;color:#15803d';
+        return `<button class="tab-btn ${i === 0 ? 'active' : ''}" id="tab-${cat.id}" onclick="switchTab('${cat.id}')">
+      ${cat.label} <span class="tab-pill" style="${pillStyle}">${pillTxt}</span>
+    </button>`;
+      }).join('');
+
+      // パネル
+      const pe = document.getElementById('panelsEl');
+      pe.innerHTML = cats.map((cat, i) => `
+    <div class="panel ${i === 0 ? 'active' : ''}" id="panel-${cat.id}">
+      <div class="print-section-title">${cat.label}</div>
+      ${cat.items.map(it => renderItem(it)).join('')}
+    </div>`).join('');
+    }
+
+    function switchTab(id) {
+      document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.score-card').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.getElementById(`tab-${id}`)?.classList.add('active');
+      document.getElementById(`sc-${id}`)?.classList.add('active');
+      document.getElementById(`panel-${id}`)?.classList.add('active');
+    }
+
+    /* ============================================================
+       エクスポート
+    ============================================================ */
+    function exportPdf() {
+      if (!lastData) return;
+      document.querySelectorAll('.panel').forEach(p => p.style.display = 'block');
+      document.getElementById('printMeta').textContent = `診断URL: ${lastUrl}　|　診断日時: ${lastTime}`;
+      const restore = () => {
+        document.querySelectorAll('.panel').forEach(p => p.style.display = '');
+        const activeId = document.querySelector('.tab-btn.active')?.id.replace('tab-', '');
+        if (activeId) document.getElementById(`panel-${activeId}`).style.display = 'block';
+        window.removeEventListener('afterprint', restore);
+      };
+      window.addEventListener('afterprint', restore);
+      window.print();
+    }
+
+    function copyReport() {
+      if (!lastData) return;
+      const cats = [
+        { label: '📝 SEO基本', items: lastData.seo },
+        { label: '⚙️ テクニカルSEO', items: lastData.technical },
+        { label: '📣 OGP/SNS', items: lastData.ogp },
+        { label: '🏗 構造化データ', items: lastData.structured },
+        { label: '📍 MEO', items: lastData.meo },
+        { label: '🤖 LLMO（AI最適化）', items: lastData.llmo },
+      ];
+      const lines = [
+        '■ SEO 総合診断レポート',
+        `URL: ${lastUrl}`,
+        `診断日時: ${lastTime}`,
+        '────────────────────────────────',
+        '',
+      ];
+      cats.forEach(cat => {
+        const score = calcScore(cat.items);
+        lines.push(`${cat.label}  [${score}点]`);
+        cat.items.forEach(it => {
+          const icon = { pass: '✓', warn: '!', fail: '✗', info: 'i' }[it.status] || '?';
+          lines.push(`  [${icon}] ${it.name}`);
+          if (it.desc && it.desc !== 'OK') lines.push(`      → ${it.desc}`);
+          if (it.tip && it.status !== 'pass') lines.push(`      💡 ${it.tip}`);
+        });
+        lines.push('');
+      });
+      const all = cats.flatMap(c => c.items);
+      lines.push(`────────────────────────────────`);
+      lines.push(`総合スコア: ${calcScore(all)}点`);
+
+      navigator.clipboard.writeText(lines.join('\n')).then(() => {
+        const btn = document.getElementById('copyBtn');
+        const orig = btn.innerHTML;
+        btn.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg> コピーしました`;
+        setTimeout(() => { btn.innerHTML = orig; }, 2000);
+      }).catch(() => { showError('クリップボードへのコピーに失敗しました。'); });
+    }
+
+    /* ============================================================
+       診断メイン
+    ============================================================ */
+    async function startCheck() {
+      const urlInput = document.getElementById('urlInput');
+      let url = urlInput.value.trim();
+      if (!url) { showError('URLを入力してください。'); return; }
+      if (!url.startsWith('http')) url = 'https://' + url;
+      try { new URL(url); } catch { showError('有効なURLを入力してください。'); return; }
+
+      hideError();
+      document.getElementById('welcome').style.display = 'none';
+      document.getElementById('results').style.display = 'none';
+      document.getElementById('loading').style.display = 'flex';
+      document.getElementById('checkBtn').disabled = true;
+
+      try {
+        setStep('ページを取得しています...');
+        const html = await fetchPage(url);
+        setStep('HTMLを解析しています...');
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+
+        setStep('SEOをチェックしています...');
+        const seo = checkSEO(doc, url);
+        setStep('テクニカルSEOをチェックしています...');
+        const technical = checkTechnical(doc, url);
+        setStep('OGP / SNSをチェックしています...');
+        const ogp = checkOGP(doc, url);
+        setStep('構造化データを解析しています...');
+        const structured = checkStructuredData(doc);
+        setStep('MEOをチェックしています...');
+        const meo = checkMEO(doc);
+        setStep('LLMO（AI最適化）をチェックしています...');
+        const llmo = checkLLMO(doc);
+
+        lastData = { seo, technical, ogp, structured, meo, llmo };
+        lastUrl = url;
+        lastTime = new Date().toLocaleString('ja-JP');
+
+        document.getElementById('reportUrl').textContent = url;
+        document.getElementById('reportTime').textContent = lastTime;
+
+        renderResults(lastData);
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('results').style.display = 'block';
+
+      } catch (e) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('welcome').style.display = 'flex';
+        showError('エラー: ' + e.message);
+      } finally {
+        document.getElementById('checkBtn').disabled = false;
+      }
+    }
+
+    document.getElementById('urlInput').addEventListener('keydown', e => { if (e.key === 'Enter') startCheck(); });
+  </script>
+  <div class="margin-banner" id="marginBanner">
+    <div class="margin-banner__accent"></div>
+    <div class="margin-banner__body">
+      <button class="margin-banner__close" onclick="closeMarginBanner()" aria-label="閉じる">✕</button>
+      <div class="margin-banner__logo">margin<span>by studio corto</span></div>
+      <p class="margin-banner__copy">フリーランス・小さな制作会社向けの<br>買い切りビジネスツール専門店。<br>ちょうどいいシンプル設計。</p>
+      <a class="margin-banner__link" href="https://margin.corto.jp/" target="_blank" rel="noopener">ツールを見る →</a>
+    </div>
+  </div>
+  <script>(function () { var KEY = 'marginBannerClosedAt'; var t = localStorage.getItem(KEY); if (t && Date.now() - parseInt(t) < 86400000) document.getElementById('marginBanner').style.display = 'none'; })(); function closeMarginBanner() { document.getElementById('marginBanner').style.display = 'none'; localStorage.setItem('marginBannerClosedAt', Date.now()); }</script>
+  <noscript class="psa_add_styles">
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0
+      }
+
+      :root {
+        --primary: #3eb2d2;
+        --primary-rgb: 62, 178, 210;
+        --secondary: #255797;
+        --secondary-rgb: 37, 87, 151;
+        --accent-bg: #eef7fc;
+        --accent-border: #bae6fd;
+        --bg: #f1f5f9;
+        --white: #fff;
+        --s50: #f8fafc;
+        --s100: #f1f5f9;
+        --s200: #e2e8f0;
+        --s300: #cbd5e1;
+        --s400: #94a3b8;
+        --s500: #64748b;
+        --s600: #475569;
+        --s700: #334155;
+        --s800: #1e293b;
+        --pass: #15803d;
+        --pass-bg: #f0fdf4;
+        --pass-bdr: #bbf7d0;
+        --warn: #b45309;
+        --warn-bg: #fffbeb;
+        --warn-bdr: #fde68a;
+        --fail: #ef4444;
+        --fail-bg: #fef2f2;
+        --fail-bdr: #fecaca;
+        --info: #3b82f6;
+        --info-bg: #eff6ff;
+        --info-bdr: #bfdbfe;
+        --r-sm: 6px;
+        --r-md: 10px;
+        --r-lg: 14px;
+        --r-xl: 18px;
+        --sh-sm: 0 1px 3px rgba(0, 0, 0, .08);
+        --sh-md: 0 4px 12px rgba(37, 87, 151, .12)
+      }
+
+      html {
+        font-size: 16px
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+        background: var(--bg);
+        color: var(--s800);
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+        padding-bottom: 100px
+      }
+
+      @media print {
+        body {
+          padding-bottom: 0
+        }
+      }
+
+      button {
+        font-family: inherit;
+        cursor: pointer;
+        border: none;
+        background: none
+      }
+
+      input {
+        font-family: inherit
+      }
+
+      .app-header {
+        background: var(--white);
+        border-bottom: 1px solid var(--s200);
+        box-shadow: var(--sh-sm);
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        gap: 14px
+      }
+
+      .app-header__icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: var(--r-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0
+      }
+
+      .app-header h1 {
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: -.02em;
+        color: var(--s800)
+      }
+
+      .app-header p {
+        font-size: 11px;
+        color: var(--s500);
+        margin-top: 1px
+      }
+
+      .app-header__badge {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 9px;
+        border-radius: 999px;
+        margin-left: auto;
+        white-space: nowrap
+      }
+
+      .input-wrap {
+        background: var(--white);
+        border-bottom: 1px solid var(--s200);
+        padding: 20px 24px
+      }
+
+      .url-form {
+        display: flex;
+        gap: 10px;
+        max-width: 860px
+      }
+
+      .url-input {
+        flex: 1;
+        padding: 10px 14px;
+        border: 1px solid var(--s200);
+        border-radius: var(--r-md);
+        font-size: 14px;
+        color: var(--s800);
+        background: var(--s50);
+        outline: none;
+        transition: border-color .15s, box-shadow .15s
+      }
+
+      .url-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), .15);
+        background: var(--white)
+      }
+
+      .url-input::placeholder {
+        color: var(--s400)
+      }
+
+      .check-btn {
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        color: #fff;
+        padding: 10px 24px;
+        border-radius: var(--r-md);
+        font-size: 14px;
+        font-weight: 700;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(var(--secondary-rgb), .2);
+        transition: opacity .15s, transform .1s;
+        display: flex;
+        align-items: center;
+        gap: 6px
+      }
+
+      .check-btn:hover {
+        opacity: .9
+      }
+
+      .check-btn:active {
+        transform: scale(.97)
+      }
+
+      .check-btn:disabled {
+        opacity: .5;
+        cursor: not-allowed;
+        transform: none
+      }
+
+      .url-note {
+        font-size: 11px;
+        color: var(--s400);
+        margin-top: 8px
+      }
+
+      .url-note a {
+        color: var(--primary);
+        text-decoration: none
+      }
+
+      .url-note a:hover {
+        text-decoration: underline
+      }
+
+      .error-banner {
+        background: var(--fail-bg);
+        border: 1px solid var(--fail-bdr);
+        color: var(--fail);
+        padding: 10px 14px;
+        border-radius: var(--r-md);
+        font-size: 13px;
+        margin-top: 10px;
+        display: none;
+        max-width: 860px
+      }
+
+      .main {
+        padding: 24px;
+        max-width: 1200px
+      }
+
+      .welcome {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 64px 32px;
+        gap: 14px
+      }
+
+      .welcome__icon {
+        font-size: 56px
+      }
+
+      .welcome h2 {
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--s800)
+      }
+
+      .welcome p {
+        font-size: 13px;
+        color: var(--s500);
+        line-height: 1.7;
+        max-width: 480px
+      }
+
+      .pill-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        margin-top: 6px
+      }
+
+      .pill {
+        background: var(--white);
+        border: 1px solid var(--s200);
+        color: var(--s600);
+        font-size: 12px;
+        font-weight: 600;
+        padding: 5px 14px;
+        border-radius: 999px
+      }
+
+      .loading {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        padding: 64px;
+        text-align: center
+      }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--s200);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin .8s linear infinite
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .loading p {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--s700)
+      }
+
+      .loading small {
+        font-size: 12px;
+        color: var(--s400)
+      }
+
+      .results {
+        display: none
+      }
+
+      .result-meta {
+        background: var(--white);
+        border: 1px solid var(--s200);
+        border-radius: var(--r-xl);
+        box-shadow: var(--sh-sm);
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 20px
+      }
+
+      .result-meta__url {
+        flex: 1;
+        font-size: 13px;
+        color: var(--s500);
+        word-break: break-all;
+        min-width: 0
+      }
+
+      .result-meta__url strong {
+        color: var(--s800)
+      }
+
+      .result-meta__time {
+        font-size: 11px;
+        color: var(--s400);
+        white-space: nowrap
+      }
+
+      .action-btns {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap
+      }
+
+      .btn-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 9px 16px;
+        border-radius: var(--r-md);
+        font-size: 13px;
+        font-weight: 600;
+        transition: background .13s, border-color .13s, transform .1s;
+        white-space: nowrap
+      }
+
+      .btn-action:active {
+        transform: scale(.97)
+      }
+
+      .btn-action svg {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0
+      }
+
+      .btn-pdf {
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        color: #fff;
+        box-shadow: 0 2px 6px rgba(var(--secondary-rgb), .2)
+      }
+
+      .btn-pdf:hover {
+        opacity: .9
+      }
+
+      .btn-copy {
+        background: var(--white);
+        color: var(--s600);
+        border: 1px solid var(--s200)
+      }
+
+      .btn-copy:hover {
+        background: var(--s50);
+        border-color: var(--s300)
+      }
+
+      .score-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 10px;
+        margin-bottom: 20px
+      }
+
+      .score-card {
+        background: var(--white);
+        border: 1px solid var(--s200);
+        border-radius: var(--r-xl);
+        box-shadow: var(--sh-sm);
+        padding: 14px 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        text-align: center
+      }
+
+      .score-card--total {
+        background: linear-gradient(135deg, var(--s50), var(--white));
+        border-width: 2px
+      }
+
+      .score-ring {
+        position: relative;
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0
+      }
+
+      .score-ring svg {
+        transform: rotate(-90deg)
+      }
+
+      .score-ring .ring-bg {
+        stroke: var(--s200)
+      }
+
+      .score-ring .ring-fg {
+        transition: stroke-dashoffset 1s ease
+      }
+
+      .score-val {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--s800)
+      }
+
+      .score-info {
+        min-width: 0
+      }
+
+      .score-label {
+        font-size: 10px;
+        color: var(--s400);
+        margin-bottom: 2px
+      }
+
+      .score-name {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--s700)
+      }
+
+      .score-tally {
+        font-size: 10px;
+        color: var(--s400);
+        margin-top: 2px
+      }
+
+      .score-tally .p {
+        color: var(--pass)
+      }
+
+      .score-tally .w {
+        color: var(--warn);
+        margin-left: 4px
+      }
+
+      .score-tally .f {
+        color: var(--fail);
+        margin-left: 4px
+      }
+
+      .tabs {
+        display: flex;
+        gap: 2px;
+        border-bottom: 2px solid var(--s200);
+        margin-bottom: 16px;
+        overflow-x: auto
+      }
+
+      .tab-btn {
+        padding: 9px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--s400);
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        white-space: nowrap;
+        transition: color .13s, border-color .13s;
+        display: flex;
+        align-items: center;
+        gap: 6px
+      }
+
+      .tab-btn:hover {
+        color: var(--s600)
+      }
+
+      .tab-btn.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary)
+      }
+
+      .tab-pill {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 1px 7px;
+        border-radius: 999px;
+        background: var(--s100);
+        color: var(--s500)
+      }
+
+      .tab-btn.active .tab-pill {
+        background: var(--accent-bg);
+        color: var(--primary)
+      }
+
+      .panel {
+        display: none
+      }
+
+      .panel.active {
+        display: block
+      }
+
+      .check-item {
+        background: var(--white);
+        border: 1px solid var(--s200);
+        border-radius: var(--r-lg);
+        box-shadow: var(--sh-sm);
+        padding: 13px 16px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        transition: border-color .15s
+      }
+
+      .si {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        flex-shrink: 0;
+        margin-top: 1px
+      }
+
+      .si.pass {
+        background: var(--pass-bg);
+        color: var(--pass);
+        border: 1px solid var(--pass-bdr)
+      }
+
+      .si.warn {
+        background: var(--warn-bg);
+        color: var(--warn);
+        border: 1px solid var(--warn-bdr)
+      }
+
+      .si.fail {
+        background: var(--fail-bg);
+        color: var(--fail);
+        border: 1px solid var(--fail-bdr)
+      }
+
+      .si.info {
+        background: var(--info-bg);
+        color: var(--info);
+        border: 1px solid var(--info-bdr)
+      }
+
+      .si.na {
+        background: var(--s100);
+        color: var(--s400);
+        border: 1px solid var(--s200)
+      }
+
+      .check-body {
+        flex: 1;
+        min-width: 0
+      }
+
+      .check-name {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--s800);
+        margin-bottom: 2px
+      }
+
+      .check-desc {
+        font-size: 12px;
+        color: var(--s500);
+        line-height: 1.5
+      }
+
+      .check-detail {
+        display: block;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid var(--s100)
+      }
+
+      .detail-value {
+        background: var(--s50);
+        border: 1px solid var(--s200);
+        border-radius: var(--r-sm);
+        padding: 8px 12px;
+        font-size: 11px;
+        font-family: monospace;
+        color: var(--s700);
+        word-break: break-all;
+        white-space: pre-wrap;
+        max-height: 120px;
+        overflow-y: auto;
+        margin-bottom: 8px
+      }
+
+      .detail-tip {
+        font-size: 11px;
+        line-height: 1.6;
+        display: flex;
+        align-items: flex-start;
+        gap: 5px;
+        padding: 8px 12px;
+        border-radius: var(--r-sm)
+      }
+
+      .detail-tip.ok {
+        background: var(--pass-bg);
+        color: var(--pass);
+        border: 1px solid var(--pass-bdr)
+      }
+
+      .detail-tip.hint {
+        background: var(--warn-bg);
+        color: var(--warn);
+        border: 1px solid var(--warn-bdr)
+      }
+
+      .detail-tip.err {
+        background: var(--fail-bg);
+        color: var(--fail);
+        border: 1px solid var(--fail-bdr)
+      }
+
+      .og-preview {
+        border: 1px solid var(--s200);
+        border-radius: var(--r-md);
+        overflow: hidden;
+        max-width: 460px;
+        margin-bottom: 8px
+      }
+
+      .og-preview__img {
+        height: 180px;
+        background: var(--s100);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--s400);
+        font-size: 12px;
+        overflow: hidden
+      }
+
+      .og-preview__img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover
+      }
+
+      .og-preview__body {
+        padding: 12px;
+        background: var(--white)
+      }
+
+      .og-preview__domain {
+        font-size: 10px;
+        color: var(--s400);
+        text-transform: uppercase;
+        margin-bottom: 3px
+      }
+
+      .og-preview__title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--s800);
+        margin-bottom: 3px
+      }
+
+      .og-preview__desc {
+        font-size: 11px;
+        color: var(--s500)
+      }
+
+      .img-preview-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 4px
+      }
+
+      .img-preview-item {
+        width: 90px;
+        display: flex;
+        flex-direction: column;
+        gap: 3px
+      }
+
+      .img-preview-item img {
+        width: 90px;
+        height: 64px;
+        object-fit: cover;
+        border-radius: var(--r-sm);
+        border: 1px solid var(--s200);
+        background: var(--s100);
+        display: block
+      }
+
+      .img-preview-err {
+        width: 90px;
+        height: 64px;
+        border-radius: var(--r-sm);
+        border: 1px solid var(--s200);
+        background: var(--s100);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        color: var(--s400)
+      }
+
+      .img-preview-src {
+        font-size: 9px;
+        color: var(--s500);
+        word-break: break-all;
+        line-height: 1.3;
+        max-height: 2.6em;
+        overflow: hidden
+      }
+
+      .schema-card {
+        background: var(--s50);
+        border: 1px solid var(--s200);
+        border-radius: var(--r-md);
+        padding: 10px 12px;
+        margin-bottom: 8px
+      }
+
+      .schema-type {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--secondary);
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px
+      }
+
+      .schema-prop {
+        font-size: 11px;
+        display: flex;
+        gap: 8px;
+        margin-bottom: 2px
+      }
+
+      .prop-k {
+        color: var(--primary);
+        font-family: monospace;
+        min-width: 100px
+      }
+
+      .prop-v {
+        color: var(--s700);
+        word-break: break-all
+      }
+
+      @media print {
+        body {
+          background: #fff !important;
+          color: #000;
+          font-size: 11px
+        }
+
+        .app-header,
+        .input-wrap,
+        .action-btns,
+        .tabs,
+        .btn-pdf,
+        .btn-copy,
+        .og-preview,
+        .schema-card,
+        .img-preview-grid {
+          display: none !important
+        }
+
+        .main {
+          padding: 0
+        }
+
+        .results {
+          display: block !important
+        }
+
+        .print-header {
+          display: block !important;
+          padding-bottom: 14px;
+          margin-bottom: 20px;
+          border-bottom: 2px solid #334155
+        }
+
+        .print-header__title {
+          font-size: 18px;
+          font-weight: 800;
+          color: #1e293b;
+          margin-bottom: 4px
+        }
+
+        .print-header__meta {
+          font-size: 11px;
+          color: #64748b
+        }
+
+        .result-meta {
+          box-shadow: none;
+          border: 1px solid #e2e8f0
+        }
+
+        .score-grid {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 6px
+        }
+
+        .score-card {
+          box-shadow: none;
+          cursor: default;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          padding: 6px 4px;
+          gap: 4px
+        }
+
+        .score-ring {
+          width: 36px;
+          height: 36px
+        }
+
+        .score-ring svg {
+          width: 36px;
+          height: 36px
+        }
+
+        .score-val {
+          font-size: 10px
+        }
+
+        .score-label {
+          font-size: 8px
+        }
+
+        .score-name {
+          font-size: 10px
+        }
+
+        .score-tally {
+          font-size: 8px
+        }
+
+        .panel {
+          display: block !important
+        }
+
+        .tabs {
+          display: none !important
+        }
+
+        .print-section-title {
+          display: block !important;
+          font-size: 12px;
+          font-weight: 700;
+          color: #475569;
+          text-transform: uppercase;
+          letter-spacing: .06em;
+          padding: 10px 0 6px;
+          border-bottom: 1px solid #e2e8f0;
+          margin-bottom: 8px;
+          margin-top: 20px
+        }
+
+        .check-item {
+          box-shadow: none;
+          border: 1px solid #e2e8f0;
+          padding: 8px 12px;
+          margin-bottom: 4px;
+          page-break-inside: avoid
+        }
+
+        .detail-value {
+          display: none
+        }
+
+        .si.pass {
+          background: #f0fdf4 !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact
+        }
+
+        .si.warn {
+          background: #fffbeb !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact
+        }
+
+        .si.fail {
+          background: #fef2f2 !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact
+        }
+
+        .si.info {
+          background: #eff6ff !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact
+        }
+      }
+
+      .margin-banner {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 230px;
+        background: var(--white);
+        border: 1px solid var(--s200);
+        border-radius: var(--r-xl);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+        overflow: hidden;
+        z-index: 1000
+      }
+
+      .margin-banner__accent {
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary))
+      }
+
+      .margin-banner__body {
+        padding: 14px 16px 16px
+      }
+
+      .margin-banner__logo {
+        font-size: 17px;
+        font-weight: 800;
+        letter-spacing: .04em;
+        color: var(--s800);
+        margin-bottom: 4px
+      }
+
+      .margin-banner__logo span {
+        font-size: 9px;
+        font-weight: 400;
+        color: var(--s400);
+        letter-spacing: .06em;
+        margin-left: 4px;
+        vertical-align: middle
+      }
+
+      .margin-banner__copy {
+        font-size: 11px;
+        color: var(--s600);
+        line-height: 1.6;
+        margin-bottom: 12px
+      }
+
+      @media not all and (min-width:768px) {
+        .margin-banner__copy {
+          display: block !important;
+          position: absolute;
+          margin: -1px;
+          padding: 0;
+          width: 1px;
+          height: 1px;
+          white-space: nowrap;
+          border: 0;
+          overflow: hidden;
+          clip: rect(0 0 0 0);
+          clip-path: inset(50%);
+          contain: strict !important;
+          opacity: 0 !important
+        }
+      }
+
+      .margin-banner__link {
+        display: block;
+        text-align: center;
+        background: var(--s800);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        padding: 7px 0;
+        border-radius: var(--r-md);
+        text-decoration: none;
+        transition: background .15s
+      }
+
+      .margin-banner__link:hover {
+        background: var(--secondary)
+      }
+
+      .margin-banner__close {
+        position: absolute;
+        top: 8px;
+        right: 10px;
+        font-size: 14px;
+        color: var(--s300);
+        cursor: pointer;
+        line-height: 1;
+        background: none;
+        border: none;
+        padding: 0
+      }
+
+      .margin-banner__close:hover {
+        color: var(--s500)
+      }
+
+      @media print {
+        .margin-banner {
+          display: none !important
+        }
+      }
+
+      .print-header {
+        display: none
+      }
+
+      .print-section-title {
+        display: none
+      }
+
+      .hidden {
+        display: none !important
+      }
+
+      @media (max-width:600px) {
+
+        .app-header,
+        .input-wrap,
+        .main {
+          padding-left: 16px;
+          padding-right: 16px
+        }
+
+        .url-form {
+          flex-direction: column
+        }
+
+        .score-grid {
+          grid-template-columns: repeat(2, 1fr)
+        }
+      }
+
+      ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px
+      }
+
+      ::-webkit-scrollbar-track {
+        background: transparent
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: var(--s200);
+        border-radius: 999px
+      }
+    </style>
+  </noscript>
+  <script data-pagespeed-no-defer>//<![CDATA[
+    (function () {
+      function b() { var a = window, c = e; if (a.addEventListener) a.addEventListener("load", c, !1); else if (a.attachEvent) a.attachEvent("onload", c); else { var d = a.onload; a.onload = function () { c.call(this); d && d.call(this) } } }; var f = !1; function e() { if (!f) { f = !0; for (var a = document.getElementsByClassName("psa_add_styles"), c = 0, d; d = a[c]; ++c)if ("NOSCRIPT" == d.nodeName) { var k = document.createElement("div"); k.innerHTML = d.textContent; document.body.appendChild(k) } } } function g() { var a = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || null; a ? a(function () { window.setTimeout(e, 0) }) : b() }
+      var h = ["pagespeed", "CriticalCssLoader", "Run"], l = this; h[0] in l || !l.execScript || l.execScript("var " + h[0]); for (var m; h.length && (m = h.shift());)h.length || void 0 === g ? l[m] ? l = l[m] : l = l[m] = {} : l[m] = g;
+    })();
+    pagespeed.CriticalCssLoader.Run();
+    //]]></script>
+</body>
+
+</html>

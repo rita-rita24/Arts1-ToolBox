@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>やるやん！Todo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&family=Zen+Maru+Gothic:wght@400;700&display=swap"
+    rel="stylesheet" />
+  <style>
+    /* ============================================
+   Design System – CSS Custom Properties
+   ============================================ */
+    :root {
+      color-scheme: light dark;
+      interpolate-size: allow-keywords;
+
+      /* — Palette (oklch) — */
+      --hue-primary: 145;
+      --hue-accent: 35;
+      --hue-danger: 25;
+      --hue-celebration: 90;
+
+      /* — Semantic Tokens — */
+      --bg-primary: light-dark(oklch(0.97 0.01 var(--hue-primary)), oklch(0.18 0.02 var(--hue-primary)));
+      --bg-surface: light-dark(oklch(1 0 0), oklch(0.22 0.015 var(--hue-primary)));
+      --bg-surface-hover: light-dark(oklch(0.96 0.015 var(--hue-primary)), oklch(0.26 0.02 var(--hue-primary)));
+      --bg-input: light-dark(oklch(0.98 0.005 var(--hue-primary)), oklch(0.2 0.015 var(--hue-primary)));
+      --bg-completed: light-dark(oklch(0.95 0.03 var(--hue-primary)), oklch(0.25 0.03 var(--hue-primary)));
+
+      --text-main: light-dark(oklch(0.25 0.02 var(--hue-primary)), oklch(0.9 0.01 var(--hue-primary)));
+      --text-sub: light-dark(oklch(0.5 0.02 var(--hue-primary)), oklch(0.65 0.015 var(--hue-primary)));
+      --text-completed: light-dark(oklch(0.6 0.04 var(--hue-primary)), oklch(0.55 0.03 var(--hue-primary)));
+      --text-on-accent: oklch(1 0 0);
+
+      --accent-main: light-dark(oklch(0.62 0.19 var(--hue-primary)), oklch(0.7 0.18 var(--hue-primary)));
+      --accent-glow: light-dark(oklch(0.62 0.19 var(--hue-primary) / 0.3), oklch(0.7 0.18 var(--hue-primary) / 0.25));
+      --accent-warm: oklch(0.75 0.16 var(--hue-accent));
+      --accent-celebration: oklch(0.8 0.18 var(--hue-celebration));
+
+      --border-subtle: light-dark(oklch(0.9 0.01 var(--hue-primary)), oklch(0.3 0.015 var(--hue-primary)));
+      --border-input: light-dark(oklch(0.85 0.02 var(--hue-primary)), oklch(0.35 0.02 var(--hue-primary)));
+
+      --shadow-soft: light-dark(oklch(0.5 0.02 var(--hue-primary) / 0.08),
+          oklch(0 0 0 / 0.3));
+      --shadow-elevated: light-dark(oklch(0.4 0.03 var(--hue-primary) / 0.12),
+          oklch(0 0 0 / 0.5));
+
+      --danger: oklch(0.65 0.2 var(--hue-danger));
+
+      /* — Spacing Scale — */
+      --space-xs: clamp(0.25rem, 0.5vi, 0.5rem);
+      --space-sm: clamp(0.5rem, 1vi, 0.75rem);
+      --space-md: clamp(0.75rem, 1.5vi, 1.25rem);
+      --space-lg: clamp(1rem, 2.5vi, 2rem);
+      --space-xl: clamp(1.5rem, 4vi, 3rem);
+
+      /* — Typography — */
+      --font-display: 'M PLUS Rounded 1c', sans-serif;
+      --font-body: 'Zen Maru Gothic', sans-serif;
+      --fs-hero: clamp(1.8rem, 5vi, 3rem);
+      --fs-title: clamp(1.1rem, 2.5vi, 1.4rem);
+      --fs-body: clamp(0.95rem, 1.8vi, 1.1rem);
+      --fs-small: clamp(0.75rem, 1.4vi, 0.85rem);
+
+      /* — Radii — */
+      --radius-sm: 0.5rem;
+      --radius-md: 0.875rem;
+      --radius-lg: 1.25rem;
+      --radius-full: 100vi;
+
+      /* — Transitions — */
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
+      --dur-fast: 180ms;
+      --dur-normal: 300ms;
+      --dur-slow: 500ms;
+
+      accent-color: var(--accent-main);
+    }
+
+    /* ============================================
+Reset & Base
+============================================ */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: var(--fs-body);
+      color: var(--text-main);
+      background: var(--bg-primary);
+      min-block-size: 100dvh;
+      display: grid;
+      place-items: start center;
+      padding-block: var(--space-xl);
+      padding-inline: var(--space-md);
+      transition: background var(--dur-normal) var(--ease-smooth);
+
+      /* Subtle background pattern */
+      background-image: light-dark(radial-gradient(oklch(0.88 0.03 var(--hue-primary) / 0.3) 1px, transparent 1px),
+          radial-gradient(oklch(0.3 0.02 var(--hue-primary) / 0.15) 1px, transparent 1px));
+      background-size: 1.5rem 1.5rem;
+    }
+
+    /* ============================================
+App Container
+============================================ */
+    .app {
+      inline-size: min(100%, 32rem);
+      display: grid;
+      gap: var(--space-lg);
+    }
+
+    /* ============================================
+Header
+============================================ */
+    .header {
+      display: grid;
+      gap: var(--space-sm);
+      text-align: center;
+      padding-block-end: var(--space-sm);
+    }
+
+    .header .title {
+      font-family: var(--font-display);
+      font-size: var(--fs-hero);
+      font-weight: 900;
+      background: linear-gradient(135deg,
+          var(--accent-main),
+          var(--accent-warm),
+          var(--accent-celebration));
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    .header .subtitle {
+      font-size: var(--fs-small);
+      color: var(--text-sub);
+      font-weight: 400;
+    }
+
+    /* ============================================
+Progress Bar
+============================================ */
+    .progress-area {
+      display: grid;
+      gap: var(--space-xs);
+    }
+
+    .progress-area .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: var(--fs-small);
+      color: var(--text-sub);
+      font-weight: 700;
+      font-family: var(--font-display);
+    }
+
+    .progress-area .progress-track {
+      inline-size: 100%;
+      block-size: 0.625rem;
+      background: var(--border-subtle);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-area .progress-fill {
+      block-size: 100%;
+      background: linear-gradient(90deg, var(--accent-main), var(--accent-celebration));
+      border-radius: var(--radius-full);
+      transition: inline-size var(--dur-slow) var(--ease-spring);
+      position: relative;
+    }
+
+    .progress-area .progress-fill::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg,
+          transparent,
+          oklch(1 0 0 / 0.3),
+          transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        translate: -100% 0;
+      }
+
+      100% {
+        translate: 200% 0;
+      }
+    }
+
+    /* ============================================
+Input Area
+============================================ */
+    .input-area {
+      display: flex;
+      gap: var(--space-sm);
+      align-items: stretch;
+    }
+
+    .input-area .todo-input {
+      flex: 1;
+      font-family: var(--font-body);
+      font-size: var(--fs-body);
+      padding-inline: var(--space-md);
+      padding-block: var(--space-sm);
+      background: var(--bg-input);
+      color: var(--text-main);
+      border: 2px solid var(--border-input);
+      border-radius: var(--radius-md);
+      outline: none;
+      transition:
+        border-color var(--dur-fast) var(--ease-smooth),
+        box-shadow var(--dur-fast) var(--ease-smooth);
+    }
+
+    .input-area .todo-input::placeholder {
+      color: var(--text-sub);
+      opacity: 0.7;
+    }
+
+    .input-area .todo-input:focus {
+      border-color: var(--accent-main);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .input-area .add-btn {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: var(--fs-body);
+      padding-inline: var(--space-lg);
+      padding-block: var(--space-sm);
+      background: var(--accent-main);
+      color: var(--text-on-accent);
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition:
+        scale var(--dur-fast) var(--ease-spring),
+        filter var(--dur-fast) var(--ease-smooth);
+      white-space: nowrap;
+    }
+
+    .input-area .add-btn:hover {
+      scale: 1.05;
+      filter: brightness(1.1);
+    }
+
+    .input-area .add-btn:active {
+      scale: 0.95;
+    }
+
+    /* ============================================
+Todo List
+============================================ */
+    .todo-list {
+      list-style: none;
+      display: grid;
+      gap: var(--space-sm);
+    }
+
+    /* ============================================
+Todo Item
+============================================ */
+    .todo-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: var(--space-md);
+      padding-inline: var(--space-md);
+      padding-block: var(--space-md);
+      background: var(--bg-surface);
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--border-subtle);
+      box-shadow: 0 2px 8px var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+      transition:
+        background var(--dur-normal) var(--ease-smooth),
+        border-color var(--dur-normal) var(--ease-smooth),
+        box-shadow var(--dur-normal) var(--ease-smooth),
+        scale var(--dur-fast) var(--ease-spring);
+      animation: slideIn var(--dur-normal) var(--ease-spring) both;
+    }
+
+    .todo-item:hover {
+      box-shadow: 0 4px 16px var(--shadow-elevated);
+      border-color: color-mix(in oklch, var(--accent-main), transparent 60%);
+    }
+
+    /* — Checkbox — */
+    .todo-item .checkbox-wrapper {
+      position: relative;
+      inline-size: 1.75rem;
+      block-size: 1.75rem;
+    }
+
+    .todo-item .checkbox {
+      appearance: none;
+      inline-size: 1.75rem;
+      block-size: 1.75rem;
+      border: 2.5px solid var(--border-input);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition:
+        background var(--dur-fast) var(--ease-smooth),
+        border-color var(--dur-fast) var(--ease-smooth),
+        scale var(--dur-fast) var(--ease-spring);
+      position: relative;
+      display: grid;
+      place-items: center;
+    }
+
+    .todo-item .checkbox::after {
+      content: '✓';
+      font-size: 1rem;
+      font-weight: 900;
+      color: var(--text-on-accent);
+      opacity: 0;
+      scale: 0;
+      transition:
+        opacity var(--dur-fast) var(--ease-smooth),
+        scale var(--dur-fast) var(--ease-spring);
+    }
+
+    .todo-item .checkbox:hover {
+      border-color: var(--accent-main);
+      scale: 1.1;
+    }
+
+    .todo-item .checkbox:checked {
+      background: var(--accent-main);
+      border-color: var(--accent-main);
+    }
+
+    .todo-item .checkbox:checked::after {
+      opacity: 1;
+      scale: 1;
+    }
+
+    /* — Text — */
+    .todo-item .todo-text {
+      font-size: var(--fs-body);
+      color: var(--text-main);
+      transition:
+        color var(--dur-normal) var(--ease-smooth),
+        opacity var(--dur-normal) var(--ease-smooth);
+      word-break: break-all;
+      line-height: 1.5;
+    }
+
+    /* — Delete Button — */
+    .todo-item .delete-btn {
+      inline-size: 2rem;
+      block-size: 2rem;
+      display: grid;
+      place-items: center;
+      background: none;
+      border: none;
+      border-radius: var(--radius-sm);
+      color: var(--text-sub);
+      font-size: 1.1rem;
+      cursor: pointer;
+      opacity: 0;
+      transition:
+        opacity var(--dur-fast) var(--ease-smooth),
+        color var(--dur-fast) var(--ease-smooth),
+        background var(--dur-fast) var(--ease-smooth),
+        scale var(--dur-fast) var(--ease-spring);
+    }
+
+    .todo-item .delete-btn:hover {
+      color: var(--danger);
+      background: color-mix(in oklch, var(--danger), transparent 88%);
+      scale: 1.15;
+    }
+
+    .todo-item:hover .delete-btn {
+      opacity: 1;
+    }
+
+    /* — Completed State (via :has) — */
+    .todo-item:has(.checkbox:checked) {
+      background: var(--bg-completed);
+      border-color: color-mix(in oklch, var(--accent-main), transparent 70%);
+    }
+
+    .todo-item:has(.checkbox:checked) .todo-text {
+      color: var(--text-completed);
+      text-decoration: line-through;
+      text-decoration-color: color-mix(in oklch, var(--accent-main), transparent 50%);
+      text-decoration-thickness: 2px;
+    }
+
+    .todo-item:has(.checkbox:checked) .delete-btn {
+      opacity: 0.6;
+    }
+
+    /* — Completion Burst effect (background flash) — */
+    .todo-item::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 1.5rem center,
+          var(--accent-glow),
+          transparent 70%);
+      opacity: 0;
+      transition: opacity var(--dur-slow) var(--ease-smooth);
+      pointer-events: none;
+    }
+
+    .todo-item.celebrating::before {
+      opacity: 1;
+      animation: burstFade 0.8s var(--ease-smooth) forwards;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        translate: 0 0.75rem;
+        scale: 0.96;
+      }
+
+      to {
+        opacity: 1;
+        translate: 0 0;
+        scale: 1;
+      }
+    }
+
+    @keyframes burstFade {
+      0% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
+    }
+
+    /* Remove animation */
+    .todo-item.removing {
+      animation: slideOut var(--dur-normal) var(--ease-smooth) forwards;
+    }
+
+    @keyframes slideOut {
+      to {
+        opacity: 0;
+        translate: 100% 0;
+        scale: 0.9;
+        block-size: 0;
+        padding-block: 0;
+        margin-block-end: calc(-1 * var(--space-sm));
+        overflow: hidden;
+      }
+    }
+
+    /* ============================================
+Celebration Overlay
+============================================ */
+    .celebration-text {
+      position: fixed;
+      inset-block-start: 50%;
+      inset-inline-start: 50%;
+      translate: -50% -50%;
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 12vi, 6rem);
+      font-weight: 900;
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0;
+      scale: 0.3;
+      color: transparent;
+      background: linear-gradient(135deg,
+          var(--accent-main),
+          var(--accent-warm),
+          oklch(0.75 0.2 350));
+      background-clip: text;
+      -webkit-background-clip: text;
+      filter: drop-shadow(0 4px 24px var(--accent-glow));
+      white-space: nowrap;
+    }
+
+    .celebration-text.show {
+      animation: celebrationPop 1s var(--ease-spring) forwards;
+    }
+
+    @keyframes celebrationPop {
+      0% {
+        opacity: 0;
+        scale: 0.3;
+        rotate: -8deg;
+      }
+
+      40% {
+        opacity: 1;
+        scale: 1.15;
+        rotate: 3deg;
+      }
+
+      60% {
+        scale: 0.95;
+        rotate: -1deg;
+      }
+
+      75% {
+        scale: 1.02;
+      }
+
+      85% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+        scale: 1;
+        rotate: 0deg;
+        translate: -50% -80%;
+      }
+    }
+
+    /* ============================================
+Confetti Canvas
+============================================ */
+    .confetti-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ============================================
+Empty State
+============================================ */
+    .empty-state {
+      display: grid;
+      place-items: center;
+      gap: var(--space-sm);
+      padding-block: var(--space-xl);
+      text-align: center;
+      color: var(--text-sub);
+      animation: fadeIn var(--dur-slow) var(--ease-smooth);
+    }
+
+    .empty-state .empty-emoji {
+      font-size: clamp(2.5rem, 8vi, 4rem);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .empty-state .empty-text {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: var(--fs-title);
+    }
+
+    .empty-state .empty-sub {
+      font-size: var(--fs-small);
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        translate: 0 0;
+      }
+
+      50% {
+        translate: 0 -0.5rem;
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* ============================================
+All-Done State
+============================================ */
+    .all-done {
+      display: grid;
+      place-items: center;
+      gap: var(--space-xs);
+      padding-block: var(--space-md);
+      text-align: center;
+      font-family: var(--font-display);
+      animation: fadeIn var(--dur-normal) var(--ease-smooth);
+    }
+
+    .all-done .all-done-emoji {
+      font-size: clamp(2rem, 6vi, 3rem);
+      animation: bounce 1s var(--ease-spring) infinite alternate;
+    }
+
+    .all-done .all-done-text {
+      font-weight: 700;
+      font-size: var(--fs-title);
+      color: var(--accent-main);
+    }
+
+    @keyframes bounce {
+      from {
+        translate: 0 0;
+      }
+
+      to {
+        translate: 0 -0.4rem;
+      }
+    }
+
+    /* ============================================
+Streak Counter
+============================================ */
+    .streak-area {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-xs);
+      flex-wrap: wrap;
+    }
+
+    .streak-area .streak-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding-inline: var(--space-sm);
+      padding-block: var(--space-xs);
+      font-family: var(--font-display);
+      font-size: var(--fs-small);
+      font-weight: 700;
+      border-radius: var(--radius-full);
+      background: color-mix(in oklch, var(--accent-warm), transparent 85%);
+      color: light-dark(oklch(0.45 0.12 var(--hue-accent)), oklch(0.82 0.12 var(--hue-accent)));
+      transition: scale var(--dur-fast) var(--ease-spring);
+    }
+
+    .streak-area .streak-badge.pop {
+      animation: badgePop 0.4s var(--ease-spring);
+    }
+
+    @keyframes badgePop {
+      0% {
+        scale: 1;
+      }
+
+      50% {
+        scale: 1.2;
+      }
+
+      100% {
+        scale: 1;
+      }
+    }
+
+    /* ============================================
+Footer
+============================================ */
+    .footer {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+    }
+
+    .footer button {
+      font-family: var(--font-display);
+      font-size: var(--fs-small);
+      font-weight: 700;
+      padding-inline: var(--space-md);
+      padding-block: var(--space-xs);
+      background: none;
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      color: var(--text-sub);
+      cursor: pointer;
+      transition:
+        color var(--dur-fast) var(--ease-smooth),
+        border-color var(--dur-fast) var(--ease-smooth),
+        background var(--dur-fast) var(--ease-smooth),
+        scale var(--dur-fast) var(--ease-spring);
+    }
+
+    .footer button:hover {
+      color: var(--text-main);
+      border-color: var(--accent-main);
+      background: color-mix(in oklch, var(--accent-main), transparent 92%);
+      scale: 1.04;
+    }
+
+    .footer button:active {
+      scale: 0.96;
+    }
+
+    .footer button.danger-btn:hover {
+      color: var(--danger);
+      border-color: var(--danger);
+      background: color-mix(in oklch, var(--danger), transparent 90%);
+    }
+
+    /* ============================================
+Particle burst container
+============================================ */
+    .particle-burst {
+      position: absolute;
+      inset-block-start: 50%;
+      inset-inline-start: 1.5rem;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .particle {
+      position: absolute;
+      inline-size: 0.5rem;
+      block-size: 0.5rem;
+      border-radius: var(--radius-full);
+      animation: particleFly 0.7s var(--ease-smooth) forwards;
+    }
+
+    @keyframes particleFly {
+      0% {
+        opacity: 1;
+        scale: 1;
+        translate: 0 0;
+      }
+
+      100% {
+        opacity: 0;
+        scale: 0;
+        translate: var(--px, 2rem) var(--py, -2rem);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+    <header class="header">
+      <h1 class="title">やるやん！Todo</h1>
+      <p class="subtitle">ひとつ終わるたびに、ちょっとうれしい。</p>
+    </header>
+
+    <div class="progress-area" id="progressArea" style="display:none;">
+      <div class="progress-info">
+        <span id="progressLabel">0 / 0 完了</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="inline-size: 0%;"></div>
+      </div>
+    </div>
+
+    <div class="streak-area" id="streakArea" style="display:none;">
+      <span class="streak-badge" id="streakBadge">🔥 連続 <span id="streakCount">0</span> 完了！</span>
+    </div>
+
+    <div class="input-area">
+      <input type="text" class="todo-input" id="todoInput" placeholder="やることを書いてね ✏️" autocomplete="off">
+      <button class="add-btn" id="addBtn">追加</button>
+    </div>
+
+    <ul class="todo-list" id="todoList"></ul>
+
+    <div id="emptyState" class="empty-state">
+      <span class="empty-emoji">📝</span>
+      <span class="empty-text">まだ何もないよ</span>
+      <span class="empty-sub">上からタスクを追加してみよう！</span>
+    </div>
+
+    <div id="allDone" class="all-done" style="display:none;">
+      <span class="all-done-emoji">🎉</span>
+      <span class="all-done-text">全部おわった！すごい！</span>
+    </div>
+
+    <div class="footer" id="footer" style="display:none;">
+      <button id="clearCompletedBtn">完了を消す</button>
+      <button id="clearAllBtn" class="danger-btn">全部消す</button>
+    </div>
+  </div>
+
+  <div class="celebration-text" id="celebrationText">やったー！</div>
+  <canvas class="confetti-canvas" id="confettiCanvas"></canvas>
+
+  <script>
+    (() => {
+      'use strict';
+
+      /* ============================================
+         State
+         ============================================ */
+      let todos = JSON.parse(localStorage.getItem('yatta-todos') || '[]');
+      let streak = 0;
+      let celebrationWords = ['やるやん！', 'すごい！', 'えらい！', 'ナイス！', 'かんぺき！', 'さすが！', 'グッジョブ！', 'いいね！', 'てんさい！'];
+      let wordIndex = 0;
+
+      /* ============================================
+         DOM References
+         ============================================ */
+      const $ = (s) => document.querySelector(s);
+      const todoInput = $('#todoInput');
+      const addBtn = $('#addBtn');
+      const todoList = $('#todoList');
+      const emptyState = $('#emptyState');
+      const allDone = $('#allDone');
+      const progressArea = $('#progressArea');
+      const progressLabel = $('#progressLabel');
+      const progressPercent = $('#progressPercent');
+      const progressFill = $('#progressFill');
+      const streakArea = $('#streakArea');
+      const streakBadge = $('#streakBadge');
+      const streakCount = $('#streakCount');
+      const celebrationText = $('#celebrationText');
+      const confettiCanvas = $('#confettiCanvas');
+      const footer = $('#footer');
+      const clearCompletedBtn = $('#clearCompletedBtn');
+      const clearAllBtn = $('#clearAllBtn');
+
+      /* ============================================
+         Audio (Web Audio API – satisfying sounds)
+         ============================================ */
+      let audioCtx;
+      function getAudioCtx() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        return audioCtx;
+      }
+
+      function playCompleteSound() {
+        try {
+          const ctx = getAudioCtx();
+          const now = ctx.currentTime;
+
+          // Main chime
+          const osc1 = ctx.createOscillator();
+          const gain1 = ctx.createGain();
+          osc1.type = 'sine';
+          osc1.frequency.setValueAtTime(880, now);
+          osc1.frequency.exponentialRampToValueAtTime(1320, now + 0.08);
+          gain1.gain.setValueAtTime(0.2, now);
+          gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+          osc1.connect(gain1).connect(ctx.destination);
+          osc1.start(now);
+          osc1.stop(now + 0.4);
+
+          // Harmonic sparkle
+          const osc2 = ctx.createOscillator();
+          const gain2 = ctx.createGain();
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(1760, now + 0.06);
+          gain2.gain.setValueAtTime(0.1, now + 0.06);
+          gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          osc2.connect(gain2).connect(ctx.destination);
+          osc2.start(now + 0.06);
+          osc2.stop(now + 0.35);
+        } catch (e) { /* silent fail */ }
+      }
+
+      function playDeleteSound() {
+        try {
+          const ctx = getAudioCtx();
+          const now = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(400, now);
+          osc.frequency.exponentialRampToValueAtTime(200, now + 0.15);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } catch (e) { }
+      }
+
+      function playAddSound() {
+        try {
+          const ctx = getAudioCtx();
+          const now = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523, now);
+          osc.frequency.exponentialRampToValueAtTime(659, now + 0.1);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.2);
+        } catch (e) { }
+      }
+
+      /* ============================================
+         Confetti System
+         ============================================ */
+      const ctx2d = confettiCanvas.getContext('2d');
+      let confettiPieces = [];
+      let confettiAnimating = false;
+
+      function resizeCanvas() {
+        confettiCanvas.width = window.innerWidth;
+        confettiCanvas.height = window.innerHeight;
+      }
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+
+      function launchConfetti(x, y) {
+        const colors = [
+          'oklch(0.75 0.2 145)',
+          'oklch(0.8 0.18 35)',
+          'oklch(0.75 0.2 350)',
+          'oklch(0.82 0.16 90)',
+          'oklch(0.7 0.2 270)',
+          'oklch(0.85 0.15 60)',
+        ];
+
+        for (let i = 0; i < 40; i++) {
+          const angle = (Math.PI * 2 * i) / 40 + (Math.random() - 0.5) * 0.5;
+          const speed = 4 + Math.random() * 8;
+          confettiPieces.push({
+            x: x || window.innerWidth / 2,
+            y: y || window.innerHeight / 2,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 3,
+            size: 4 + Math.random() * 6,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            rotation: Math.random() * 360,
+            rotSpeed: (Math.random() - 0.5) * 15,
+            life: 1,
+            decay: 0.012 + Math.random() * 0.01,
+            shape: Math.random() > 0.5 ? 'rect' : 'circle',
+          });
+        }
+
+        if (!confettiAnimating) {
+          confettiAnimating = true;
+          animateConfetti();
+        }
+      }
+
+      function animateConfetti() {
+        ctx2d.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+        confettiPieces.forEach((p) => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.15;
+          p.vx *= 0.99;
+          p.rotation += p.rotSpeed;
+          p.life -= p.decay;
+
+          if (p.life > 0) {
+            ctx2d.save();
+            ctx2d.translate(p.x, p.y);
+            ctx2d.rotate((p.rotation * Math.PI) / 180);
+            ctx2d.globalAlpha = p.life;
+            ctx2d.fillStyle = p.color;
+
+            if (p.shape === 'rect') {
+              ctx2d.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+            } else {
+              ctx2d.beginPath();
+              ctx2d.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+              ctx2d.fill();
+            }
+            ctx2d.restore();
+          }
+        });
+
+        confettiPieces = confettiPieces.filter((p) => p.life > 0);
+
+        if (confettiPieces.length > 0) {
+          requestAnimationFrame(animateConfetti);
+        } else {
+          confettiAnimating = false;
+          ctx2d.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        }
+      }
+
+      /* ============================================
+         Particle Burst (mini particles near checkbox)
+         ============================================ */
+      function spawnParticles(parentEl) {
+        const burst = document.createElement('div');
+        burst.className = 'particle-burst';
+        parentEl.appendChild(burst);
+
+        const colors = [
+          'oklch(0.75 0.2 145)',
+          'oklch(0.8 0.18 35)',
+          'oklch(0.75 0.2 350)',
+          'oklch(0.82 0.16 90)',
+        ];
+
+        for (let i = 0; i < 8; i++) {
+          const particle = document.createElement('div');
+          particle.className = 'particle';
+          const angle = (Math.PI * 2 * i) / 8;
+          const dist = 1.2 + Math.random() * 1.2;
+          particle.style.setProperty('--px', `${Math.cos(angle) * dist}rem`);
+          particle.style.setProperty('--py', `${Math.sin(angle) * dist}rem`);
+          particle.style.background = colors[i % colors.length];
+          burst.appendChild(particle);
+        }
+
+        setTimeout(() => burst.remove(), 800);
+      }
+
+      /* ============================================
+         Celebration Text
+         ============================================ */
+      function showCelebration() {
+        celebrationText.textContent = celebrationWords[wordIndex % celebrationWords.length];
+        wordIndex++;
+        celebrationText.classList.remove('show');
+        void celebrationText.offsetWidth;
+        celebrationText.classList.add('show');
+        setTimeout(() => celebrationText.classList.remove('show'), 1100);
+      }
+
+      /* ============================================
+         Save / Load
+         ============================================ */
+      function save() {
+        localStorage.setItem('yatta-todos', JSON.stringify(todos));
+      }
+
+      /* ============================================
+         Render
+         ============================================ */
+      function render() {
+        todoList.innerHTML = '';
+
+        const total = todos.length;
+        const completed = todos.filter((t) => t.done).length;
+
+        // Progress
+        if (total > 0) {
+          progressArea.style.display = '';
+          const pct = Math.round((completed / total) * 100);
+          progressLabel.textContent = `${completed} / ${total} 完了`;
+          progressPercent.textContent = `${pct}%`;
+          progressFill.style.inlineSize = `${pct}%`;
+        } else {
+          progressArea.style.display = 'none';
+        }
+
+        // Empty state
+        emptyState.style.display = total === 0 ? '' : 'none';
+
+        // All done state
+        allDone.style.display = total > 0 && completed === total ? '' : 'none';
+
+        // Footer
+        footer.style.display = total > 0 ? '' : 'none';
+
+        // Streak
+        if (streak >= 2) {
+          streakArea.style.display = '';
+          streakCount.textContent = streak;
+        } else {
+          streakArea.style.display = 'none';
+        }
+
+        // Render items
+        todos.forEach((todo, index) => {
+          const li = document.createElement('li');
+          li.className = 'todo-item';
+          li.innerHTML = `
+        <div class="checkbox-wrapper">
+          <input type="checkbox" class="checkbox" ${todo.done ? 'checked' : ''} data-index="${index}">
+        </div>
+        <span class="todo-text">${escapeHtml(todo.text)}</span>
+        <button class="delete-btn" data-index="${index}" title="削除">✕</button>
+      `;
+          todoList.appendChild(li);
+        });
+      }
+
+      function escapeHtml(str) {
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+      }
+
+      /* ============================================
+         Event Handlers
+         ============================================ */
+      function addTodo() {
+        const text = todoInput.value.trim();
+        if (!text) return;
+
+        todos.unshift({ text, done: false });
+        save();
+        render();
+        todoInput.value = '';
+        todoInput.focus();
+        playAddSound();
+      }
+
+      addBtn.addEventListener('click', addTodo);
+      todoInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          if (e.isComposing) return;
+          addTodo();
+        }
+      });
+
+      todoList.addEventListener('change', (e) => {
+        if (!e.target.classList.contains('checkbox')) return;
+
+        const index = parseInt(e.target.dataset.index, 10);
+        const wasChecked = todos[index].done;
+        todos[index].done = e.target.checked;
+        save();
+
+        if (e.target.checked && !wasChecked) {
+          // CELEBRATION!
+          streak++;
+          const li = e.target.closest('.todo-item');
+
+          // Particle burst
+          spawnParticles(li);
+
+          // Item flash
+          li.classList.add('celebrating');
+          setTimeout(() => li.classList.remove('celebrating'), 800);
+
+          // Sound
+          playCompleteSound();
+
+          // Big celebration
+          const rect = li.getBoundingClientRect();
+          launchConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+          showCelebration();
+
+          // Streak badge animation
+          if (streak >= 2) {
+            streakArea.style.display = '';
+            streakCount.textContent = streak;
+            streakBadge.classList.remove('pop');
+            void streakBadge.offsetWidth;
+            streakBadge.classList.add('pop');
+          }
+
+          // Delayed re-render so animation plays
+          setTimeout(() => render(), 350);
+        } else {
+          streak = 0;
+          render();
+        }
+      });
+
+      todoList.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('delete-btn')) return;
+
+        const index = parseInt(e.target.dataset.index, 10);
+        const li = e.target.closest('.todo-item');
+        li.classList.add('removing');
+        playDeleteSound();
+
+        setTimeout(() => {
+          todos.splice(index, 1);
+          save();
+          render();
+        }, 300);
+      });
+
+      clearCompletedBtn.addEventListener('click', () => {
+        todos = todos.filter((t) => !t.done);
+        save();
+        render();
+      });
+
+      clearAllBtn.addEventListener('click', () => {
+        if (todos.length === 0) return;
+        todos = [];
+        streak = 0;
+        save();
+        render();
+      });
+
+      /* ============================================
+         Init
+         ============================================ */
+      render();
+    })();
+  </script>
+
+</body>
+
+</html>

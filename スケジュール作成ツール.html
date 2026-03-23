@@ -1,0 +1,5906 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>スケジュール作成ツール</title>
+  <meta name="description" content="タスク名と日数を入力するだけで、土日祝を自動スキップしたスケジュールを即座に生成。HTMLページとして出力・共有できるスケジュール作成ツールです。">
+  <meta name="keywords" content="スケジュール,制作スケジュール,土日祝スキップ,Webディレクション,プロジェクト管理">
+  <meta name="robots" content="noindex, nofollow">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="スケジュール作成ツール">
+  <meta property="og:title" content="スケジュール作成ツール">
+  <meta property="og:description" content="タスク名と日数を入力するだけで、土日祝を自動スキップしたスケジュールを即座に生成。HTMLページで共有できます。">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="theme-color" content="#1E293B">
+  <!-- Google tag (gtag.js) -->
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --primary: #059669;
+      --primary-dark: #047857;
+      --primary-light: #ecfdf5;
+      --primary-mid: #6ee7b7;
+      --accent: #f97316;
+      --gray-50: #fafaf9;
+      --gray-100: #f5f5f4;
+      --gray-200: #e7e5e4;
+      --gray-300: #d6d3d1;
+      --gray-400: #a8a29e;
+      --gray-500: #78716c;
+      --gray-600: #57534e;
+      --gray-700: #44403c;
+      --gray-800: #292524;
+      --gray-900: #1c1917;
+      --white: #fff;
+      --radius: 6px;
+      --radius-lg: 10px
+    }
+
+    html,
+    body {
+      height: 100%
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      background: var(--gray-100);
+      color: var(--gray-900);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      font-size: 13px
+    }
+
+    @media (pointer:fine) {
+      ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px
+      }
+
+      ::-webkit-scrollbar-track {
+        background: transparent
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: var(--gray-300);
+        border-radius: 3px
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--gray-400)
+      }
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      height: 50px;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      flex-shrink: 0;
+      gap: 12px;
+      z-index: 100
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      background: #000;
+      border-radius: 7px;
+      flex-shrink: 0
+    }
+
+    .header-logo svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: white;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round
+    }
+
+    .header-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gray-900);
+      letter-spacing: -.02em
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 99px;
+      letter-spacing: .04em
+    }
+
+    .badge-free {
+      background: var(--gray-100);
+      color: var(--gray-500);
+      border: 1px solid var(--gray-200)
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 14px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+      white-space: nowrap;
+      font-family: inherit;
+      letter-spacing: -.01em
+    }
+
+    .btn svg {
+      width: 14px;
+      height: 14px
+    }
+
+    .btn-ghost {
+      background: var(--gray-100);
+      color: var(--gray-700);
+      border: 1px solid var(--gray-300)
+    }
+
+    .btn-ghost:hover {
+      background: var(--gray-200);
+      border-color: var(--gray-400);
+      color: var(--gray-900)
+    }
+
+    .btn-primary {
+      background: var(--gray-800);
+      color: #fff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .2)
+    }
+
+    .btn-primary:hover {
+      background: var(--gray-900);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, .25);
+      transform: translateY(-1px)
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: none
+    }
+
+    .btn-export {
+      background: var(--gray-900);
+      color: #fff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .15)
+    }
+
+    .btn-export:hover {
+      background: #292524;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, .2);
+      transform: translateY(-1px)
+    }
+
+    .btn-export:active {
+      transform: translateY(0)
+    }
+
+    .app-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden
+    }
+
+    .form-field {
+      margin-bottom: 8px
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-600);
+      margin-bottom: 4px
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      font-size: 12px;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+      color: var(--gray-900);
+      background: var(--white);
+      font-family: inherit
+    }
+
+    .form-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, .1)
+    }
+
+    .form-input-lg {
+      font-size: 14px;
+      font-weight: 600;
+      padding: 8px 10px
+    }
+
+    .date-row {
+      display: flex;
+      gap: 6px;
+      align-items: center
+    }
+
+    .date-row .form-input {
+      flex: 1
+    }
+
+    .btn-today {
+      flex-shrink: 0;
+      padding: 7px 12px;
+      font-size: 12px;
+      background: var(--gray-200);
+      border: 1px solid var(--gray-300);
+      border-radius: var(--radius);
+      cursor: pointer;
+      color: var(--gray-700);
+      font-weight: 600;
+      white-space: nowrap;
+      font-family: inherit;
+      transition: all .15s
+    }
+
+    .btn-today:hover {
+      background: var(--gray-300);
+      border-color: var(--gray-500);
+      color: var(--gray-900)
+    }
+
+    .holiday-toggles {
+      display: flex;
+      gap: 6px
+    }
+
+    .toggle-chip {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 11px;
+      border: 1px solid var(--gray-300);
+      border-radius: 99px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      color: var(--gray-600);
+      background: var(--gray-100);
+      transition: all .15s;
+      user-select: none;
+      outline: none
+    }
+
+    .toggle-chip:hover:not(.active) {
+      background: var(--gray-200);
+      border-color: var(--gray-400);
+      color: var(--gray-800)
+    }
+
+    .toggle-chip.active {
+      background: var(--gray-800);
+      border-color: var(--gray-800);
+      color: #fff
+    }
+
+    .toggle-chip.active:hover {
+      background: var(--gray-700);
+      border-color: var(--gray-700)
+    }
+
+    .toggle-chip .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gray-400);
+      transition: background .15s
+    }
+
+    .toggle-chip.active .dot {
+      background: #6ee7b7
+    }
+
+    .color-picker-popover {
+      position: fixed;
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+      z-index: 1000;
+      display: none
+    }
+
+    .color-picker-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 8px
+    }
+
+    .color-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px
+    }
+
+    .color-chip-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2.5px solid #fff;
+      cursor: pointer;
+      outline: 2px solid transparent;
+      transition: all .15s;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, .12)
+    }
+
+    .color-chip-btn:hover {
+      transform: scale(1.15)
+    }
+
+    .gantt-outer {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--gray-100)
+    }
+
+    .gantt-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      height: 44px;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      flex-shrink: 0;
+      gap: 12px
+    }
+
+    .gantt-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      min-width: 0
+    }
+
+    .gantt-project-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gray-900);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .gantt-client-name {
+      font-size: 12px;
+      color: var(--gray-400);
+      white-space: nowrap
+    }
+
+    .gantt-toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0
+    }
+
+    .gantt-scroll-wrap {
+      flex: 1;
+      overflow: auto;
+      background: var(--white)
+    }
+
+    .gantt-table {
+      border-collapse: collapse;
+      table-layout: fixed
+    }
+
+    .gantt-label-col {
+      position: sticky;
+      left: 0;
+      z-index: 10;
+      background: #fff;
+      white-space: nowrap
+    }
+
+    .gantt-table thead th {
+      position: sticky;
+      background: #fff
+    }
+
+    .gantt-table thead tr:nth-child(1) th {
+      top: 0;
+      z-index: 10
+    }
+
+    .gantt-table thead tr:nth-child(2) th {
+      top: 28px;
+      z-index: 9
+    }
+
+    .gantt-table thead tr:nth-child(3) th {
+      top: 60px;
+      z-index: 8
+    }
+
+    .gantt-table thead tr:nth-child(1) th.gantt-label-col {
+      z-index: 13
+    }
+
+    .gantt-table thead tr:nth-child(2) th.gantt-label-col {
+      z-index: 12
+    }
+
+    .gantt-table thead tr:nth-child(3) th.gantt-label-col {
+      z-index: 11
+    }
+
+    .month-th {
+      padding: 0 6px;
+      height: 28px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gray-700);
+      text-align: left;
+      border-right: 1px solid var(--gray-200);
+      border-bottom: 1px solid var(--gray-200);
+      vertical-align: middle;
+      letter-spacing: -.01em;
+      white-space: nowrap
+    }
+
+    .month-th-label {
+      height: 28px;
+      line-height: 28px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gray-500);
+      text-align: center;
+      border-bottom: 1px solid var(--gray-200);
+      border-right: 1px solid var(--gray-200);
+      padding: 0 8px
+    }
+
+    .date-th {
+      height: 32px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      vertical-align: middle;
+      border-bottom: 2px solid var(--gray-300);
+      border-right: 1px solid var(--gray-200);
+      color: var(--gray-500);
+      padding: 0
+    }
+
+    .date-th.day-off {
+      background: #f8fafc;
+      color: var(--gray-400)
+    }
+
+    .date-th.today-col {
+      background: #fff7ed;
+      color: var(--accent);
+      font-weight: 800
+    }
+
+    .date-th-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      padding: 3px 0
+    }
+
+    .date-th-inner .day-num {
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1
+    }
+
+    .date-th-inner .day-name {
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1;
+      opacity: .7
+    }
+
+    .label-header {
+      padding: 0 10px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      border-right: 2px solid var(--gray-300);
+      border-bottom: 2px solid var(--gray-300);
+      vertical-align: bottom;
+      padding-bottom: 7px
+    }
+
+    .task-row {
+      border-bottom: 1px solid var(--gray-100)
+    }
+
+    .task-row:hover td.gantt-label-col {
+      background: #fafaf9
+    }
+
+    .task-row:hover .day-cell {
+      background-color: #fafaf9
+    }
+
+    .task-row:hover .day-cell.day-off {
+      background-color: #f4f4f3
+    }
+
+    .task-label-td {
+      padding: 0;
+      height: 54px;
+      border-right: 2px solid var(--gray-200);
+      background: #fff
+    }
+
+    .label-row-inner {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      height: 54px;
+      padding: 0 8px;
+      min-width: 0
+    }
+
+    .label-drag-handle {
+      color: var(--gray-400);
+      cursor: grab;
+      font-size: 13px;
+      letter-spacing: -2px;
+      flex-shrink: 0;
+      padding: 2px 2px;
+      line-height: 1;
+      user-select: none;
+      border-radius: 3px;
+      transition: color .15s, background .15s
+    }
+
+    .label-drag-handle:hover {
+      color: var(--gray-700);
+      background: var(--gray-200)
+    }
+
+    .label-drag-handle:active {
+      cursor: grabbing;
+      color: var(--gray-900)
+    }
+
+    .label-color-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      cursor: pointer;
+      border: 2px solid rgba(255, 255, 255, .8);
+      box-shadow: 0 0 0 1.5px rgba(0, 0, 0, .15);
+      transition: transform .15s
+    }
+
+    .label-color-dot:hover {
+      transform: scale(1.3)
+    }
+
+    .label-name {
+      flex: 1;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-800);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      cursor: text;
+      min-width: 0
+    }
+
+    .label-name:hover {
+      color: var(--gray-900)
+    }
+
+    .label-days-badge {
+      flex-shrink: 0;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gray-400);
+      background: var(--gray-100);
+      padding: 2px 7px;
+      border-radius: 99px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all .15s;
+      border: 1px solid transparent
+    }
+
+    .label-days-badge:hover {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      border-color: var(--primary-mid)
+    }
+
+    .label-delete-btn {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: transparent;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color .15s, background .15s
+    }
+
+    .task-row:hover .label-delete-btn {
+      color: var(--gray-400)
+    }
+
+    .label-delete-btn:hover {
+      color: #f43f5e !important;
+      background: #fff0f3
+    }
+
+    .gantt-add-task-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 40px;
+      padding: 0 10px;
+      color: var(--gray-400);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: inherit;
+      width: 100%;
+      white-space: nowrap;
+      transition: color .15s
+    }
+
+    .gantt-add-task-btn:hover {
+      color: var(--primary)
+    }
+
+    .btn-settings-inline {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 18px;
+      background: var(--gray-900);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .15s;
+      line-height: 1
+    }
+
+    .btn-settings-inline:hover {
+      background: var(--gray-700)
+    }
+
+    .summary-float {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      background: #1e293b;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 18px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, .25);
+      z-index: 100;
+      min-width: 230px
+    }
+
+    .summary-float:empty {
+      display: none
+    }
+
+    .summary-float .summary-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      gap: 16px
+    }
+
+    .summary-float .summary-label {
+      font-size: 12px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, .5);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin: 0
+    }
+
+    .summary-float .summary-arrow {
+      color: rgba(255, 255, 255, .4);
+      font-size: 12px;
+      line-height: 1;
+      transition: transform .2s ease;
+      flex-shrink: 0
+    }
+
+    .summary-float .summary-body {
+      overflow: hidden;
+      max-height: 200px;
+      opacity: 1;
+      margin-top: 12px;
+      transition: max-height .25s ease, opacity .2s ease, margin-top .2s ease
+    }
+
+    .summary-float .summary-item {
+      font-size: 13px;
+      color: rgba(255, 255, 255, .65);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 8px
+    }
+
+    .summary-float .summary-item:last-child {
+      margin-bottom: 0
+    }
+
+    .summary-float .summary-item strong {
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px
+    }
+
+    .day-cell {
+      height: 54px;
+      border-right: none;
+      padding: 0;
+      position: relative;
+      background: #fff;
+      vertical-align: middle
+    }
+
+    .day-cell.day-off {
+      background: #f8fafc
+    }
+
+    .day-cell.today-col::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 2px;
+      background: var(--accent);
+      z-index: 2
+    }
+
+    .bar-fill {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 40px;
+      left: 0;
+      right: 0;
+      transition: opacity .15s
+    }
+
+    .bar-fill.bar-start {
+      left: 5px;
+      border-radius: 8px 0 0 8px
+    }
+
+    .bar-fill.bar-end {
+      right: 5px;
+      border-radius: 0 8px 8px 0
+    }
+
+    .bar-fill.bar-off {
+      opacity: .7
+    }
+
+    .bar-fill.bar-draggable {
+      cursor: grab
+    }
+
+    .bar-fill.bar-draggable:active {
+      cursor: grabbing
+    }
+
+    #barDragTooltip {
+      position: fixed;
+      pointer-events: none;
+      display: none;
+      background: #111;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 9px;
+      border-radius: 6px;
+      z-index: 9999;
+      white-space: nowrap
+    }
+
+    .bar-label {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      pointer-events: none;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, .2);
+      z-index: 1
+    }
+
+    .month-start-border {
+      border-left: 1px solid var(--gray-300) !important
+    }
+
+    .month-start-border-th {
+      border-left: 1px solid var(--gray-200) !important
+    }
+
+    .day-selector {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 6px
+    }
+
+    .day-chip {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 32px;
+      border: 1px solid var(--gray-300);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: inherit;
+      color: var(--gray-600);
+      background: var(--gray-100);
+      transition: all .15s;
+      user-select: none;
+      padding: 0;
+      outline: none
+    }
+
+    .day-chip.active {
+      background: var(--gray-800);
+      border-color: var(--gray-800);
+      color: #fff
+    }
+
+    .day-chip:hover:not(.active) {
+      background: var(--gray-200);
+      border-color: var(--gray-400);
+      color: var(--gray-900)
+    }
+
+    .day-chip.active:hover {
+      background: var(--gray-700);
+      border-color: var(--gray-700)
+    }
+
+    .settings-modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px
+    }
+
+    .settings-divider {
+      border: none;
+      border-top: 1px solid var(--gray-100);
+      margin: 0
+    }
+
+    .settings-file-row {
+      display: flex;
+      gap: 8px
+    }
+
+    .color-scheme-row {
+      display: flex;
+      gap: 6px
+    }
+
+    .color-scheme-btn {
+      flex: 1;
+      padding: 8px 4px;
+      border: 1.5px solid var(--gray-300);
+      border-radius: 6px;
+      background: var(--gray-100);
+      color: var(--gray-700);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all .15s
+    }
+
+    .color-scheme-btn:hover {
+      background: var(--gray-200);
+      border-color: var(--gray-400);
+      color: var(--gray-900)
+    }
+
+    .color-scheme-btn.active {
+      border-color: var(--gray-900);
+      background: var(--gray-200);
+      color: var(--gray-900);
+      font-weight: 700
+    }
+
+    .color-scheme-btn.active:hover {
+      background: var(--gray-300);
+      border-color: var(--gray-900)
+    }
+
+    .color-scheme-preview {
+      display: flex;
+      gap: 2px;
+      justify-content: center;
+      margin-top: 4px
+    }
+
+    .color-scheme-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%
+    }
+
+    .color-base-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px
+    }
+
+    .color-base-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2.5px solid transparent;
+      cursor: pointer;
+      transition: border-color .15s, transform .1s;
+      outline: none
+    }
+
+    .color-base-btn:hover {
+      transform: scale(1.15)
+    }
+
+    .color-base-btn.active {
+      border-color: var(--gray-900);
+      transform: scale(1.15)
+    }
+
+    .settings-footer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--gray-100);
+      display: flex;
+      justify-content: flex-end;
+      flex-shrink: 0
+    }
+
+    .upgrade-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .55);
+      backdrop-filter: blur(6px);
+      z-index: 9000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s
+    }
+
+    .upgrade-box {
+      background: #fff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 32px 80px rgba(0, 0, 0, .22);
+      transform: scale(.95) translateY(12px);
+      transition: transform .22s cubic-bezier(.34, 1.56, .64, 1);
+      overflow: hidden
+    }
+
+    .upgrade-box-header {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      padding: 32px 32px 28px;
+      text-align: center;
+      position: relative
+    }
+
+    .upgrade-lock-icon {
+      width: 52px;
+      height: 52px;
+      background: rgba(255, 255, 255, .12);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px
+    }
+
+    .upgrade-lock-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: #fff
+    }
+
+    .upgrade-box-header h2 {
+      color: #fff;
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 6px
+    }
+
+    .upgrade-box-header p {
+      color: rgba(255, 255, 255, .65);
+      font-size: 13px;
+      margin: 0;
+      line-height: 1.5
+    }
+
+    .upgrade-box-body {
+      padding: 28px 32px 32px
+    }
+
+    .upgrade-features {
+      list-style: none;
+      margin: 0 0 24px;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    .upgrade-features li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--gray-700)
+    }
+
+    .upgrade-features li .uf-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #dcfce7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0
+    }
+
+    .upgrade-features li .uf-icon svg {
+      width: 11px;
+      height: 11px;
+      stroke: #16a34a;
+      stroke-width: 3
+    }
+
+    .upgrade-btn-primary {
+      display: block;
+      width: 100%;
+      background: #1e293b;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .18);
+      transition: background .15s, transform .15s, box-shadow .15s
+    }
+
+    .upgrade-btn-primary:hover {
+      background: #0f172a;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .22)
+    }
+
+    .upgrade-btn-close {
+      display: block;
+      width: 100%;
+      margin-top: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--gray-400);
+      font-family: inherit;
+      padding: 6px;
+      transition: color .15s
+    }
+
+    .upgrade-btn-close:hover {
+      color: var(--gray-600)
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .5);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 700px;
+      max-height: 82vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, .25);
+      transform: scale(.96) translateY(10px);
+      transition: transform .22s cubic-bezier(.34, 1.56, .64, 1);
+      overflow: hidden
+    }
+
+    .modal-overlay.open .modal-box {
+      transform: scale(1) translateY(0)
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--gray-100);
+      flex-shrink: 0
+    }
+
+    .modal-title-group {}
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--gray-900);
+      letter-spacing: -.03em
+    }
+
+    .modal-subtitle {
+      font-size: 12px;
+      color: var(--gray-500);
+      margin-top: 2px
+    }
+
+    .modal-close-btn {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: var(--gray-100);
+      border-radius: 7px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-500);
+      font-size: 16px;
+      flex-shrink: 0;
+      transition: all .15s;
+      line-height: 1
+    }
+
+    .modal-close-btn:hover {
+      background: var(--gray-200);
+      color: var(--gray-900)
+    }
+
+    .template-tabs {
+      display: flex;
+      gap: 5px;
+      padding: 12px 20px 10px;
+      flex-shrink: 0;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--gray-100)
+    }
+
+    .template-grid-wrap {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px 20px
+    }
+
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px
+    }
+
+    .date-th {
+      cursor: crosshair;
+      user-select: none
+    }
+
+    .holiday-label-th {
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--gray-200)
+    }
+
+    .holiday-row-cell {
+      height: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      vertical-align: middle;
+      border-bottom: 1px solid var(--gray-200);
+      border-right: 1px solid var(--gray-100);
+      padding: 0;
+      color: var(--gray-400);
+      background: var(--gray-100);
+      cursor: default;
+      user-select: none
+    }
+
+    .holiday-row-cell.workday-cell {
+      background: var(--gray-50);
+      color: transparent;
+      cursor: pointer
+    }
+
+    .holiday-row-cell.workday-cell:hover {
+      background: var(--gray-100);
+      color: var(--gray-400)
+    }
+
+    .holiday-row-cell.month-start {
+      border-left: 2px solid var(--gray-300) !important
+    }
+
+    .bar-delete-btn {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      width: 18px;
+      height: 18px;
+      background: rgba(255, 255, 255, .95);
+      color: var(--gray-500);
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 900;
+      text-align: center;
+      line-height: 18px;
+      cursor: pointer;
+      z-index: 10;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .25)
+    }
+
+    .task-row:hover .bar-delete-btn {
+      display: flex
+    }
+
+    .bar-delete-btn:hover {
+      background: #fff;
+      color: #e44
+    }
+
+    .bar-resize-handle {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 8px;
+      height: 100%;
+      cursor: ew-resize;
+      z-index: 5
+    }
+
+    .bar-resize-handle:hover::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      right: 1px;
+      bottom: 2px;
+      width: 2px;
+      background: rgba(255, 255, 255, .7);
+      border-radius: 2px
+    }
+
+    .btn-sm {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 7px 10px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .15s;
+      white-space: nowrap;
+      border: 1px solid var(--gray-300)
+    }
+
+    .btn-sm svg {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0
+    }
+
+    .btn-sm-save {
+      background: var(--gray-100);
+      color: var(--gray-700)
+    }
+
+    .btn-sm-save:hover {
+      background: var(--gray-200);
+      border-color: var(--gray-400);
+      color: var(--gray-900);
+      transform: translateY(-1px)
+    }
+
+    .btn-sm-load {
+      background: var(--gray-100);
+      color: var(--gray-700)
+    }
+
+    .btn-sm-load:hover {
+      background: var(--gray-200);
+      border-color: var(--gray-400);
+      color: var(--gray-900);
+      transform: translateY(-1px)
+    }
+
+    .autosave-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--gray-500)
+    }
+
+    .autosave-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--gray-400);
+      animation: pulse-dot 2s ease-in-out infinite
+    }
+
+    @keyframes pulse-dot {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.4;
+      }
+    }
+
+    .btn-delete-storage {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--gray-500);
+      font-family: inherit;
+      padding: 0;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color .15s
+    }
+
+    .btn-delete-storage:hover {
+      color: #f43f5e
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      background: #1c1917;
+      color: #fff;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .2s, transform .2s;
+      white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .2)
+    }
+  </style>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WRM7PV7BBK"></script>
+  <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-WRM7PV7BBK');</script>
+  <!-- ドメイン制限: corto.jp 以外では動作しない -->
+  <script>(function () { var h = window.location.hostname; var allowed = h === '' || h === 'localhost' || h === '127.0.0.1' || h.indexOf('corto.jp') !== -1; if (!allowed) { document.documentElement.innerHTML = '<head><title>エラー</title></head>' + '<body style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f1f5f9;text-align:center;font-family:sans-serif;">' + '<div style="padding:20px;">' + '<h1 style="color:#ef4444;font-size:24px;margin-bottom:10px;">不正な利用を検知しました。</h1>' + '<p style="color:#64748b;">正規の販売ページからご購入ください。</p>' + '</div></body>'; if (window.stop) window.stop(); throw new Error('Unauthorized Domain'); } })();</script>
+</head>
+
+<body><noscript>
+    <meta HTTP-EQUIV="refresh" content="0;url='https://tools.corto.jp/demo/span-demo/?PageSpeed=noscript'" />
+    <style>
+      <!--table,div,span,font,p{display:none}
+      -->
+    </style>
+    <div style="display:block">Please click <a href="https://tools.corto.jp/demo/span-demo/?PageSpeed=noscript">here</a>
+      if you are not redirected within a few seconds.</div>
+  </noscript>
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="header-logo">
+        <svg viewBox="0 0 24 24">
+          <rect x="3" y="4" width="18" height="3" rx="1" />
+          <rect x="3" y="9" width="10" height="3" rx="1" />
+          <rect x="3" y="14" width="14" height="3" rx="1" />
+          <rect x="3" y="19" width="7" height="3" rx="1" />
+        </svg>
+      </div>
+      <span class="header-title">span - スケジュール作成ツール</span>
+      <span class="badge badge-free">Demo</span>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-ghost" onclick="resetAll()" title="リセット">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" style="width:14px;height:14px">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+          <path d="M3 3v5h5" />
+        </svg>
+        リセット
+      </button>
+      <button class="btn btn-export" onclick="showUpgradeModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+        HTMLをダウンロード
+      </button>
+    </div>
+  </header>
+  <!-- アップグレードモーダル -->
+  <div class="upgrade-overlay" id="upgradeOverlay" onclick="hideUpgradeModal(event)">
+    <div class="upgrade-box">
+      <div class="upgrade-box-header">
+        <div class="upgrade-lock-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+        </div>
+        <h2>HTMLダウンロードは有料版の機能です</h2>
+        <p>デモ版ではガントチャートの作成・編集をお試しいただけます。<br>出力・保存には有料版をご利用ください。</p>
+      </div>
+      <div class="upgrade-box-body">
+        <ul class="upgrade-features">
+          <li>
+            <span class="uf-icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg></span>
+            完成したガントチャートをHTMLファイルで出力
+          </li>
+          <li>
+            <span class="uf-icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg></span>
+            ブラウザで即共有・印刷対応のきれいなデザイン
+          </li>
+          <li>
+            <span class="uf-icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg></span>
+            土日祝スキップ・個別休日設定に完全対応
+          </li>
+          <li>
+            <span class="uf-icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg></span>
+            設定の保存・読み込みで複数プロジェクト管理
+          </li>
+        </ul>
+        <a href="https://margin.corto.jp/products/span" target="_blank" class="upgrade-btn-primary">有料版を購入する →</a>
+        <button class="upgrade-btn-close" onclick="hideUpgradeModal()">デモに戻る</button>
+      </div>
+    </div>
+  </div>
+  <!-- BODY -->
+  <div class="app-body">
+    <!-- GANTT MAIN -->
+    <main class="gantt-outer" style="width:100%">
+      <div class="gantt-toolbar">
+        <div class="gantt-toolbar-left">
+          <span class="gantt-project-name" id="toolbarProjectName">Webサイト制作</span>
+          <button class="btn-settings-inline" onclick="openSettingsModal()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round">
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+            設定
+          </button>
+          <span class="gantt-client-name" id="toolbarClientName"></span>
+        </div>
+        <div class="gantt-toolbar-right">
+          <div class="autosave-status" style="font-size: 12px; color:var(--gray-400);">
+            <span class="autosave-dot"></span>
+            <span id="autosaveLabel">ブラウザに自動保存中</span>
+          </div>
+        </div>
+      </div>
+      <div class="gantt-scroll-wrap" id="ganttScrollWrap">
+        <div id="ganttArea" style="min-height:100%; display:flex; flex-direction:column;">
+          <!-- Gantt renders here -->
+        </div>
+      </div>
+    </main>
+  </div>
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal" onclick="handleSettingsOverlayClick(event)">
+    <div class="modal-box" style="max-width:440px">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-title">プロジェクト設定</div>
+          <div class="modal-subtitle">基本情報と休業日を設定してください</div>
+        </div>
+        <button class="modal-close-btn" onclick="closeSettingsModal()">✕</button>
+      </div>
+      <div class="settings-modal-body">
+        <div class="form-field" style="margin:0">
+          <label class="form-label">プロジェクト名</label>
+          <input type="text" class="form-input form-input-lg" id="projectName" placeholder="Webサイト制作" value="Webサイト制作">
+        </div>
+        <div class="form-field" style="margin:0">
+          <label class="form-label">クライアント名（任意）</label>
+          <input type="text" class="form-input" id="clientName" placeholder="株式会社〇〇" value="">
+        </div>
+        <div class="form-field" style="margin:0">
+          <label class="form-label">プロジェクト開始日</label>
+          <div class="date-row">
+            <input type="date" class="form-input" id="startDate">
+            <button class="btn-today" onclick="setToday()">今日</button>
+          </div>
+        </div>
+        <hr class="settings-divider">
+        <div class="form-field" style="margin:0">
+          <label class="form-label">休業曜日の設定 <span
+              style="color:var(--gray-400);font-weight:400">（クリックでON/OFF）</span></label>
+          <div class="day-selector">
+            <button class="day-chip" id="day-1" title="月曜日" type="button">月</button>
+            <button class="day-chip" id="day-2" title="火曜日" type="button">火</button>
+            <button class="day-chip" id="day-3" title="水曜日" type="button">水</button>
+            <button class="day-chip" id="day-4" title="木曜日" type="button">木</button>
+            <button class="day-chip" id="day-5" title="金曜日" type="button">金</button>
+            <button class="day-chip active" id="day-6" title="土曜日" type="button">土</button>
+            <button class="day-chip active" id="day-0" title="日曜日" type="button">日</button>
+          </div>
+          <div class="holiday-toggles" style="margin-top:8px">
+            <button class="toggle-chip active" id="chip-hol" type="button">
+              <span class="dot"></span>祝日も休業
+            </button>
+            <span style="font-size: 12px;color:var(--gray-400);align-self:center;margin-left:4px">日付クリックで個別設定も可</span>
+          </div>
+        </div>
+        <hr class="settings-divider">
+        <div>
+          <div class="form-label" style="margin-bottom:8px">テンプレート</div>
+          <button class="btn-sm btn-sm-load" onclick="closeSettingsModal(); setTimeout(openTemplateModal, 150);"
+            style="width:100%; justify-content:center">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+            テンプレートを読み込む
+          </button>
+        </div>
+        <hr class="settings-divider">
+        <div>
+          <div class="form-label" style="margin-bottom:8px">設定ファイル</div>
+          <div class="settings-file-row">
+            <button class="btn-sm btn-sm-save" onclick="saveToFile()" style="flex:1;justify-content:center"
+              title="現在の設定をJSONファイルとして保存">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              設定を保存
+            </button>
+            <button class="btn-sm btn-sm-load" onclick="loadFromFile()" style="flex:1;justify-content:center"
+              title="JSONファイルから設定を読み込む">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              設定を読込
+            </button>
+          </div>
+          <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between">
+            <div class="autosave-status">
+              <span class="autosave-dot"></span>
+              <span id="autosaveLabelModal">ブラウザに自動保存中</span>
+            </div>
+            <button class="btn-delete-storage" id="btnDeleteStorage" onclick="deleteLocalStorage()"
+              title="ブラウザに保存された設定を削除">
+              保存済み設定を削除
+            </button>
+          </div>
+        </div>
+        <hr class="settings-divider">
+        <div>
+          <div class="form-label" style="margin-bottom:8px">配色スタイル</div>
+          <div class="color-scheme-row" id="colorSchemeRow">
+            <button class="color-scheme-btn" data-scheme="mono" onclick="applyColorScheme('mono')">
+              単色
+              <div class="color-scheme-preview">
+                <span class="color-scheme-dot" style="background:#5770EA"></span>
+              </div>
+            </button>
+            <button class="color-scheme-btn" data-scheme="analogous" onclick="applyColorScheme('analogous')">
+              同系色
+              <div class="color-scheme-preview">
+                <span class="color-scheme-dot" style="background:#5770EA"></span>
+                <span class="color-scheme-dot" style="background:#3C94F2"></span>
+                <span class="color-scheme-dot" style="background:#2AB4EE"></span>
+                <span class="color-scheme-dot" style="background:#2CDCD0"></span>
+              </div>
+            </button>
+            <button class="color-scheme-btn" data-scheme="colorful" onclick="applyColorScheme('colorful')">
+              カラフル
+              <div class="color-scheme-preview">
+                <span class="color-scheme-dot" style="background:#40B3DD"></span>
+                <span class="color-scheme-dot" style="background:#41C880"></span>
+                <span class="color-scheme-dot" style="background:#E88E59"></span>
+                <span class="color-scheme-dot" style="background:#E36DAC"></span>
+              </div>
+            </button>
+          </div>
+          <div class="color-base-row" id="colorBaseRow"></div>
+        </div>
+      </div>
+      <div class="settings-footer">
+        <button class="btn btn-primary" onclick="closeSettingsModal()">閉じる</button>
+      </div>
+    </div>
+  </div>
+  <!-- Template Modal -->
+  <div class="modal-overlay" id="templateModal" onclick="handleModalOverlayClick(event)">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-title">テンプレートを選択</div>
+          <div class="modal-subtitle">業種・用途に合わせたタスクセットを読み込みます。現在の設定は上書きされます。</div>
+        </div>
+        <button class="modal-close-btn" onclick="closeTemplateModal()">✕</button>
+      </div>
+      <div class="template-tabs" id="templateTabs"></div>
+      <div class="template-grid-wrap">
+        <div class="template-grid" id="templateGrid"></div>
+      </div>
+    </div>
+  </div>
+  <!-- Summary Float -->
+  <div class="summary-float" id="summaryFloat"></div>
+  <!-- Toast -->
+  <div class="toast" id="toastEl"></div>
+  <!-- Color Picker Popover -->
+  <div class="color-picker-popover" id="colorPickerPopover">
+    <div class="color-picker-label">カラーを選択</div>
+    <div class="color-picker-grid" id="colorPickerGrid"></div>
+  </div>
+  <!-- ===== JAVASCRIPT ===== -->
+  <script>
+
+    // ═══════════════════════════════════════
+    // CONSTANTS
+    // ═══════════════════════════════════════
+
+    const JP_HOLIDAYS = new Set([
+      // 2024
+      '2024-01-01', '2024-01-08', '2024-02-11', '2024-02-12', '2024-02-23',
+      '2024-03-20', '2024-04-29', '2024-05-03', '2024-05-04', '2024-05-05',
+      '2024-05-06', '2024-07-15', '2024-08-11', '2024-08-12', '2024-09-16',
+      '2024-09-22', '2024-09-23', '2024-10-14', '2024-11-03', '2024-11-04',
+      '2024-11-23',
+      // 2025
+      '2025-01-01', '2025-01-13', '2025-02-11', '2025-02-23', '2025-02-24',
+      '2025-03-20', '2025-04-29', '2025-05-03', '2025-05-04', '2025-05-05',
+      '2025-05-06', '2025-07-21', '2025-08-11', '2025-09-15', '2025-09-22',
+      '2025-09-23', '2025-10-13', '2025-11-03', '2025-11-23', '2025-11-24',
+      // 2026
+      '2026-01-01', '2026-01-12', '2026-02-11', '2026-02-23', '2026-03-20',
+      '2026-04-29', '2026-05-03', '2026-05-04', '2026-05-05', '2026-05-06',
+      '2026-07-20', '2026-08-11', '2026-09-21', '2026-09-22', '2026-09-23',
+      '2026-10-12', '2026-11-03', '2026-11-23',
+      // 2027
+      '2027-01-01', '2027-01-11', '2027-02-11', '2027-02-23', '2027-03-21',
+      '2027-04-29', '2027-05-03', '2027-05-04', '2027-05-05', '2027-07-19',
+      '2027-08-11', '2027-09-20', '2027-09-23', '2027-10-11', '2027-11-03',
+      '2027-11-23',
+      // 2028
+      '2028-01-01', '2028-01-10', '2028-02-11', '2028-02-23', '2028-03-20',
+      '2028-04-29', '2028-05-03', '2028-05-04', '2028-05-05', '2028-07-17',
+      '2028-08-11', '2028-09-18', '2028-09-22', '2028-10-09', '2028-11-03',
+      '2028-11-23',
+      // 2029
+      '2029-01-01', '2029-01-08', '2029-02-11', '2029-02-12', '2029-02-23',
+      '2029-03-20', '2029-04-29', '2029-04-30', '2029-05-03', '2029-05-04',
+      '2029-05-05', '2029-07-16', '2029-08-11', '2029-09-17', '2029-09-23',
+      '2029-09-24', '2029-10-08', '2029-11-03', '2029-11-23',
+      // 2030
+      '2030-01-01', '2030-01-14', '2030-02-11', '2030-02-23', '2030-03-20',
+      '2030-04-29', '2030-05-03', '2030-05-04', '2030-05-05', '2030-05-06',
+      '2030-07-15', '2030-08-11', '2030-08-12', '2030-09-16', '2030-09-23',
+      '2030-10-14', '2030-11-03', '2030-11-04', '2030-11-23',
+    ]);
+
+    // ビビッドカラーパレット（彩度70〜82%・明度58〜66%）
+    const TASK_COLORS = [
+      '#40B3DD', '#41C880', '#E8B449', '#E88E59',
+      '#E66E6E', '#E36DAC', '#9B66E6', '#5770EA',
+    ];
+
+    // ベースカラー定義（swatch = analogous[0] = キーの代表色と一致）
+    const BASE_COLORS = [
+      { key: 'teal', swatch: '#40B3DD' },
+      { key: 'green', swatch: '#41C880' },
+      { key: 'amber', swatch: '#E8B449' },
+      { key: 'orange', swatch: '#E88E59' },
+      { key: 'red', swatch: '#E66E6E' },
+      { key: 'pink', swatch: '#E36DAC' },
+      { key: 'purple', swatch: '#9B66E6' },
+      { key: 'indigo', swatch: '#5770EA' },
+    ];
+
+    const COLOR_SCHEMES = {
+      // 単色: ベースカラー1色のみ
+      mono: {
+        teal: ['#40B3DD'],
+        green: ['#41C880'],
+        amber: ['#E8B449'],
+        orange: ['#E88E59'],
+        red: ['#E66E6E'],
+        pink: ['#E36DAC'],
+        purple: ['#9B66E6'],
+        indigo: ['#5770EA'],
+      },
+      // 同系色: 代表色からスタートし隣接色相へグラデーション（各ファミリー約80度スイープ）
+      analogous: {
+        // ティール(H195)→シアン→ミント→ライム(H125)
+        teal: ['#40B3DD', '#3ABECE', '#36C9BE', '#34D0AB', '#3CD097', '#44CE82', '#52CC6E', '#64C85A'],
+        // グリーン(H148)→ミント→ティール→コーンフラワー(H228)
+        green: ['#41C880', '#38CC9C', '#36CCB8', '#36C2D2', '#3AB2E6', '#44A2F0', '#5494F0', '#6486EE'],
+        // アンバー(H42)→ゴールド→明黄(H78)
+        amber: ['#E8B449', '#E8BE4A', '#E8C84A', '#E8D248', '#E8DC46', '#E8E444', '#E8EC40', '#E8F03C'],
+        // オレンジ(H22)→赤橙→深朱赤(H342)
+        orange: ['#E88E59', '#E88050', '#E87248', '#E86440', '#E85638', '#E84830', '#E83A28', '#E82C20'],
+        // 赤(H0)→ローズ→マゼンタ(H278)
+        red: ['#E66E6E', '#E26282', '#DC5696', '#D44AAA', '#CC3EBC', '#C030CC', '#B028DC', '#A020EC'],
+        // ピンク(H330)→マゼンタ→バイオレット(H248)
+        pink: ['#E36DAC', '#D85EC0', '#CC50D4', '#C044E6', '#B238F4', '#A030F8', '#8E28F8', '#7C20F4'],
+        // パープル(H265)→ライラック→淡ピンク紫(H312)
+        purple: ['#9B66E6', '#A872E8', '#B67EE8', '#C48AE8', '#D096E8', '#DCA2EA', '#E8AEEA', '#F4BAEC'],
+        // インディゴ(H230)→スカイブルー→シアン(H162)
+        indigo: ['#5770EA', '#4882EE', '#3C94F2', '#32A4F0', '#2AB4EE', '#26C4E8', '#26D0DC', '#2CDCD0'],
+      },
+      // カラフル: ベースカラー不使用・固定8色
+      colorful: ['#40B3DD', '#41C880', '#E8B449', '#E88E59', '#E66E6E', '#E36DAC', '#9B66E6', '#5770EA'],
+    };
+
+    function getTaskColors() {
+      const scheme = COLOR_SCHEMES[state.colorScheme];
+      if (!scheme) return COLOR_SCHEMES.colorful;
+      if (Array.isArray(scheme)) return scheme; // colorful
+      return scheme[state.colorBase] || scheme.teal;
+    }
+
+    const DOW_NAMES = ['日', '月', '火', '水', '木', '金', '土'];
+    const MONTH_NAMES_JP = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+    const COL_W = 28; // px per day
+    const LABEL_W = 280; // px for task label column
+
+    // ═══════════════════════════════════════
+    // TEMPLATES
+    // ═══════════════════════════════════════
+
+    const TEMPLATE_CATEGORIES = [
+      { id: 'all', label: 'すべて' },
+      { id: 'web', label: 'Web・アプリ' },
+      { id: 'creative', label: 'クリエイティブ' },
+      { id: 'marketing', label: 'マーケティング' },
+      { id: 'business', label: 'ビジネス・IT' },
+    ];
+
+    // ビルトインテンプレート（fetch失敗時のフォールバック）
+    const BUILTIN_TEMPLATES = [
+      {
+        id: 'website', category: 'web', name: 'Webサイト制作', desc: 'コーポレート・LP・ポートフォリオサイトの制作',
+        tasks: [{ name: 'ヒアリング・要件定義', days: 7 }, { name: 'ワイヤーフレーム作成', days: 7 }, { name: 'デザイン（トップページ）', days: 7 }, { name: 'デザイン（下層ページ）', days: 10 }, { name: 'コーディング', days: 12 }, { name: 'コンテンツ入稿', days: 7 }, { name: 'テスト・修正対応', days: 7 }, { name: '最終確認・公開', days: 6 }]
+      },
+      {
+        id: 'app', category: 'web', name: 'アプリ開発', desc: 'iOS/Androidアプリの設計からリリースまで',
+        tasks: [{ name: '要件定義・仕様策定', days: 7 }, { name: 'UI/UXデザイン', days: 10 }, { name: 'フロントエンド開発', days: 15 }, { name: 'バックエンド開発', days: 15 }, { name: '結合テスト', days: 7 }, { name: 'ユーザーテスト・修正', days: 7 }, { name: 'リリース準備', days: 5 }, { name: 'ストア申請・ローンチ', days: 5 }]
+      },
+      {
+        id: 'ec', category: 'web', name: 'ECサイト構築', desc: 'ネットショップの開設から運用開始まで',
+        tasks: [{ name: '要件定義・プラットフォーム選定', days: 7 }, { name: 'デザイン（トップ・商品ページ）', days: 8 }, { name: 'コーディング・カスタマイズ', days: 10 }, { name: '商品登録・コンテンツ入稿', days: 10 }, { name: '決済・配送設定', days: 5 }, { name: 'テスト・修正', days: 5 }, { name: 'SEO設定・公開', days: 5 }]
+      },
+      {
+        id: 'video', category: 'creative', name: '動画・映像制作', desc: 'CM・PR動画・YouTubeコンテンツの制作',
+        tasks: [{ name: '企画・脚本作成', days: 7 }, { name: '絵コンテ・撮影準備', days: 5 }, { name: '撮影', days: 5 }, { name: '映像編集', days: 12 }, { name: 'BGM・ナレーション収録', days: 5 }, { name: 'クライアント確認・修正', days: 5 }, { name: '最終仕上げ・納品', days: 5 }]
+      },
+      {
+        id: 'branding', category: 'creative', name: 'ブランディング・CI', desc: 'ロゴ・ブランドガイドラインの策定',
+        tasks: [{ name: '現状分析・リサーチ', days: 7 }, { name: 'コンセプト立案', days: 5 }, { name: 'ロゴデザイン', days: 10 }, { name: 'カラー・タイポグラフィ設定', days: 5 }, { name: 'ブランドガイドライン作成', days: 5 }, { name: '各媒体への展開', days: 10 }, { name: '最終確認・納品', days: 5 }]
+      },
+      {
+        id: 'print', category: 'creative', name: 'グラフィック・印刷物', desc: 'パンフレット・カタログ・フライヤー制作',
+        tasks: [{ name: 'ヒアリング・コンセプト整理', days: 7 }, { name: 'テキスト・素材収集', days: 5 }, { name: 'レイアウト・デザイン', days: 12 }, { name: 'クライアント確認・修正', days: 5 }, { name: '最終データ制作', days: 5 }, { name: '印刷入稿・確認', days: 5 }, { name: '納品', days: 5 }]
+      },
+      {
+        id: 'marketing', category: 'marketing', name: 'マーケティング施策', desc: '広告・SNS・キャンペーンの企画・実施',
+        tasks: [{ name: '市場調査・ターゲット設定', days: 7 }, { name: '戦略・コンセプト策定', days: 5 }, { name: 'クリエイティブ制作', days: 10 }, { name: 'LP・広告制作', days: 10 }, { name: '配信設定・テスト', days: 5 }, { name: 'キャンペーン実施', days: 20 }, { name: '効果測定・レポート', days: 5 }]
+      },
+      {
+        id: 'event', category: 'marketing', name: 'イベント企画・運営', desc: 'セミナー・展示会・発表会の企画から当日まで',
+        tasks: [{ name: '企画・コンセプト立案', days: 7 }, { name: '会場・業者選定', days: 10 }, { name: '告知・集客準備', days: 10 }, { name: '資料・コンテンツ制作', days: 10 }, { name: 'リハーサル・最終確認', days: 5 }, { name: '当日運営', days: 5 }, { name: 'フォローアップ・報告書作成', days: 5 }]
+      },
+      {
+        id: 'pr', category: 'marketing', name: 'PR・広報活動', desc: 'プレスリリース・メディア対応・SNS展開',
+        tasks: [{ name: '広報戦略策定', days: 7 }, { name: 'プレスリリース作成', days: 5 }, { name: 'メディアリスト作成・アプローチ', days: 10 }, { name: '取材対応・資料提供', days: 10 }, { name: 'SNS・オウンドメディア展開', days: 10 }, { name: '効果測定・レポート', days: 5 }]
+      },
+      {
+        id: 'product', category: 'business', name: '商品開発・ローンチ', desc: '新商品の企画から発売・PR活動まで',
+        tasks: [{ name: '市場調査・コンセプト立案', days: 10 }, { name: '試作・プロトタイプ制作', days: 15 }, { name: 'ユーザーテスト', days: 5 }, { name: '改善・量産準備', days: 10 }, { name: 'パッケージ・販促物制作', days: 10 }, { name: '販売チャネル整備', days: 5 }, { name: 'ローンチ・PR', days: 5 }]
+      },
+      {
+        id: 'system', category: 'business', name: 'システム導入', desc: 'ERP・SaaSツールの選定から本番稼働まで',
+        tasks: [{ name: '現状分析・要件整理', days: 7 }, { name: 'ベンダー選定・契約', days: 10 }, { name: 'カスタマイズ・設定', days: 10 }, { name: 'データ移行', days: 5 }, { name: 'ユーザートレーニング', days: 5 }, { name: 'パイロット運用', days: 10 }, { name: '本番稼働・サポート体制構築', days: 5 }]
+      },
+      {
+        id: 'hr', category: 'business', name: '採用・HR', desc: '求人掲載から入社・オンボーディングまで',
+        tasks: [{ name: '採用要件定義', days: 7 }, { name: '求人票・JD作成', days: 5 }, { name: '媒体掲載・集客', days: 10 }, { name: '書類選考', days: 10 }, { name: '面接・選考', days: 10 }, { name: '内定〜入社準備', days: 10 }, { name: 'オンボーディング', days: 5 }]
+      },
+    ];
+
+    // 読み込み済みテンプレート（fetch成功時は外部ファイル優先、失敗時はビルトイン）
+    let TEMPLATES = [...BUILTIN_TEMPLATES];
+
+    async function loadTemplatesFromFolder() {
+      // file:// では fetch は使えないのでスキップ
+      if (location.protocol === 'file:') return;
+      try {
+        const indexRes = await fetch('./templates/_index.json');
+        if (!indexRes.ok) throw new Error('index not found');
+        const ids = await indexRes.json();
+
+        const results = await Promise.allSettled(
+          ids.map(id => fetch(`./templates/${id}.json`).then(r => {
+            if (!r.ok) throw new Error(`${id}.json not found`);
+            return r.json();
+          }))
+        );
+
+        const fetched = results
+          .filter(r => r.status === 'fulfilled')
+          .map(r => r.value);
+
+        if (fetched.length > 0) {
+          // 外部ファイルで上書き（ビルトインと同IDがあれば置き換え、新規は追加）
+          const builtinById = new Map(BUILTIN_TEMPLATES.map(t => [t.id, t]));
+          fetched.forEach(t => builtinById.set(t.id, t));
+          // _index.json の順序を尊重しつつビルトイン独自分も保持
+          const fetchedIds = new Set(fetched.map(t => t.id));
+          TEMPLATES = [
+            ...fetched,
+            ...BUILTIN_TEMPLATES.filter(t => !fetchedIds.has(t.id)),
+          ];
+        }
+      } catch (e) {
+        console.warn('templates/ フォルダの読み込みをスキップ:', e.message);
+      }
+      // モーダルが開いていれば再描画
+      if (document.getElementById('templateModal').classList.contains('open')) {
+        renderTemplateTabs();
+        renderTemplateGrid();
+      }
+    }
+
+    // ═══════════════════════════════════════
+    // STATE
+    // ═══════════════════════════════════════
+
+    const DEFAULT_SKIP_DAYS = new Set([0, 6]); // Sun=0, Sat=6
+
+    const state = {
+      projectName: 'Webサイト制作',
+      clientName: '',
+      startDate: getDefaultStartDate(),
+      skipDays: new Set([0, 6]),   // Set of day-of-week numbers to skip (0=Sun…6=Sat)
+      skipHolidays: true,
+      extraHolidays: new Set(),    // user-added non-working dates (YYYY-MM-DD)
+      extraWorkdays: new Set(),    // user-overridden working dates (YYYY-MM-DD)
+      tasks: [
+        { id: 1, name: 'ヒアリング・要件定義', days: 7, color: '#40B3DD' },
+        { id: 2, name: 'ワイヤーフレーム作成', days: 7, color: '#3ABECE' },
+        { id: 3, name: 'デザイン（トップページ）', days: 7, color: '#36C9BE' },
+        { id: 4, name: 'デザイン（下層ページ）', days: 10, color: '#34D0AB' },
+        { id: 5, name: 'コーディング', days: 12, color: '#3CD097' },
+        { id: 6, name: 'コンテンツ入稿', days: 7, color: '#44CE82' },
+        { id: 7, name: 'テスト・修正対応', days: 7, color: '#52CC6E' },
+        { id: 8, name: '最終確認・公開', days: 6, color: '#64C85A' },
+      ],
+      nextId: 9,
+      colorScheme: 'analogous',
+      colorBase: 'teal',
+    };
+
+    // ═══════════════════════════════════════
+    // DATE UTILS
+    // ═══════════════════════════════════════
+
+    function getDefaultStartDate() {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      while (isDefaultNonWorkingDay(d, new Set([0, 6]), true)) {
+        d.setDate(d.getDate() + 1);
+      }
+      return formatDate(d);
+    }
+
+    function formatDate(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function parseDate(s) {
+      const [y, m, d] = s.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function dt(d) {
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    }
+
+    function sameDay(a, b) { return dt(a) === dt(b); }
+
+    // デフォルトの非営業日判定（カスタム設定を考慮しない）
+    function isDefaultNonWorkingDay(date, skipDays, skipHolidays) {
+      if (skipDays.has(date.getDay())) return true;
+      if (skipHolidays && JP_HOLIDAYS.has(formatDate(date))) return true;
+      return false;
+    }
+
+    // フル判定（カスタム休業日/営業日オーバーライドを含む）
+    function isNonWorkingDay(date) {
+      const ds = formatDate(date);
+      if (state.extraHolidays.has(ds)) return true;   // ユーザーが休業日に設定
+      if (state.extraWorkdays.has(ds)) return false;   // ユーザーが営業日に設定（オーバーライド）
+      return isDefaultNonWorkingDay(date, state.skipDays, state.skipHolidays);
+    }
+
+    // エクスポート用（カスタムオーバーライドを含む、skipDaysをパラメータで受取）
+    function isNonWorkingDayForExport(date, skipDays, skipHolidays, extraHolidays, extraWorkdays) {
+      const ds = formatDate(date);
+      if (extraHolidays.has(ds)) return true;
+      if (extraWorkdays.has(ds)) return false;
+      return isDefaultNonWorkingDay(date, skipDays, skipHolidays);
+    }
+
+    function hasAnyWorkingDay() {
+      // 全曜日が休業日になっていないか確認（祝日・カスタム設定は無視して曜日だけで判定）
+      for (let dow = 0; dow < 7; dow++) {
+        if (!state.skipDays.has(dow)) return true;
+      }
+      return false;
+    }
+
+    function nextWorkingDay(date) {
+      if (!hasAnyWorkingDay()) return new Date(date); // フェイルセーフ
+      const d = new Date(date);
+      let guard = 0;
+      while (isNonWorkingDay(d)) {
+        d.setDate(d.getDate() + 1);
+        if (++guard > 400) break; // 異常検知で強制脱出
+      }
+      return d;
+    }
+
+    function nextWorkingDayAfter(date) {
+      if (!hasAnyWorkingDay()) return new Date(date); // フェイルセーフ
+      const d = new Date(date);
+      d.setDate(d.getDate() + 1);
+      let guard = 0;
+      while (isNonWorkingDay(d)) {
+        d.setDate(d.getDate() + 1);
+        if (++guard > 400) break;
+      }
+      return d;
+    }
+
+    // Add n working days to startDate (startDate counts as day 1)
+    function addWorkingDays(startDate, n) {
+      const d = new Date(startDate);
+      let count = 1;
+      while (count < n) {
+        d.setDate(d.getDate() + 1);
+        if (!isNonWorkingDay(d)) count++;
+      }
+      return d;
+    }
+
+    // Count working days from startDate to endDate inclusive (both are Date objects)
+    function countWorkingDays(startDate, endDate) {
+      const s = new Date(startDate); s.setHours(0, 0, 0, 0);
+      const e = new Date(endDate); e.setHours(0, 0, 0, 0);
+      let count = 0;
+      const cur = new Date(s);
+      while (cur <= e) {
+        if (!isNonWorkingDay(cur)) count++;
+        cur.setDate(cur.getDate() + 1);
+      }
+      return Math.max(1, count);
+    }
+
+    function calculateTaskDates() {
+      if (state.tasks.length === 0 || !state.startDate) return [];
+      const results = [];
+      const projectStart = nextWorkingDay(parseDate(state.startDate));
+      let curStart = new Date(projectStart);
+      for (const task of state.tasks) {
+        const startDate = task.manualStartDate
+          ? nextWorkingDay(parseDate(task.manualStartDate))
+          : new Date(curStart);
+        const endDate = task.days === 1 ? new Date(startDate) : addWorkingDays(startDate, task.days);
+        results.push({ ...task, startDate, endDate });
+        const candidate = nextWorkingDayAfter(endDate);
+        if (dt(candidate) > dt(curStart)) curStart = candidate;
+      }
+      return results;
+    }
+
+    function generateDisplayDays(taskDates) {
+      if (!state.startDate) return [];
+      const start = parseDate(state.startDate);
+      let end;
+      if (taskDates.length > 0) {
+        const maxEnd = taskDates.reduce((max, t) => dt(t.endDate) > dt(max) ? t.endDate : max, taskDates[0].endDate);
+        end = new Date(maxEnd);
+        end.setDate(end.getDate() + 14);
+      } else {
+        end = new Date(start);
+        end.setDate(end.getDate() + 60);
+      }
+      const days = [];
+      const cur = new Date(start);
+      while (dt(cur) <= dt(end)) {
+        days.push(new Date(cur));
+        cur.setDate(cur.getDate() + 1);
+      }
+      return days;
+    }
+
+    function totalBusinessDays() {
+      return state.tasks.reduce((s, t) => s + t.days, 0);
+    }
+
+    // ═══════════════════════════════════════
+    // RENDER
+    // ═══════════════════════════════════════
+
+    function render() {
+      syncStateFromInputs();
+      renderGantt();
+      renderToolbar();
+      renderSummary();
+      saveToLocalStorage();
+    }
+
+    function renderSummary() {
+      const card = document.getElementById('summaryFloat');
+      if (!card) return;
+      const taskDates = calculateTaskDates();
+      if (taskDates.length === 0 || !state.startDate) {
+        card.innerHTML = '';
+        updateGanttBottomPadding();
+        return;
+      }
+      const start = taskDates.reduce((min, t) => dt(t.startDate) < dt(min) ? t.startDate : min, taskDates[0].startDate);
+      const end = taskDates.reduce((max, t) => dt(t.endDate) > dt(max) ? t.endDate : max, taskDates[0].endDate);
+      const days = totalBusinessDays();
+      const calDays = Math.round((dt(end) - dt(start)) / 86400000) + 1;
+      const weeks = Math.ceil(calDays / 7);
+
+      // アコーディオン状態を保持
+      const wasCollapsed = card.classList.contains('collapsed');
+
+      card.innerHTML = `
+    <div class="summary-header">
+      <div class="summary-label">スケジュール概要</div>
+      <span class="summary-arrow">▼</span>
+    </div>
+    <div class="summary-body">
+      <div class="summary-item"><span>開始日</span><strong>${formatDateJP(start)}</strong></div>
+      <div class="summary-item"><span>完了日</span><strong>${formatDateJP(end)}</strong></div>
+      <div class="summary-item"><span>合計営業日</span><strong>${days}日</strong></div>
+      <div class="summary-item"><span>期間</span><strong>約${weeks}週間</strong></div>
+    </div>
+  `;
+
+      if (wasCollapsed) card.classList.add('collapsed');
+
+      card.querySelector('.summary-header').addEventListener('click', () => {
+        card.classList.toggle('collapsed');
+        // transition 完了後に余白更新
+        setTimeout(updateGanttBottomPadding, 270);
+      });
+
+      updateGanttBottomPadding();
+    }
+
+    function updateGanttBottomPadding() {
+      const card = document.getElementById('summaryFloat');
+      const wrap = document.getElementById('ganttScrollWrap');
+      if (!wrap) return;
+      if (!card || card.innerHTML === '') {
+        wrap.style.paddingBottom = '';
+        return;
+      }
+      // カードの高さ + 下のオフセット(24px) + 余裕(16px)
+      const h = card.offsetHeight + 24 + 16;
+      wrap.style.paddingBottom = h + 'px';
+    }
+
+    function syncStateFromInputs() {
+      state.projectName = document.getElementById('projectName').value || 'プロジェクト';
+      state.clientName = document.getElementById('clientName').value || '';
+      state.startDate = document.getElementById('startDate').value || getDefaultStartDate();
+      // skipDays / skipHolidays はボタンのクリックで直接 state を更新済みのため読み直し不要
+    }
+
+    function renderToolbar() {
+      document.getElementById('toolbarProjectName').textContent = state.projectName;
+      const cn = document.getElementById('toolbarClientName');
+      cn.textContent = state.clientName ? `— ${state.clientName}` : '';
+
+      const taskDates = calculateTaskDates();
+    }
+
+    function formatDateJP(d) {
+      return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+    }
+
+    let dragSrc = null;
+    let barDragState = null;
+    let barResizeState = null;
+    let headerRangeDrag = null;
+    let _lastDays = [];
+    let _focusNewTask = false;
+
+    // ─── Inline edit helpers ───
+    function startNameEdit(inner, nameSpan, task) {
+      if (inner.querySelector('.label-name-input')) return; // already editing
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'label-name-input';
+      input.value = task.name;
+      inner.replaceChild(input, nameSpan);
+      input.focus();
+      input.select();
+      let committed = false;
+      const commit = () => {
+        if (committed) return;
+        committed = true;
+        const t = state.tasks.find(t => t.id === task.id);
+        if (t && input.value.trim() !== task.name) {
+          pushHistory();
+          t.name = input.value.trim() || t.name;
+        }
+        renderGantt();
+        renderToolbar();
+        renderSummary();
+        saveToLocalStorage();
+      };
+      input.addEventListener('blur', commit);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+        if (e.key === 'Escape') { committed = true; renderGantt(); }
+      });
+    }
+
+    function startDaysEdit(inner, daysBadge, task) {
+      if (inner.querySelector('.label-days-input')) return; // already editing
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.className = 'label-days-input';
+      input.value = task.days;
+      input.min = 1;
+      input.max = 365;
+      inner.replaceChild(input, daysBadge);
+      input.focus();
+      input.select();
+      let committed = false;
+      const commit = () => {
+        if (committed) return;
+        committed = true;
+        const newDays = Math.max(1, Math.min(365, parseInt(input.value) || 1));
+        const t = state.tasks.find(t => t.id === task.id);
+        if (t && newDays !== task.days) {
+          pushHistory();
+          t.days = newDays;
+        }
+        renderGantt();
+        renderToolbar();
+        renderSummary();
+        saveToLocalStorage();
+      };
+      input.addEventListener('blur', commit);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+        if (e.key === 'Escape') { committed = true; renderGantt(); }
+      });
+    }
+
+    // ─── Gantt chart ───
+    function renderGantt() {
+      const area = document.getElementById('ganttArea');
+      const taskDates = calculateTaskDates();
+      const days = generateDisplayDays(taskDates);
+      _lastDays = days;
+
+      if (!hasAnyWorkingDay()) {
+        area.innerHTML = `
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <p style="color:#EF4444;font-weight:700;">営業日が設定されていません</p>
+        <p style="font-size: 12px;">休業曜日の設定で、少なくとも1日は営業日にしてください。</p>
+      </div>`;
+        return;
+      }
+
+      if (state.tasks.length === 0) {
+        area.innerHTML = `
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="3" rx="1"/><rect x="3" y="9" width="10" height="3" rx="1"/><rect x="3" y="14" width="14" height="3" rx="1"/></svg>
+        <p>タスクを追加してガントチャートを作成しましょう</p>
+        <button class="btn btn-primary" onclick="addTask()" style="margin-top:4px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          タスクを追加
+        </button>
+      </div>`;
+        return;
+      }
+
+      if (days.length === 0) {
+        area.innerHTML = '<div class="empty-state"><p>開始日を設定してください</p></div>';
+        return;
+      }
+
+      const todayTime = new Date(); todayTime.setHours(0, 0, 0, 0);
+
+      // ─ Build month groups ─
+      const monthGroups = [];
+      let curMonth = -1, curYear = -1, curCount = 0;
+      days.forEach((d, i) => {
+        const m = d.getMonth(), y = d.getFullYear();
+        if (m !== curMonth || y !== curYear) {
+          if (curCount > 0) monthGroups.push({ month: curMonth, year: curYear, count: curCount, firstIdx: i - curCount });
+          curMonth = m; curYear = y; curCount = 1;
+        } else { curCount++; }
+      });
+      if (curCount > 0) monthGroups.push({ month: curMonth, year: curYear, count: curCount, firstIdx: days.length - curCount });
+
+      // ─ Build table ─
+      const table = document.createElement('table');
+      table.className = 'gantt-table';
+      table.style.minWidth = (LABEL_W + days.length * COL_W) + 'px';
+
+      const thead = document.createElement('thead');
+
+      // Month row
+      const monthRow = document.createElement('tr');
+      const monthLabelTh = document.createElement('th');
+      monthLabelTh.className = 'gantt-label-col month-th-label';
+      monthLabelTh.style.width = LABEL_W + 'px';
+      monthLabelTh.style.minWidth = LABEL_W + 'px';
+      monthLabelTh.rowSpan = 1;
+      monthLabelTh.textContent = '';
+      monthRow.appendChild(monthLabelTh);
+
+      monthGroups.forEach(mg => {
+        const th = document.createElement('th');
+        th.className = 'month-th';
+        th.colSpan = mg.count;
+        th.style.width = (mg.count * COL_W) + 'px';
+        th.textContent = `${mg.year}年${MONTH_NAMES_JP[mg.month]}`;
+        if (mg.firstIdx === 0) th.style.borderLeft = 'none';
+        monthRow.appendChild(th);
+      });
+      thead.appendChild(monthRow);
+
+      // Date row
+      const dateRow = document.createElement('tr');
+      const dateLabelTh = document.createElement('th');
+      dateLabelTh.className = 'gantt-label-col label-header';
+      dateLabelTh.style.width = LABEL_W + 'px';
+      dateLabelTh.style.minWidth = LABEL_W + 'px';
+      dateLabelTh.textContent = '';
+      dateRow.appendChild(dateLabelTh);
+
+      days.forEach((d, i) => {
+        const ds = formatDate(d);
+        const isOff = isNonWorkingDay(d);
+        const isExtra = state.extraHolidays.has(ds);
+        const isOverride = state.extraWorkdays.has(ds);
+
+        const th = document.createElement('th');
+        th.className = 'date-th';
+        th.dataset.dateStr = ds;
+        th.dataset.colIndex = i;
+        if (isOff && !isOverride) th.classList.add('day-off');
+        if (sameDay(d, todayTime)) th.classList.add('today-col');
+        if (i > 0 && d.getDate() === 1) th.classList.add('month-start-border-th');
+        if (isExtra) th.classList.add('custom-holiday');
+        if (isOverride) th.classList.add('custom-workday');
+
+        th.style.width = COL_W + 'px';
+        th.style.minWidth = COL_W + 'px';
+        th.title = `${formatDateJP(d)} ドラッグして新しいタスクを追加`;
+
+        const inner = document.createElement('div');
+        inner.className = 'date-th-inner';
+        const numSpan = document.createElement('span');
+        numSpan.className = 'day-num';
+        numSpan.textContent = d.getDate();
+        if (isExtra || isOverride) {
+          const dot = document.createElement('span');
+          dot.className = 'custom-dot' + (isOverride ? ' custom-workday-dot' : '');
+          numSpan.style.position = 'relative';
+          numSpan.appendChild(dot);
+        }
+        inner.appendChild(numSpan);
+        const dowSpan = document.createElement('span');
+        dowSpan.className = 'day-name';
+        dowSpan.textContent = DOW_NAMES[d.getDay()];
+        inner.appendChild(dowSpan);
+        th.appendChild(inner);
+
+        // Drag to add task
+        th.addEventListener('mousedown', (e) => {
+          if (e.button !== 0) return;
+          e.preventDefault();
+          headerRangeDrag = { startIdx: i, endIdx: i, startDs: ds };
+          highlightHeaderRange(i, i);
+        });
+        th.addEventListener('mouseover', () => {
+          if (!headerRangeDrag) return;
+          headerRangeDrag.endIdx = i;
+          const lo = Math.min(headerRangeDrag.startIdx, i);
+          const hi = Math.max(headerRangeDrag.startIdx, i);
+          highlightHeaderRange(lo, hi);
+        });
+
+        dateRow.appendChild(th);
+      });
+      thead.appendChild(dateRow);
+
+      // Holiday row (3rd header row)
+      const holidayRow = document.createElement('tr');
+      const holidayLabelTh = document.createElement('th');
+      holidayLabelTh.className = 'gantt-label-col label-header holiday-label-th';
+      holidayLabelTh.style.width = LABEL_W + 'px';
+      holidayLabelTh.style.minWidth = LABEL_W + 'px';
+      holidayLabelTh.style.height = '20px';
+      holidayRow.appendChild(holidayLabelTh);
+
+      days.forEach((d, i) => {
+        const ds = formatDate(d);
+        const isOff = isNonWorkingDay(d);
+        const isExtra = state.extraHolidays.has(ds);
+        const td = document.createElement('th');
+        td.className = 'holiday-row-cell';
+        if (i > 0 && d.getDate() === 1) td.classList.add('month-start');
+        if (isOff) {
+          td.textContent = '●';
+          if (isExtra) {
+            // カスタム休業日 → クリックで解除可能
+            td.classList.add('custom-holiday-cell');
+            td.title = `${formatDateJP(d)}（カスタム休業日）クリックで解除`;
+            td.addEventListener('click', () => toggleCustomDay(ds));
+          } else {
+            td.title = `${formatDateJP(d)}（休業日）`;
+          }
+        } else {
+          td.classList.add('workday-cell');
+          td.textContent = '●';
+          td.title = `${formatDateJP(d)} クリックで休業日に設定`;
+          td.addEventListener('click', () => toggleCustomDay(ds));
+        }
+        holidayRow.appendChild(td);
+      });
+      thead.appendChild(holidayRow);
+
+      table.appendChild(thead);
+
+      // Tbody
+      const tbody = document.createElement('tbody');
+      taskDates.forEach((task, taskIdx) => {
+        const tr = document.createElement('tr');
+        tr.className = 'task-row';
+        tr.dataset.taskId = task.id;
+
+        // ─── Label cell (interactive) ───
+        const labelTd = document.createElement('td');
+        labelTd.className = 'gantt-label-col task-label-td';
+
+        const inner = document.createElement('div');
+        inner.className = 'label-row-inner';
+        inner.draggable = true;
+
+        // Drag handle
+        const handle = document.createElement('span');
+        handle.className = 'label-drag-handle';
+        handle.textContent = '⠿⠿';
+        handle.title = 'ドラッグして並び替え';
+        inner.appendChild(handle);
+
+        // Color dot
+        const colorDot = document.createElement('span');
+        colorDot.className = 'label-color-dot';
+        colorDot.style.background = task.color;
+        colorDot.title = '色を変更';
+        colorDot.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openColorPicker(task.id, e.currentTarget);
+        });
+        inner.appendChild(colorDot);
+
+        // Task name
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'label-name';
+        nameSpan.textContent = task.name;
+        nameSpan.title = task.name;
+        nameSpan.addEventListener('click', () => startNameEdit(inner, nameSpan, task));
+        inner.appendChild(nameSpan);
+
+        // Days badge
+        const daysBadge = document.createElement('span');
+        daysBadge.className = 'label-days-badge';
+        daysBadge.textContent = `${task.days}日`;
+        daysBadge.addEventListener('click', () => startDaysEdit(inner, daysBadge, task));
+        inner.appendChild(daysBadge);
+
+        // Delete button
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'label-delete-btn';
+        deleteBtn.title = '削除';
+        deleteBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+        deleteBtn.addEventListener('click', () => {
+          pushHistory();
+          state.tasks = state.tasks.filter(t => t.id !== task.id);
+          render();
+        });
+        inner.appendChild(deleteBtn);
+
+        // Drag reorder events (HTML5)
+        inner.addEventListener('dragstart', (e) => {
+          e.dataTransfer.effectAllowed = 'move';
+          dragSrc = taskIdx;
+          setTimeout(() => inner.classList.add('is-dragging'), 0);
+        });
+        inner.addEventListener('dragend', () => {
+          inner.classList.remove('is-dragging');
+          document.querySelectorAll('.task-row').forEach(r => {
+            r.classList.remove('drag-over-top', 'drag-over-bottom');
+          });
+        });
+        tr.addEventListener('dragover', (e) => {
+          if (dragSrc === null || dragSrc === taskIdx) return;
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          // 全行のインジケーターをリセット
+          document.querySelectorAll('.task-row').forEach(r => {
+            r.classList.remove('drag-over-top', 'drag-over-bottom');
+          });
+          // カーソルがrow内の上半分 → 上辺ライン、下半分 → 下辺ライン
+          const rect = tr.getBoundingClientRect();
+          if (e.clientY < rect.top + rect.height / 2) {
+            tr.classList.add('drag-over-top');
+            tr.dataset.dropHalf = 'top';
+          } else {
+            tr.classList.add('drag-over-bottom');
+            tr.dataset.dropHalf = 'bottom';
+          }
+        });
+        tr.addEventListener('drop', (e) => {
+          e.preventDefault();
+          const half = tr.dataset.dropHalf || 'top';
+          tr.classList.remove('drag-over-top', 'drag-over-bottom');
+          if (dragSrc !== null && dragSrc !== taskIdx) {
+            pushHistory();
+            const moved = state.tasks.splice(dragSrc, 1)[0];
+            // top = insert before taskIdx, bottom = insert after taskIdx
+            // after splice(dragSrc,1), indices after dragSrc shift down by 1
+            let rawTarget = (half === 'top') ? taskIdx : taskIdx + 1;
+            let insertAt = (dragSrc < taskIdx) ? rawTarget - 1 : rawTarget;
+            state.tasks.splice(insertAt, 0, moved);
+            dragSrc = null;
+            render();
+          }
+        });
+
+        // Auto-focus name on new task
+        if (_focusNewTask && taskIdx === taskDates.length - 1) {
+          _focusNewTask = false;
+          setTimeout(() => startNameEdit(inner, nameSpan, task), 30);
+        }
+
+        labelTd.appendChild(inner);
+        tr.appendChild(labelTd);
+
+        // Day cells
+        const taskStart = dt(task.startDate);
+        const taskEnd = dt(task.endDate);
+
+        days.forEach((d, i) => {
+          const td = document.createElement('td');
+          td.className = 'day-cell';
+          td.dataset.colIndex = i;
+          const dTime = dt(d);
+
+          if (isNonWorkingDay(d)) td.classList.add('day-off');
+          const _ds = formatDate(d);
+          if (state.extraHolidays.has(_ds)) td.classList.add('custom-holiday');
+          else if (state.extraWorkdays.has(_ds)) td.classList.add('custom-workday');
+          if (sameDay(d, todayTime)) td.classList.add('today-col');
+          if (i > 0 && d.getDate() === 1) td.classList.add('month-start-border');
+
+          if (dTime >= taskStart && dTime <= taskEnd) {
+            const bar = document.createElement('div');
+            bar.className = 'bar-fill';
+            if (isNonWorkingDay(d)) bar.classList.add('bar-off');
+
+            const isFirst = dTime === taskStart;
+            const isLast = dTime === taskEnd;
+            if (isFirst && isLast) bar.classList.add('bar-single');
+            else if (isFirst) bar.classList.add('bar-start');
+            else if (isLast) bar.classList.add('bar-end');
+
+            bar.style.background = task.color;
+            bar.classList.add('bar-draggable');
+            bar.addEventListener('mousedown', (e) => {
+              // If clicking the resize handle area, let it bubble to resize handler
+              if (e.target.classList.contains('bar-resize-handle')) return;
+              e.preventDefault();
+              const barStartColIndex = days.findIndex(d => sameDay(d, task.startDate));
+              barDragState = {
+                taskId: task.id,
+                grabOffset: i - barStartColIndex,
+                currentCol: barStartColIndex,
+                originalManualStartDate: task.manualStartDate || null,
+              };
+              document.body.style.cursor = 'grabbing';
+            });
+
+            // Resize handle on the last bar cell
+            if (isLast) {
+              const rh = document.createElement('div');
+              rh.className = 'bar-resize-handle';
+              rh.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                barResizeState = {
+                  taskId: task.id,
+                  startDays: task.days,
+                  taskStartDate: task.startDate, // calendar start date of the bar
+                  currentDays: task.days,
+                };
+                document.body.style.cursor = 'ew-resize';
+              });
+              bar.appendChild(rh);
+            }
+
+            td.appendChild(bar);
+
+            // Show task label on start cell
+            if (isFirst) {
+              const lbl = document.createElement('div');
+              lbl.className = 'bar-label';
+              lbl.textContent = task.name;
+              td.appendChild(lbl);
+
+              // Delete button (visible on task-row hover)
+              const delBtn = document.createElement('div');
+              delBtn.className = 'bar-delete-btn';
+              delBtn.textContent = '×';
+              delBtn.title = 'タスクを削除';
+              delBtn.addEventListener('mousedown', (e) => e.stopPropagation());
+              delBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!confirm(`「${task.name}」を削除しますか？`)) return;
+                pushHistory();
+                state.tasks = state.tasks.filter(t => t.id !== task.id);
+                render();
+              });
+              td.appendChild(delBtn);
+            }
+          }
+
+          tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+      });
+
+      // Add task row
+      const addRow = document.createElement('tr');
+      addRow.className = 'task-row';
+      const addLabelTd = document.createElement('td');
+      addLabelTd.className = 'gantt-label-col task-label-td';
+      addLabelTd.style.borderBottom = 'none';
+      const addBtn = document.createElement('button');
+      addBtn.className = 'gantt-add-task-btn';
+      addBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> タスクを追加`;
+      addBtn.addEventListener('click', () => addTask());
+      addLabelTd.appendChild(addBtn);
+      addRow.appendChild(addLabelTd);
+      days.forEach(() => {
+        const td = document.createElement('td');
+        td.className = 'day-cell';
+        addRow.appendChild(td);
+      });
+      tbody.appendChild(addRow);
+
+      // Empty row to fill height
+      const fillRow = document.createElement('tr');
+      fillRow.style.height = '100%';
+      const fillTd = document.createElement('td');
+      fillTd.colSpan = days.length + 1;
+      fillTd.style.borderTop = '1px solid var(--gray-100)';
+      fillRow.appendChild(fillTd);
+      tbody.appendChild(fillRow);
+
+      table.appendChild(tbody);
+
+      area.innerHTML = '';
+      area.appendChild(table);
+    }
+
+    // ═══════════════════════════════════════
+    // COLOR PICKER
+    // ═══════════════════════════════════════
+
+    let colorPickerTarget = null;
+
+    function buildColorPicker() {
+      const grid = document.getElementById('colorPickerGrid');
+      grid.innerHTML = '';
+      getTaskColors().forEach(color => {
+        const btn = document.createElement('button');
+        btn.className = 'color-chip-btn';
+        btn.style.background = color;
+        btn.dataset.color = color;
+        btn.addEventListener('click', () => {
+          if (colorPickerTarget !== null) {
+            const t = state.tasks.find(t => t.id === colorPickerTarget);
+            if (t) {
+              pushHistory();
+              t.color = color;
+              render();
+            }
+          }
+          closeColorPicker();
+        });
+        grid.appendChild(btn);
+      });
+    }
+
+    function openColorPicker(taskId, btn) {
+      colorPickerTarget = taskId;
+      const picker = document.getElementById('colorPickerPopover');
+
+      // Update active state
+      picker.querySelectorAll('.color-chip-btn').forEach(b => {
+        const t = state.tasks.find(t => t.id === taskId);
+        b.classList.toggle('active', t && b.dataset.color === t.color);
+      });
+
+      const rect = btn.getBoundingClientRect();
+      picker.style.visibility = 'hidden';
+      picker.style.display = 'block';
+      const pw = picker.offsetWidth || 160;
+      const ph = picker.offsetHeight || 80;
+      picker.style.display = '';
+      picker.style.visibility = '';
+
+      let left = rect.left + rect.width / 2 - pw / 2;
+      let top = rect.bottom + 6;
+
+      // clamp horizontal
+      left = Math.max(8, Math.min(left, window.innerWidth - pw - 8));
+      // flip above if cut off at bottom
+      if (top + ph > window.innerHeight - 8) {
+        top = rect.top - ph - 6;
+      }
+
+      picker.style.left = left + 'px';
+      picker.style.top = top + 'px';
+      picker.classList.add('open');
+    }
+
+    function closeColorPicker() {
+      document.getElementById('colorPickerPopover').classList.remove('open');
+      colorPickerTarget = null;
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#colorPickerPopover') && !e.target.closest('.label-color-dot')) {
+        closeColorPicker();
+      }
+    });
+
+    // ═══════════════════════════════════════
+    // TASK MANAGEMENT
+    // ═══════════════════════════════════════
+
+    function addTask() {
+      pushHistory();
+      const colors = getTaskColors();
+      const colorIdx = state.tasks.length % colors.length;
+      state.tasks.push({
+        id: state.nextId++,
+        name: 'タスク名',
+        days: 5,
+        color: colors[colorIdx],
+      });
+      _focusNewTask = true;
+      render();
+    }
+
+    function setToday() {
+      const today = new Date();
+      document.getElementById('startDate').value = formatDate(today);
+      render();
+    }
+
+    function resetAll() {
+      if (!confirm('設定をリセットしますか？\nすべてのタスク・カスタム休業日設定が初期値に戻ります。')) return;
+      pushHistory();
+      state.projectName = 'Webサイト制作';
+      state.clientName = '';
+      state.startDate = getDefaultStartDate();
+      state.skipDays = new Set([0, 6]);
+      state.skipHolidays = true;
+      state.extraHolidays = new Set();
+      state.extraWorkdays = new Set();
+      state.colorScheme = 'analogous';
+      state.colorBase = 'teal';
+      const _rc = getTaskColors();
+      state.tasks = [
+        { id: 1, name: 'ヒアリング・要件定義', days: 7, color: _rc[0 % _rc.length] },
+        { id: 2, name: 'ワイヤーフレーム作成', days: 7, color: _rc[1 % _rc.length] },
+        { id: 3, name: 'デザイン（トップページ）', days: 7, color: _rc[2 % _rc.length] },
+        { id: 4, name: 'デザイン（下層ページ）', days: 10, color: _rc[3 % _rc.length] },
+        { id: 5, name: 'コーディング', days: 12, color: _rc[4 % _rc.length] },
+        { id: 6, name: 'コンテンツ入稿', days: 7, color: _rc[5 % _rc.length] },
+        { id: 7, name: 'テスト・修正対応', days: 7, color: _rc[6 % _rc.length] },
+        { id: 8, name: '最終確認・公開', days: 6, color: _rc[7 % _rc.length] },
+      ];
+      state.nextId = 9;
+      initInputs();
+      render();
+      // リセット後に設定モーダルを自動表示
+      setTimeout(() => openSettingsModal(), 100);
+    }
+
+    // ═══════════════════════════════════════
+    // EXPORT
+    // ═══════════════════════════════════════
+
+
+
+    // ── デモ制限: アップグレードモーダル ──────────────────────────────────
+    function showUpgradeModal() {
+      document.getElementById('upgradeOverlay').classList.add('open');
+    }
+    function hideUpgradeModal(e) {
+      if (e && e.target !== document.getElementById('upgradeOverlay')) return;
+      document.getElementById('upgradeOverlay').classList.remove('open');
+    }
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') document.getElementById('upgradeOverlay').classList.remove('open');
+    });
+
+    function exportHTML() {
+      syncStateFromInputs();
+      const taskDates = calculateTaskDates();
+      if (taskDates.length === 0) {
+        alert('タスクが見つかりません。タスクを追加してから出力してください。');
+        return;
+      }
+
+      const days = generateDisplayDays(taskDates);
+      const todayTime = new Date(); todayTime.setHours(0, 0, 0, 0);
+
+      const start = taskDates.reduce((min, t) => dt(t.startDate) < dt(min) ? t.startDate : min, taskDates[0].startDate);
+      const end = taskDates.reduce((max, t) => dt(t.endDate) > dt(max) ? t.endDate : max, taskDates[0].endDate);
+      const totalDays = totalBusinessDays();
+      const calDays = Math.round((dt(end) - dt(start)) / 86400000) + 1;
+      const weeks = Math.ceil(calDays / 7);
+
+      // Build month groups
+      const monthGroups = [];
+      let curMonth = -1, curYear = -1, curCount = 0;
+      days.forEach((d, i) => {
+        const m = d.getMonth(), y = d.getFullYear();
+        if (m !== curMonth || y !== curYear) {
+          if (curCount > 0) monthGroups.push({ month: curMonth, year: curYear, count: curCount });
+          curMonth = m; curYear = y; curCount = 1;
+        } else { curCount++; }
+      });
+      if (curCount > 0) monthGroups.push({ month: curMonth, year: curYear, count: curCount });
+
+      // Build gantt table HTML
+      let tableHTML = `<table class="gantt-table">
+    <thead>
+      <tr>
+        <th class="label-th">タスク名</th>
+        ${monthGroups.map(mg => `<th colspan="${mg.count}" class="month-th">${mg.year}年${MONTH_NAMES_JP[mg.month]}</th>`).join('')}
+      </tr>
+      <tr>
+        <th class="date-label-th">日程</th>
+        ${days.map(d => {
+        const off = isNonWorkingDayForExport(d, state.skipDays, state.skipHolidays, state.extraHolidays, state.extraWorkdays);
+        const ds = formatDate(d);
+        const isExtra = state.extraHolidays.has(ds);
+        const isOverride = state.extraWorkdays.has(ds);
+        let cls = off ? ' class="day-off' : ' class="';
+        if (isExtra) cls += (off ? ' custom-holiday' : 'custom-holiday');
+        else if (isOverride) cls += (off ? ' custom-workday' : 'custom-workday');
+        cls += '"';
+        return `<th${cls}><div class="dh"><span class="dn">${d.getDate()}</span><span class="dow">${DOW_NAMES[d.getDay()]}</span></div></th>`;
+      }).join('')}
+      </tr>
+    </thead>
+    <tbody>
+      ${taskDates.map(task => {
+        const taskStart = dt(task.startDate);
+        const taskEnd = dt(task.endDate);
+        const hexR = parseInt(task.color.slice(1, 3), 16);
+        const hexG = parseInt(task.color.slice(3, 5), 16);
+        const hexB = parseInt(task.color.slice(5, 7), 16);
+        const bg20 = `rgba(${hexR},${hexG},${hexB},0.12)`;
+        return `<tr>
+          <td class="task-label">
+            <span class="tdot" style="background:${task.color}"></span>
+            <span class="tname">${escHtml(task.name)}</span>
+            <span class="tbadge">${task.days}日</span>
+          </td>
+          ${days.map(d => {
+          const dTime = dt(d);
+          const off = isNonWorkingDayForExport(d, state.skipDays, state.skipHolidays, state.extraHolidays, state.extraWorkdays);
+          const ds = formatDate(d);
+          const isExtra = state.extraHolidays.has(ds);
+          const isOverride = state.extraWorkdays.has(ds);
+          const inTask = dTime >= taskStart && dTime <= taskEnd;
+          const isFirst = dTime === taskStart;
+          const isLast = dTime === taskEnd;
+          let customCls = isExtra ? ' custom-holiday' : isOverride ? ' custom-workday' : '';
+          if (!inTask) {
+            return `<td class="${off ? 'day-off' : ''}${customCls}"></td>`;
+          }
+          let rClass = isFirst && isLast ? 'bar-single' : isFirst ? 'bar-start' : isLast ? 'bar-end' : 'bar-mid';
+          let opacity = off ? 0.35 : 1;
+          return `<td class="${off ? 'day-off in-task' : 'in-task'}${customCls}" data-barclass="${rClass}" data-color="${task.color}" data-opacity="${opacity}"></td>`;
+        }).join('')}
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+
+      const generatedOn = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+
+      const html = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escHtml(state.projectName)} - 制作スケジュール</title>
+  <style>
+    @page { size: landscape; margin: 8mm 6mm; }
+    @media print {
+      body { margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .no-print { display: none !important; }
+
+      /* stickyを無効化 — 印刷ではstickyが機能せずレイアウト崩壊の原因になる */
+      .gantt-table th,
+      .gantt-table td { position: static !important; }
+      /* バーのabsolute配置は維持 */
+      .gantt-table tbody td { position: relative !important; }
+
+      /* 日付列を縮小してページに収める */
+      .gantt-table thead th:not(.label-th):not(.date-label-th):not(.month-th),
+      .gantt-table tbody td:not(.task-label) {
+        width: 18px !important;
+        min-width: 18px !important;
+      }
+      /* タスク名列幅を縮小 */
+      .gantt-table .label-th,
+      .gantt-table .date-label-th,
+      .gantt-table tbody td.task-label {
+        width: 160px !important;
+        min-width: 160px !important;
+      }
+
+      .gantt-wrap { overflow: visible !important; padding: 0 !important; }
+      .gantt-section { padding: 10px 0 0; }
+      .page-header { padding: 10px 14px; }
+      .stats-bar .stat-item { padding: 6px 10px; }
+      .stat-value { font-size: 15px !important; }
+
+      /* 日付ヘッダーの文字サイズを縮小 */
+      .dn { font-size: 12px !important; }
+      .dow { font-size: 7px !important; }
+      .gantt-table { font-size: 12px !important; }
+      .gantt-table thead th { height: 32px !important; }
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #059669;
+      --gray-100: #F5F5F4;
+      --gray-200: #E7E5E4;
+      --gray-300: #D6D3D1;
+      --gray-400: #A8A29E;
+      --gray-500: #78716C;
+      --gray-700: #44403C;
+      --gray-900: #1C1917;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      background: #FAFAF9;
+      color: var(--gray-900);
+      padding: 0;
+      font-size: 13px;
+    }
+    .page-header {
+      background: white;
+      border-bottom: 1px solid var(--gray-200);
+      padding: 20px 32px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .page-header-left {}
+    .project-name {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--gray-900);
+      margin-bottom: 4px;
+    }
+    .project-meta {
+      font-size: 12px;
+      color: var(--gray-500);
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .project-meta span { display: flex; align-items: center; gap: 4px; }
+    .meta-label { color: var(--gray-400); }
+    .project-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      background: #ECFDF5;
+      color: var(--primary);
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid #6EE7B7;
+      margin-top: 8px;
+    }
+    .page-header-right {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .page-date { font-size: 12px; color: var(--gray-400); }
+
+    .stats-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--gray-200);
+      background: white;
+    }
+    .stat-item {
+      flex: 1;
+      padding: 12px 20px;
+      border-right: 1px solid var(--gray-200);
+      text-align: center;
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-value { font-size: 18px; font-weight: 800; color: var(--gray-900); letter-spacing: -0.04em; }
+    .stat-label { font-size: 12px; color: var(--gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+    .gantt-section { padding: 20px 0; }
+    .gantt-wrap { overflow-x: auto; padding: 0 32px; }
+
+    .gantt-table {
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 12px;
+    }
+    .gantt-table .label-th {
+      width: 240px;
+      min-width: 240px;
+      position: sticky;
+      left: 0;
+      z-index: 5;
+      background: white;
+      text-align: left;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      height: 28px;
+      border-bottom: 2px solid var(--gray-300);
+      border-right: 2px solid var(--gray-300);
+    }
+    .gantt-table .date-label-th {
+      width: 240px;
+      min-width: 240px;
+      position: sticky;
+      left: 0;
+      z-index: 5;
+      background: white;
+      border-bottom: 2px solid var(--gray-300);
+      border-right: 2px solid var(--gray-300);
+      height: 40px;
+    }
+    .gantt-table thead tr:first-child th.label-th,
+    .gantt-table thead tr:first-child td { position: sticky; top: 0; z-index: 4; background: white; }
+    .gantt-table thead tr:last-child th { position: sticky; top: 28px; z-index: 4; background: white; }
+    .gantt-table thead tr:first-child th.label-th { z-index: 6; }
+    .gantt-table thead tr:last-child th.date-label-th { z-index: 6; }
+
+    .month-th {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gray-700);
+      text-align: left;
+      padding: 0 6px;
+      height: 28px;
+      border-right: 1px solid var(--gray-200);
+      border-bottom: 1px solid var(--gray-200);
+      vertical-align: middle;
+      white-space: nowrap;
+      background: white;
+    }
+    .gantt-table thead th {
+      width: 26px;
+      min-width: 26px;
+      height: 40px;
+      text-align: center;
+      vertical-align: middle;
+      border-bottom: 2px solid var(--gray-300);
+      border-right: 1px solid var(--gray-100);
+      background: white;
+    }
+    .gantt-table thead th.day-off { background: #F8FAFC; }
+    .dh { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+    .dn { font-size: 12px; font-weight: 700; color: var(--gray-700); line-height: 1; }
+    .dow { font-size: 12px; font-weight: 600; color: var(--gray-400); line-height: 1; }
+    .gantt-table thead th.day-off .dn { color: var(--gray-400); }
+
+    .gantt-table tbody tr { border-bottom: 1px solid var(--gray-100); }
+    .gantt-table tbody td {
+      height: 44px;
+      border-right: 1px solid #F0F0EF;
+      padding: 0;
+      position: relative;
+      vertical-align: middle;
+    }
+    .gantt-table tbody td.day-off { background: #F8FAFC; }
+    .gantt-table tbody td.task-label {
+      position: sticky;
+      left: 0;
+      z-index: 3;
+      background: white;
+      border-right: 2px solid var(--gray-200);
+      padding: 0 10px;
+    }
+    .tdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; vertical-align: middle; margin-right: 6px; flex-shrink: 0; }
+    .tname { font-size: 12px; font-weight: 600; color: var(--gray-800); vertical-align: middle; }
+    .tbadge {
+      display: inline-block;
+      margin-left: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gray-400);
+      background: var(--gray-100);
+      padding: 1px 6px;
+      border-radius: 99px;
+      vertical-align: middle;
+    }
+
+    .bar-fill-export {
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      height: 20px;
+      left: 0; right: 0;
+    }
+
+    .task-label-inner-exp { display: flex; align-items: center; }
+
+    .footer {
+      margin-top: 24px;
+      padding: 14px 32px;
+      border-top: 1px solid var(--gray-200);
+      font-size: 12px;
+      color: var(--gray-400);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer a { color: var(--primary); text-decoration: none; }
+    .gantt-table thead th.custom-holiday { background: #F8FAFC !important; color: #94A3B8 !important; }
+    .gantt-table thead th.custom-workday { background: #F0FDF4 !important; }
+    .gantt-table tbody td.custom-holiday { background: #F8FAFC !important; }
+    .gantt-table tbody td.custom-workday { background: #F0FDF4 !important; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="project-name">${escHtml(state.projectName)}</div>
+    <div class="project-meta">
+      ${state.clientName ? `<span><span class="meta-label">クライアント:</span>${escHtml(state.clientName)}</span>` : ''}
+      <span><span class="meta-label">開始:</span>${formatDateJP(start)}</span>
+      <span><span class="meta-label">完了:</span>${formatDateJP(end)}</span>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <div class="page-date">作成日: ${generatedOn}</div>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-value">${state.tasks.length}</div>
+    <div class="stat-label">タスク数</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value">${totalDays}</div>
+    <div class="stat-label">合計営業日</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value">約${weeks}週</div>
+    <div class="stat-label">カレンダー期間</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value">${formatDateJP(end)}</div>
+    <div class="stat-label">完了予定日</div>
+  </div>
+</div>
+
+<div class="gantt-section">
+  <div class="gantt-wrap">
+    ${tableHTML}
+  </div>
+</div>
+
+<div class="footer">
+  <span>📋 制作スケジュール — ${escHtml(state.projectName)}</span>
+</div>
+
+<script>
+// Apply bar styles after render
+document.querySelectorAll('[data-barclass]').forEach(td => {
+  const barClass = td.dataset.barclass;
+  const color = td.dataset.color;
+  const opacity = parseFloat(td.dataset.opacity);
+  const bar = document.createElement('div');
+  bar.className = 'bar-fill-export';
+  bar.style.background = color;
+  bar.style.opacity = opacity;
+  if (barClass === 'bar-single') { bar.style.left = '4px'; bar.style.right = '4px'; bar.style.borderRadius = '5px'; }
+  else if (barClass === 'bar-start') { bar.style.left = '4px'; bar.style.borderRadius = '5px 0 0 5px'; }
+  else if (barClass === 'bar-end') { bar.style.right = '4px'; bar.style.borderRadius = '0 5px 5px 0'; }
+  td.appendChild(bar);
+});
+
+// Scale gantt table to fit page width on print
+(function() {
+  var origStyle = {};
+  window.addEventListener('beforeprint', function() {
+    var wrap = document.querySelector('.gantt-wrap');
+    var table = document.querySelector('.gantt-table');
+    if (!wrap || !table) return;
+    // A4 landscape available width: 297mm - 12mm margins = 285mm ≈ 1077px at 96dpi
+    var pageAvailWidth = 1077;
+    var tableWidth = table.scrollWidth;
+    if (tableWidth > pageAvailWidth) {
+      var scale = pageAvailWidth / tableWidth;
+      origStyle.transform = wrap.style.transform;
+      origStyle.transformOrigin = wrap.style.transformOrigin;
+      origStyle.width = wrap.style.width;
+      origStyle.height = wrap.style.height;
+      wrap.style.transform = 'scale(' + scale + ')';
+      wrap.style.transformOrigin = 'top left';
+      wrap.style.width = (tableWidth * scale) + 'px';
+      wrap.style.height = (wrap.offsetHeight * scale) + 'px';
+    }
+  });
+  window.addEventListener('afterprint', function() {
+    var wrap = document.querySelector('.gantt-wrap');
+    if (!wrap) return;
+    wrap.style.transform = origStyle.transform || '';
+    wrap.style.transformOrigin = origStyle.transformOrigin || '';
+    wrap.style.width = origStyle.width || '';
+    wrap.style.height = origStyle.height || '';
+  });
+})();
+<\/script>
+</body>
+</html>`;
+
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const safeName = (state.projectName || 'スケジュール').replace(/[\\/:*?"<>|]/g, '_');
+      a.href = url;
+      a.download = `${safeName}_スケジュール.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      showToast('HTMLファイルをダウンロードしました', 'success');
+    }
+
+    // ═══════════════════════════════════════
+    // TEMPLATE MODAL
+    // ═══════════════════════════════════════
+
+    let activeTemplateCategory = 'all';
+
+    function openTemplateModal() {
+      renderTemplateTabs();
+      renderTemplateGrid();
+      document.getElementById('templateModal').classList.add('open');
+    }
+
+    function closeTemplateModal() {
+      document.getElementById('templateModal').classList.remove('open');
+    }
+
+    function handleModalOverlayClick(e) {
+      if (e.target === document.getElementById('templateModal')) closeTemplateModal();
+    }
+
+    // カテゴリタブを描画（引数省略時は存在するカテゴリから自動生成）
+    function renderTemplateTabs(cats) {
+      const usedCats = new Set(TEMPLATES.map(t => t.category));
+      const list = cats || TEMPLATE_CATEGORIES.filter(c => c.id === 'all' || usedCats.has(c.id));
+      const tabsEl = document.getElementById('templateTabs');
+      tabsEl.innerHTML = '';
+      list.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'template-tab' + (cat.id === activeTemplateCategory ? ' active' : '');
+        btn.textContent = cat.label;
+        btn.addEventListener('click', () => {
+          activeTemplateCategory = cat.id;
+          renderTemplateGrid();
+          tabsEl.querySelectorAll('.template-tab').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        });
+        tabsEl.appendChild(btn);
+      });
+    }
+
+    function renderTemplateGrid() {
+      const grid = document.getElementById('templateGrid');
+      grid.innerHTML = '';
+
+      if (TEMPLATES.length === 0) {
+        grid.innerHTML = '<div style="padding:40px;text-align:center;color:#aaa;font-size:13px">テンプレートを読み込み中…</div>';
+        return;
+      }
+
+      const list = activeTemplateCategory === 'all'
+        ? TEMPLATES
+        : TEMPLATES.filter(t => t.category === activeTemplateCategory);
+
+      if (list.length === 0) {
+        grid.innerHTML = '<div style="padding:40px;text-align:center;color:#aaa;font-size:13px">このカテゴリにはテンプレートがありません</div>';
+        return;
+      }
+
+      list.forEach(tmpl => {
+        const totalDays = tmpl.tasks.reduce((s, t) => s + t.days, 0);
+        const card = document.createElement('div');
+        card.className = 'template-card';
+        card.innerHTML = `
+      <div class="template-card-name">${escHtml(tmpl.name)}</div>
+      <div class="template-card-desc">${escHtml(tmpl.desc)}</div>
+      <div class="template-card-meta">
+        <span class="template-meta-badge green">${tmpl.tasks.length}タスク</span>
+        <span class="template-meta-badge">計${totalDays}営業日</span>
+      </div>`;
+        card.addEventListener('click', () => loadTemplate(tmpl));
+        grid.appendChild(card);
+      });
+    }
+
+    function loadTemplate(tmpl) {
+      const totalDays = tmpl.tasks.reduce((s, t) => s + t.days, 0);
+      if (!confirm(
+        `「${tmpl.name}」テンプレートを読み込みますか？\n\n` +
+        `・タスク数: ${tmpl.tasks.length}件\n` +
+        `・合計: ${totalDays}営業日\n\n` +
+        `現在のタスク一覧は上書きされます。`
+      )) return;
+
+      pushHistory();
+      // タスクを置き換え
+      state.nextId = 1;
+      state.tasks = tmpl.tasks.map((t, i) => ({
+        id: state.nextId++,
+        name: t.name,
+        days: t.days,
+        color: getTaskColors()[i % getTaskColors().length],
+      }));
+      // プロジェクト名をテンプレート名に更新
+      state.projectName = tmpl.name;
+      document.getElementById('projectName').value = tmpl.name;
+
+      // カスタム休業日はリセット
+      state.extraHolidays = new Set();
+      state.extraWorkdays = new Set();
+
+      closeTemplateModal();
+      render();
+      showToast(`「${tmpl.name}」を読み込みました`, 'success');
+
+      // タスクリストまでスクロール
+      setTimeout(() => {
+        document.getElementById('taskList').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    // ═══════════════════════════════════════
+    // UNDO (Cmd+Z / Ctrl+Z)
+    // ═══════════════════════════════════════
+
+    const historyStack = [];
+    const redoStack = [];
+    const HISTORY_MAX = 30;
+
+    function snapshotState() {
+      return {
+        projectName: state.projectName,
+        clientName: state.clientName,
+        startDate: state.startDate,
+        skipDays: new Set(state.skipDays),
+        skipHolidays: state.skipHolidays,
+        extraHolidays: new Set(state.extraHolidays),
+        extraWorkdays: new Set(state.extraWorkdays),
+        nextId: state.nextId,
+        tasks: state.tasks.map(t => ({ ...t })),
+      };
+    }
+
+    function restoreSnapshot(snap) {
+      state.projectName = snap.projectName;
+      state.clientName = snap.clientName;
+      state.startDate = snap.startDate;
+      state.skipDays = new Set(snap.skipDays);
+      state.skipHolidays = snap.skipHolidays;
+      state.extraHolidays = new Set(snap.extraHolidays);
+      state.extraWorkdays = new Set(snap.extraWorkdays);
+      state.nextId = snap.nextId;
+      state.tasks = snap.tasks.map(t => ({ ...t }));
+    }
+
+    function pushHistory() {
+      historyStack.push(snapshotState());
+      if (historyStack.length > HISTORY_MAX) historyStack.shift();
+      redoStack.length = 0; // 新しい操作でRedoをクリア
+    }
+
+    function undo() {
+      if (historyStack.length === 0) { showToast('これ以上戻れません', 'error'); return; }
+      redoStack.push(snapshotState());
+      restoreSnapshot(historyStack.pop());
+      initInputs();
+      render();
+      showToast('元に戻しました', 'success');
+    }
+
+    function redo() {
+      if (redoStack.length === 0) { showToast('これ以上進められません', 'error'); return; }
+      historyStack.push(snapshotState());
+      restoreSnapshot(redoStack.pop());
+      initInputs();
+      render();
+      showToast('やり直しました', 'success');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && e.shiftKey) {
+        e.preventDefault();
+        redo();
+      }
+    });
+
+    // ═══════════════════════════════════════
+    // BAR DRAG (Gantt)
+    // ═══════════════════════════════════════
+
+    (function () {
+      const tooltip = document.createElement('div');
+      tooltip.id = 'barDragTooltip';
+      document.body.appendChild(tooltip);
+
+      function clearDragHighlight() {
+        document.querySelectorAll('.col-drag-target').forEach(el => el.classList.remove('col-drag-target'));
+      }
+
+      // highlightHeaderRange is defined globally below
+
+      function cancelBarDrag() {
+        if (!barDragState) return;
+        clearDragHighlight();
+        tooltip.style.display = 'none';
+        document.body.style.cursor = '';
+        barDragState = null;
+      }
+
+      document.addEventListener('mousemove', (e) => {
+        // Bar position drag
+        if (barDragState) {
+          const ganttArea = document.getElementById('ganttArea');
+          const rect = ganttArea.getBoundingClientRect();
+          const relX = e.clientX - rect.left + ganttArea.scrollLeft;
+          const rawCol = Math.floor((relX - LABEL_W) / COL_W);
+          const newStartCol = Math.max(0, Math.min(_lastDays.length - 1, rawCol - barDragState.grabOffset));
+          barDragState.currentCol = newStartCol;
+
+          clearDragHighlight();
+          const _dragTask = state.tasks.find(t => t.id === barDragState.taskId);
+          if (_dragTask) {
+            const _startDate = _lastDays[newStartCol];
+            const _endDate = _dragTask.days === 1 ? _startDate : addWorkingDays(_startDate, _dragTask.days);
+            const _endTime = dt(_endDate);
+            for (let c = newStartCol; c < _lastDays.length; c++) {
+              document.querySelectorAll(`[data-col-index="${c}"]`).forEach(el => el.classList.add('col-drag-target'));
+              if (dt(_lastDays[c]) >= _endTime) break;
+            }
+          }
+
+          const d = _lastDays[newStartCol];
+          tooltip.textContent = `${d.getMonth() + 1}月${d.getDate()}日から開始`;
+          tooltip.style.display = 'block';
+          tooltip.style.left = (e.clientX + 14) + 'px';
+          tooltip.style.top = (e.clientY - 10) + 'px';
+        }
+
+        // Bar resize drag
+        if (barResizeState) {
+          const ganttArea = document.getElementById('ganttArea');
+          const rect = ganttArea.getBoundingClientRect();
+          const relX = e.clientX - rect.left + ganttArea.scrollLeft;
+          const rawCol = Math.floor((relX - LABEL_W) / COL_W);
+          const colIdx = Math.max(0, Math.min(_lastDays.length - 1, rawCol));
+          const endDate = _lastDays[colIdx];
+          const newDays = countWorkingDays(barResizeState.taskStartDate, endDate);
+          barResizeState.currentDays = newDays;
+
+          tooltip.textContent = `${newDays}日間`;
+          tooltip.style.display = 'block';
+          tooltip.style.left = (e.clientX + 14) + 'px';
+          tooltip.style.top = (e.clientY - 10) + 'px';
+        }
+
+        // Header range drag — update range from mouse position + tooltip
+        if (headerRangeDrag) {
+          const ganttArea = document.getElementById('ganttArea');
+          if (ganttArea) {
+            const rect = ganttArea.getBoundingClientRect();
+            const relX = e.clientX - rect.left + ganttArea.scrollLeft;
+            const rawCol = Math.floor((relX - LABEL_W) / COL_W);
+            const colIdx = Math.max(0, Math.min(_lastDays.length - 1, rawCol));
+            headerRangeDrag.endIdx = colIdx;
+            const lo = Math.min(headerRangeDrag.startIdx, colIdx);
+            const hi = Math.max(headerRangeDrag.startIdx, colIdx);
+            highlightHeaderRange(lo, hi);
+
+            const sd = _lastDays[lo];
+            const ed = _lastDays[hi];
+            const wdays = countWorkingDays(sd, ed);
+            const fmt = d => `${d.getMonth() + 1}/${d.getDate()}`;
+            tooltip.textContent = lo === hi
+              ? `${fmt(sd)}（1日間）`
+              : `${fmt(sd)} → ${fmt(ed)}（${wdays}日間）`;
+            tooltip.style.display = 'block';
+            tooltip.style.left = (e.clientX + 14) + 'px';
+            tooltip.style.top = (e.clientY - 10) + 'px';
+          }
+        }
+      });
+
+      document.addEventListener('mouseup', () => {
+        // Bar position drag
+        if (barDragState) {
+          clearDragHighlight();
+          tooltip.style.display = 'none';
+          document.body.style.cursor = '';
+          const task = state.tasks.find(t => t.id === barDragState.taskId);
+          if (task && barDragState.currentCol !== undefined) {
+            pushHistory();
+            task.manualStartDate = formatDate(_lastDays[barDragState.currentCol]);
+          }
+          barDragState = null;
+          render();
+          return;
+        }
+
+        // Bar resize drag
+        if (barResizeState) {
+          tooltip.style.display = 'none';
+          document.body.style.cursor = '';
+          const task = state.tasks.find(t => t.id === barResizeState.taskId);
+          if (task && barResizeState.currentDays !== barResizeState.startDays) {
+            pushHistory();
+            task.days = barResizeState.currentDays;
+          }
+          barResizeState = null;
+          render();
+          return;
+        }
+
+        // Header range drag — add new task at chronologically correct position
+        if (headerRangeDrag) {
+          tooltip.style.display = 'none';
+          document.querySelectorAll('.date-th').forEach(th => th.classList.remove('header-range-select'));
+          const lo = Math.min(headerRangeDrag.startIdx, headerRangeDrag.endIdx);
+          const hi = Math.max(headerRangeDrag.startIdx, headerRangeDrag.endIdx);
+          const startDate = _lastDays[lo];
+          const endDate = _lastDays[hi];
+          const days = countWorkingDays(startDate, endDate);
+          pushHistory();
+          const newTask = {
+            id: Date.now(),
+            name: '新しいタスク',
+            days: days,
+            color: getTaskColors()[state.tasks.length % getTaskColors().length],
+            manualStartDate: formatDate(startDate),
+          };
+          // 開始日順に正しい位置へ挿入（一番下に追加しない）
+          const existingDates = calculateTaskDates();
+          const newStartTime = dt(startDate);
+          // 同じ開始日のタスクがある場合はその直後、なければ最初に後ろになるタスクの前に挿入
+          let insertIdx = existingDates.findIndex(t => dt(t.startDate) > newStartTime);
+          if (insertIdx === -1) {
+            state.tasks.push(newTask);
+          } else {
+            state.tasks.splice(insertIdx, 0, newTask);
+          }
+          headerRangeDrag = null;
+          _focusNewTask = true;
+          render();
+          return;
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (barDragState) cancelBarDrag();
+          if (barResizeState) {
+            tooltip.style.display = 'none';
+            document.body.style.cursor = '';
+            barResizeState = null;
+          }
+          if (headerRangeDrag) {
+            tooltip.style.display = 'none';
+            document.querySelectorAll('.date-th').forEach(th => th.classList.remove('header-range-select'));
+            headerRangeDrag = null;
+          }
+        }
+      });
+    })();
+
+    // Esc キーで閉じる
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeTemplateModal();
+        closeSettingsModal();
+      }
+    });
+
+    // ═══════════════════════════════════════
+    // HEADER RANGE HIGHLIGHT
+    // ═══════════════════════════════════════
+
+    function highlightHeaderRange(lo, hi) {
+      document.querySelectorAll('.date-th').forEach(th => th.classList.remove('header-range-select'));
+      for (let c = lo; c <= hi; c++) {
+        const th = document.querySelector(`.date-th[data-col-index="${c}"]`);
+        if (th) th.classList.add('header-range-select');
+      }
+    }
+
+    // ═══════════════════════════════════════
+    // CUSTOM DAY TOGGLE (ガントクリック)
+    // ═══════════════════════════════════════
+
+    function toggleCustomDay(dateStr) {
+      pushHistory();
+      const d = parseDate(dateStr);
+      const defaultNonWorking = isDefaultNonWorkingDay(d, state.skipDays, state.skipHolidays);
+
+      if (state.extraHolidays.has(dateStr)) {
+        // カスタム休業 → デフォルトに戻す
+        state.extraHolidays.delete(dateStr);
+      } else if (state.extraWorkdays.has(dateStr)) {
+        // カスタム営業 → デフォルトに戻す
+        state.extraWorkdays.delete(dateStr);
+      } else if (defaultNonWorking) {
+        // デフォルト非営業 → 営業日にオーバーライド
+        state.extraWorkdays.add(dateStr);
+        showToast(`${formatDateJP(d)} を営業日に設定`, 'success');
+      } else {
+        // デフォルト営業 → 休業日に追加
+        state.extraHolidays.add(dateStr);
+        showToast(`${formatDateJP(d)} を休業日に設定`, 'success');
+      }
+      render();
+    }
+
+    // ═══════════════════════════════════════
+    // LOCALSTORAGE
+    // ═══════════════════════════════════════
+
+    const LS_KEY = 'gantt_chart_v1';
+
+    function stateToData() {
+      return {
+        version: 2,
+        savedAt: new Date().toISOString(),
+        projectName: state.projectName,
+        clientName: state.clientName,
+        startDate: state.startDate,
+        skipDays: [...state.skipDays],
+        skipHolidays: state.skipHolidays,
+        extraHolidays: [...state.extraHolidays],
+        extraWorkdays: [...state.extraWorkdays],
+        tasks: state.tasks.map(t => ({ id: t.id, name: t.name, days: t.days, color: t.color })),
+        nextId: state.nextId,
+        colorScheme: state.colorScheme,
+        colorBase: state.colorBase,
+      };
+    }
+
+    function applySettings(data) {
+      state.projectName = data.projectName || 'Webサイト制作';
+      state.clientName = data.clientName || '';
+      state.startDate = data.startDate || getDefaultStartDate();
+      // v1互換: skipSat/skipSunがあればskipDaysに変換
+      if (data.skipDays) {
+        state.skipDays = new Set(data.skipDays);
+      } else {
+        const sd = new Set();
+        if (data.skipSat !== false) sd.add(6);
+        if (data.skipSun !== false) sd.add(0);
+        state.skipDays = sd;
+      }
+      state.skipHolidays = data.skipHolidays !== false;
+      state.extraHolidays = new Set(data.extraHolidays || []);
+      state.extraWorkdays = new Set(data.extraWorkdays || []);
+      state.tasks = (data.tasks || []).map(t => ({
+        id: t.id || state.nextId++,
+        name: t.name || '',
+        days: Math.max(1, parseInt(t.days) || 1),
+        color: t.color || TASK_COLORS[0],
+        ...(t.manualStartDate ? { manualStartDate: t.manualStartDate } : {}),
+      }));
+      const maxId = state.tasks.length ? Math.max(...state.tasks.map(t => t.id)) : 0;
+      state.nextId = Math.max(data.nextId || 0, maxId + 1);
+      if (data.colorScheme && COLOR_SCHEMES[data.colorScheme]) {
+        state.colorScheme = data.colorScheme;
+      }
+      if (data.colorBase && BASE_COLORS.some(b => b.key === data.colorBase)) {
+        state.colorBase = data.colorBase;
+      }
+      initInputs();
+    }
+
+    function saveToLocalStorage() {
+      try {
+        localStorage.setItem(LS_KEY, JSON.stringify(stateToData()));
+        updateDeleteBtn();
+      } catch (e) { /* quota or private mode */ }
+    }
+
+    function loadFromLocalStorage() {
+      try {
+        const raw = localStorage.getItem(LS_KEY);
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        if (!data || !Array.isArray(data.tasks)) return false;
+        applySettings(data);
+        return true;
+      } catch (e) { return false; }
+    }
+
+    function updateDeleteBtn() {
+      const btn = document.getElementById('btnDeleteStorage');
+      const hasData = !!localStorage.getItem(LS_KEY);
+      if (btn) btn.classList.toggle('no-data', !hasData);
+
+      let text = 'ブラウザに自動保存中';
+      if (hasData) {
+        try {
+          const d = JSON.parse(localStorage.getItem(LS_KEY));
+          const t = d.savedAt ? new Date(d.savedAt) : null;
+          if (t) {
+            const hh = String(t.getHours()).padStart(2, '0');
+            const mm = String(t.getMinutes()).padStart(2, '0');
+            text = `自動保存済み ${hh}:${mm}`;
+          } else {
+            text = 'ブラウザに自動保存済み';
+          }
+        } catch (e) {
+          text = 'ブラウザに自動保存済み';
+        }
+      }
+      const l1 = document.getElementById('autosaveLabel');
+      const l2 = document.getElementById('autosaveLabelModal');
+      if (l1) l1.textContent = text;
+      if (l2) l2.textContent = text;
+    }
+
+    function deleteLocalStorage() {
+      const hasData = !!localStorage.getItem(LS_KEY);
+      if (!hasData) {
+        showToast('保存済みの設定はありません', 'error');
+        return;
+      }
+      if (!confirm('ブラウザに保存された設定を削除しますか？\n\n※現在の画面の内容は消えません。\n次回リロード時にデフォルト状態で開くようになります。')) return;
+      localStorage.removeItem(LS_KEY);
+      updateDeleteBtn();
+      showToast('保存済み設定を削除しました', 'success');
+    }
+
+    // ═══════════════════════════════════════
+    // FILE SAVE / LOAD
+    // ═══════════════════════════════════════
+
+    function saveToFile() {
+      syncStateFromInputs();
+      const data = stateToData();
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      const safeName = state.projectName.replace(/[\\\/:*?"<>|]/g, '_').slice(0, 40);
+      a.download = `gantt_${safeName}_${dateStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('設定ファイルを保存しました', 'success');
+    }
+
+    function loadFromFile() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json,application/json';
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          let data;
+          try {
+            data = JSON.parse(ev.target.result);
+          } catch {
+            showToast('ファイルの読み込みに失敗しました', 'error');
+            alert('ファイルの読み込みに失敗しました。\n正しいJSONファイルを選択してください。');
+            return;
+          }
+          if (!data || !Array.isArray(data.tasks)) {
+            showToast('設定ファイルとして認識できません', 'error');
+            alert('このファイルはガントチャートの設定ファイルではありません。');
+            return;
+          }
+          const projectLabel = data.projectName ? `「${data.projectName}」` : 'この';
+          const savedAt = data.savedAt
+            ? new Date(data.savedAt).toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+            : '不明';
+          const taskCount = Array.isArray(data.tasks) ? data.tasks.length : 0;
+          if (!confirm(
+            `${projectLabel}の設定を読み込みますか？\n\n` +
+            `・タスク数: ${taskCount}件\n` +
+            `・保存日時: ${savedAt}\n\n` +
+            `現在の設定は上書きされます。よろしいですか？`
+          )) return;
+          applySettings(data);
+          saveToLocalStorage();
+          render();
+          showToast('設定ファイルを読み込みました', 'success');
+        };
+        reader.readAsText(file, 'utf-8');
+      };
+      document.body.appendChild(input);
+      input.click();
+      document.body.removeChild(input);
+    }
+
+    // ═══════════════════════════════════════
+    // TOAST
+    // ═══════════════════════════════════════
+
+    let toastTimer = null;
+    function showToast(msg, type = 'success') {
+      const el = document.getElementById('toastEl');
+      if (!el) return;
+      if (toastTimer) clearTimeout(toastTimer);
+      el.textContent = msg;
+      el.className = `toast ${type}`;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => el.classList.add('show'));
+      });
+      toastTimer = setTimeout(() => {
+        el.classList.remove('show');
+      }, 2400);
+    }
+
+    // ═══════════════════════════════════════
+    // UTILS
+    // ═══════════════════════════════════════
+
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // ═══════════════════════════════════════
+    // INIT
+    // ═══════════════════════════════════════
+
+    function initInputs() {
+      document.getElementById('projectName').value = state.projectName;
+      document.getElementById('clientName').value = state.clientName;
+      document.getElementById('startDate').value = state.startDate;
+      updateDayChips();
+    }
+
+    // ─── Color Scheme ───
+    function applyColorScheme(scheme) {
+      if (!COLOR_SCHEMES[scheme]) return;
+      pushHistory();
+      state.colorScheme = scheme;
+      _recolorTasks();
+      updateColorSchemeBtns();
+      buildColorPicker();
+      saveToLocalStorage();
+      render();
+    }
+
+    function applyColorBase(baseKey) {
+      if (!BASE_COLORS.some(b => b.key === baseKey)) return;
+      pushHistory();
+      state.colorBase = baseKey;
+      _recolorTasks();
+      updateColorSchemeBtns();
+      buildColorPicker();
+      saveToLocalStorage();
+      render();
+    }
+
+    function _recolorTasks() {
+      const colors = getTaskColors();
+      state.tasks.forEach((t, i) => {
+        t.color = colors[i % colors.length];
+      });
+    }
+
+    function updateColorSchemeBtns() {
+      // スキーム選択ボタン
+      document.querySelectorAll('.color-scheme-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.scheme === state.colorScheme);
+      });
+
+      // ベースカラー行: 単色・同系色の時のみ表示
+      const row = document.getElementById('colorBaseRow');
+      if (!row) return;
+      const showBase = state.colorScheme === 'mono' || state.colorScheme === 'analogous';
+      row.style.display = showBase ? 'flex' : 'none';
+
+      // ベースカラーボタンを構築（初回 or 再構築）
+      if (showBase) {
+        if (row.children.length === 0) {
+          BASE_COLORS.forEach(bc => {
+            const btn = document.createElement('button');
+            btn.className = 'color-base-btn';
+            btn.dataset.base = bc.key;
+            btn.style.background = bc.swatch;
+            btn.title = bc.key;
+            btn.onclick = () => applyColorBase(bc.key);
+            row.appendChild(btn);
+          });
+        }
+        row.querySelectorAll('.color-base-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.base === state.colorBase);
+        });
+      }
+    }
+
+    // ─── Settings Modal ───
+    function openSettingsModal() {
+      initInputs(); // モーダルのフォームを最新状態に同期
+      updateColorSchemeBtns();
+      document.getElementById('settingsModal').classList.add('open');
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settingsModal').classList.remove('open');
+    }
+
+    function handleSettingsOverlayClick(e) {
+      if (e.target === document.getElementById('settingsModal')) closeSettingsModal();
+    }
+
+    function updateDayChips() {
+      [0, 1, 2, 3, 4, 5, 6].forEach(dow => {
+        const btn = document.getElementById(`day-${dow}`);
+        if (btn) btn.classList.toggle('active', state.skipDays.has(dow));
+      });
+      document.getElementById('chip-hol').classList.toggle('active', state.skipHolidays);
+    }
+
+    // 曜日チップのクリックイベント
+    [0, 1, 2, 3, 4, 5, 6].forEach(dow => {
+      const btn = document.getElementById(`day-${dow}`);
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        pushHistory();
+        if (state.skipDays.has(dow)) state.skipDays.delete(dow);
+        else state.skipDays.add(dow);
+        updateDayChips();
+        renderGantt();
+        renderToolbar();
+        renderSummary();
+        saveToLocalStorage();
+      });
+    });
+
+    // 祝日トグル
+    document.getElementById('chip-hol').addEventListener('click', () => {
+      pushHistory();
+      state.skipHolidays = !state.skipHolidays;
+      updateDayChips();
+      renderGantt();
+      renderToolbar();
+      renderSummary();
+      saveToLocalStorage();
+    });
+
+    // テキスト入力
+    ['projectName', 'clientName', 'startDate'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => render());
+    });
+
+    buildColorPicker();
+
+    // Init: localStorageに保存済みデータがあれば復元、なければデフォルト値を使用
+    const restored = loadFromLocalStorage();
+    if (!restored) {
+      initInputs();
+      // 初回起動（保存データなし）→設定モーダルを自動表示
+      setTimeout(() => openSettingsModal(), 100);
+    }
+
+    render();
+    updateDeleteBtn();
+
+    // templates/ フォルダからテンプレートを非同期読み込み（モーダルを開く前に完了）
+    loadTemplatesFromFolder();
+
+    window.addEventListener('resize', updateGanttBottomPadding);
+
+  </script>
+  <noscript class="psa_add_styles">
+    <style>
+      @media print {
+        #marginBanner {
+          display: none !important
+        }
+
+        .app-header {
+          display: none !important
+        }
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0
+      }
+
+      :root {
+        --primary: #059669;
+        --primary-dark: #047857;
+        --primary-light: #ecfdf5;
+        --primary-mid: #6ee7b7;
+        --accent: #f97316;
+        --gray-50: #fafaf9;
+        --gray-100: #f5f5f4;
+        --gray-200: #e7e5e4;
+        --gray-300: #d6d3d1;
+        --gray-400: #a8a29e;
+        --gray-500: #78716c;
+        --gray-600: #57534e;
+        --gray-700: #44403c;
+        --gray-800: #292524;
+        --gray-900: #1c1917;
+        --white: #fff;
+        --radius: 6px;
+        --radius-lg: 10px
+      }
+
+      html,
+      body {
+        height: 100%
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+        background: var(--gray-100);
+        color: var(--gray-900);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        font-size: 13px
+      }
+
+      @media (pointer:fine) {
+        ::-webkit-scrollbar {
+          width: 5px;
+          height: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+          background: transparent
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background: var(--gray-300);
+          border-radius: 3px
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+          background: var(--gray-400)
+        }
+      }
+
+      .app-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        height: 50px;
+        background: var(--white);
+        border-bottom: 1px solid var(--gray-200);
+        flex-shrink: 0;
+        gap: 12px;
+        z-index: 100
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 10px
+      }
+
+      .header-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        background: #000;
+        border-radius: 7px;
+        flex-shrink: 0
+      }
+
+      .header-logo svg {
+        width: 18px;
+        height: 18px;
+        fill: none;
+        stroke: white;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round
+      }
+
+      .header-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--gray-900);
+        letter-spacing: -.02em
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 99px;
+        letter-spacing: .04em
+      }
+
+      .badge-free {
+        background: var(--gray-100);
+        color: var(--gray-500);
+        border: 1px solid var(--gray-200)
+      }
+
+      .badge-new {
+        background: var(--primary-light);
+        color: var(--primary)
+      }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 8px
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 14px;
+        border: none;
+        border-radius: var(--radius);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all .15s;
+        white-space: nowrap;
+        font-family: inherit;
+        letter-spacing: -.01em
+      }
+
+      .btn svg {
+        width: 14px;
+        height: 14px
+      }
+
+      .btn-ghost {
+        background: var(--gray-100);
+        color: var(--gray-700);
+        border: 1px solid var(--gray-300)
+      }
+
+      .btn-ghost:hover {
+        background: var(--gray-200);
+        border-color: var(--gray-400);
+        color: var(--gray-900)
+      }
+
+      .btn-primary {
+        background: var(--gray-800);
+        color: #fff;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, .2)
+      }
+
+      .btn-primary:hover {
+        background: var(--gray-900);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, .25);
+        transform: translateY(-1px)
+      }
+
+      .btn-primary:active {
+        transform: translateY(0);
+        box-shadow: none
+      }
+
+      .btn-export {
+        background: var(--gray-900);
+        color: #fff;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, .15)
+      }
+
+      .btn-export:hover {
+        background: #292524;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, .2);
+        transform: translateY(-1px)
+      }
+
+      .btn-export:active {
+        transform: translateY(0)
+      }
+
+      .app-body {
+        display: flex;
+        flex: 1;
+        overflow: hidden
+      }
+
+      .form-field {
+        margin-bottom: 8px
+      }
+
+      .form-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--gray-600);
+        margin-bottom: 4px
+      }
+
+      .form-input,
+      .form-select {
+        width: 100%;
+        padding: 7px 10px;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 12px;
+        outline: none;
+        transition: border-color .15s, box-shadow .15s;
+        color: var(--gray-900);
+        background: var(--white);
+        font-family: inherit
+      }
+
+      .form-input:focus,
+      .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, .1)
+      }
+
+      .form-input-lg {
+        font-size: 14px;
+        font-weight: 600;
+        padding: 8px 10px
+      }
+
+      .date-row {
+        display: flex;
+        gap: 6px;
+        align-items: center
+      }
+
+      .date-row .form-input {
+        flex: 1
+      }
+
+      .btn-today {
+        flex-shrink: 0;
+        padding: 7px 12px;
+        font-size: 12px;
+        background: var(--gray-200);
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius);
+        cursor: pointer;
+        color: var(--gray-700);
+        font-weight: 600;
+        white-space: nowrap;
+        font-family: inherit;
+        transition: all .15s
+      }
+
+      .btn-today:hover {
+        background: var(--gray-300);
+        border-color: var(--gray-500);
+        color: var(--gray-900)
+      }
+
+      .holiday-toggles {
+        display: flex;
+        gap: 6px
+      }
+
+      .toggle-chip {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px 11px;
+        border: 1px solid var(--gray-300);
+        border-radius: 99px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        font-family: inherit;
+        color: var(--gray-600);
+        background: var(--gray-100);
+        transition: all .15s;
+        user-select: none;
+        outline: none
+      }
+
+      .toggle-chip:hover:not(.active) {
+        background: var(--gray-200);
+        border-color: var(--gray-400);
+        color: var(--gray-800)
+      }
+
+      .toggle-chip.active {
+        background: var(--gray-800);
+        border-color: var(--gray-800);
+        color: #fff
+      }
+
+      .toggle-chip.active:hover {
+        background: var(--gray-700);
+        border-color: var(--gray-700)
+      }
+
+      .toggle-chip .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--gray-400);
+        transition: background .15s
+      }
+
+      .toggle-chip.active .dot {
+        background: #6ee7b7
+      }
+
+      .color-picker-popover {
+        position: fixed;
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 10px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+        z-index: 1000;
+        display: none
+      }
+
+      .color-picker-popover.open {
+        display: block
+      }
+
+      .color-picker-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--gray-400);
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        margin-bottom: 8px
+      }
+
+      .color-picker-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 5px
+      }
+
+      .color-chip-btn {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        border: 2.5px solid #fff;
+        cursor: pointer;
+        outline: 2px solid transparent;
+        transition: all .15s;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, .12)
+      }
+
+      .color-chip-btn:hover {
+        transform: scale(1.15)
+      }
+
+      .color-chip-btn.active {
+        outline-color: var(--gray-700)
+      }
+
+      .gantt-outer {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: var(--gray-100)
+      }
+
+      .gantt-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        height: 44px;
+        background: var(--white);
+        border-bottom: 1px solid var(--gray-200);
+        flex-shrink: 0;
+        gap: 12px
+      }
+
+      .gantt-toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        min-width: 0
+      }
+
+      .gantt-project-name {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--gray-900);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis
+      }
+
+      .gantt-client-name {
+        font-size: 12px;
+        color: var(--gray-400);
+        white-space: nowrap
+      }
+
+      .gantt-toolbar-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0
+      }
+
+      .gantt-scroll-wrap {
+        flex: 1;
+        overflow: auto;
+        background: var(--white)
+      }
+
+      .gantt-table {
+        border-collapse: collapse;
+        table-layout: fixed
+      }
+
+      .gantt-label-col {
+        position: sticky;
+        left: 0;
+        z-index: 10;
+        background: #fff;
+        white-space: nowrap
+      }
+
+      .gantt-table thead th {
+        position: sticky;
+        background: #fff
+      }
+
+      .gantt-table thead tr:nth-child(1) th {
+        top: 0;
+        z-index: 10
+      }
+
+      .gantt-table thead tr:nth-child(2) th {
+        top: 28px;
+        z-index: 9
+      }
+
+      .gantt-table thead tr:nth-child(3) th {
+        top: 60px;
+        z-index: 8
+      }
+
+      .gantt-table thead tr:nth-child(1) th.gantt-label-col {
+        z-index: 13
+      }
+
+      .gantt-table thead tr:nth-child(2) th.gantt-label-col {
+        z-index: 12
+      }
+
+      .gantt-table thead tr:nth-child(3) th.gantt-label-col {
+        z-index: 11
+      }
+
+      .month-th {
+        padding: 0 6px;
+        height: 28px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--gray-700);
+        text-align: left;
+        border-right: 1px solid var(--gray-200);
+        border-bottom: 1px solid var(--gray-200);
+        vertical-align: middle;
+        letter-spacing: -.01em;
+        white-space: nowrap
+      }
+
+      .month-th-label {
+        height: 28px;
+        line-height: 28px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--gray-500);
+        text-align: center;
+        border-bottom: 1px solid var(--gray-200);
+        border-right: 1px solid var(--gray-200);
+        padding: 0 8px
+      }
+
+      .date-th {
+        height: 32px;
+        font-size: 12px;
+        font-weight: 600;
+        text-align: center;
+        vertical-align: middle;
+        border-bottom: 2px solid var(--gray-300);
+        border-right: 1px solid var(--gray-200);
+        color: var(--gray-500);
+        padding: 0
+      }
+
+      .date-th.day-off {
+        background: #f8fafc;
+        color: var(--gray-400)
+      }
+
+      .date-th.today-col {
+        background: #fff7ed;
+        color: var(--accent);
+        font-weight: 800
+      }
+
+      .date-th-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1px;
+        padding: 3px 0
+      }
+
+      .date-th-inner .day-num {
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1
+      }
+
+      .date-th-inner .day-name {
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1;
+        opacity: .7
+      }
+
+      .label-header {
+        padding: 0 10px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--gray-400);
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        border-right: 2px solid var(--gray-300);
+        border-bottom: 2px solid var(--gray-300);
+        vertical-align: bottom;
+        padding-bottom: 7px
+      }
+
+      .task-row {
+        border-bottom: 1px solid var(--gray-100)
+      }
+
+      .task-row:hover td.gantt-label-col {
+        background: #fafaf9
+      }
+
+      .task-row:hover .day-cell {
+        background-color: #fafaf9
+      }
+
+      .task-row:hover .day-cell.day-off {
+        background-color: #f4f4f3
+      }
+
+      .task-label-td {
+        padding: 0;
+        height: 54px;
+        border-right: 2px solid var(--gray-200);
+        background: #fff
+      }
+
+      .label-row-inner {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        height: 54px;
+        padding: 0 8px;
+        min-width: 0
+      }
+
+      .label-drag-handle {
+        color: var(--gray-400);
+        cursor: grab;
+        font-size: 13px;
+        letter-spacing: -2px;
+        flex-shrink: 0;
+        padding: 2px 2px;
+        line-height: 1;
+        user-select: none;
+        border-radius: 3px;
+        transition: color .15s, background .15s
+      }
+
+      .label-drag-handle:hover {
+        color: var(--gray-700);
+        background: var(--gray-200)
+      }
+
+      .label-drag-handle:active {
+        cursor: grabbing;
+        color: var(--gray-900)
+      }
+
+      .label-color-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        cursor: pointer;
+        border: 2px solid rgba(255, 255, 255, .8);
+        box-shadow: 0 0 0 1.5px rgba(0, 0, 0, .15);
+        transition: transform .15s
+      }
+
+      .label-color-dot:hover {
+        transform: scale(1.3)
+      }
+
+      .label-name {
+        flex: 1;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--gray-800);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: text;
+        min-width: 0
+      }
+
+      .label-name:hover {
+        color: var(--gray-900)
+      }
+
+      .label-name-input {
+        flex: 1;
+        border: none;
+        border-bottom: 1.5px solid var(--primary);
+        background: transparent;
+        font-size: 12px;
+        font-weight: 600;
+        font-family: inherit;
+        color: var(--gray-900);
+        outline: none;
+        min-width: 0;
+        padding: 1px 2px
+      }
+
+      .label-days-badge {
+        flex-shrink: 0;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--gray-400);
+        background: var(--gray-100);
+        padding: 2px 7px;
+        border-radius: 99px;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all .15s;
+        border: 1px solid transparent
+      }
+
+      .label-days-badge:hover {
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        border-color: var(--primary-mid)
+      }
+
+      .label-days-input {
+        width: 40px;
+        flex-shrink: 0;
+        text-align: center;
+        border: 1.5px solid var(--primary);
+        border-radius: 4px;
+        padding: 2px 4px;
+        font-size: 12px;
+        font-family: inherit;
+        color: var(--gray-700);
+        outline: none;
+        background: #fff
+      }
+
+      .label-delete-btn {
+        flex-shrink: 0;
+        width: 22px;
+        height: 22px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        color: transparent;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color .15s, background .15s
+      }
+
+      .task-row:hover .label-delete-btn {
+        color: var(--gray-400)
+      }
+
+      .label-delete-btn:hover {
+        color: #f43f5e !important;
+        background: #fff0f3
+      }
+
+      .label-row-inner.is-dragging {
+        opacity: .4
+      }
+
+      .task-row.drag-over-top td {
+        box-shadow: 0 3px 0 #111 inset
+      }
+
+      .task-row.drag-over-bottom td {
+        box-shadow: 0 -3px 0 #111 inset
+      }
+
+      .gantt-add-task-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        height: 40px;
+        padding: 0 10px;
+        color: var(--gray-400);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        background: none;
+        font-family: inherit;
+        width: 100%;
+        white-space: nowrap;
+        transition: color .15s
+      }
+
+      .gantt-add-task-btn:hover {
+        color: var(--primary)
+      }
+
+      .btn-settings-inline {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 8px 18px;
+        background: var(--gray-900);
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: inherit;
+        transition: background .15s;
+        line-height: 1
+      }
+
+      .btn-settings-inline:hover {
+        background: var(--gray-700)
+      }
+
+      .summary-float {
+        position: fixed;
+        bottom: 24px;
+        left: 24px;
+        background: #1e293b;
+        border: none;
+        border-radius: 12px;
+        padding: 14px 18px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, .25);
+        z-index: 100;
+        min-width: 230px
+      }
+
+      .summary-float:empty {
+        display: none
+      }
+
+      .summary-float .summary-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        user-select: none;
+        gap: 16px
+      }
+
+      .summary-float .summary-label {
+        font-size: 12px;
+        font-weight: 800;
+        color: rgba(255, 255, 255, .5);
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        margin: 0
+      }
+
+      .summary-float .summary-arrow {
+        color: rgba(255, 255, 255, .4);
+        font-size: 12px;
+        line-height: 1;
+        transition: transform .2s ease;
+        flex-shrink: 0
+      }
+
+      .summary-float.collapsed .summary-arrow {
+        transform: rotate(-90deg)
+      }
+
+      .summary-float .summary-body {
+        overflow: hidden;
+        max-height: 200px;
+        opacity: 1;
+        margin-top: 12px;
+        transition: max-height .25s ease, opacity .2s ease, margin-top .2s ease
+      }
+
+      .summary-float.collapsed .summary-body {
+        max-height: 0;
+        opacity: 0;
+        margin-top: 0
+      }
+
+      .summary-float .summary-item {
+        font-size: 13px;
+        color: rgba(255, 255, 255, .65);
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 16px;
+        margin-bottom: 8px
+      }
+
+      .summary-float .summary-item:last-child {
+        margin-bottom: 0
+      }
+
+      .summary-float .summary-item strong {
+        color: #fff;
+        font-weight: 700;
+        font-size: 14px
+      }
+
+      .day-cell {
+        height: 54px;
+        border-right: none;
+        padding: 0;
+        position: relative;
+        background: #fff;
+        vertical-align: middle
+      }
+
+      .day-cell.day-off {
+        background: #f8fafc
+      }
+
+      .day-cell.today-col::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 2px;
+        background: var(--accent);
+        z-index: 2
+      }
+
+      .bar-fill {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 40px;
+        left: 0;
+        right: 0;
+        transition: opacity .15s
+      }
+
+      .bar-fill.bar-start {
+        left: 5px;
+        border-radius: 8px 0 0 8px
+      }
+
+      .bar-fill.bar-end {
+        right: 5px;
+        border-radius: 0 8px 8px 0
+      }
+
+      .bar-fill.bar-single {
+        left: 5px;
+        right: 5px;
+        border-radius: 8px
+      }
+
+      .bar-fill.bar-off {
+        opacity: .7
+      }
+
+      .bar-fill.bar-draggable {
+        cursor: grab
+      }
+
+      .bar-fill.bar-draggable:active {
+        cursor: grabbing
+      }
+
+      td.col-drag-target {
+        background: rgba(99, 102, 241, .12) !important
+      }
+
+      #barDragTooltip {
+        position: fixed;
+        pointer-events: none;
+        display: none;
+        background: #111;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 9px;
+        border-radius: 6px;
+        z-index: 9999;
+        white-space: nowrap
+      }
+
+      .bar-label {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        left: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #fff;
+        white-space: nowrap;
+        pointer-events: none;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, .2);
+        z-index: 1
+      }
+
+      .month-start-border {
+        border-left: 1px solid var(--gray-300) !important
+      }
+
+      .month-start-border-th {
+        border-left: 1px solid var(--gray-200) !important
+      }
+
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: var(--gray-400);
+        gap: 10px;
+        padding: 40px
+      }
+
+      .empty-state svg {
+        width: 48px;
+        height: 48px;
+        stroke: var(--gray-300);
+        fill: none;
+        stroke-width: 1.5
+      }
+
+      .empty-state p {
+        font-size: 13px;
+        text-align: center;
+        line-height: 1.6
+      }
+
+      .day-selector {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 6px
+      }
+
+      .day-chip {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 32px;
+        border: 1px solid var(--gray-300);
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 700;
+        font-family: inherit;
+        color: var(--gray-600);
+        background: var(--gray-100);
+        transition: all .15s;
+        user-select: none;
+        padding: 0;
+        outline: none
+      }
+
+      .day-chip.active {
+        background: var(--gray-800);
+        border-color: var(--gray-800);
+        color: #fff
+      }
+
+      .day-chip:hover:not(.active) {
+        background: var(--gray-200);
+        border-color: var(--gray-400);
+        color: var(--gray-900)
+      }
+
+      .day-chip.active:hover {
+        background: var(--gray-700);
+        border-color: var(--gray-700)
+      }
+
+      .settings-modal-body {
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 16px
+      }
+
+      .settings-divider {
+        border: none;
+        border-top: 1px solid var(--gray-100);
+        margin: 0
+      }
+
+      .settings-file-row {
+        display: flex;
+        gap: 8px
+      }
+
+      .color-scheme-row {
+        display: flex;
+        gap: 6px
+      }
+
+      .color-scheme-btn {
+        flex: 1;
+        padding: 8px 4px;
+        border: 1.5px solid var(--gray-300);
+        border-radius: 6px;
+        background: var(--gray-100);
+        color: var(--gray-700);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: center;
+        transition: all .15s
+      }
+
+      .color-scheme-btn:hover {
+        background: var(--gray-200);
+        border-color: var(--gray-400);
+        color: var(--gray-900)
+      }
+
+      .color-scheme-btn.active {
+        border-color: var(--gray-900);
+        background: var(--gray-200);
+        color: var(--gray-900);
+        font-weight: 700
+      }
+
+      .color-scheme-btn.active:hover {
+        background: var(--gray-300);
+        border-color: var(--gray-900)
+      }
+
+      .color-scheme-preview {
+        display: flex;
+        gap: 2px;
+        justify-content: center;
+        margin-top: 4px
+      }
+
+      .color-scheme-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%
+      }
+
+      .color-base-row {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 8px
+      }
+
+      .color-base-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 2.5px solid transparent;
+        cursor: pointer;
+        transition: border-color .15s, transform .1s;
+        outline: none
+      }
+
+      .color-base-btn:hover {
+        transform: scale(1.15)
+      }
+
+      .color-base-btn.active {
+        border-color: var(--gray-900);
+        transform: scale(1.15)
+      }
+
+      .settings-footer {
+        padding: 14px 20px;
+        border-top: 1px solid var(--gray-100);
+        display: flex;
+        justify-content: flex-end;
+        flex-shrink: 0
+      }
+
+      .upgrade-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, .55);
+        backdrop-filter: blur(6px);
+        z-index: 9000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .2s
+      }
+
+      .upgrade-overlay.open {
+        opacity: 1;
+        pointer-events: auto
+      }
+
+      .upgrade-box {
+        background: #fff;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 440px;
+        box-shadow: 0 32px 80px rgba(0, 0, 0, .22);
+        transform: scale(.95) translateY(12px);
+        transition: transform .22s cubic-bezier(.34, 1.56, .64, 1);
+        overflow: hidden
+      }
+
+      .upgrade-overlay.open .upgrade-box {
+        transform: scale(1) translateY(0)
+      }
+
+      .upgrade-box-header {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        padding: 32px 32px 28px;
+        text-align: center;
+        position: relative
+      }
+
+      .upgrade-lock-icon {
+        width: 52px;
+        height: 52px;
+        background: rgba(255, 255, 255, .12);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px
+      }
+
+      .upgrade-lock-icon svg {
+        width: 24px;
+        height: 24px;
+        stroke: #fff
+      }
+
+      .upgrade-box-header h2 {
+        color: #fff;
+        font-size: 20px;
+        font-weight: 700;
+        margin: 0 0 6px
+      }
+
+      .upgrade-box-header p {
+        color: rgba(255, 255, 255, .65);
+        font-size: 13px;
+        margin: 0;
+        line-height: 1.5
+      }
+
+      .upgrade-box-body {
+        padding: 28px 32px 32px
+      }
+
+      .upgrade-features {
+        list-style: none;
+        margin: 0 0 24px;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px
+      }
+
+      .upgrade-features li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        color: var(--gray-700)
+      }
+
+      .upgrade-features li .uf-icon {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #dcfce7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0
+      }
+
+      .upgrade-features li .uf-icon svg {
+        width: 11px;
+        height: 11px;
+        stroke: #16a34a;
+        stroke-width: 3
+      }
+
+      .upgrade-btn-primary {
+        display: block;
+        width: 100%;
+        background: #1e293b;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 14px 20px;
+        font-size: 14px;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, .18);
+        transition: background .15s, transform .15s, box-shadow .15s
+      }
+
+      .upgrade-btn-primary:hover {
+        background: #0f172a;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, .22)
+      }
+
+      .upgrade-btn-close {
+        display: block;
+        width: 100%;
+        margin-top: 12px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        color: var(--gray-400);
+        font-family: inherit;
+        padding: 6px;
+        transition: color .15s
+      }
+
+      .upgrade-btn-close:hover {
+        color: var(--gray-600)
+      }
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, .5);
+        backdrop-filter: blur(4px);
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .2s
+      }
+
+      .modal-overlay.open {
+        opacity: 1;
+        pointer-events: auto
+      }
+
+      .modal-box {
+        background: #fff;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 700px;
+        max-height: 82vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 24px 64px rgba(0, 0, 0, .25);
+        transform: scale(.96) translateY(10px);
+        transition: transform .22s cubic-bezier(.34, 1.56, .64, 1);
+        overflow: hidden
+      }
+
+      .modal-overlay.open .modal-box {
+        transform: scale(1) translateY(0)
+      }
+
+      .modal-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 18px 20px 14px;
+        border-bottom: 1px solid var(--gray-100);
+        flex-shrink: 0
+      }
+
+      .modal-title-group {}
+
+      .modal-title {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--gray-900);
+        letter-spacing: -.03em
+      }
+
+      .modal-subtitle {
+        font-size: 12px;
+        color: var(--gray-500);
+        margin-top: 2px
+      }
+
+      .modal-close-btn {
+        width: 28px;
+        height: 28px;
+        border: none;
+        background: var(--gray-100);
+        border-radius: 7px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray-500);
+        font-size: 16px;
+        flex-shrink: 0;
+        transition: all .15s;
+        line-height: 1
+      }
+
+      .modal-close-btn:hover {
+        background: var(--gray-200);
+        color: var(--gray-900)
+      }
+
+      .template-tabs {
+        display: flex;
+        gap: 5px;
+        padding: 12px 20px 10px;
+        flex-shrink: 0;
+        overflow-x: auto;
+        border-bottom: 1px solid var(--gray-100)
+      }
+
+      .template-tab {
+        flex-shrink: 0;
+        padding: 5px 13px;
+        border: 1.5px solid var(--gray-200);
+        border-radius: 99px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        background: #fff;
+        color: var(--gray-500);
+        font-family: inherit;
+        transition: all .15s
+      }
+
+      .template-tab:hover {
+        border-color: var(--gray-300);
+        color: var(--gray-700)
+      }
+
+      .template-tab.active {
+        background: var(--gray-900);
+        border-color: var(--gray-900);
+        color: #fff
+      }
+
+      .template-grid-wrap {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px 20px 20px
+      }
+
+      .template-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px
+      }
+
+      .template-card {
+        border: 1.5px solid var(--gray-200);
+        border-radius: 12px;
+        padding: 14px 14px 12px;
+        cursor: pointer;
+        transition: all .15s;
+        background: #fff;
+        text-align: left
+      }
+
+      .template-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, .1), 0 4px 12px rgba(5, 150, 105, .08);
+        transform: translateY(-2px)
+      }
+
+      .template-card-name {
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--gray-900);
+        margin-bottom: 3px;
+        letter-spacing: -.01em
+      }
+
+      .template-card-desc {
+        font-size: 12px;
+        color: var(--gray-500);
+        line-height: 1.5;
+        margin-bottom: 9px
+      }
+
+      .template-card-meta {
+        display: flex;
+        gap: 4px
+      }
+
+      .template-meta-badge {
+        font-size: 12px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 99px;
+        background: var(--gray-100);
+        color: var(--gray-500)
+      }
+
+      .template-meta-badge.green {
+        background: var(--primary-light);
+        color: var(--primary-dark)
+      }
+
+      .date-th {
+        cursor: crosshair;
+        user-select: none
+      }
+
+      .date-th.custom-holiday {
+        background: #f8fafc !important;
+        color: var(--gray-400) !important
+      }
+
+      .date-th.custom-workday {
+        background: #f0fdf4 !important
+      }
+
+      .date-th.header-range-select {
+        background: rgba(99, 102, 241, .18) !important
+      }
+
+      .day-cell.custom-holiday {
+        background: #f8fafc !important
+      }
+
+      .day-cell.custom-workday {
+        background: #f0fdf4 !important
+      }
+
+      .holiday-label-th {
+        background: var(--gray-50);
+        border-bottom: 1px solid var(--gray-200)
+      }
+
+      .holiday-row-cell {
+        height: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        text-align: center;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--gray-200);
+        border-right: 1px solid var(--gray-100);
+        padding: 0;
+        color: var(--gray-400);
+        background: var(--gray-100);
+        cursor: default;
+        user-select: none
+      }
+
+      .holiday-row-cell.custom-holiday-cell {
+        color: var(--gray-500);
+        background: var(--gray-200);
+        cursor: pointer
+      }
+
+      .holiday-row-cell.custom-holiday-cell:hover {
+        background: var(--gray-300)
+      }
+
+      .holiday-row-cell.workday-cell {
+        background: var(--gray-50);
+        color: transparent;
+        cursor: pointer
+      }
+
+      .holiday-row-cell.workday-cell:hover {
+        background: var(--gray-100);
+        color: var(--gray-400)
+      }
+
+      .holiday-row-cell.month-start {
+        border-left: 2px solid var(--gray-300) !important
+      }
+
+      .bar-delete-btn {
+        position: absolute;
+        top: 3px;
+        right: 3px;
+        width: 18px;
+        height: 18px;
+        background: rgba(255, 255, 255, .95);
+        color: var(--gray-500);
+        border-radius: 50%;
+        font-size: 12px;
+        font-weight: 900;
+        text-align: center;
+        line-height: 18px;
+        cursor: pointer;
+        z-index: 10;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, .25)
+      }
+
+      .task-row:hover .bar-delete-btn {
+        display: flex
+      }
+
+      .bar-delete-btn:hover {
+        background: #fff;
+        color: #e44
+      }
+
+      .bar-resize-handle {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 8px;
+        height: 100%;
+        cursor: ew-resize;
+        z-index: 5
+      }
+
+      .bar-resize-handle:hover::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        right: 1px;
+        bottom: 2px;
+        width: 2px;
+        background: rgba(255, 255, 255, .7);
+        border-radius: 2px
+      }
+
+      .day-num-wrap {
+        position: relative;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1px
+      }
+
+      .custom-dot {
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: var(--gray-400);
+        position: absolute;
+        top: -3px;
+        right: -5px
+      }
+
+      .custom-workday-dot {
+        background: var(--primary)
+      }
+
+      .save-load-row {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 6px
+      }
+
+      .btn-sm {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 7px 10px;
+        border-radius: var(--radius);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all .15s;
+        white-space: nowrap;
+        border: 1px solid var(--gray-300)
+      }
+
+      .btn-sm svg {
+        width: 12px;
+        height: 12px;
+        flex-shrink: 0
+      }
+
+      .btn-sm-save {
+        background: var(--gray-100);
+        color: var(--gray-700)
+      }
+
+      .btn-sm-save:hover {
+        background: var(--gray-200);
+        border-color: var(--gray-400);
+        color: var(--gray-900);
+        transform: translateY(-1px)
+      }
+
+      .btn-sm-load {
+        background: var(--gray-100);
+        color: var(--gray-700)
+      }
+
+      .btn-sm-load:hover {
+        background: var(--gray-200);
+        border-color: var(--gray-400);
+        color: var(--gray-900);
+        transform: translateY(-1px)
+      }
+
+      .autosave-status {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--gray-500)
+      }
+
+      .autosave-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        background: var(--gray-400);
+        animation: pulse-dot 2s ease-in-out infinite
+      }
+
+      @keyframes pulse-dot {
+
+        0%,
+        100% {
+          opacity: 1;
+        }
+
+        50% {
+          opacity: 0.4;
+        }
+      }
+
+      .btn-delete-storage {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--gray-500);
+        font-family: inherit;
+        padding: 0;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        transition: color .15s
+      }
+
+      .btn-delete-storage:hover {
+        color: #f43f5e
+      }
+
+      .btn-delete-storage.no-data {
+        opacity: .4;
+        cursor: default;
+        text-decoration: none
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(4px);
+        background: #1c1917;
+        color: #fff;
+        padding: 9px 18px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        z-index: 9999;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity .2s, transform .2s;
+        white-space: nowrap;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, .2)
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0)
+      }
+
+      .toast.success::before {
+        content: '✓ ';
+        color: #34d399
+      }
+
+      .toast.error::before {
+        content: '✕ ';
+        color: #f87171
+      }
+
+      @media not all and (min-width:768px) {
+        .margin-banner__copy {
+          display: none
+        }
+      }
+    </style>
+  </noscript>
+  <script data-pagespeed-no-defer>//<![CDATA[
+    (function () {
+      function b() { var a = window, c = e; if (a.addEventListener) a.addEventListener("load", c, !1); else if (a.attachEvent) a.attachEvent("onload", c); else { var d = a.onload; a.onload = function () { c.call(this); d && d.call(this) } } }; var f = !1; function e() { if (!f) { f = !0; for (var a = document.getElementsByClassName("psa_add_styles"), c = 0, d; d = a[c]; ++c)if ("NOSCRIPT" == d.nodeName) { var k = document.createElement("div"); k.innerHTML = d.textContent; document.body.appendChild(k) } } } function g() { var a = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || null; a ? a(function () { window.setTimeout(e, 0) }) : b() }
+      var h = ["pagespeed", "CriticalCssLoader", "Run"], l = this; h[0] in l || !l.execScript || l.execScript("var " + h[0]); for (var m; h.length && (m = h.shift());)h.length || void 0 === g ? l[m] ? l = l[m] : l = l[m] = {} : l[m] = g;
+    })();
+    pagespeed.CriticalCssLoader.Run();
+    //]]></script>
+</body>
+
+</html>
