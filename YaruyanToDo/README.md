@@ -55,3 +55,6 @@ Before finishing work:
 - Keep CSS and JavaScript consistent with the repository rules.
 - Do not introduce alternative naming styles unless already required by existing code.
 - Prefer consistency over personal style.
+
+## Change Log
+- 2026-04-02: Settings内のテーマカラー選択UIで、色名テキスト表示を廃止し、色チップのみ表示に変更（`title` と `aria-label` は維持）。
