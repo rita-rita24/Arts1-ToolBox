@@ -1,0 +1,2275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus Todo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400..700,0..1,-50..200">
+  <style>
+    :root {
+      --bg-top: #f7f9fd;
+      --bg-mid: #eef3fb;
+      --bg-bottom: #e8eff8;
+      --surface: rgba(255, 255, 255, 0.72);
+      --surface-strong: rgba(255, 255, 255, 0.9);
+      --surface-soft: rgba(255, 255, 255, 0.55);
+      --border: rgba(170, 186, 213, 0.44);
+      --text-main: #1b2a42;
+      --text-sub: #5f6f88;
+      --accent: #1f6fe5;
+      --accent-strong: #0657ca;
+      --accent-soft: rgba(31, 111, 229, 0.12);
+      --danger: #d64545;
+      --success: #18915b;
+      --warning: #af7b16;
+      --pause: #d0941b;
+      --shadow-soft: 0 14px 38px rgba(39, 78, 145, 0.12);
+      --shadow-floating: 0 20px 48px rgba(35, 71, 133, 0.18);
+      --radius-xl: 28px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --focus-ring: 0 0 0 3px rgba(31, 111, 229, 0.28);
+      --indented-width: 24px;
+      --modal-layer: 50;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      font-family: "Plus Jakarta Sans", "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+      color: var(--text-main);
+      background:
+        radial-gradient(circle at 7% 12%, rgba(147, 190, 255, 0.35), transparent 45%),
+        radial-gradient(circle at 92% 0%, rgba(150, 238, 207, 0.24), transparent 40%),
+        linear-gradient(170deg, var(--bg-top), var(--bg-mid) 46%, var(--bg-bottom));
+      line-height: 1.5;
+      padding: 24px 14px 46px;
+      overflow-x: hidden;
+    }
+
+    body.lock-scroll {
+      overflow: hidden;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: "FILL" 0, "wght" 600, "GRAD" 0, "opsz" 24;
+      font-size: 20px;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+      user-select: none;
+    }
+
+    .icon-filled {
+      font-variation-settings: "FILL" 1, "wght" 600, "GRAD" 0, "opsz" 24;
+    }
+
+    .btn-label {
+      line-height: 1;
+    }
+
+    .icon-only {
+      width: 34px;
+      min-width: 34px;
+      height: 34px;
+      padding: 0 !important;
+      border-radius: 11px;
+    }
+
+    .background-orb {
+      position: fixed;
+      width: 38vmax;
+      height: 38vmax;
+      border-radius: 50%;
+      filter: blur(12px);
+      z-index: -2;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .background-orb.orb-one {
+      right: -12vmax;
+      top: -12vmax;
+      background: radial-gradient(circle, rgba(121, 196, 252, 0.34), rgba(121, 196, 252, 0));
+    }
+
+    .background-orb.orb-two {
+      left: -14vmax;
+      bottom: -12vmax;
+      background: radial-gradient(circle, rgba(125, 224, 193, 0.28), rgba(125, 224, 193, 0));
+    }
+
+    .app-shell {
+      width: min(1060px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+      animation: app-enter 680ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    @keyframes app-enter {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.992);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .hero {
+      background: var(--surface-soft);
+      backdrop-filter: blur(16px) saturate(160%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+      padding: 18px 18px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      position: sticky;
+      top: 10px;
+      z-index: 8;
+    }
+
+    .hero-title-wrap {
+      display: grid;
+      gap: 5px;
+    }
+
+    .hero-title {
+      font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+      letter-spacing: -0.02em;
+      font-weight: 800;
+      color: #152745;
+    }
+
+    .hero-sub {
+      font-size: 0.92rem;
+      color: var(--text-sub);
+      font-weight: 500;
+    }
+
+    .primary-action {
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(145deg, #2e81ea, #0b63d9);
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: transform 220ms cubic-bezier(0.2, 0.85, 0.2, 1), box-shadow 220ms ease, filter 220ms ease;
+      box-shadow: 0 10px 24px rgba(24, 97, 202, 0.28);
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .primary-action:hover:not(:disabled) {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+      box-shadow: 0 12px 30px rgba(24, 97, 202, 0.34);
+    }
+
+    .primary-action:active:not(:disabled) {
+      transform: translateY(1px) scale(0.99);
+    }
+
+    .primary-action:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-ring), 0 12px 30px rgba(24, 97, 202, 0.34);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.52;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+      padding: 14px 14px;
+      display: grid;
+      gap: 4px;
+      min-height: 84px;
+    }
+
+    .stat-label {
+      color: var(--text-sub);
+      font-size: 0.81rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #12233f;
+    }
+
+    .notice-area {
+      min-height: 22px;
+      padding-inline: 2px;
+    }
+
+    .notice {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 7px 12px;
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: opacity 220ms ease, transform 220ms ease;
+      pointer-events: none;
+      border: 1px solid transparent;
+    }
+
+    .notice.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .notice.error {
+      background: rgba(214, 69, 69, 0.09);
+      color: #ab2f2f;
+      border-color: rgba(214, 69, 69, 0.2);
+    }
+
+    .notice.info {
+      background: rgba(31, 111, 229, 0.1);
+      color: #1858b3;
+      border-color: rgba(31, 111, 229, 0.18);
+    }
+
+    .task-panel {
+      background: var(--surface);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius-xl) + 2px);
+      box-shadow: var(--shadow-soft);
+      padding: 16px;
+      min-height: 240px;
+      display: grid;
+      gap: 12px;
+      overflow: hidden;
+    }
+
+    .empty-state {
+      display: grid;
+      place-items: center;
+      gap: 10px;
+      text-align: center;
+      min-height: 280px;
+      border: 1px dashed rgba(136, 161, 199, 0.62);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.65), rgba(245, 250, 255, 0.76));
+      color: var(--text-sub);
+      padding: 20px;
+    }
+
+    .empty-illustration {
+      width: 74px;
+      height: 74px;
+      border-radius: 24px;
+      background:
+        linear-gradient(145deg, rgba(33, 121, 236, 0.14), rgba(33, 121, 236, 0.06)),
+        #fff;
+      display: grid;
+      place-items: center;
+      color: #2b79e1;
+      font-size: 2rem;
+      font-weight: 800;
+      border: 1px solid rgba(133, 173, 230, 0.35);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 12px 28px rgba(56, 114, 192, 0.15);
+    }
+
+    .empty-illustration .material-symbols-outlined {
+      font-size: 38px;
+      font-variation-settings: "FILL" 1, "wght" 600, "GRAD" 0, "opsz" 48;
+    }
+
+    .empty-title {
+      font-size: 1.07rem;
+      font-weight: 800;
+      color: #1b2d4a;
+    }
+
+    .empty-sub {
+      font-size: 0.92rem;
+      max-width: 36ch;
+    }
+
+    .task-tree {
+      display: grid;
+      gap: 12px;
+      max-height: min(72vh, 780px);
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .task-tree::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .task-tree::-webkit-scrollbar-thumb {
+      background: rgba(132, 152, 188, 0.4);
+      border-radius: 999px;
+      border: 2px solid transparent;
+      background-clip: content-box;
+    }
+
+    .parent-card {
+      border: 1px solid rgba(148, 170, 204, 0.36);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(250, 252, 255, 0.78));
+      box-shadow: 0 10px 26px rgba(53, 84, 135, 0.1);
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+      animation: rise-in 460ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    }
+
+    @keyframes rise-in {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .parent-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 6px 6px 6px 2px;
+      border-radius: var(--radius-md);
+    }
+
+    .parent-main {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .collapse-btn {
+      border: none;
+      background: transparent;
+      color: #365a8c;
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      font-weight: 800;
+      transition: background 160ms ease, transform 180ms ease;
+      flex-shrink: 0;
+    }
+
+    .collapse-btn:hover:not(:disabled) {
+      background: rgba(21, 86, 172, 0.1);
+    }
+
+    .collapse-btn:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-ring);
+    }
+
+    .parent-name {
+      font-size: 1.03rem;
+      font-weight: 800;
+      color: #193153;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .task-count {
+      margin-left: 4px;
+      font-size: 0.77rem;
+      color: #637795;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(115, 144, 190, 0.12);
+      white-space: nowrap;
+    }
+
+    .parent-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ghost-btn,
+    .soft-btn {
+      border: 1px solid transparent;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .ghost-btn {
+      color: #29548b;
+      background: rgba(41, 84, 139, 0.1);
+      padding: 6px 11px;
+    }
+
+    .ghost-btn:hover:not(:disabled) {
+      background: rgba(41, 84, 139, 0.16);
+      transform: translateY(-1px);
+    }
+
+    .soft-btn {
+      background: rgba(255, 255, 255, 0.8);
+      border-color: rgba(136, 161, 199, 0.55);
+      color: #2b4f80;
+      padding: 6px 12px;
+    }
+
+    .soft-btn:hover:not(:disabled) {
+      background: #fff;
+      transform: translateY(-1px);
+      border-color: rgba(117, 148, 194, 0.74);
+    }
+
+    .soft-btn:focus-visible,
+    .ghost-btn:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-ring);
+    }
+
+    .subtask-list {
+      margin-left: var(--indented-width);
+      border-left: 1px solid rgba(127, 154, 194, 0.46);
+      padding-left: 10px;
+      display: grid;
+      gap: 8px;
+      overflow: hidden;
+    }
+
+    .subtask-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto auto;
+      gap: 8px;
+      align-items: center;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(154, 176, 209, 0.5);
+      background: rgba(255, 255, 255, 0.72);
+      padding: 7px 9px 7px 8px;
+      min-height: 56px;
+      transition: border-color 160ms ease, transform 180ms ease, background 180ms ease;
+    }
+
+    .subtask-row:hover {
+      border-color: rgba(111, 142, 188, 0.76);
+      background: rgba(255, 255, 255, 0.88);
+      transform: translateY(-1px);
+    }
+
+    .subtask-row.running {
+      background: linear-gradient(100deg, rgba(31, 111, 229, 0.13), rgba(255, 255, 255, 0.86));
+      border-color: rgba(31, 111, 229, 0.44);
+      box-shadow: 0 10px 22px rgba(32, 101, 204, 0.16);
+    }
+
+    .subtask-row.running::before {
+      content: "";
+      position: absolute;
+      left: -2px;
+      top: 7px;
+      bottom: 7px;
+      width: 4px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #2b86ff, #0f61d2);
+    }
+
+    .start-btn {
+      border: none;
+      border-radius: 999px;
+      min-width: 36px;
+      height: 32px;
+      padding: 0;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      transition: transform 170ms ease, filter 170ms ease, box-shadow 170ms ease;
+      color: #fff;
+      background: linear-gradient(135deg, #2e82eb, #0e64d9);
+      box-shadow: 0 8px 16px rgba(25, 98, 205, 0.24);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .start-btn .material-symbols-outlined {
+      font-size: 18px;
+      font-variation-settings: "FILL" 1, "wght" 600, "GRAD" 0, "opsz" 24;
+    }
+
+    .start-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+    }
+
+    .start-btn:active:not(:disabled) {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .start-btn:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-ring), 0 8px 16px rgba(25, 98, 205, 0.24);
+    }
+
+    .start-btn.state-paused,
+    .start-btn.state-interrupted {
+      background: linear-gradient(135deg, #438de8, #1d71de);
+    }
+
+    .start-btn.state-running {
+      background: rgba(40, 118, 224, 0.2);
+      color: #2763bc;
+      box-shadow: none;
+    }
+
+    .start-btn.state-done {
+      background: rgba(24, 145, 91, 0.18);
+      color: #18794f;
+      box-shadow: none;
+    }
+
+    .subtask-content {
+      min-width: 0;
+      display: grid;
+      gap: 3px;
+    }
+
+    .subtask-name {
+      font-size: 0.93rem;
+      font-weight: 700;
+      color: #213a5c;
+      word-break: break-word;
+      line-height: 1.35;
+    }
+
+    .subtask-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #607390;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .elapsed-mini {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+      color: #2f5f9c;
+      background: rgba(81, 125, 187, 0.12);
+      border-radius: 999px;
+      padding: 1px 7px;
+    }
+
+    .status-pill {
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+
+    .status-not_started {
+      background: rgba(126, 138, 158, 0.14);
+      color: #5f6e84;
+      border-color: rgba(126, 138, 158, 0.26);
+    }
+
+    .status-running {
+      background: rgba(31, 111, 229, 0.14);
+      color: #1d62be;
+      border-color: rgba(31, 111, 229, 0.3);
+    }
+
+    .status-paused {
+      background: rgba(208, 148, 27, 0.16);
+      color: #95630a;
+      border-color: rgba(208, 148, 27, 0.3);
+    }
+
+    .status-done {
+      background: rgba(24, 145, 91, 0.14);
+      color: #16784d;
+      border-color: rgba(24, 145, 91, 0.3);
+    }
+
+    .status-interrupted {
+      background: rgba(214, 69, 69, 0.12);
+      color: #b43636;
+      border-color: rgba(214, 69, 69, 0.27);
+    }
+
+    .modal-layer {
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 23, 44, 0.42);
+      backdrop-filter: blur(7px) saturate(140%);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: var(--modal-layer);
+    }
+
+    .modal-layer.visible {
+      display: flex;
+    }
+
+    .modal {
+      width: min(720px, 100%);
+      max-height: min(90vh, 930px);
+      overflow: auto;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(249, 252, 255, 0.95));
+      border: 1px solid rgba(150, 171, 204, 0.6);
+      box-shadow: var(--shadow-floating);
+      padding: 20px;
+      display: grid;
+      gap: 14px;
+      transform: translateY(12px) scale(0.985);
+      opacity: 0;
+      transition: opacity 240ms ease, transform 260ms cubic-bezier(0.2, 0.85, 0.2, 1);
+    }
+
+    .modal-layer.visible .modal {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    .modal-title {
+      font-size: 1.18rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: #1a3153;
+    }
+
+    .modal-sub {
+      color: #5f7190;
+      font-size: 0.87rem;
+      font-weight: 500;
+    }
+
+    .form-group {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field-label {
+      font-size: 0.82rem;
+      color: #5f7190;
+      font-weight: 700;
+    }
+
+    .text-input {
+      width: 100%;
+      min-height: 42px;
+      border-radius: 12px;
+      border: 1px solid rgba(138, 163, 202, 0.6);
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #203c60;
+      background: rgba(255, 255, 255, 0.95);
+      outline: none;
+      transition: border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .text-input::placeholder {
+      color: #88a0bf;
+      font-weight: 500;
+    }
+
+    .text-input:focus {
+      border-color: #2e82eb;
+      box-shadow: var(--focus-ring);
+    }
+
+    .subtask-edit-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 2px;
+      max-height: min(42vh, 340px);
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .subtask-input-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      border: 1px solid rgba(147, 171, 206, 0.64);
+      background: rgba(255, 255, 255, 0.9);
+      color: #365b8b;
+      cursor: pointer;
+      font-size: 1.04rem;
+      font-weight: 800;
+      transition: background 170ms ease, transform 170ms ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-btn:hover:not(:disabled) {
+      background: rgba(54, 91, 139, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .icon-btn:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-ring);
+    }
+
+    .form-error {
+      min-height: 21px;
+      color: #b53d3d;
+      font-size: 0.83rem;
+      font-weight: 700;
+    }
+
+    .modal-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 9px;
+      margin-top: 2px;
+      flex-wrap: wrap;
+    }
+
+    .danger-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 9px 16px;
+      font-size: 0.86rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      color: #fff;
+      background: linear-gradient(135deg, #e15c5c, #cb4040);
+      box-shadow: 0 8px 18px rgba(203, 64, 64, 0.28);
+      cursor: pointer;
+      transition: filter 170ms ease, transform 170ms ease;
+    }
+
+    .danger-btn:hover:not(:disabled) {
+      filter: brightness(1.03);
+      transform: translateY(-1px);
+    }
+
+    .danger-btn:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-ring), 0 8px 18px rgba(203, 64, 64, 0.28);
+    }
+
+    .running-layer {
+      z-index: calc(var(--modal-layer) + 4);
+      background: rgba(8, 21, 44, 0.56);
+    }
+
+    .running-modal {
+      width: min(470px, 100%);
+      border-radius: 24px;
+      border: 1px solid rgba(137, 167, 209, 0.66);
+      background:
+        radial-gradient(circle at 4% 0%, rgba(89, 181, 255, 0.24), transparent 44%),
+        linear-gradient(180deg, rgba(249, 253, 255, 0.96), rgba(245, 250, 255, 0.96));
+      box-shadow: var(--shadow-floating);
+      padding: 22px 20px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .running-title {
+      font-size: 1.14rem;
+      font-weight: 800;
+      color: #17355e;
+      text-align: center;
+      letter-spacing: 0.01em;
+    }
+
+    .running-info {
+      border: 1px solid rgba(139, 165, 205, 0.58);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.76);
+      padding: 11px 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .running-row {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+
+    .running-key {
+      font-size: 0.77rem;
+      font-weight: 800;
+      color: #5a7194;
+      letter-spacing: 0.03em;
+      padding-top: 2px;
+    }
+
+    .running-val {
+      font-size: 0.93rem;
+      font-weight: 700;
+      color: #1e3c67;
+      word-break: break-word;
+      line-height: 1.4;
+    }
+
+    .running-timer {
+      margin-top: 2px;
+      text-align: center;
+      font-size: clamp(2.05rem, 8.4vw, 2.65rem);
+      line-height: 1;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.04em;
+      color: #1259b7;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
+    }
+
+    .running-actions {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .running-action-btn {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 8px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      cursor: pointer;
+      color: #fff;
+      transition: transform 170ms ease, filter 170ms ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .running-action-btn .material-symbols-outlined {
+      font-size: 22px;
+      font-variation-settings: "FILL" 1, "wght" 600, "GRAD" 0, "opsz" 24;
+    }
+
+    .running-action-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+    }
+
+    .running-action-btn:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-ring);
+    }
+
+    .running-action-btn.complete {
+      background: linear-gradient(135deg, #1f9f68, #148255);
+      box-shadow: 0 9px 20px rgba(20, 130, 85, 0.28);
+    }
+
+    .running-action-btn.pause {
+      background: linear-gradient(135deg, #dca135, #c28212);
+      box-shadow: 0 9px 20px rgba(194, 130, 18, 0.26);
+    }
+
+    .running-action-btn.interrupt {
+      background: linear-gradient(135deg, #df6464, #c43f3f);
+      box-shadow: 0 9px 20px rgba(196, 63, 63, 0.26);
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #5a7194;
+      font-size: 0.82rem;
+      font-weight: 600;
+      user-select: none;
+      margin-top: -2px;
+    }
+
+    .check-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #2b79e1;
+    }
+
+    .help-note {
+      font-size: 0.82rem;
+      color: #647996;
+      font-weight: 600;
+      line-height: 1.45;
+      background: rgba(31, 111, 229, 0.08);
+      border: 1px solid rgba(31, 111, 229, 0.2);
+      border-radius: 12px;
+      padding: 9px 10px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    @media (max-width: 920px) {
+      :root {
+        --indented-width: 14px;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .hero {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .primary-action {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 16px 10px 28px;
+      }
+
+      .app-shell {
+        gap: 12px;
+      }
+
+      .hero,
+      .task-panel {
+        border-radius: 20px;
+        padding: 14px;
+      }
+
+      .task-tree {
+        max-height: min(65vh, 760px);
+      }
+
+      .subtask-row {
+        grid-template-columns: auto minmax(0, 1fr);
+        grid-template-areas:
+          "start content"
+          "status status";
+      }
+
+      .start-btn {
+        grid-area: start;
+      }
+
+      .subtask-content {
+        grid-area: content;
+      }
+
+      .subtask-row > .soft-btn {
+        justify-self: start;
+      }
+
+      .subtask-row > .status-pill {
+        grid-area: status;
+        justify-self: end;
+      }
+
+      .parent-header {
+        align-items: start;
+      }
+
+      .parent-actions {
+        margin-left: 36px;
+      }
+
+      .modal {
+        width: 100%;
+        padding: 16px;
+        border-radius: 16px;
+      }
+
+      .running-modal {
+        border-radius: 18px;
+        padding: 16px 14px;
+      }
+
+      .running-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="background-orb orb-one" aria-hidden="true"></div>
+  <div class="background-orb orb-two" aria-hidden="true"></div>
+
+  <main class="app-shell">
+    <header class="hero">
+      <div class="hero-title-wrap">
+        <h1 class="hero-title">Todo管理</h1>
+        <p class="hero-sub">親子タスクを整理して、いまやる1つに集中する。</p>
+      </div>
+      <button id="addParentBtn" type="button" class="primary-action" aria-label="親タスクを追加">
+        <span class="material-symbols-outlined icon-filled" aria-hidden="true">add</span>
+        <span class="btn-label">親タスクを追加</span>
+      </button>
+    </header>
+
+    <section class="stats-grid" aria-label="タスク統計">
+      <article class="stat-card">
+        <p class="stat-label">親タスク</p>
+        <p id="parentCount" class="stat-value">0</p>
+      </article>
+      <article class="stat-card">
+        <p class="stat-label">小タスク</p>
+        <p id="subtaskCount" class="stat-value">0</p>
+      </article>
+      <article class="stat-card">
+        <p class="stat-label">進行中</p>
+        <p id="runningCount" class="stat-value">0</p>
+      </article>
+      <article class="stat-card">
+        <p class="stat-label">完了</p>
+        <p id="doneCount" class="stat-value">0</p>
+      </article>
+    </section>
+
+    <section class="notice-area" aria-live="polite">
+      <div id="notice" class="notice info"></div>
+    </section>
+
+    <section class="task-panel" aria-label="タスク一覧">
+      <div id="emptyState" class="empty-state">
+        <div class="empty-illustration" aria-hidden="true">
+          <span class="material-symbols-outlined icon-filled">checklist</span>
+        </div>
+        <p class="empty-title">まだタスクがありません</p>
+        <p class="empty-sub">上の「親タスクを追加」から登録してください</p>
+      </div>
+      <div id="taskTree" class="task-tree" hidden></div>
+    </section>
+  </main>
+
+  <div id="parentModalLayer" class="modal-layer" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="parentModalTitle">
+      <h2 id="parentModalTitle" class="modal-title">親タスクを追加</h2>
+      <p class="modal-sub" id="parentModalSub">親タスクと配下の小タスクをまとめて管理できます。</p>
+
+      <div class="form-group">
+        <label for="parentNameInput" class="field-label">親タスク名（必須）</label>
+        <input id="parentNameInput" class="text-input" type="text" maxlength="100" placeholder="例）画面設計" autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <p class="field-label">小タスク（空行は保存されません）</p>
+        <div id="subtaskInputList" class="subtask-edit-list"></div>
+        <button id="addSubtaskInputBtn" type="button" class="soft-btn" aria-label="小タスク行を追加">
+          <span class="material-symbols-outlined" aria-hidden="true">add</span>
+          <span class="btn-label">小タスク行を追加</span>
+        </button>
+      </div>
+
+      <p id="parentModalError" class="form-error" role="alert"></p>
+
+      <div class="modal-actions">
+        <button id="parentModalCancelBtn" type="button" class="soft-btn" aria-label="キャンセル">
+          <span class="material-symbols-outlined" aria-hidden="true">close</span>
+          <span class="btn-label">キャンセル</span>
+        </button>
+        <button id="parentModalSaveBtn" type="button" class="primary-action" aria-label="保存">
+          <span class="material-symbols-outlined icon-filled" aria-hidden="true">check</span>
+          <span class="btn-label">保存</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="subtaskModalLayer" class="modal-layer" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="subtaskModalTitle">
+      <h2 id="subtaskModalTitle" class="modal-title">小タスクを編集</h2>
+      <p class="modal-sub">実行中の小タスクは編集できません。</p>
+
+      <div class="form-group">
+        <label for="subtaskNameInput" class="field-label">小タスク名</label>
+        <input id="subtaskNameInput" class="text-input" type="text" maxlength="100" placeholder="小タスク名を入力" autocomplete="off">
+      </div>
+
+      <p id="subtaskModalError" class="form-error" role="alert"></p>
+
+      <div class="modal-actions">
+        <button id="subtaskModalCancelBtn" type="button" class="soft-btn" aria-label="キャンセル">
+          <span class="material-symbols-outlined" aria-hidden="true">close</span>
+          <span class="btn-label">キャンセル</span>
+        </button>
+        <button id="subtaskModalSaveBtn" type="button" class="primary-action" aria-label="保存">
+          <span class="material-symbols-outlined icon-filled" aria-hidden="true">check</span>
+          <span class="btn-label">保存</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="startConfirmLayer" class="modal-layer" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="startConfirmTitle">
+      <h2 id="startConfirmTitle" class="modal-title">開始前の確認</h2>
+      <p class="help-note">開始すると、完了・中断・一時停止以外の操作はできなくなります。</p>
+
+      <label class="check-row" for="skipStartConfirmCheck">
+        <input id="skipStartConfirmCheck" type="checkbox">
+        <span>今後は表示しない</span>
+      </label>
+
+      <p id="startConfirmError" class="form-error" role="alert"></p>
+
+      <div class="modal-actions">
+        <button id="startConfirmCancelBtn" type="button" class="soft-btn" aria-label="キャンセル">
+          <span class="material-symbols-outlined" aria-hidden="true">close</span>
+          <span class="btn-label">キャンセル</span>
+        </button>
+        <button id="startConfirmOkBtn" type="button" class="primary-action" aria-label="開始する">
+          <span class="material-symbols-outlined icon-filled" aria-hidden="true">play_arrow</span>
+          <span class="btn-label">開始する</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="runningLayer" class="modal-layer running-layer" aria-hidden="true">
+    <div class="running-modal" role="dialog" aria-modal="true" aria-labelledby="runningTitle">
+      <h2 id="runningTitle" class="running-title">作業中</h2>
+      <div class="running-info">
+        <div class="running-row">
+          <p class="running-key">親タスク</p>
+          <p id="runningParentName" class="running-val">-</p>
+        </div>
+        <div class="running-row">
+          <p class="running-key">小タスク</p>
+          <p id="runningSubtaskName" class="running-val">-</p>
+        </div>
+      </div>
+      <p id="runningTimer" class="running-timer" aria-live="polite">00:00:00</p>
+
+      <div class="running-actions">
+        <button id="completeBtn" type="button" class="running-action-btn complete" aria-label="完了" title="完了">
+          <span class="material-symbols-outlined" aria-hidden="true">task_alt</span>
+        </button>
+        <button id="pauseBtn" type="button" class="running-action-btn pause" aria-label="一時停止" title="一時停止">
+          <span class="material-symbols-outlined" aria-hidden="true">pause_circle</span>
+        </button>
+        <button id="interruptBtn" type="button" class="running-action-btn interrupt" aria-label="中断" title="中断">
+          <span class="material-symbols-outlined" aria-hidden="true">cancel</span>
+        </button>
+      </div>
+      <p class="sr-only">実行中は完了・一時停止・中断のみ操作できます。</p>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const STORAGE_KEY = "focusTodoData.v1";
+      const STATUS = {
+        NOT_STARTED: "not_started",
+        RUNNING: "running",
+        PAUSED: "paused",
+        DONE: "done",
+        INTERRUPTED: "interrupted"
+      };
+      const STATUS_LABEL = {
+        [STATUS.NOT_STARTED]: "未着手",
+        [STATUS.RUNNING]: "進行中",
+        [STATUS.PAUSED]: "一時停止",
+        [STATUS.DONE]: "完了",
+        [STATUS.INTERRUPTED]: "中断"
+      };
+      const STATUS_CLASS = {
+        [STATUS.NOT_STARTED]: "status-not_started",
+        [STATUS.RUNNING]: "status-running",
+        [STATUS.PAUSED]: "status-paused",
+        [STATUS.DONE]: "status-done",
+        [STATUS.INTERRUPTED]: "status-interrupted"
+      };
+
+      const state = {
+        parents: [],
+        showStartConfirm: true,
+        pendingStart: null,
+        modal: null,
+        modalDismissable: true,
+        parentModalMode: "create",
+        editingParentId: null,
+        editingSubtaskContext: null,
+        initialParentModalSnapshot: "",
+        initialSubtaskModalValue: "",
+        noticeTimer: null
+      };
+
+      const els = {
+        addParentBtn: document.getElementById("addParentBtn"),
+        parentCount: document.getElementById("parentCount"),
+        subtaskCount: document.getElementById("subtaskCount"),
+        runningCount: document.getElementById("runningCount"),
+        doneCount: document.getElementById("doneCount"),
+        notice: document.getElementById("notice"),
+        emptyState: document.getElementById("emptyState"),
+        taskTree: document.getElementById("taskTree"),
+
+        parentModalLayer: document.getElementById("parentModalLayer"),
+        parentModalTitle: document.getElementById("parentModalTitle"),
+        parentModalSub: document.getElementById("parentModalSub"),
+        parentNameInput: document.getElementById("parentNameInput"),
+        subtaskInputList: document.getElementById("subtaskInputList"),
+        addSubtaskInputBtn: document.getElementById("addSubtaskInputBtn"),
+        parentModalError: document.getElementById("parentModalError"),
+        parentModalCancelBtn: document.getElementById("parentModalCancelBtn"),
+        parentModalSaveBtn: document.getElementById("parentModalSaveBtn"),
+
+        subtaskModalLayer: document.getElementById("subtaskModalLayer"),
+        subtaskNameInput: document.getElementById("subtaskNameInput"),
+        subtaskModalError: document.getElementById("subtaskModalError"),
+        subtaskModalCancelBtn: document.getElementById("subtaskModalCancelBtn"),
+        subtaskModalSaveBtn: document.getElementById("subtaskModalSaveBtn"),
+
+        startConfirmLayer: document.getElementById("startConfirmLayer"),
+        skipStartConfirmCheck: document.getElementById("skipStartConfirmCheck"),
+        startConfirmOkBtn: document.getElementById("startConfirmOkBtn"),
+        startConfirmCancelBtn: document.getElementById("startConfirmCancelBtn"),
+        startConfirmError: document.getElementById("startConfirmError"),
+
+        runningLayer: document.getElementById("runningLayer"),
+        runningParentName: document.getElementById("runningParentName"),
+        runningSubtaskName: document.getElementById("runningSubtaskName"),
+        runningTimer: document.getElementById("runningTimer"),
+        completeBtn: document.getElementById("completeBtn"),
+        pauseBtn: document.getElementById("pauseBtn"),
+        interruptBtn: document.getElementById("interruptBtn")
+      };
+
+      const modalMap = {
+        parent: els.parentModalLayer,
+        subtask: els.subtaskModalLayer,
+        startConfirm: els.startConfirmLayer,
+        running: els.runningLayer
+      };
+
+      const getNowISO = () => new Date().toISOString();
+      const uid = () => (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+
+      function trimText(v) {
+        return (v || "").trim();
+      }
+
+      function formatElapsed(seconds) {
+        const safe = Number.isFinite(seconds) ? Math.max(0, seconds) : 0;
+        const h = Math.floor(safe / 3600).toString().padStart(2, "0");
+        const m = Math.floor((safe % 3600) / 60).toString().padStart(2, "0");
+        const s = Math.floor(safe % 60).toString().padStart(2, "0");
+        return `${h}:${m}:${s}`;
+      }
+
+      function showNotice(message, type = "info", duration = 2600) {
+        clearTimeout(state.noticeTimer);
+        els.notice.textContent = message;
+        els.notice.className = `notice ${type} show`;
+        state.noticeTimer = setTimeout(() => {
+          els.notice.className = "notice info";
+          els.notice.textContent = "";
+        }, duration);
+      }
+
+      function sanitizeParent(parent, parentOrder) {
+        const normalizedParent = {
+          id: parent.id || uid(),
+          name: trimText(parent.name || ""),
+          isExpanded: parent.isExpanded !== false,
+          sortOrder: Number.isFinite(parent.sortOrder) ? parent.sortOrder : parentOrder,
+          createdAt: parent.createdAt || getNowISO(),
+          updatedAt: parent.updatedAt || getNowISO(),
+          subtasks: Array.isArray(parent.subtasks) ? parent.subtasks : []
+        };
+
+        normalizedParent.subtasks = normalizedParent.subtasks.map((subtask, subtaskOrder) => {
+          const cleanStatusValues = Object.values(STATUS);
+          let status = cleanStatusValues.includes(subtask.status) ? subtask.status : STATUS.NOT_STARTED;
+          if (status === STATUS.RUNNING && typeof subtask.runningStartedAt !== "number") {
+            subtask.runningStartedAt = Date.now();
+          }
+          return {
+            id: subtask.id || uid(),
+            parentId: normalizedParent.id,
+            name: trimText(subtask.name || ""),
+            status,
+            startedAt: subtask.startedAt || null,
+            pausedAt: subtask.pausedAt || null,
+            completedAt: subtask.completedAt || null,
+            interruptedAt: subtask.interruptedAt || null,
+            elapsedSeconds: Number.isFinite(subtask.elapsedSeconds) ? Math.max(0, Math.floor(subtask.elapsedSeconds)) : 0,
+            runningStartedAt: typeof subtask.runningStartedAt === "number" ? subtask.runningStartedAt : null,
+            sortOrder: Number.isFinite(subtask.sortOrder) ? subtask.sortOrder : subtaskOrder,
+            createdAt: subtask.createdAt || getNowISO(),
+            updatedAt: subtask.updatedAt || getNowISO()
+          };
+        });
+
+        return normalizedParent;
+      }
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) {
+            return;
+          }
+          const parsed = JSON.parse(raw);
+          state.showStartConfirm = parsed.showStartConfirm !== false;
+          const parents = Array.isArray(parsed.parents) ? parsed.parents : [];
+          state.parents = parents.map((parent, index) => sanitizeParent(parent, index));
+        } catch (error) {
+          console.error(error);
+          showNotice("保存データの読み込みに失敗しました。", "error", 3600);
+          state.parents = [];
+          state.showStartConfirm = true;
+        }
+      }
+
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          showStartConfirm: state.showStartConfirm,
+          parents: state.parents
+        }));
+      }
+
+      function forEachSubtask(callback) {
+        state.parents.forEach((parent, parentIndex) => {
+          parent.subtasks.forEach((subtask, subtaskIndex) => {
+            callback(parent, subtask, parentIndex, subtaskIndex);
+          });
+        });
+      }
+
+      function getRunningSubtask() {
+        let found = null;
+        forEachSubtask((parent, subtask) => {
+          if (subtask.status === STATUS.RUNNING && !found) {
+            found = { parent, subtask };
+          }
+        });
+        return found;
+      }
+
+      function reconcileRunningState() {
+        const runningItems = [];
+        forEachSubtask((parent, subtask) => {
+          if (subtask.status === STATUS.RUNNING) {
+            runningItems.push({ parent, subtask });
+          }
+        });
+        if (runningItems.length <= 1) {
+          if (runningItems.length === 1 && typeof runningItems[0].subtask.runningStartedAt !== "number") {
+            runningItems[0].subtask.runningStartedAt = Date.now();
+            runningItems[0].subtask.updatedAt = getNowISO();
+          }
+          return;
+        }
+
+        runningItems.slice(1).forEach(({ subtask }) => {
+          subtask.status = STATUS.PAUSED;
+          subtask.pausedAt = getNowISO();
+          subtask.runningStartedAt = null;
+          subtask.updatedAt = getNowISO();
+        });
+        showNotice("進行中タスクが複数あったため、先頭以外を一時停止に調整しました。", "info", 4200);
+      }
+
+      function getSubtaskElapsed(subtask) {
+        if (subtask.status !== STATUS.RUNNING || typeof subtask.runningStartedAt !== "number") {
+          return subtask.elapsedSeconds;
+        }
+        const delta = Math.max(0, Math.floor((Date.now() - subtask.runningStartedAt) / 1000));
+        return subtask.elapsedSeconds + delta;
+      }
+
+      function computeStats() {
+        let subtaskCount = 0;
+        let runningCount = 0;
+        let doneCount = 0;
+        forEachSubtask((_, subtask) => {
+          subtaskCount += 1;
+          if (subtask.status === STATUS.RUNNING) {
+            runningCount += 1;
+          }
+          if (subtask.status === STATUS.DONE) {
+            doneCount += 1;
+          }
+        });
+        return {
+          parentCount: state.parents.length,
+          subtaskCount,
+          runningCount,
+          doneCount
+        };
+      }
+
+      function updateStats() {
+        const stats = computeStats();
+        els.parentCount.textContent = String(stats.parentCount);
+        els.subtaskCount.textContent = String(stats.subtaskCount);
+        els.runningCount.textContent = String(stats.runningCount);
+        els.doneCount.textContent = String(stats.doneCount);
+      }
+
+      function getStartButtonConfig(subtask) {
+        if (subtask.status === STATUS.NOT_STARTED) {
+          return { icon: "play_arrow", label: "開始", className: "", disabled: false };
+        }
+        if (subtask.status === STATUS.RUNNING) {
+          return { icon: "hourglass_top", label: "進行中", className: "state-running", disabled: true };
+        }
+        if (subtask.status === STATUS.PAUSED) {
+          return { icon: "play_arrow", label: "再開", className: "state-paused", disabled: false };
+        }
+        if (subtask.status === STATUS.DONE) {
+          return { icon: "task_alt", label: "完了済み", className: "state-done", disabled: true };
+        }
+        return { icon: "replay", label: "再開", className: "state-interrupted", disabled: false };
+      }
+
+      function renderTaskTree() {
+        const hasData = state.parents.length > 0;
+        els.emptyState.hidden = hasData;
+        els.taskTree.hidden = !hasData;
+        if (!hasData) {
+          els.taskTree.innerHTML = "";
+          return;
+        }
+
+        const runningInfo = getRunningSubtask();
+        const locked = Boolean(runningInfo);
+        let html = "";
+        state.parents.forEach((parent, parentIndex) => {
+          const count = parent.subtasks.length;
+          const parentDelay = Math.min(parentIndex * 50, 280);
+          html += `<article class="parent-card" style="animation-delay:${parentDelay}ms;">`;
+          html += `<div class="parent-header">`;
+          html += `<div class="parent-main">`;
+          html += `<button type="button" class="collapse-btn" data-action="toggle-parent" data-parent-id="${parent.id}" ${locked ? "disabled" : ""} aria-label="${parent.isExpanded ? "折りたたむ" : "展開する"}" title="${parent.isExpanded ? "折りたたむ" : "展開する"}"><span class="material-symbols-outlined" aria-hidden="true">${parent.isExpanded ? "expand_more" : "chevron_right"}</span></button>`;
+          html += `<h3 class="parent-name">${escapeHtml(parent.name)}</h3>`;
+          html += `<span class="task-count">${count}件</span>`;
+          html += `</div>`;
+          html += `<div class="parent-actions">`;
+          html += `<button type="button" class="ghost-btn icon-only" data-action="edit-parent" data-parent-id="${parent.id}" ${locked ? "disabled" : ""} aria-label="親タスクを編集" title="親タスクを編集"><span class="material-symbols-outlined" aria-hidden="true">edit</span></button>`;
+          html += `</div>`;
+          html += `</div>`;
+
+          if (parent.isExpanded) {
+            html += `<div class="subtask-list">`;
+            if (parent.subtasks.length === 0) {
+              html += `<p class="modal-sub">小タスクはまだありません。</p>`;
+            } else {
+              parent.subtasks.forEach((subtask) => {
+                const startButton = getStartButtonConfig(subtask);
+                const isRunning = subtask.status === STATUS.RUNNING;
+                const runningElapsed = getSubtaskElapsed(subtask);
+                const actionDisabled = locked && !isRunning;
+                html += `<div class="subtask-row ${isRunning ? "running" : ""}">`;
+                html += `<button type="button" class="start-btn ${startButton.className}" data-action="start-subtask" data-parent-id="${parent.id}" data-subtask-id="${subtask.id}" ${(startButton.disabled || actionDisabled) ? "disabled" : ""} aria-label="${startButton.label}" title="${startButton.label}"><span class="material-symbols-outlined" aria-hidden="true">${startButton.icon}</span></button>`;
+                html += `<div class="subtask-content">`;
+                html += `<p class="subtask-name">${escapeHtml(subtask.name)}</p>`;
+                html += `<div class="subtask-meta">`;
+                html += `<span>ID: ${String(subtask.id).slice(0, 6)}</span>`;
+                if (subtask.elapsedSeconds > 0 || isRunning || subtask.status === STATUS.PAUSED || subtask.status === STATUS.DONE || subtask.status === STATUS.INTERRUPTED) {
+                  html += `<span class="elapsed-mini">${formatElapsed(runningElapsed)}</span>`;
+                }
+                html += `</div>`;
+                html += `</div>`;
+                html += `<button type="button" class="soft-btn icon-only" data-action="edit-subtask" data-parent-id="${parent.id}" data-subtask-id="${subtask.id}" ${(locked || isRunning) ? "disabled" : ""} aria-label="小タスクを編集" title="小タスクを編集"><span class="material-symbols-outlined" aria-hidden="true">edit</span></button>`;
+                html += `<span class="status-pill ${STATUS_CLASS[subtask.status]}">${STATUS_LABEL[subtask.status]}</span>`;
+                html += `</div>`;
+              });
+            }
+            html += `</div>`;
+          }
+          html += `</article>`;
+        });
+
+        els.taskTree.innerHTML = html;
+      }
+
+      function renderAll() {
+        const runningLocked = isAnyTaskRunning();
+        els.addParentBtn.disabled = runningLocked;
+        updateStats();
+        renderTaskTree();
+        syncLockStateWithRunningModal();
+      }
+
+      function escapeHtml(text) {
+        return String(text)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function findParent(parentId) {
+        return state.parents.find((parent) => parent.id === parentId) || null;
+      }
+
+      function findSubtask(parentId, subtaskId) {
+        const parent = findParent(parentId);
+        if (!parent) {
+          return null;
+        }
+        const subtask = parent.subtasks.find((item) => item.id === subtaskId) || null;
+        return subtask ? { parent, subtask } : null;
+      }
+
+      function openModal(name, dismissable = true) {
+        const target = modalMap[name];
+        if (!target) {
+          return;
+        }
+
+        Object.values(modalMap).forEach((layer) => {
+          layer.classList.remove("visible");
+          layer.setAttribute("aria-hidden", "true");
+        });
+
+        target.classList.add("visible");
+        target.setAttribute("aria-hidden", "false");
+        state.modal = name;
+        state.modalDismissable = dismissable;
+        document.body.classList.add("lock-scroll");
+        focusFirstElementInModal(target);
+      }
+
+      function closeCurrentModal() {
+        if (!state.modal) {
+          return;
+        }
+        const layer = modalMap[state.modal];
+        if (layer) {
+          layer.classList.remove("visible");
+          layer.setAttribute("aria-hidden", "true");
+        }
+        state.modal = null;
+        state.modalDismissable = true;
+        if (!modalMap.running.classList.contains("visible")) {
+          document.body.classList.remove("lock-scroll");
+        }
+      }
+
+      function focusableElements(container) {
+        return Array.from(container.querySelectorAll(
+          "button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])"
+        )).filter((el) => !el.hasAttribute("hidden"));
+      }
+
+      function getActiveModalLayerForFocus() {
+        if (state.modal && modalMap[state.modal] && modalMap[state.modal].classList.contains("visible")) {
+          return modalMap[state.modal];
+        }
+        if (modalMap.running.classList.contains("visible")) {
+          return modalMap.running;
+        }
+        return null;
+      }
+
+      function focusFirstElementInModal(layer) {
+        const modal = layer.querySelector(".modal, .running-modal");
+        if (!modal) {
+          return;
+        }
+        const targets = focusableElements(modal);
+        if (targets.length > 0) {
+          targets[0].focus();
+        }
+      }
+
+      function trapFocusInActiveModal(event) {
+        const layer = getActiveModalLayerForFocus();
+        if (!layer) {
+          return;
+        }
+        const modal = layer.querySelector(".modal, .running-modal");
+        if (!modal) {
+          return;
+        }
+        const focusables = focusableElements(modal);
+        if (focusables.length === 0) {
+          return;
+        }
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+
+      function isAnyTaskRunning() {
+        return Boolean(getRunningSubtask());
+      }
+
+      function syncLockStateWithRunningModal() {
+        const running = getRunningSubtask();
+        const shouldShow = Boolean(running);
+        if (!shouldShow) {
+          modalMap.running.classList.remove("visible");
+          modalMap.running.setAttribute("aria-hidden", "true");
+          if (!state.modal) {
+            document.body.classList.remove("lock-scroll");
+          }
+          return;
+        }
+
+        els.runningParentName.textContent = running.parent.name;
+        els.runningSubtaskName.textContent = running.subtask.name;
+        els.runningTimer.textContent = formatElapsed(getSubtaskElapsed(running.subtask));
+        const wasVisible = modalMap.running.classList.contains("visible");
+        modalMap.running.classList.add("visible");
+        modalMap.running.setAttribute("aria-hidden", "false");
+        document.body.classList.add("lock-scroll");
+        if (!wasVisible) {
+          focusFirstElementInModal(modalMap.running);
+        }
+      }
+
+      function clearParentModalRows() {
+        els.subtaskInputList.innerHTML = "";
+      }
+
+      function addParentModalRow(value = "", subtaskId = "") {
+        const row = document.createElement("div");
+        row.className = "subtask-input-row";
+        row.dataset.subtaskId = subtaskId;
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "text-input";
+        input.maxLength = 100;
+        input.placeholder = "小タスク名";
+        input.value = value;
+        input.setAttribute("aria-label", "小タスク名");
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "icon-btn icon-only";
+        deleteBtn.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">delete</span><span class="sr-only">小タスク行を削除</span>';
+        deleteBtn.setAttribute("aria-label", "小タスク行を削除");
+        deleteBtn.addEventListener("click", () => {
+          row.remove();
+          if (els.subtaskInputList.children.length === 0) {
+            addParentModalRow("");
+          }
+        });
+
+        row.appendChild(input);
+        row.appendChild(deleteBtn);
+        els.subtaskInputList.appendChild(row);
+      }
+
+      function buildParentModalSnapshot() {
+        const parentName = trimText(els.parentNameInput.value);
+        const rows = Array.from(els.subtaskInputList.querySelectorAll(".subtask-input-row")).map((row) => ({
+          id: row.dataset.subtaskId || "",
+          value: trimText(row.querySelector("input").value)
+        }));
+        return JSON.stringify({
+          parentName,
+          rows
+        });
+      }
+
+      function openParentModal(mode, parentId = null) {
+        if (isAnyTaskRunning()) {
+          showNotice("実行中のため編集できません。", "error", 3200);
+          return;
+        }
+
+        state.parentModalMode = mode;
+        state.editingParentId = parentId;
+        els.parentModalError.textContent = "";
+        clearParentModalRows();
+
+        if (mode === "create") {
+          els.parentModalTitle.textContent = "親タスクを追加";
+          els.parentModalSub.textContent = "親タスクと配下の小タスクをまとめて登録します。";
+          els.parentNameInput.value = "";
+          addParentModalRow("");
+        } else {
+          const parent = findParent(parentId);
+          if (!parent) {
+            showNotice("親タスクが見つかりません。", "error");
+            return;
+          }
+          els.parentModalTitle.textContent = "親タスクを編集";
+          els.parentModalSub.textContent = "親タスク名と配下の小タスクを編集できます。";
+          els.parentNameInput.value = parent.name;
+          if (parent.subtasks.length === 0) {
+            addParentModalRow("");
+          } else {
+            parent.subtasks.forEach((subtask) => addParentModalRow(subtask.name, subtask.id));
+          }
+        }
+
+        openModal("parent", true);
+        state.initialParentModalSnapshot = buildParentModalSnapshot();
+      }
+
+      function closeParentModalWithConfirm() {
+        const changed = state.initialParentModalSnapshot !== buildParentModalSnapshot();
+        if (changed) {
+          const shouldClose = confirm("編集内容が保存されていません。閉じますか？");
+          if (!shouldClose) {
+            return;
+          }
+        }
+        closeCurrentModal();
+      }
+
+      function collectParentModalInputs() {
+        const parentName = trimText(els.parentNameInput.value);
+        const rows = Array.from(els.subtaskInputList.querySelectorAll(".subtask-input-row")).map((row) => {
+          const input = row.querySelector("input");
+          return {
+            id: row.dataset.subtaskId || null,
+            name: trimText(input ? input.value : "")
+          };
+        });
+        return { parentName, rows };
+      }
+
+      function validateParentAndRows(parentName, rows) {
+        if (!parentName) {
+          return "親タスク名を入力してください";
+        }
+        if (parentName.length > 100) {
+          return "100文字以内で入力してください";
+        }
+
+        const nonEmptyNames = [];
+        for (const row of rows) {
+          if (!row.name) {
+            continue;
+          }
+          if (row.name.length > 100) {
+            return "100文字以内で入力してください";
+          }
+          nonEmptyNames.push(row.name);
+        }
+
+        const unique = new Set(nonEmptyNames);
+        if (unique.size !== nonEmptyNames.length) {
+          return "同一親配下で小タスク名が重複しています";
+        }
+
+        return "";
+      }
+
+      function saveParentModal() {
+        const { parentName, rows } = collectParentModalInputs();
+        const validationError = validateParentAndRows(parentName, rows);
+        if (validationError) {
+          els.parentModalError.textContent = validationError;
+          return;
+        }
+        const now = getNowISO();
+
+        if (state.parentModalMode === "create") {
+          const parentId = uid();
+          const subtasks = rows
+            .filter((row) => row.name)
+            .map((row, index) => ({
+              id: uid(),
+              parentId,
+              name: row.name,
+              status: STATUS.NOT_STARTED,
+              startedAt: null,
+              pausedAt: null,
+              completedAt: null,
+              interruptedAt: null,
+              elapsedSeconds: 0,
+              runningStartedAt: null,
+              sortOrder: index,
+              createdAt: now,
+              updatedAt: now
+            }));
+
+          state.parents.push({
+            id: parentId,
+            name: parentName,
+            isExpanded: true,
+            sortOrder: state.parents.length,
+            createdAt: now,
+            updatedAt: now,
+            subtasks
+          });
+          showNotice("親タスクを追加しました。", "info");
+        } else {
+          const parent = findParent(state.editingParentId);
+          if (!parent) {
+            els.parentModalError.textContent = "親タスクが見つかりません。";
+            return;
+          }
+
+          const existingMap = new Map(parent.subtasks.map((subtask) => [subtask.id, subtask]));
+          const updatedSubtasks = [];
+
+          rows.forEach((row, index) => {
+            if (!row.name) {
+              return;
+            }
+            const existing = row.id ? existingMap.get(row.id) : null;
+            if (existing) {
+              existing.name = row.name;
+              existing.sortOrder = index;
+              existing.updatedAt = now;
+              updatedSubtasks.push(existing);
+              return;
+            }
+            updatedSubtasks.push({
+              id: uid(),
+              parentId: parent.id,
+              name: row.name,
+              status: STATUS.NOT_STARTED,
+              startedAt: null,
+              pausedAt: null,
+              completedAt: null,
+              interruptedAt: null,
+              elapsedSeconds: 0,
+              runningStartedAt: null,
+              sortOrder: index,
+              createdAt: now,
+              updatedAt: now
+            });
+          });
+
+          parent.name = parentName;
+          parent.subtasks = updatedSubtasks;
+          parent.updatedAt = now;
+          showNotice("親タスクを更新しました。", "info");
+        }
+
+        closeCurrentModal();
+        renderAll();
+        saveState();
+      }
+
+      function openSubtaskModal(parentId, subtaskId) {
+        if (isAnyTaskRunning()) {
+          showNotice("実行中のため編集できません。", "error");
+          return;
+        }
+        const found = findSubtask(parentId, subtaskId);
+        if (!found) {
+          showNotice("小タスクが見つかりません。", "error");
+          return;
+        }
+        if (found.subtask.status === STATUS.RUNNING) {
+          showNotice("実行中のため編集できません。", "error");
+          return;
+        }
+        if (found.subtask.status === STATUS.DONE) {
+          const ok = confirm("完了済みタスクを編集しますか？");
+          if (!ok) {
+            return;
+          }
+        }
+        state.editingSubtaskContext = { parentId, subtaskId };
+        els.subtaskModalError.textContent = "";
+        els.subtaskNameInput.value = found.subtask.name;
+        openModal("subtask", true);
+        state.initialSubtaskModalValue = trimText(found.subtask.name);
+      }
+
+      function closeSubtaskModalWithConfirm() {
+        const changed = trimText(els.subtaskNameInput.value) !== state.initialSubtaskModalValue;
+        if (changed) {
+          const shouldClose = confirm("編集内容が保存されていません。閉じますか？");
+          if (!shouldClose) {
+            return;
+          }
+        }
+        closeCurrentModal();
+      }
+
+      function saveSubtaskModal() {
+        if (!state.editingSubtaskContext) {
+          closeCurrentModal();
+          return;
+        }
+        const { parentId, subtaskId } = state.editingSubtaskContext;
+        const found = findSubtask(parentId, subtaskId);
+        if (!found) {
+          els.subtaskModalError.textContent = "小タスクが見つかりません。";
+          return;
+        }
+        const nextName = trimText(els.subtaskNameInput.value);
+        if (!nextName) {
+          els.subtaskModalError.textContent = "小タスク名を入力してください";
+          return;
+        }
+        if (nextName.length > 100) {
+          els.subtaskModalError.textContent = "100文字以内で入力してください";
+          return;
+        }
+        const duplicate = found.parent.subtasks.some((subtask) => subtask.id !== subtaskId && trimText(subtask.name) === nextName);
+        if (duplicate) {
+          els.subtaskModalError.textContent = "同一親配下で小タスク名が重複しています";
+          return;
+        }
+
+        found.subtask.name = nextName;
+        found.subtask.updatedAt = getNowISO();
+        closeCurrentModal();
+        renderAll();
+        saveState();
+        showNotice("小タスクを更新しました。", "info");
+      }
+
+      function openStartConfirm(parentId, subtaskId) {
+        state.pendingStart = { parentId, subtaskId };
+        els.skipStartConfirmCheck.checked = false;
+        els.startConfirmError.textContent = "";
+        openModal("startConfirm", true);
+      }
+
+      function performStart(parentId, subtaskId) {
+        if (isAnyTaskRunning()) {
+          showNotice("すでに進行中の小タスクがあります。", "error");
+          return;
+        }
+        const found = findSubtask(parentId, subtaskId);
+        if (!found) {
+          showNotice("小タスクが見つかりません。", "error");
+          return;
+        }
+
+        if (found.subtask.status === STATUS.DONE) {
+          showNotice("完了済みタスクは再開できません。", "error");
+          return;
+        }
+
+        const nowIso = getNowISO();
+        if (!found.subtask.startedAt) {
+          found.subtask.startedAt = nowIso;
+        }
+        found.subtask.status = STATUS.RUNNING;
+        found.subtask.runningStartedAt = Date.now();
+        found.subtask.pausedAt = null;
+        found.subtask.updatedAt = nowIso;
+        found.parent.updatedAt = nowIso;
+        renderAll();
+        saveState();
+      }
+
+      function requestStart(parentId, subtaskId) {
+        const found = findSubtask(parentId, subtaskId);
+        if (!found) {
+          showNotice("小タスクが見つかりません。", "error");
+          return;
+        }
+        if (found.subtask.status === STATUS.DONE) {
+          showNotice("完了済みタスクは再開できません。", "error");
+          return;
+        }
+        if (isAnyTaskRunning()) {
+          showNotice("すでに進行中の小タスクがあります。", "error");
+          return;
+        }
+        if (state.showStartConfirm) {
+          openStartConfirm(parentId, subtaskId);
+          return;
+        }
+        performStart(parentId, subtaskId);
+      }
+
+      function closeStartConfirmAndResetPending() {
+        state.pendingStart = null;
+        closeCurrentModal();
+      }
+
+      function completeRunningAction(nextStatus) {
+        const running = getRunningSubtask();
+        if (!running) {
+          return;
+        }
+
+        if (nextStatus === STATUS.INTERRUPTED) {
+          const ok = confirm("このタスクを中断しますか？");
+          if (!ok) {
+            return;
+          }
+        }
+
+        const { subtask, parent } = running;
+        const now = Date.now();
+        const nowIso = getNowISO();
+        if (typeof subtask.runningStartedAt === "number") {
+          const delta = Math.max(0, Math.floor((now - subtask.runningStartedAt) / 1000));
+          subtask.elapsedSeconds += delta;
+        }
+        subtask.runningStartedAt = null;
+        subtask.status = nextStatus;
+        subtask.updatedAt = nowIso;
+        if (nextStatus === STATUS.PAUSED) {
+          subtask.pausedAt = nowIso;
+        } else if (nextStatus === STATUS.DONE) {
+          subtask.completedAt = nowIso;
+        } else if (nextStatus === STATUS.INTERRUPTED) {
+          subtask.interruptedAt = nowIso;
+        }
+        parent.updatedAt = nowIso;
+
+        renderAll();
+        saveState();
+
+        if (nextStatus === STATUS.DONE) {
+          showNotice("小タスクを完了しました。", "info");
+        } else if (nextStatus === STATUS.PAUSED) {
+          showNotice("小タスクを一時停止しました。", "info");
+        } else {
+          showNotice("小タスクを中断しました。", "info");
+        }
+      }
+
+      function toggleParent(parentId) {
+        if (isAnyTaskRunning()) {
+          showNotice("実行中は操作できません。", "error");
+          return;
+        }
+        const parent = findParent(parentId);
+        if (!parent) {
+          return;
+        }
+        parent.isExpanded = !parent.isExpanded;
+        parent.updatedAt = getNowISO();
+        renderAll();
+        saveState();
+      }
+
+      function handleTaskTreeClick(event) {
+        const actionEl = event.target.closest("[data-action]");
+        if (!actionEl) {
+          return;
+        }
+        const { action, parentId, subtaskId } = actionEl.dataset;
+
+        if (action === "toggle-parent") {
+          toggleParent(parentId);
+          return;
+        }
+        if (action === "edit-parent") {
+          openParentModal("edit", parentId);
+          return;
+        }
+        if (action === "edit-subtask") {
+          openSubtaskModal(parentId, subtaskId);
+          return;
+        }
+        if (action === "start-subtask") {
+          requestStart(parentId, subtaskId);
+        }
+      }
+
+      function validateKeydown(event) {
+        if (event.key === "Tab") {
+          trapFocusInActiveModal(event);
+        }
+
+        if (event.key === "Escape") {
+          if (modalMap.running.classList.contains("visible")) {
+            event.preventDefault();
+            return;
+          }
+          if (!state.modal || !state.modalDismissable) {
+            return;
+          }
+          event.preventDefault();
+          if (state.modal === "parent") {
+            closeParentModalWithConfirm();
+            return;
+          }
+          if (state.modal === "subtask") {
+            closeSubtaskModalWithConfirm();
+            return;
+          }
+          closeCurrentModal();
+        }
+      }
+
+      function onModalBackdropClick(event) {
+        if (!(event.target instanceof HTMLElement)) {
+          return;
+        }
+        const layer = event.target.closest(".modal-layer");
+        if (!layer || event.target !== layer) {
+          return;
+        }
+        if (layer.id === "runningLayer") {
+          return;
+        }
+        if (layer.id === "parentModalLayer") {
+          closeParentModalWithConfirm();
+          return;
+        }
+        if (layer.id === "subtaskModalLayer") {
+          closeSubtaskModalWithConfirm();
+          return;
+        }
+        closeCurrentModal();
+      }
+
+      function installEvents() {
+        els.addParentBtn.addEventListener("click", () => openParentModal("create"));
+        els.taskTree.addEventListener("click", handleTaskTreeClick);
+
+        els.addSubtaskInputBtn.addEventListener("click", () => addParentModalRow(""));
+        els.parentModalCancelBtn.addEventListener("click", closeParentModalWithConfirm);
+        els.parentModalSaveBtn.addEventListener("click", saveParentModal);
+
+        els.subtaskModalCancelBtn.addEventListener("click", closeSubtaskModalWithConfirm);
+        els.subtaskModalSaveBtn.addEventListener("click", saveSubtaskModal);
+
+        els.startConfirmCancelBtn.addEventListener("click", closeStartConfirmAndResetPending);
+        els.startConfirmOkBtn.addEventListener("click", () => {
+          if (!state.pendingStart) {
+            els.startConfirmError.textContent = "開始対象が見つかりません。";
+            return;
+          }
+          state.showStartConfirm = !els.skipStartConfirmCheck.checked;
+          const { parentId, subtaskId } = state.pendingStart;
+          closeStartConfirmAndResetPending();
+          performStart(parentId, subtaskId);
+          saveState();
+        });
+
+        els.completeBtn.addEventListener("click", () => completeRunningAction(STATUS.DONE));
+        els.pauseBtn.addEventListener("click", () => completeRunningAction(STATUS.PAUSED));
+        els.interruptBtn.addEventListener("click", () => completeRunningAction(STATUS.INTERRUPTED));
+
+        document.addEventListener("keydown", validateKeydown);
+        document.querySelectorAll(".modal-layer").forEach((layer) => {
+          layer.addEventListener("click", onModalBackdropClick);
+        });
+      }
+
+      function setupTicker() {
+        setInterval(() => {
+          const running = getRunningSubtask();
+          if (!running) {
+            return;
+          }
+          const elapsed = getSubtaskElapsed(running.subtask);
+          els.runningTimer.textContent = formatElapsed(elapsed);
+
+          const currentVisibleRunning = els.taskTree.querySelector(".subtask-row.running .elapsed-mini");
+          if (currentVisibleRunning) {
+            currentVisibleRunning.textContent = formatElapsed(elapsed);
+          }
+        }, 1000);
+      }
+
+      function initialize() {
+        loadState();
+        reconcileRunningState();
+        installEvents();
+        renderAll();
+        setupTicker();
+
+        if (isAnyTaskRunning()) {
+          showNotice("実行中のタスクを復元しました。", "info", 2600);
+        }
+      }
+
+      initialize();
+    })();
+  </script>
+</body>
+</html>

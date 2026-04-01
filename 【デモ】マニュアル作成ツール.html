@@ -1,0 +1,2340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monolith — Document Builder</title>
+<style>
+/* ============================================================
+   MONOLITH DESIGN SYSTEM — CSS Foundation
+   ============================================================ */
+
+/* --- Design Tokens (CSS Variables) --- */
+:root {
+  /* Colors - Light Mode */
+  --bg-app: #F5F5F7;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #FFFFFF;
+  --bg-sidebar: #1C1C1E;
+  --bg-sidebar-hover: #2C2C2E;
+  --bg-sidebar-active: #3A3A3C;
+  --text-primary: #1C1C1E;
+  --text-secondary: #8E8E93;
+  --text-tertiary: #AEAEB2;
+  --text-on-dark: #F5F5F7;
+  --text-on-dark-secondary: #AEAEB2;
+  --border-color: #E5E5EA;
+  --border-subtle: #F2F2F7;
+
+  --accent-base: #FF2D55;
+  --accent-hover: #FF375F;
+  --accent-active: #E0264B;
+  --accent-surface: #FFD4DF;
+  --accent-text: #C9163E;
+
+  --semantic-success: #34C759;
+  --semantic-success-surface: #D4F5DD;
+  --semantic-warning: #FF9F0A;
+  --semantic-warning-surface: #FFF0D4;
+  --semantic-error: #FF3B30;
+  --semantic-error-surface: #FFD4D1;
+  --semantic-info: #007AFF;
+  --semantic-info-surface: #D4E8FF;
+
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "SF Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+
+  /* Spacing (8px grid) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 40px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 80px;
+  --space-10: 128px;
+
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* Shadows (Luxury Depth) */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.12);
+  --shadow-xl: 0 20px 48px rgba(0,0,0,0.16);
+  --shadow-focus: 0 0 0 3px rgba(0,122,255,0.5);
+
+  /* Animation */
+  --spring-smooth: cubic-bezier(0.25, 1, 0.5, 1);
+  --spring-bouncy: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+
+  /* Layout */
+  --sidebar-width: 280px;
+  --preview-width: 42%;
+  --header-height: 52px;
+  --drawer-width: 480px;
+}
+
+/* --- Dark Mode --- */
+[data-theme="dark"] {
+  --bg-app: #000000;
+  --bg-surface: #1C1C1E;
+  --bg-elevated: #2C2C2E;
+  --bg-sidebar: #000000;
+  --bg-sidebar-hover: #1C1C1E;
+  --bg-sidebar-active: #2C2C2E;
+  --text-primary: #F5F5F7;
+  --text-secondary: #AEAEB2;
+  --text-tertiary: #8E8E93;
+  --border-color: #38383A;
+  --border-subtle: #2C2C2E;
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.5);
+  --shadow-xl: 0 20px 48px rgba(0,0,0,0.6);
+}
+
+/* --- Reset & Base --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: var(--bg-app);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* --- Scrollbar Styling --- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--text-tertiary); border-radius: var(--radius-full); }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+/* --- Focus Ring (WCAG) --- */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+/* ============================================================
+   LAYOUT — App Shell
+   ============================================================ */
+.app-shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr var(--preview-width);
+  grid-template-rows: var(--header-height) 1fr;
+  height: 100vh;
+  width: 100vw;
+  transition: grid-template-columns var(--duration-slow) var(--spring-smooth);
+}
+
+.app-shell.preview-collapsed {
+  grid-template-columns: var(--sidebar-width) 1fr 0px;
+}
+
+/* --- Header --- */
+.header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-4);
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 100;
+  gap: var(--space-3);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.header-logo {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.header-logo .logo-mark {
+  width: 24px;
+  height: 24px;
+  background: var(--accent-base);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.header-title-input {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+  transition: border-color var(--duration-fast);
+  min-width: 200px;
+}
+
+.header-title-input:hover { border-color: var(--border-color); }
+.header-title-input:focus { border-color: var(--semantic-info); outline: none; box-shadow: none; }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* --- Sidebar --- */
+.sidebar {
+  background: var(--bg-sidebar);
+  color: var(--text-on-dark);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
+
+.sidebar-header {
+  padding: var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-header h2 {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-on-dark-secondary);
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 var(--space-2) var(--space-3);
+}
+
+.sidebar-footer {
+  padding: var(--space-3);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* --- Sidebar Items (Draggable) --- */
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--duration-fast), transform var(--duration-fast);
+  font-size: var(--text-sm);
+  color: var(--text-on-dark);
+  user-select: none;
+  position: relative;
+}
+
+.sidebar-item:hover { background: var(--bg-sidebar-hover); }
+.sidebar-item.active { background: var(--bg-sidebar-active); }
+.sidebar-item.dragging {
+  opacity: 0.6;
+  transform: scale(1.02);
+  box-shadow: var(--shadow-lg);
+}
+
+.sidebar-item .drag-handle {
+  cursor: grab;
+  opacity: 0;
+  transition: opacity var(--duration-fast);
+  color: var(--text-on-dark-secondary);
+  font-size: var(--text-xs);
+}
+
+.sidebar-item:hover .drag-handle { opacity: 1; }
+.sidebar-item .drag-handle:active { cursor: grabbing; }
+
+.sidebar-item .item-icon {
+  font-size: var(--text-base);
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+}
+
+.sidebar-item .item-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-item .item-badge {
+  font-size: var(--text-xs);
+  background: rgba(255,255,255,0.1);
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  color: var(--text-on-dark-secondary);
+}
+
+.sidebar-item[data-depth="1"] { padding-left: calc(var(--space-3) + 20px); }
+.sidebar-item[data-depth="2"] { padding-left: calc(var(--space-3) + 40px); }
+
+.drop-indicator {
+  height: 2px;
+  background: var(--accent-base);
+  border-radius: 1px;
+  margin: 0 var(--space-2);
+  opacity: 0;
+  transition: opacity var(--duration-fast);
+}
+
+.drop-indicator.visible { opacity: 1; }
+
+/* --- Canvas (Main Content Area) --- */
+.canvas {
+  background: var(--bg-app);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.canvas-inner {
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5);
+  flex: 1;
+}
+
+/* --- Content Blocks --- */
+.content-block {
+  position: relative;
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  padding: var(--space-4);
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+}
+
+.content-block:hover {
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.content-block.selected {
+  border-color: var(--accent-base);
+  box-shadow: 0 0 0 1px var(--accent-base);
+}
+
+.block-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+  opacity: 0;
+  transition: opacity var(--duration-fast);
+}
+
+.content-block:hover .block-toolbar,
+.content-block.selected .block-toolbar { opacity: 1; }
+
+.block-type-label {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  margin-right: auto;
+}
+
+/* --- Editable Areas --- */
+.editable {
+  outline: none;
+  min-height: 1.6em;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.editable:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+.editable.heading-1 {
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.editable.heading-2 {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.editable.heading-3 {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+/* --- Callout Blocks (Hint, Warning, Quote) --- */
+.callout-block {
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.callout-block .callout-icon { font-size: var(--text-xl); flex-shrink: 0; }
+.callout-block .callout-content { flex: 1; }
+
+.callout-hint { background: var(--semantic-info-surface); border-left: 3px solid var(--semantic-info); }
+.callout-warning { background: var(--semantic-warning-surface); border-left: 3px solid var(--semantic-warning); }
+.callout-error { background: var(--semantic-error-surface); border-left: 3px solid var(--semantic-error); }
+.callout-success { background: var(--semantic-success-surface); border-left: 3px solid var(--semantic-success); }
+
+.callout-quote {
+  background: var(--bg-elevated);
+  border-left: 4px solid var(--text-primary);
+  font-size: var(--text-lg);
+  font-style: italic;
+}
+
+/* --- Code Block --- */
+.code-block-wrapper {
+  background: #1C1C1E;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  background: rgba(255,255,255,0.04);
+  font-size: var(--text-xs);
+  color: #AEAEB2;
+}
+
+.code-block-content {
+  padding: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: #F5F5F7;
+  line-height: 1.6;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  tab-size: 2;
+  outline: none;
+}
+
+/* --- Image Block --- */
+.image-block {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-elevated);
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px dashed var(--border-color);
+  transition: border-color var(--duration-fast), background var(--duration-fast);
+}
+
+.image-block:hover { border-color: var(--accent-base); background: var(--accent-surface); }
+.image-block.has-image { border-style: solid; border-color: transparent; }
+.image-block.has-image:hover { border-color: var(--accent-base); }
+
+.image-block img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.image-placeholder {
+  text-align: center;
+  color: var(--text-tertiary);
+}
+
+.image-placeholder .upload-icon { font-size: var(--text-4xl); margin-bottom: var(--space-2); }
+
+/* --- Table Block --- */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.table-wrapper th, .table-wrapper td {
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  outline: none;
+  min-width: 100px;
+}
+
+.table-wrapper th {
+  font-weight: 600;
+  background: var(--bg-elevated);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+.table-wrapper td:focus { background: var(--accent-surface); }
+
+/* --- Divider --- */
+.section-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: var(--space-5) 0;
+}
+
+/* --- Add Block Button --- */
+.add-block-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3);
+  opacity: 0;
+  transition: opacity var(--duration-normal);
+}
+
+.canvas-inner:hover .add-block-bar { opacity: 1; }
+
+.add-block-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  font-family: var(--font-sans);
+}
+
+.add-block-btn:hover {
+  border-color: var(--accent-base);
+  color: var(--accent-base);
+  background: var(--accent-surface);
+}
+
+/* --- Block Type Picker (Popover) --- */
+.block-picker {
+  position: fixed;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  padding: var(--space-2);
+  z-index: 500;
+  min-width: 240px;
+  display: none;
+}
+
+.block-picker.visible { display: block; animation: fadeSlideUp 200ms var(--spring-smooth); }
+
+.block-picker-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  transition: background var(--duration-fast);
+  border: none;
+  background: none;
+  width: 100%;
+  font-family: var(--font-sans);
+  text-align: left;
+}
+
+.block-picker-item:hover { background: var(--accent-surface); }
+.block-picker-item .picker-icon { font-size: var(--text-lg); width: 28px; text-align: center; }
+.block-picker-item .picker-label { font-weight: 500; }
+
+/* ============================================================
+   PREVIEW PANE
+   ============================================================ */
+.preview-pane {
+  background: var(--bg-surface);
+  border-left: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width var(--duration-slow) var(--spring-smooth);
+}
+
+.preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.preview-header h3 {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.preview-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-5);
+}
+
+.preview-body .preview-content {
+  font-size: var(--text-sm);
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+.preview-content h1 {
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  margin-bottom: var(--space-4);
+  letter-spacing: -0.02em;
+}
+
+.preview-content h2 {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  margin: var(--space-5) 0 var(--space-3);
+  letter-spacing: -0.01em;
+}
+
+.preview-content h3 {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  margin: var(--space-4) 0 var(--space-2);
+}
+
+.preview-content p { margin-bottom: var(--space-3); }
+
+.preview-content img { max-width: 100%; border-radius: var(--radius-md); margin: var(--space-3) 0; }
+
+.preview-content pre {
+  background: #1C1C1E;
+  color: #F5F5F7;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  overflow-x: auto;
+  margin: var(--space-3) 0;
+}
+
+.preview-content blockquote {
+  border-left: 4px solid var(--text-primary);
+  padding: var(--space-3) var(--space-4);
+  font-style: italic;
+  margin: var(--space-3) 0;
+  background: var(--bg-elevated);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.preview-content .info-box {
+  background: var(--semantic-info-surface);
+  border-left: 3px solid var(--semantic-info);
+  padding: var(--space-3);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  margin: var(--space-3) 0;
+}
+
+.preview-content .warning-box {
+  background: var(--semantic-warning-surface);
+  border-left: 3px solid var(--semantic-warning);
+  padding: var(--space-3);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  margin: var(--space-3) 0;
+}
+
+.preview-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-3) 0;
+  font-size: var(--text-xs);
+}
+
+.preview-content table th, .preview-content table td {
+  border: 1px solid var(--border-color);
+  padding: var(--space-2);
+  text-align: left;
+}
+
+.preview-content table th { background: var(--bg-elevated); font-weight: 600; }
+
+/* ============================================================
+   BUTTONS (All Variants)
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.btn-primary {
+  background: var(--accent-base);
+  color: white;
+}
+.btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-primary:active { background: var(--accent-active); transform: translateY(0); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  padding: var(--space-1) var(--space-2);
+}
+.btn-ghost:hover { background: var(--bg-elevated); color: var(--text-primary); }
+
+.btn-icon {
+  background: transparent;
+  color: var(--text-secondary);
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+}
+.btn-icon:hover { background: var(--bg-elevated); color: var(--text-primary); }
+
+.btn-sidebar {
+  background: rgba(255,255,255,0.08);
+  color: var(--text-on-dark);
+  width: 100%;
+  justify-content: flex-start;
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+}
+.btn-sidebar:hover { background: rgba(255,255,255,0.14); }
+
+.btn-danger { background: var(--semantic-error); color: white; }
+.btn-danger:hover { background: #E53529; }
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ============================================================
+   FORM INPUTS
+   ============================================================ */
+.input {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  width: 100%;
+  transition: border-color var(--duration-fast);
+}
+.input:hover { border-color: var(--text-tertiary); }
+.input:focus { outline: none; border-color: var(--semantic-info); box-shadow: var(--shadow-focus); }
+
+.input-underline {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--space-2) 0;
+  width: 100%;
+  transition: border-color var(--duration-fast);
+}
+.input-underline:focus { outline: none; border-color: var(--accent-base); }
+
+textarea.input {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.5;
+}
+
+/* --- Toggle Switch --- */
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--text-tertiary);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background var(--duration-normal);
+  border: none;
+  flex-shrink: 0;
+}
+
+.toggle.active { background: var(--semantic-success); }
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform var(--duration-normal) var(--spring-bouncy);
+  box-shadow: var(--shadow-sm);
+}
+
+.toggle.active::after { transform: translateX(20px); }
+
+/* --- Select Dropdown --- */
+.select-wrap {
+  position: relative;
+}
+
+.select-wrap select {
+  appearance: none;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-5) var(--space-2) var(--space-3);
+  width: 100%;
+  cursor: pointer;
+}
+
+.select-wrap::after {
+  content: '▾';
+  position: absolute;
+  right: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+}
+
+/* ============================================================
+   BADGES & PILLS
+   ============================================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.badge-accent { background: var(--accent-surface); color: var(--accent-text); }
+.badge-success { background: var(--semantic-success-surface); color: #1E7A32; }
+.badge-warning { background: var(--semantic-warning-surface); color: #8A5500; }
+.badge-info { background: var(--semantic-info-surface); color: #004EAD; }
+
+/* ============================================================
+   TOAST NOTIFICATIONS
+   ============================================================ */
+.toast-container {
+  position: fixed;
+  bottom: var(--space-4);
+  right: var(--space-4);
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--space-2);
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  animation: toastIn 300ms var(--spring-bouncy);
+  pointer-events: auto;
+  max-width: 360px;
+}
+
+.toast.toast-exit { animation: toastOut 200ms ease forwards; }
+
+.toast-icon { font-size: var(--text-lg); flex-shrink: 0; }
+.toast-message { flex: 1; }
+
+.toast-success .toast-icon { color: var(--semantic-success); }
+.toast-error .toast-icon { color: var(--semantic-error); }
+.toast-warning .toast-icon { color: var(--semantic-warning); }
+.toast-info .toast-icon { color: var(--semantic-info); }
+
+/* ============================================================
+   MODAL & DRAWER
+   ============================================================ */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 800;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 200ms ease;
+}
+
+.modal-backdrop.visible { display: flex; }
+
+.modal {
+  background: var(--bg-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  max-width: 520px;
+  width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: fadeSlideUp 300ms var(--spring-bouncy);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h2 {
+  font-size: var(--text-xl);
+  font-weight: 700;
+}
+
+.modal-body { padding: var(--space-4); }
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border-color);
+}
+
+/* Drawer */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 700;
+  display: none;
+}
+
+.drawer-backdrop.visible { display: block; }
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--drawer-width);
+  max-width: 90vw;
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-xl);
+  z-index: 750;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform var(--duration-slow) var(--spring-bouncy);
+}
+
+.drawer.open { transform: translateX(0); }
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.drawer-header h2 { font-size: var(--text-xl); font-weight: 700; }
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4);
+}
+
+/* ============================================================
+   SKELETON LOADER
+   ============================================================ */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--border-subtle) 50%, var(--bg-elevated) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+.skeleton-text { height: 14px; margin-bottom: var(--space-2); }
+.skeleton-heading { height: 24px; width: 60%; margin-bottom: var(--space-3); }
+.skeleton-image { height: 160px; }
+
+/* ============================================================
+   PROGRESS BAR
+   ============================================================ */
+.progress-bar {
+  height: 4px;
+  background: var(--border-color);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent-base);
+  border-radius: var(--radius-full);
+  transition: width var(--duration-slow) var(--spring-smooth);
+}
+
+/* ============================================================
+   SEGMENTED TABS
+   ============================================================ */
+.tabs {
+  display: inline-flex;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-full);
+  padding: 2px;
+  gap: 2px;
+  border: 1px solid var(--border-color);
+}
+
+.tab-btn {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active { background: var(--bg-surface); color: var(--text-primary); box-shadow: var(--shadow-sm); }
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-9) var(--space-5);
+  text-align: center;
+  color: var(--text-tertiary);
+}
+
+.empty-state .empty-icon {
+  font-size: var(--text-5xl);
+  margin-bottom: var(--space-4);
+}
+
+.empty-state h2 {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.empty-state p {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  max-width: 400px;
+  margin-bottom: var(--space-5);
+}
+
+/* ============================================================
+   FORMAT TOOLBAR (for rich text)
+   ============================================================ */
+.format-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-1);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  margin-bottom: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.format-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  transition: all var(--duration-fast);
+}
+
+.format-btn:hover { background: var(--bg-elevated); color: var(--text-primary); }
+.format-btn.active { background: var(--accent-surface); color: var(--accent-base); }
+.format-divider { width: 1px; height: 20px; background: var(--border-color); margin: 0 var(--space-1); }
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(8px) scale(0.95); }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.9); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1023px) {
+  .app-shell {
+    grid-template-columns: 250px 1fr;
+  }
+  .preview-pane { display: none; }
+  .app-shell.preview-collapsed { grid-template-columns: 250px 1fr; }
+}
+
+@media (max-width: 767px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: var(--header-height) 1fr 56px;
+  }
+  .sidebar { display: none; }
+  .sidebar.mobile-open {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 600;
+    width: 100%;
+  }
+  .preview-pane { display: none; }
+  .mobile-nav {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border-color);
+    align-items: center;
+    justify-content: space-around;
+    z-index: 100;
+  }
+  .canvas-inner { padding: var(--space-4) var(--space-3); }
+}
+
+/* --- Print Styles --- */
+@media print {
+  .sidebar, .header, .preview-pane, .toast-container, .block-toolbar,
+  .add-block-bar, .format-toolbar, .mobile-nav { display: none !important; }
+
+  .app-shell {
+    display: block;
+    height: auto;
+    overflow: visible;
+  }
+
+  .canvas {
+    overflow: visible;
+  }
+
+  .canvas-inner {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .content-block {
+    border: none;
+    box-shadow: none;
+    break-inside: avoid;
+    padding: 0;
+    margin-bottom: var(--space-3);
+  }
+
+  body { background: white; color: black; }
+}
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
+.hidden { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+.mobile-nav { display: none; }
+</style>
+</head>
+<body>
+<!-- ============================================================
+     APP SHELL
+     ============================================================ -->
+<div class="app-shell" id="appShell">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <button class="btn btn-icon mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Menu">☰</button>
+      <div class="header-logo">
+        <span class="logo-mark">M</span>
+        <span>Monolith</span>
+      </div>
+      <input type="text" class="header-title-input" id="docTitle" value="Untitled Document" spellcheck="false" aria-label="Document title">
+    </div>
+    <div class="header-right">
+      <div class="tabs" id="viewTabs">
+        <button class="tab-btn active" data-tab="edit" onclick="switchTab('edit')">Edit</button>
+        <button class="tab-btn" data-tab="preview" onclick="switchTab('preview')">Preview</button>
+      </div>
+      <button class="btn btn-ghost" onclick="toggleDarkMode()" id="themeToggle" aria-label="Toggle theme">🌙</button>
+      <button class="btn btn-ghost" onclick="exportPrint()">🖨️ Print</button>
+      <button class="btn btn-primary" onclick="saveDocument()">💾 Save</button>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Document structure">
+    <div class="sidebar-header">
+      <h2>Structure</h2>
+      <button class="btn btn-icon" style="color:var(--text-on-dark-secondary)" onclick="addChapter()" aria-label="Add chapter">＋</button>
+    </div>
+    <div class="sidebar-content" id="sidebarContent">
+      <!-- Filled by JS -->
+    </div>
+    <div class="sidebar-footer">
+      <button class="btn btn-sidebar" onclick="openSettings()">⚙️ Settings</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:var(--text-xs);color:var(--text-on-dark-secondary);">Auto-save</span>
+        <button class="toggle active" id="autosaveToggle" onclick="toggleAutosave()" aria-label="Toggle auto-save"></button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CANVAS -->
+  <main class="canvas" id="canvas" role="main">
+    <div class="canvas-inner" id="canvasInner">
+      <!-- Content blocks rendered here -->
+    </div>
+  </main>
+
+  <!-- PREVIEW PANE -->
+  <aside class="preview-pane" id="previewPane">
+    <div class="preview-header">
+      <h3>Live Preview</h3>
+      <button class="btn btn-icon" onclick="togglePreview()" aria-label="Close preview">✕</button>
+    </div>
+    <div class="preview-body">
+      <div class="preview-content" id="previewContent">
+        <!-- Rendered preview -->
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- MOBILE NAV -->
+<nav class="mobile-nav" id="mobileNav">
+  <button class="btn btn-icon" onclick="toggleMobileSidebar()" aria-label="Structure">📄</button>
+  <button class="btn btn-icon" onclick="showAddBlockPicker(null, true)" aria-label="Add block">＋</button>
+  <button class="btn btn-icon" onclick="toggleMobilePreview()" aria-label="Preview">👁️</button>
+  <button class="btn btn-icon" onclick="openSettings()" aria-label="Settings">⚙️</button>
+</nav>
+
+<!-- BLOCK PICKER POPOVER -->
+<div class="block-picker" id="blockPicker" role="menu">
+  <button class="block-picker-item" onclick="insertBlock('heading')" role="menuitem">
+    <span class="picker-icon">H</span>
+    <span class="picker-label">Heading</span>
+  </button>
+  <button class="block-picker-item" onclick="insertBlock('text')" role="menuitem">
+    <span class="picker-icon">¶</span>
+    <span class="picker-label">Text</span>
+  </button>
+  <button class="block-picker-item" onclick="insertBlock('code')" role="menuitem">
+    <span class="picker-icon">{ }</span>
+    <span class="picker-label">Code Block</span>
+  </button>
+  <button class="block-picker-item" onclick="insertBlock('image')" role="menuitem">
+    <span class="picker-icon">🖼</span>
+    <span class="picker-label">Image</span>
+  </button>
+  <button class="block-picker-item" onclick="insertBlock('table')" role="menuitem">
+    <span class="picker-icon">▦</span>
+    <span class="picker-label">Table</span>
+  </button>
+  <button class="block-picker-item" onclick="insertBlock('hint')" role="menuitem">
+    <span class="picker-icon">💡</span>
+    <span class="picker-label">Hint / Info</span>
+  </button>
+  <button class="block-picker-item" onclick="insertBlock('warning')" role="menuitem">
+    <span class="picker-icon">⚠️</span>
+    <span class="picker-label">Warning</span>
+  </button>
+  <button class="block-picker-item" onclick="insertBlock('quote')" role="menuitem">
+    <span class="picker-icon">❝</span>
+    <span class="picker-label">Quote</span>
+  </button>
+  <button class="block-picker-item" onclick="insertBlock('divider')" role="menuitem">
+    <span class="picker-icon">—</span>
+    <span class="picker-label">Divider</span>
+  </button>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<!-- MODAL (Settings) -->
+<div class="modal-backdrop" id="settingsModal">
+  <div class="modal" role="dialog" aria-labelledby="settingsTitle">
+    <div class="modal-header">
+      <h2 id="settingsTitle">Document Settings</h2>
+      <button class="btn btn-icon" onclick="closeSettings()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="margin-bottom:var(--space-4);">
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:var(--space-2);">Document Title</label>
+        <input class="input" id="settingsDocTitle" type="text" placeholder="My Document">
+      </div>
+      <div style="margin-bottom:var(--space-4);">
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:var(--space-2);">Author</label>
+        <input class="input" id="settingsAuthor" type="text" placeholder="Author name">
+      </div>
+      <div style="margin-bottom:var(--space-4);">
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:var(--space-2);">Cover Subtitle</label>
+        <input class="input" id="settingsSubtitle" type="text" placeholder="A brief subtitle">
+      </div>
+      <div>
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:var(--space-2);">Theme</label>
+        <div class="select-wrap">
+          <select id="settingsTheme" onchange="applyThemeSetting()">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+            <option value="system">System</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeSettings()">Cancel</button>
+      <button class="btn btn-primary" onclick="applySettings()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- DRAWER (Block Editor) -->
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer" role="dialog" aria-labelledby="drawerTitle">
+  <div class="drawer-header">
+    <h2 id="drawerTitle">Edit Block</h2>
+    <button class="btn btn-icon" onclick="closeDrawer()" aria-label="Close drawer">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody">
+    <!-- Dynamic content -->
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   MONOLITH SPA — Application Logic
+   ============================================================ */
+
+// ---------- State ----------
+const APP_STATE = {
+  docTitle: 'Untitled Document',
+  author: '',
+  subtitle: '',
+  theme: 'light',
+  autosave: true,
+  blocks: [],
+  chapters: [],
+  activeBlockId: null,
+  activeChapterId: null,
+  previewVisible: true,
+};
+
+let blockIdCounter = 0;
+let chapterIdCounter = 0;
+let autosaveTimer = null;
+const DB_NAME = 'MonolithDB';
+const DB_VERSION = 1;
+const STORE_NAME = 'documents';
+const DOC_KEY = 'current';
+
+// ---------- IndexedDB ----------
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME);
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function saveToDB() {
+  try {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    const data = {
+      docTitle: APP_STATE.docTitle,
+      author: APP_STATE.author,
+      subtitle: APP_STATE.subtitle,
+      theme: APP_STATE.theme,
+      blocks: APP_STATE.blocks,
+      chapters: APP_STATE.chapters,
+      savedAt: new Date().toISOString(),
+    };
+    store.put(data, DOC_KEY);
+    await new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+    return true;
+  } catch (e) {
+    console.error('Save error:', e);
+    return false;
+  }
+}
+
+async function loadFromDB() {
+  try {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const store = tx.objectStore(STORE_NAME);
+    const req = store.get(DOC_KEY);
+    return new Promise((resolve) => {
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => resolve(null);
+    });
+  } catch (e) {
+    return null;
+  }
+}
+
+// ---------- Toast System ----------
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `
+    <span class="toast-icon">${icons[type] || icons.info}</span>
+    <span class="toast-message">${message}</span>
+  `;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add('toast-exit');
+    setTimeout(() => toast.remove(), 200);
+  }, 3000);
+}
+
+// ---------- Theme ----------
+function toggleDarkMode() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const newTheme = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  APP_STATE.theme = newTheme;
+  document.getElementById('themeToggle').textContent = newTheme === 'dark' ? '☀️' : '🌙';
+  triggerAutosave();
+}
+
+function applyThemeSetting() {
+  const val = document.getElementById('settingsTheme').value;
+  if (val === 'system') {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+  } else {
+    document.documentElement.setAttribute('data-theme', val);
+  }
+  APP_STATE.theme = val;
+  document.getElementById('themeToggle').textContent =
+    document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+}
+
+// ---------- Block Management ----------
+function createBlockId() { return 'blk_' + (++blockIdCounter); }
+function createChapterId() { return 'ch_' + (++chapterIdCounter); }
+
+function getDefaultContent(type) {
+  switch (type) {
+    case 'heading': return { level: 1, text: '' };
+    case 'text': return { html: '' };
+    case 'code': return { language: 'javascript', code: '' };
+    case 'image': return { src: '', alt: '', caption: '' };
+    case 'table': return { rows: [['Header 1','Header 2','Header 3'],['','',''],['','','']] };
+    case 'hint': return { text: '' };
+    case 'warning': return { text: '' };
+    case 'quote': return { text: '', attribution: '' };
+    case 'divider': return {};
+    default: return {};
+  }
+}
+
+function addBlock(type, afterBlockId = null) {
+  const block = {
+    id: createBlockId(),
+    type,
+    content: getDefaultContent(type),
+    chapterId: APP_STATE.activeChapterId || (APP_STATE.chapters[0]?.id),
+  };
+
+  if (afterBlockId) {
+    const idx = APP_STATE.blocks.findIndex(b => b.id === afterBlockId);
+    APP_STATE.blocks.splice(idx + 1, 0, block);
+  } else {
+    APP_STATE.blocks.push(block);
+  }
+
+  renderCanvas();
+  renderPreview();
+  triggerAutosave();
+  return block;
+}
+
+function removeBlock(blockId) {
+  APP_STATE.blocks = APP_STATE.blocks.filter(b => b.id !== blockId);
+  renderCanvas();
+  renderPreview();
+  triggerAutosave();
+  showToast('Block removed', 'info');
+}
+
+function moveBlock(blockId, direction) {
+  const idx = APP_STATE.blocks.findIndex(b => b.id === blockId);
+  if (idx < 0) return;
+  const newIdx = idx + direction;
+  if (newIdx < 0 || newIdx >= APP_STATE.blocks.length) return;
+  const temp = APP_STATE.blocks[idx];
+  APP_STATE.blocks[idx] = APP_STATE.blocks[newIdx];
+  APP_STATE.blocks[newIdx] = temp;
+  renderCanvas();
+  renderPreview();
+  triggerAutosave();
+}
+
+// ---------- Chapter Management ----------
+function addChapter() {
+  const ch = {
+    id: createChapterId(),
+    title: `Chapter ${APP_STATE.chapters.length + 1}`,
+    depth: 0,
+  };
+  APP_STATE.chapters.push(ch);
+  if (!APP_STATE.activeChapterId) APP_STATE.activeChapterId = ch.id;
+  renderSidebar();
+  triggerAutosave();
+}
+
+function selectChapter(chapterId) {
+  APP_STATE.activeChapterId = chapterId;
+  renderSidebar();
+  renderCanvas();
+  renderPreview();
+}
+
+function removeChapter(chapterId) {
+  APP_STATE.chapters = APP_STATE.chapters.filter(c => c.id !== chapterId);
+  APP_STATE.blocks = APP_STATE.blocks.filter(b => b.chapterId !== chapterId);
+  if (APP_STATE.activeChapterId === chapterId) {
+    APP_STATE.activeChapterId = APP_STATE.chapters[0]?.id || null;
+  }
+  renderSidebar();
+  renderCanvas();
+  renderPreview();
+  triggerAutosave();
+}
+
+// ---------- Rendering: Sidebar ----------
+function renderSidebar() {
+  const container = document.getElementById('sidebarContent');
+
+  if (APP_STATE.chapters.length === 0) {
+    container.innerHTML = `
+      <div style="padding:var(--space-5) var(--space-3);text-align:center;color:var(--text-on-dark-secondary);">
+        <div style="font-size:var(--text-3xl);margin-bottom:var(--space-3);">📑</div>
+        <p style="font-size:var(--text-sm);margin-bottom:var(--space-3);">No chapters yet</p>
+        <button class="btn btn-sidebar" onclick="addChapter()">＋ Add First Chapter</button>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  APP_STATE.chapters.forEach((ch, i) => {
+    const isActive = ch.id === APP_STATE.activeChapterId;
+    const blockCount = APP_STATE.blocks.filter(b => b.chapterId === ch.id).length;
+    html += `
+      <div class="sidebar-item ${isActive ? 'active' : ''}"
+           data-depth="${ch.depth}"
+           data-chapter-id="${ch.id}"
+           draggable="true"
+           ondragstart="onChapterDragStart(event, '${ch.id}')"
+           ondragover="onChapterDragOver(event)"
+           ondrop="onChapterDrop(event, '${ch.id}')"
+           onclick="selectChapter('${ch.id}')">
+        <span class="drag-handle" title="Drag to reorder">⠿</span>
+        <span class="item-icon">📄</span>
+        <span class="item-label" contenteditable="true"
+              onblur="renameChapter('${ch.id}', this.textContent)"
+              onclick="event.stopPropagation()"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
+        >${ch.title}</span>
+        <span class="item-badge">${blockCount}</span>
+        <button class="btn btn-icon" style="color:var(--text-on-dark-secondary);width:24px;height:24px;font-size:var(--text-xs);"
+                onclick="event.stopPropagation();removeChapter('${ch.id}')" aria-label="Delete chapter">✕</button>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+function renameChapter(chId, newTitle) {
+  const ch = APP_STATE.chapters.find(c => c.id === chId);
+  if (ch) {
+    ch.title = newTitle.trim() || 'Untitled';
+    triggerAutosave();
+    renderPreview();
+  }
+}
+
+// Chapter drag/drop
+let draggedChapterId = null;
+function onChapterDragStart(e, chId) {
+  draggedChapterId = chId;
+  e.dataTransfer.effectAllowed = 'move';
+  e.target.classList.add('dragging');
+}
+function onChapterDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+function onChapterDrop(e, targetChId) {
+  e.preventDefault();
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('dragging'));
+  if (!draggedChapterId || draggedChapterId === targetChId) return;
+  const fromIdx = APP_STATE.chapters.findIndex(c => c.id === draggedChapterId);
+  const toIdx = APP_STATE.chapters.findIndex(c => c.id === targetChId);
+  const [item] = APP_STATE.chapters.splice(fromIdx, 1);
+  APP_STATE.chapters.splice(toIdx, 0, item);
+  draggedChapterId = null;
+  renderSidebar();
+  renderPreview();
+  triggerAutosave();
+}
+
+// ---------- Rendering: Canvas ----------
+function renderCanvas() {
+  const container = document.getElementById('canvasInner');
+  const chapterBlocks = APP_STATE.blocks.filter(b => b.chapterId === APP_STATE.activeChapterId);
+
+  if (!APP_STATE.activeChapterId || chapterBlocks.length === 0) {
+    const chapterTitle = APP_STATE.chapters.find(c => c.id === APP_STATE.activeChapterId)?.title || '';
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">✦</div>
+        <h2>${chapterTitle || 'Get Started'}</h2>
+        <p>${APP_STATE.chapters.length === 0
+          ? 'Create your first chapter from the sidebar to begin building your document.'
+          : 'This chapter is empty. Add your first content block to start writing.'}</p>
+        ${APP_STATE.chapters.length > 0 ? `<button class="btn btn-primary" onclick="showAddBlockPicker(null)">＋ Add Block</button>` : `<button class="btn btn-primary" onclick="addChapter()">＋ Add Chapter</button>`}
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  chapterBlocks.forEach(block => {
+    html += renderBlock(block);
+  });
+
+  html += `
+    <div class="add-block-bar">
+      <button class="add-block-btn" onclick="showAddBlockPicker(null)">＋ Add Block</button>
+    </div>
+  `;
+  container.innerHTML = html;
+
+  // Attach input listeners
+  container.querySelectorAll('[data-block-id]').forEach(el => {
+    const blockId = el.dataset.blockId;
+    el.querySelectorAll('.editable').forEach(editable => {
+      editable.addEventListener('input', () => syncBlockContent(blockId));
+      editable.addEventListener('focus', () => setActiveBlock(blockId));
+    });
+    el.querySelectorAll('.code-block-content').forEach(code => {
+      code.addEventListener('input', () => syncBlockContent(blockId));
+    });
+    el.querySelectorAll('td[contenteditable]').forEach(td => {
+      td.addEventListener('input', () => syncTableContent(blockId));
+    });
+  });
+}
+
+function renderBlock(block) {
+  const isActive = block.id === APP_STATE.activeBlockId;
+  const toolbar = `
+    <div class="block-toolbar">
+      <span class="block-type-label">${block.type}</span>
+      <button class="btn btn-icon" onclick="moveBlock('${block.id}', -1)" aria-label="Move up" style="width:24px;height:24px;font-size:10px;">↑</button>
+      <button class="btn btn-icon" onclick="moveBlock('${block.id}', 1)" aria-label="Move down" style="width:24px;height:24px;font-size:10px;">↓</button>
+      <button class="btn btn-icon" onclick="showAddBlockPicker('${block.id}')" aria-label="Add below" style="width:24px;height:24px;font-size:10px;">＋</button>
+      <button class="btn btn-icon" onclick="removeBlock('${block.id}')" aria-label="Delete" style="width:24px;height:24px;font-size:10px;color:var(--semantic-error);">✕</button>
+    </div>
+  `;
+
+  let inner = '';
+  switch (block.type) {
+    case 'heading': {
+      const cls = `heading-${block.content.level || 1}`;
+      inner = `<div class="editable ${cls}" contenteditable="true"
+                    data-placeholder="Heading..." data-field="text">${block.content.text || ''}</div>`;
+      break;
+    }
+    case 'text': {
+      inner = `
+        <div class="format-toolbar">
+          <button class="format-btn" onclick="formatText('bold')" title="Bold"><b>B</b></button>
+          <button class="format-btn" onclick="formatText('italic')" title="Italic"><i>I</i></button>
+          <button class="format-btn" onclick="formatText('underline')" title="Underline"><u>U</u></button>
+          <span class="format-divider"></span>
+          <button class="format-btn" onclick="formatText('insertUnorderedList')" title="Bullet list">•</button>
+          <button class="format-btn" onclick="formatText('insertOrderedList')" title="Numbered list">1.</button>
+          <span class="format-divider"></span>
+          <button class="format-btn" onclick="formatText('createLink')" title="Link">🔗</button>
+        </div>
+        <div class="editable" contenteditable="true"
+             data-placeholder="Start writing..." data-field="html">${block.content.html || ''}</div>
+      `;
+      break;
+    }
+    case 'code': {
+      inner = `
+        <div class="code-block-wrapper">
+          <div class="code-block-header">
+            <input class="input-underline" style="color:#AEAEB2;max-width:120px;font-size:var(--text-xs);"
+                   value="${block.content.language || 'javascript'}"
+                   onchange="updateBlockField('${block.id}', 'language', this.value)"
+                   placeholder="language">
+            <button class="btn btn-ghost" style="color:#AEAEB2;font-size:var(--text-xs);"
+                    onclick="copyCode('${block.id}')">📋 Copy</button>
+          </div>
+          <div class="code-block-content" contenteditable="true" spellcheck="false"
+               data-field="code">${escapeHtml(block.content.code || '')}</div>
+        </div>
+      `;
+      break;
+    }
+    case 'image': {
+      if (block.content.src) {
+        inner = `
+          <div class="image-block has-image" onclick="triggerImageUpload('${block.id}')">
+            <img src="${block.content.src}" alt="${block.content.alt || ''}" loading="lazy">
+          </div>
+          <input type="text" class="input-underline" style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--text-secondary);"
+                 placeholder="Caption (optional)" value="${block.content.caption || ''}"
+                 onchange="updateBlockField('${block.id}', 'caption', this.value)">
+        `;
+      } else {
+        inner = `
+          <div class="image-block" onclick="triggerImageUpload('${block.id}')">
+            <div class="image-placeholder">
+              <div class="upload-icon">🖼</div>
+              <p style="font-size:var(--text-sm);">Click or drop an image</p>
+            </div>
+          </div>
+        `;
+      }
+      inner += `<input type="file" id="imgInput_${block.id}" accept="image/*" style="display:none" onchange="handleImageUpload('${block.id}', this)">`;
+      break;
+    }
+    case 'table': {
+      const rows = block.content.rows || [];
+      let tHtml = '<div class="table-wrapper"><table>';
+      rows.forEach((row, ri) => {
+        tHtml += '<tr>';
+        row.forEach((cell, ci) => {
+          const tag = ri === 0 ? 'th' : 'td';
+          tHtml += `<${tag} contenteditable="true" data-row="${ri}" data-col="${ci}">${cell}</${tag}>`;
+        });
+        tHtml += '</tr>';
+      });
+      tHtml += '</table></div>';
+      tHtml += `
+        <div style="margin-top:var(--space-2);display:flex;gap:var(--space-2);">
+          <button class="btn btn-ghost" onclick="addTableRow('${block.id}')" style="font-size:var(--text-xs);">＋ Row</button>
+          <button class="btn btn-ghost" onclick="addTableCol('${block.id}')" style="font-size:var(--text-xs);">＋ Column</button>
+        </div>
+      `;
+      inner = tHtml;
+      break;
+    }
+    case 'hint':
+      inner = `<div class="callout-block callout-hint">
+        <span class="callout-icon">💡</span>
+        <div class="callout-content editable" contenteditable="true"
+             data-placeholder="Helpful tip or note..." data-field="text">${block.content.text || ''}</div>
+      </div>`;
+      break;
+    case 'warning':
+      inner = `<div class="callout-block callout-warning">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-content editable" contenteditable="true"
+             data-placeholder="Warning message..." data-field="text">${block.content.text || ''}</div>
+      </div>`;
+      break;
+    case 'quote':
+      inner = `<div class="callout-block callout-quote">
+        <div class="callout-content editable" contenteditable="true"
+             data-placeholder="Quote text..." data-field="text" style="font-size:var(--text-lg);font-style:italic;">${block.content.text || ''}</div>
+      </div>
+      <input class="input-underline" style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--text-secondary);"
+             placeholder="— Attribution" value="${block.content.attribution || ''}"
+             onchange="updateBlockField('${block.id}', 'attribution', this.value)">`;
+      break;
+    case 'divider':
+      inner = '<div class="section-divider"></div>';
+      break;
+  }
+
+  return `
+    <div class="content-block ${isActive ? 'selected' : ''}" data-block-id="${block.id}">
+      ${toolbar}
+      ${inner}
+    </div>
+  `;
+}
+
+// ---------- Block Content Sync ----------
+function syncBlockContent(blockId) {
+  const block = APP_STATE.blocks.find(b => b.id === blockId);
+  if (!block) return;
+  const el = document.querySelector(`[data-block-id="${blockId}"]`);
+  if (!el) return;
+
+  const editables = el.querySelectorAll('.editable');
+  editables.forEach(ed => {
+    const field = ed.dataset.field;
+    if (field) {
+      block.content[field] = field === 'html' ? ed.innerHTML : ed.textContent;
+    }
+  });
+
+  const codeEl = el.querySelector('.code-block-content');
+  if (codeEl) {
+    block.content.code = codeEl.textContent;
+  }
+
+  renderPreview();
+  triggerAutosave();
+}
+
+function syncTableContent(blockId) {
+  const block = APP_STATE.blocks.find(b => b.id === blockId);
+  if (!block) return;
+  const el = document.querySelector(`[data-block-id="${blockId}"]`);
+  if (!el) return;
+
+  const cells = el.querySelectorAll('th, td');
+  cells.forEach(cell => {
+    const r = parseInt(cell.dataset.row);
+    const c = parseInt(cell.dataset.col);
+    if (block.content.rows[r]) block.content.rows[r][c] = cell.textContent;
+  });
+
+  renderPreview();
+  triggerAutosave();
+}
+
+function updateBlockField(blockId, field, value) {
+  const block = APP_STATE.blocks.find(b => b.id === blockId);
+  if (block) {
+    block.content[field] = value;
+    renderPreview();
+    triggerAutosave();
+  }
+}
+
+function addTableRow(blockId) {
+  const block = APP_STATE.blocks.find(b => b.id === blockId);
+  if (!block) return;
+  const cols = block.content.rows[0]?.length || 3;
+  block.content.rows.push(new Array(cols).fill(''));
+  renderCanvas();
+  renderPreview();
+  triggerAutosave();
+}
+
+function addTableCol(blockId) {
+  const block = APP_STATE.blocks.find(b => b.id === blockId);
+  if (!block) return;
+  block.content.rows.forEach(row => row.push(''));
+  renderCanvas();
+  renderPreview();
+  triggerAutosave();
+}
+
+function setActiveBlock(blockId) {
+  APP_STATE.activeBlockId = blockId;
+}
+
+// ---------- Rich Text Formatting ----------
+function formatText(command) {
+  if (command === 'createLink') {
+    const url = prompt('Enter URL:');
+    if (url) document.execCommand(command, false, url);
+  } else {
+    document.execCommand(command, false, null);
+  }
+}
+
+// ---------- Image Handling (Canvas API) ----------
+function triggerImageUpload(blockId) {
+  document.getElementById(`imgInput_${blockId}`).click();
+}
+
+function handleImageUpload(blockId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX_W = 1280;
+      let w = img.width, h = img.height;
+      if (w > MAX_W) { h = (h * MAX_W) / w; w = MAX_W; }
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+
+      let dataUrl;
+      try { dataUrl = canvas.toDataURL('image/webp', 0.82); }
+      catch { dataUrl = canvas.toDataURL('image/jpeg', 0.82); }
+
+      const block = APP_STATE.blocks.find(b => b.id === blockId);
+      if (block) {
+        block.content.src = dataUrl;
+        block.content.alt = file.name;
+        renderCanvas();
+        renderPreview();
+        triggerAutosave();
+        showToast('Image added', 'success');
+      }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ---------- Code Block Copy ----------
+function copyCode(blockId) {
+  const block = APP_STATE.blocks.find(b => b.id === blockId);
+  if (!block) return;
+  navigator.clipboard.writeText(block.content.code || '').then(() => {
+    showToast('Copied to clipboard', 'success');
+  });
+}
+
+// ---------- Block Picker ----------
+let pickerTargetBlockId = null;
+
+function showAddBlockPicker(afterBlockId, fromMobile = false) {
+  pickerTargetBlockId = afterBlockId;
+  const picker = document.getElementById('blockPicker');
+
+  if (fromMobile || !afterBlockId) {
+    picker.style.left = '50%';
+    picker.style.top = '50%';
+    picker.style.transform = 'translate(-50%, -50%)';
+  } else {
+    const btn = event?.target;
+    if (btn) {
+      const rect = btn.getBoundingClientRect();
+      picker.style.left = rect.left + 'px';
+      picker.style.top = (rect.bottom + 4) + 'px';
+      picker.style.transform = 'none';
+    }
+  }
+
+  picker.classList.add('visible');
+  setTimeout(() => {
+    document.addEventListener('click', closePicker, { once: true });
+  }, 10);
+}
+
+function closePicker() {
+  document.getElementById('blockPicker').classList.remove('visible');
+}
+
+function insertBlock(type) {
+  closePicker();
+  addBlock(type, pickerTargetBlockId);
+}
+
+// ---------- Rendering: Preview ----------
+function renderPreview() {
+  const container = document.getElementById('previewContent');
+  let html = '';
+
+  // Cover
+  const title = APP_STATE.docTitle || 'Untitled';
+  html += `<h1>${escapeHtml(title)}</h1>`;
+  if (APP_STATE.subtitle) html += `<p style="color:var(--text-secondary);font-size:var(--text-lg);margin-top:-16px;">${escapeHtml(APP_STATE.subtitle)}</p>`;
+  if (APP_STATE.author) html += `<p style="color:var(--text-tertiary);font-size:var(--text-sm);">By ${escapeHtml(APP_STATE.author)}</p>`;
+  html += '<hr style="margin:var(--space-5) 0;border:none;border-top:1px solid var(--border-color);">';
+
+  APP_STATE.chapters.forEach(ch => {
+    html += `<h2>${escapeHtml(ch.title)}</h2>`;
+    const blocks = APP_STATE.blocks.filter(b => b.chapterId === ch.id);
+    blocks.forEach(block => {
+      html += renderPreviewBlock(block);
+    });
+  });
+
+  container.innerHTML = html;
+}
+
+function renderPreviewBlock(block) {
+  switch (block.type) {
+    case 'heading':
+      const tag = `h${Math.min(block.content.level || 1, 3) + 1}`;
+      return `<${tag}>${escapeHtml(block.content.text || '')}</${tag}>`;
+    case 'text':
+      return `<div>${block.content.html || ''}</div>`;
+    case 'code':
+      return `<pre>${escapeHtml(block.content.code || '')}</pre>`;
+    case 'image':
+      if (block.content.src) {
+        let s = `<img src="${block.content.src}" alt="${escapeHtml(block.content.alt || '')}">`;
+        if (block.content.caption) s += `<p style="font-size:var(--text-xs);color:var(--text-secondary);text-align:center;">${escapeHtml(block.content.caption)}</p>`;
+        return s;
+      }
+      return '';
+    case 'table': {
+      const rows = block.content.rows || [];
+      let t = '<table>';
+      rows.forEach((row, ri) => {
+        t += '<tr>';
+        row.forEach(cell => {
+          t += ri === 0 ? `<th>${escapeHtml(cell)}</th>` : `<td>${escapeHtml(cell)}</td>`;
+        });
+        t += '</tr>';
+      });
+      return t + '</table>';
+    }
+    case 'hint':
+      return `<div class="info-box">💡 ${escapeHtml(block.content.text || '')}</div>`;
+    case 'warning':
+      return `<div class="warning-box">⚠️ ${escapeHtml(block.content.text || '')}</div>`;
+    case 'quote':
+      let q = `<blockquote>${escapeHtml(block.content.text || '')}`;
+      if (block.content.attribution) q += `<br><small>— ${escapeHtml(block.content.attribution)}</small>`;
+      return q + '</blockquote>';
+    case 'divider':
+      return '<hr style="border:none;border-top:1px solid var(--border-color);margin:var(--space-4) 0;">';
+    default:
+      return '';
+  }
+}
+
+// ---------- Settings Modal ----------
+function openSettings() {
+  document.getElementById('settingsDocTitle').value = APP_STATE.docTitle;
+  document.getElementById('settingsAuthor').value = APP_STATE.author;
+  document.getElementById('settingsSubtitle').value = APP_STATE.subtitle;
+  document.getElementById('settingsTheme').value = APP_STATE.theme;
+  document.getElementById('settingsModal').classList.add('visible');
+}
+
+function closeSettings() {
+  document.getElementById('settingsModal').classList.remove('visible');
+}
+
+function applySettings() {
+  APP_STATE.docTitle = document.getElementById('settingsDocTitle').value || 'Untitled Document';
+  APP_STATE.author = document.getElementById('settingsAuthor').value;
+  APP_STATE.subtitle = document.getElementById('settingsSubtitle').value;
+  document.getElementById('docTitle').value = APP_STATE.docTitle;
+  applyThemeSetting();
+  closeSettings();
+  renderPreview();
+  triggerAutosave();
+  showToast('Settings applied', 'success');
+}
+
+// ---------- Drawer ----------
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawerBackdrop').classList.remove('visible');
+}
+
+// ---------- Preview Toggle ----------
+function togglePreview() {
+  APP_STATE.previewVisible = !APP_STATE.previewVisible;
+  document.getElementById('appShell').classList.toggle('preview-collapsed', !APP_STATE.previewVisible);
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('#viewTabs .tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  if (tab === 'preview') {
+    document.getElementById('canvas').style.display = 'none';
+    document.getElementById('previewPane').style.display = 'flex';
+    document.getElementById('previewPane').style.gridColumn = '2 / -1';
+  } else {
+    document.getElementById('canvas').style.display = 'flex';
+    document.getElementById('previewPane').style.display = '';
+    document.getElementById('previewPane').style.gridColumn = '';
+  }
+}
+
+// ---------- Mobile ----------
+function toggleMobileSidebar() {
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+}
+
+function toggleMobilePreview() {
+  switchTab(document.getElementById('canvas').style.display === 'none' ? 'edit' : 'preview');
+}
+
+// ---------- Save / Load ----------
+async function saveDocument() {
+  APP_STATE.docTitle = document.getElementById('docTitle').value || 'Untitled Document';
+  const ok = await saveToDB();
+  showToast(ok ? 'Document saved' : 'Save failed', ok ? 'success' : 'error');
+}
+
+function triggerAutosave() {
+  if (!APP_STATE.autosave) return;
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(async () => {
+    APP_STATE.docTitle = document.getElementById('docTitle').value || 'Untitled Document';
+    await saveToDB();
+  }, 1500);
+}
+
+function toggleAutosave() {
+  APP_STATE.autosave = !APP_STATE.autosave;
+  document.getElementById('autosaveToggle').classList.toggle('active', APP_STATE.autosave);
+  showToast(APP_STATE.autosave ? 'Auto-save enabled' : 'Auto-save disabled', 'info');
+}
+
+// ---------- Export ----------
+function exportPrint() {
+  // Switch to full preview first
+  switchTab('preview');
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => switchTab('edit'), 500);
+  }, 300);
+}
+
+// ---------- Utility ----------
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ---------- Init ----------
+async function init() {
+  const data = await loadFromDB();
+  if (data) {
+    APP_STATE.docTitle = data.docTitle || 'Untitled Document';
+    APP_STATE.author = data.author || '';
+    APP_STATE.subtitle = data.subtitle || '';
+    APP_STATE.theme = data.theme || 'light';
+    APP_STATE.blocks = data.blocks || [];
+    APP_STATE.chapters = data.chapters || [];
+
+    // Restore ID counters
+    APP_STATE.blocks.forEach(b => {
+      const num = parseInt(b.id.replace('blk_', ''));
+      if (num > blockIdCounter) blockIdCounter = num;
+    });
+    APP_STATE.chapters.forEach(c => {
+      const num = parseInt(c.id.replace('ch_', ''));
+      if (num > chapterIdCounter) chapterIdCounter = num;
+    });
+
+    APP_STATE.activeChapterId = APP_STATE.chapters[0]?.id || null;
+
+    document.getElementById('docTitle').value = APP_STATE.docTitle;
+
+    if (APP_STATE.theme === 'dark' || (APP_STATE.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      document.getElementById('themeToggle').textContent = '☀️';
+    }
+
+    showToast('Document restored', 'success');
+  } else {
+    // First-time: create a welcome chapter
+    addChapter();
+    APP_STATE.chapters[0].title = 'Introduction';
+    APP_STATE.activeChapterId = APP_STATE.chapters[0].id;
+    addBlock('heading');
+    APP_STATE.blocks[0].content.text = 'Welcome to Monolith';
+    addBlock('text');
+    APP_STATE.blocks[1].content.html = '<p>Start building your document by adding content blocks. Use the sidebar to manage chapters, and the live preview to see your work in real-time.</p>';
+    addBlock('hint');
+    APP_STATE.blocks[2].content.text = 'Tip: Click the ＋ button below any block to add new content types like tables, code blocks, images, and more.';
+  }
+
+  renderSidebar();
+  renderCanvas();
+  renderPreview();
+
+  // Title sync
+  document.getElementById('docTitle').addEventListener('input', (e) => {
+    APP_STATE.docTitle = e.target.value;
+    renderPreview();
+    triggerAutosave();
+  });
+
+  // Keyboard shortcut: Cmd/Ctrl+S to save
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+      e.preventDefault();
+      saveDocument();
+    }
+  });
+
+  // Close sidebar on mobile when clicking canvas
+  document.getElementById('canvas').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.remove('mobile-open');
+  });
+}
+
+init();
+</script>
+</body>
+</html>

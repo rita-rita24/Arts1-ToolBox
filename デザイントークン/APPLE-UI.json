@@ -1,0 +1,2808 @@
+{
+  "meta": {
+    "ui name": "APPLE  UI",
+    "description": "A non-official Apple-inspired design system. Built around system typography, layered materials, neo-glassmorphism, and modular bento storytelling.",
+    "attributes": [
+      "MINIMAL",
+      "GLASS",
+      "PREMIUM",
+      "SYSTEMATIC",
+      "BENTO"
+    ],
+    "implementationContract": {
+      "cssLayers": [
+        "reset",
+        "base",
+        "component",
+        "utility"
+      ],
+      "layerOrder": "reset -> base -> component -> utility",
+      "noStyleOutsideLayer": true,
+      "cssNesting": true,
+      "colorModel": "oklch",
+      "colorModeControl": "document.documentElement.style.colorScheme",
+      "preferJsColorSchemeControl": true,
+      "externalResetCss": false
+    }
+  },
+  "standards": {
+    "css": {
+      "layers": {
+        "order": [
+          "reset",
+          "base",
+          "component",
+          "utility"
+        ],
+        "reset": {
+          "required": true,
+          "snippet": "@layer reset { *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; } html, body { min-height: 100%; } img, picture, video, canvas, svg { display: block; max-width: 100%; } button, input, textarea, select { font: inherit; } }",
+          "responsibility": "Only normalization / reset"
+        },
+        "base": {
+          "responsibility": "Theme, root variables, typography, document-level elements"
+        },
+        "component": {
+          "responsibility": "Reusable UI components only"
+        },
+        "utility": {
+          "responsibility": "Helpers, animations, responsive utilities, state toggles"
+        }
+      },
+      "color": {
+        "allColorsFromRootVars": true,
+        "hardcodedColorInComponents": false,
+        "cssFunction": "light-dark()",
+        "colorSchemeProperty": true,
+        "preferredModeSwitch": "JavaScript",
+        "allowedFormats": [
+          "oklch",
+          "light-dark()",
+          "color-mix()",
+          "linear-gradient()",
+          "radial-gradient()"
+        ],
+        "darkModeRule": {
+          "adjustOnly": "L",
+          "preserve": [
+            "C",
+            "h"
+          ],
+          "forbidChangingHue": true,
+          "forbidChangingChroma": true,
+          "description": "Dark mode preserves hue and chroma identity; only lightness changes."
+        },
+        "materialGuidelines": {
+          "glassPreferredForFunctionalLayer": true,
+          "standardMaterialsPreferredForContentLayer": true,
+          "clearGlassOnlyOverVisuallyRichBackgrounds": true,
+          "avoidExcessiveGlassStacking": true
+        },
+        "backgroundBorderShadowMayUse": [
+          "alpha in oklch()",
+          "color-mix()",
+          "background-blend-mode",
+          "mix-blend-mode",
+          "backdrop-filter"
+        ]
+      },
+      "visibility": {
+        "directStyleDisplayMutation": false,
+        "useClassToggleOnly": true,
+        "stateClasses": {
+          "hidden": {
+            "value": "is-hidden"
+          },
+          "open": {
+            "value": "is-open"
+          },
+          "active": {
+            "value": "is-active"
+          },
+          "selected": {
+            "value": "is-selected"
+          },
+          "disabled": {
+            "value": "is-disabled"
+          }
+        }
+      }
+    },
+    "javascript": {
+      "selectors": {
+        "helpers": {
+          "qs": "const qs  = (sel, root = document) => root.querySelector(sel);",
+          "qsa": "const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];"
+        }
+      },
+      "naming": {
+        "domElementPrefix": "$",
+        "privatePrefix": "_",
+        "constantCase": "UPPER_SNAKE_CASE"
+      },
+      "events": {
+        "preferDelegation": true,
+        "directBindingAllowedOnlyFor": [
+          "toolbar buttons",
+          "other static controls"
+        ]
+      },
+      "syntax": {
+        "optionalChaining": {
+          "required": true,
+          "description": "Use ?. when traversing optional DOM/state/data references"
+        },
+        "nullishCoalescing": {
+          "required": true,
+          "description": "Use ?? / ??= for null or undefined fallback only"
+        },
+        "spreadSyntax": {
+          "required": true,
+          "description": "Use ... for immutable object/array updates"
+        },
+        "destructuring": {
+          "required": true,
+          "description": "Use destructuring for dataset, options, event payloads, and state access"
+        },
+        "defaultingRule": {
+          "preferNullishOverOr": true,
+          "description": "Use ?? instead of || when false, 0, and empty string are valid values"
+        }
+      },
+      "patterns": {
+        "domAccess": {
+          "rule": "Optional chaining must be used when queried elements may not exist.",
+          "example": "const value = $panel?.dataset?.state ?? 'closed';"
+        },
+        "datasetAccess": {
+          "rule": "Prefer destructuring from dataset with nullish fallback.",
+          "example": "const { action = '', row = '', col = '', bentoArea = '' } = $target?.dataset ?? {};"
+        },
+        "immutableUpdate": {
+          "rule": "Use spread syntax for state and collection updates.",
+          "example": "_state = { ..._state, selectedTile: tileId };"
+        },
+        "arrayClone": {
+          "rule": "Avoid in-place mutation when updating UI state collections.",
+          "example": "const nextTiles = [...tiles, newTile];"
+        },
+        "optionsMerge": {
+          "rule": "Merge user options with defaults using destructuring + spread.",
+          "example": "const config = { ...DEFAULT_OPTIONS, ...options };"
+        },
+        "nullishDefault": {
+          "rule": "Use ?? instead of || when 0, '', or false are valid.",
+          "example": "const page = params.page ?? 1;"
+        },
+        "nullishAssign": {
+          "rule": "Use ??= for lazy initialization.",
+          "example": "_modalCallback ??= (() => {});"
+        }
+      },
+      "examples": {
+        "safeDomAccess": "const label = $row?.querySelector('[data-label]')?.textContent ?? '';",
+        "datasetDestructuring": "const { action = '', row = '', col = '', bentoArea = '' } = $target?.dataset ?? {};",
+        "statePatch": "_state = { ..._state, ...patch };",
+        "listClone": "const nextItems = [...items, newItem];",
+        "nullishAssign": "_callback ??= (() => {});"
+      }
+    },
+    "security": {
+      "sanitizeBeforeHtmlInsert": true,
+      "sanitizer": "escapeHTML()"
+    },
+    "interaction": {
+      "destructiveActionRequiresModalConfirm": true,
+      "buttonRequiresTitleAttribute": false,
+      "disabledButtonCursor": "not-allowed",
+      "disabledStateRules": {
+        "disabledDoesNotUseHoverStyle": true,
+        "disabledDoesNotUseFocusStyle": true,
+        "disabledDoesNotAnimate": true,
+        "disabledUsesDedicatedTokens": true
+      },
+      "glassUsageRules": {
+        "preferGlassForNavigationAndFloatingSurfaces": true,
+        "avoidGlassForDenseReadingSurfaces": true,
+        "clearGlassOnlyOnMediaRichBackgrounds": true
+      }
+    },
+    "icons": {
+      "provider": "SF Symbols compatible",
+      "faviconProvider": "SF Symbols compatible",
+      "defaultSelectIcon": "chevron.down",
+      "defaultAccordionIcon": "chevron.down",
+      "defaultModalCloseIcon": "xmark",
+      "renderingModes": [
+        "monochrome",
+        "hierarchical",
+        "palette",
+        "multicolor"
+      ]
+    }
+  },
+  "color": {
+    "_description": "Apple-inspired neutral-first palette with layered materials, system accent colors, and glass-specific semantics.",
+    "_format": "oklch",
+    "primitive": {
+      "neutral": {
+        "0": {
+          "value": "oklch(100% 0 0)",
+          "description": "Pure white"
+        },
+        "25": {
+          "value": "oklch(99.10% 0.002 95)",
+          "description": "Canvas light"
+        },
+        "50": {
+          "value": "oklch(98.10% 0.002 95)",
+          "description": "Background light"
+        },
+        "100": {
+          "value": "oklch(96.90% 0.003 95)",
+          "description": "Surface subtle light"
+        },
+        "200": {
+          "value": "oklch(93.20% 0.003 95)",
+          "description": "Separator light"
+        },
+        "300": {
+          "value": "oklch(87.00% 0.003 95)",
+          "description": "Border light"
+        },
+        "400": {
+          "value": "oklch(78.00% 0.003 95)",
+          "description": "Text quaternary light"
+        },
+        "500": {
+          "value": "oklch(66.00% 0.003 95)",
+          "description": "Text tertiary light"
+        },
+        "600": {
+          "value": "oklch(53.00% 0.003 95)",
+          "description": "Text secondary light"
+        },
+        "700": {
+          "value": "oklch(39.00% 0.003 95)",
+          "description": "Strong text light"
+        },
+        "800": {
+          "value": "oklch(28.00% 0.002 96)",
+          "description": "Primary text light"
+        },
+        "900": {
+          "value": "oklch(22.00% 0.002 96)",
+          "description": "Surface dark"
+        },
+        "950": {
+          "value": "oklch(17.80% 0.002 96)",
+          "description": "Background dark"
+        }
+      },
+      "blue": {
+        "50": {
+          "value": "oklch(96.50% 0.020 248)",
+          "description": "Blue lightest"
+        },
+        "100": {
+          "value": "oklch(93.80% 0.040 248)",
+          "description": "Blue 100"
+        },
+        "200": {
+          "value": "oklch(88.00% 0.070 249)",
+          "description": "Blue 200"
+        },
+        "300": {
+          "value": "oklch(80.00% 0.100 250)",
+          "description": "Blue 300"
+        },
+        "400": {
+          "value": "oklch(72.00% 0.130 252)",
+          "description": "Blue 400"
+        },
+        "500": {
+          "value": "oklch(63.50% 0.165 255)",
+          "description": "System Blue"
+        },
+        "600": {
+          "value": "oklch(56.00% 0.168 257)",
+          "description": "System Blue dark"
+        },
+        "700": {
+          "value": "oklch(47.00% 0.145 258)",
+          "description": "Blue 700"
+        },
+        "800": {
+          "value": "oklch(38.00% 0.118 259)",
+          "description": "Blue 800"
+        },
+        "900": {
+          "value": "oklch(30.00% 0.090 259)",
+          "description": "Blue 900"
+        }
+      },
+      "green": {
+        "500": {
+          "value": "oklch(71.00% 0.165 150)",
+          "description": "System Green"
+        },
+        "600": {
+          "value": "oklch(61.00% 0.145 150)",
+          "description": "System Green dark"
+        }
+      },
+      "orange": {
+        "500": {
+          "value": "oklch(74.00% 0.165 58)",
+          "description": "System Orange"
+        },
+        "600": {
+          "value": "oklch(66.00% 0.150 52)",
+          "description": "System Orange dark"
+        }
+      },
+      "red": {
+        "500": {
+          "value": "oklch(65.00% 0.205 25)",
+          "description": "System Red"
+        },
+        "600": {
+          "value": "oklch(57.00% 0.185 23)",
+          "description": "System Red dark"
+        }
+      },
+      "purple": {
+        "500": {
+          "value": "oklch(63.00% 0.175 307)",
+          "description": "System Purple"
+        },
+        "600": {
+          "value": "oklch(55.00% 0.155 307)",
+          "description": "System Purple dark"
+        }
+      },
+      "cyan": {
+        "500": {
+          "value": "oklch(73.00% 0.118 220)",
+          "description": "System Cyan"
+        },
+        "600": {
+          "value": "oklch(63.00% 0.105 222)",
+          "description": "System Cyan dark"
+        }
+      }
+    },
+    "semantic": {
+      "_description": "Purpose-driven assignments with glass and surface separation.",
+      "modeAware": {
+        "primary": {
+          "value": "light-dark(oklch(56.00% 0.168 257), oklch(72.00% 0.130 252))",
+          "description": "Primary accent / System Blue"
+        },
+        "primaryHover": {
+          "value": "light-dark(oklch(47.00% 0.145 258), oklch(80.00% 0.100 250))",
+          "description": "Primary hover"
+        },
+        "primaryActive": {
+          "value": "light-dark(oklch(38.00% 0.118 259), oklch(63.50% 0.165 255))",
+          "description": "Primary active"
+        },
+        "primaryMuted": {
+          "value": "light-dark(oklch(96.00% 0.020 248), oklch(30.00% 0.040 248 / 0.22))",
+          "description": "Primary muted background"
+        },
+        "secondary": {
+          "value": "light-dark(oklch(28.00% 0.002 96), oklch(88.00% 0.003 95))",
+          "description": "Secondary neutral action"
+        },
+        "secondaryHover": {
+          "value": "light-dark(oklch(22.00% 0.002 96), oklch(94.00% 0.003 95))",
+          "description": "Secondary hover"
+        },
+        "secondaryActive": {
+          "value": "light-dark(oklch(18.00% 0.002 96), oklch(78.00% 0.003 95))",
+          "description": "Secondary active"
+        },
+        "secondaryMuted": {
+          "value": "light-dark(oklch(96.90% 0.003 95), oklch(28.00% 0.002 96 / 0.18))",
+          "description": "Secondary muted background"
+        },
+        "featured": {
+          "value": "light-dark(oklch(55.00% 0.155 307), oklch(63.00% 0.175 307))",
+          "description": "Featured / Purple"
+        },
+        "featuredHover": {
+          "value": "light-dark(oklch(48.00% 0.145 307), oklch(70.00% 0.145 307))",
+          "description": "Featured hover"
+        },
+        "featuredActive": {
+          "value": "light-dark(oklch(42.00% 0.130 307), oklch(55.00% 0.155 307))",
+          "description": "Featured active"
+        },
+        "featuredMuted": {
+          "value": "light-dark(oklch(95.00% 0.020 307), oklch(30.00% 0.030 307 / 0.20))",
+          "description": "Featured muted background"
+        },
+        "brand": {
+          "value": "light-dark(oklch(63.50% 0.165 255), oklch(72.00% 0.130 252))",
+          "description": "Brand accent"
+        },
+        "brandHover": {
+          "value": "light-dark(oklch(56.00% 0.168 257), oklch(80.00% 0.100 250))",
+          "description": "Brand hover"
+        },
+        "brandActive": {
+          "value": "light-dark(oklch(47.00% 0.145 258), oklch(63.50% 0.165 255))",
+          "description": "Brand active"
+        },
+        "brandMuted": {
+          "value": "light-dark(oklch(96.00% 0.020 248), oklch(30.00% 0.040 248 / 0.18))",
+          "description": "Brand muted background"
+        },
+        "accent": {
+          "value": "light-dark(oklch(63.50% 0.165 255), oklch(72.00% 0.130 252))",
+          "description": "Accent"
+        },
+        "accentHover": {
+          "value": "light-dark(oklch(56.00% 0.168 257), oklch(80.00% 0.100 250))",
+          "description": "Accent hover"
+        },
+        "accentMuted": {
+          "value": "light-dark(oklch(96.00% 0.020 248), oklch(30.00% 0.040 248 / 0.18))",
+          "description": "Accent muted background"
+        },
+        "success": {
+          "value": "light-dark(oklch(61.00% 0.145 150), oklch(71.00% 0.165 150))",
+          "description": "Success"
+        },
+        "successMuted": {
+          "value": "light-dark(oklch(95.00% 0.018 150), oklch(30.00% 0.025 150 / 0.18))",
+          "description": "Success muted"
+        },
+        "warning": {
+          "value": "light-dark(oklch(66.00% 0.150 52), oklch(74.00% 0.165 58))",
+          "description": "Warning"
+        },
+        "warningMuted": {
+          "value": "light-dark(oklch(96.00% 0.020 58), oklch(34.00% 0.025 58 / 0.18))",
+          "description": "Warning muted"
+        },
+        "destructive": {
+          "value": "light-dark(oklch(57.00% 0.185 23), oklch(65.00% 0.205 25))",
+          "description": "Destructive"
+        },
+        "destructiveHover": {
+          "value": "light-dark(oklch(50.00% 0.175 23), oklch(72.00% 0.180 25))",
+          "description": "Destructive hover"
+        },
+        "destructiveActive": {
+          "value": "light-dark(oklch(43.00% 0.160 23), oklch(57.00% 0.185 23))",
+          "description": "Destructive active"
+        },
+        "destructiveMuted": {
+          "value": "light-dark(oklch(96.00% 0.018 23), oklch(32.00% 0.025 23 / 0.18))",
+          "description": "Destructive muted"
+        },
+        "error": {
+          "value": "light-dark(oklch(57.00% 0.185 23), oklch(65.00% 0.205 25))",
+          "description": "Error"
+        },
+        "errorMuted": {
+          "value": "light-dark(oklch(96.00% 0.018 23), oklch(32.00% 0.025 23 / 0.18))",
+          "description": "Error muted"
+        },
+        "info": {
+          "value": "light-dark(oklch(63.00% 0.105 222), oklch(73.00% 0.118 220))",
+          "description": "Info"
+        },
+        "infoMuted": {
+          "value": "light-dark(oklch(96.00% 0.018 220), oklch(30.00% 0.022 220 / 0.18))",
+          "description": "Info muted"
+        },
+        "background": {
+          "value": "light-dark(oklch(99.10% 0.002 95), oklch(17.80% 0.002 96))",
+          "description": "Page background"
+        },
+        "backgroundAlt": {
+          "value": "light-dark(oklch(97.50% 0.003 95), oklch(20.20% 0.002 96))",
+          "description": "Alt background"
+        },
+        "backgroundElevated": {
+          "value": "light-dark(oklch(100% 0 0), oklch(26.50% 0.003 96))",
+          "description": "Elevated surface background"
+        },
+        "surface": {
+          "value": "light-dark(oklch(100% 0 0), oklch(22.00% 0.002 96))",
+          "description": "Component surface"
+        },
+        "surfaceHover": {
+          "value": "light-dark(oklch(98.10% 0.003 95), oklch(24.20% 0.002 96))",
+          "description": "Hover surface"
+        },
+        "surfaceSubtle": {
+          "value": "light-dark(oklch(98.60% 0.002 95), oklch(23.00% 0.002 96))",
+          "description": "Subtle surface"
+        },
+        "glassRegular": {
+          "value": "light-dark(oklch(100% 0 0 / 0.72), oklch(100% 0 0 / 0.10))",
+          "description": "Readable glass for text-heavy functional UI"
+        },
+        "glassClear": {
+          "value": "light-dark(oklch(100% 0 0 / 0.42), oklch(100% 0 0 / 0.06))",
+          "description": "Clear glass for media-rich or hero surfaces"
+        },
+        "glassStroke": {
+          "value": "light-dark(oklch(100% 0 0 / 0.28), oklch(95.20% 0.003 95 / 0.14))",
+          "description": "Glass border stroke"
+        },
+        "glassHighlight": {
+          "value": "light-dark(oklch(100% 0 0 / 0.96), oklch(100% 0 0 / 0.18))",
+          "description": "Glass specular highlight"
+        },
+        "glassShadow": {
+          "value": "light-dark(oklch(24.00% 0.002 96 / 0.12), oklch(0% 0 0 / 0.38))",
+          "description": "Glass shadow color"
+        },
+        "border": {
+          "value": "light-dark(oklch(87.00% 0.003 95), oklch(33.00% 0.003 96))",
+          "description": "Default border / separator"
+        },
+        "borderSubtle": {
+          "value": "light-dark(oklch(92.00% 0.003 95), oklch(29.00% 0.002 96))",
+          "description": "Subtle divider"
+        },
+        "borderStrong": {
+          "value": "light-dark(oklch(77.00% 0.003 95), oklch(42.00% 0.003 96))",
+          "description": "Strong border"
+        },
+        "textPrimary": {
+          "value": "light-dark(oklch(24.00% 0.002 96), oklch(95.20% 0.003 95))",
+          "description": "Primary text"
+        },
+        "textSecondary": {
+          "value": "light-dark(oklch(44.00% 0.003 95), oklch(78.00% 0.003 95))",
+          "description": "Secondary text"
+        },
+        "textTertiary": {
+          "value": "light-dark(oklch(58.00% 0.003 95), oklch(66.00% 0.003 95))",
+          "description": "Tertiary text"
+        },
+        "textQuaternary": {
+          "value": "light-dark(oklch(68.00% 0.003 95), oklch(56.00% 0.003 95))",
+          "description": "Quaternary text"
+        },
+        "textInverse": {
+          "value": "light-dark(oklch(99.20% 0.002 95), oklch(24.00% 0.002 96))",
+          "description": "Inverse text"
+        },
+        "textLink": {
+          "value": "light-dark(oklch(56.00% 0.168 257), oklch(72.00% 0.130 252))",
+          "description": "Link text"
+        },
+        "textLinkHover": {
+          "value": "light-dark(oklch(47.00% 0.145 258), oklch(80.00% 0.100 250))",
+          "description": "Link hover"
+        },
+        "disabledText": {
+          "value": "light-dark(oklch(72.00% 0.003 95), oklch(60.00% 0.003 95))",
+          "description": "Disabled text"
+        },
+        "disabledIcon": {
+          "value": "light-dark(oklch(72.00% 0.003 95), oklch(60.00% 0.003 95))",
+          "description": "Disabled icon"
+        },
+        "disabledSurface": {
+          "value": "light-dark(oklch(96.80% 0.003 95), oklch(20.50% 0.002 96))",
+          "description": "Disabled surface"
+        },
+        "disabledBorder": {
+          "value": "light-dark(oklch(89.00% 0.003 95), oklch(31.50% 0.002 96))",
+          "description": "Disabled border"
+        },
+        "disabledSelectedSurface": {
+          "value": "light-dark(oklch(92.00% 0.020 248), oklch(37.00% 0.030 248))",
+          "description": "Disabled selected surface"
+        },
+        "disabledSelectedBorder": {
+          "value": "light-dark(oklch(84.00% 0.020 248), oklch(43.00% 0.030 248))",
+          "description": "Disabled selected border"
+        },
+        "disabledSelectedText": {
+          "value": "light-dark(oklch(24.00% 0.002 96), oklch(95.20% 0.003 95))",
+          "description": "Disabled selected text"
+        },
+        "overlay": {
+          "value": "light-dark(oklch(18.00% 0.002 96 / 0.48), oklch(18.00% 0.002 96 / 0.64))",
+          "description": "Overlay"
+        },
+        "focus": {
+          "value": "light-dark(oklch(64.00% 0.150 255 / 0.56), oklch(76.00% 0.110 252 / 0.62))",
+          "description": "Focus ring"
+        }
+      },
+      "rootVariables": {
+        "_description": "All color variables emitted from :root using light-dark()",
+        "--color-primary": {
+          "value": "{color.semantic.modeAware.primary.value}"
+        },
+        "--color-primary-hover": {
+          "value": "{color.semantic.modeAware.primaryHover.value}"
+        },
+        "--color-primary-active": {
+          "value": "{color.semantic.modeAware.primaryActive.value}"
+        },
+        "--color-primary-muted": {
+          "value": "{color.semantic.modeAware.primaryMuted.value}"
+        },
+        "--color-secondary": {
+          "value": "{color.semantic.modeAware.secondary.value}"
+        },
+        "--color-secondary-hover": {
+          "value": "{color.semantic.modeAware.secondaryHover.value}"
+        },
+        "--color-secondary-active": {
+          "value": "{color.semantic.modeAware.secondaryActive.value}"
+        },
+        "--color-secondary-muted": {
+          "value": "{color.semantic.modeAware.secondaryMuted.value}"
+        },
+        "--color-featured": {
+          "value": "{color.semantic.modeAware.featured.value}"
+        },
+        "--color-featured-hover": {
+          "value": "{color.semantic.modeAware.featuredHover.value}"
+        },
+        "--color-featured-active": {
+          "value": "{color.semantic.modeAware.featuredActive.value}"
+        },
+        "--color-featured-muted": {
+          "value": "{color.semantic.modeAware.featuredMuted.value}"
+        },
+        "--color-brand": {
+          "value": "{color.semantic.modeAware.brand.value}"
+        },
+        "--color-brand-hover": {
+          "value": "{color.semantic.modeAware.brandHover.value}"
+        },
+        "--color-brand-active": {
+          "value": "{color.semantic.modeAware.brandActive.value}"
+        },
+        "--color-brand-muted": {
+          "value": "{color.semantic.modeAware.brandMuted.value}"
+        },
+        "--color-accent": {
+          "value": "{color.semantic.modeAware.accent.value}"
+        },
+        "--color-accent-hover": {
+          "value": "{color.semantic.modeAware.accentHover.value}"
+        },
+        "--color-accent-muted": {
+          "value": "{color.semantic.modeAware.accentMuted.value}"
+        },
+        "--color-success": {
+          "value": "{color.semantic.modeAware.success.value}"
+        },
+        "--color-success-muted": {
+          "value": "{color.semantic.modeAware.successMuted.value}"
+        },
+        "--color-warning": {
+          "value": "{color.semantic.modeAware.warning.value}"
+        },
+        "--color-warning-muted": {
+          "value": "{color.semantic.modeAware.warningMuted.value}"
+        },
+        "--color-destructive": {
+          "value": "{color.semantic.modeAware.destructive.value}"
+        },
+        "--color-destructive-hover": {
+          "value": "{color.semantic.modeAware.destructiveHover.value}"
+        },
+        "--color-destructive-active": {
+          "value": "{color.semantic.modeAware.destructiveActive.value}"
+        },
+        "--color-destructive-muted": {
+          "value": "{color.semantic.modeAware.destructiveMuted.value}"
+        },
+        "--color-error": {
+          "value": "{color.semantic.modeAware.error.value}"
+        },
+        "--color-error-muted": {
+          "value": "{color.semantic.modeAware.errorMuted.value}"
+        },
+        "--color-info": {
+          "value": "{color.semantic.modeAware.info.value}"
+        },
+        "--color-info-muted": {
+          "value": "{color.semantic.modeAware.infoMuted.value}"
+        },
+        "--color-background": {
+          "value": "{color.semantic.modeAware.background.value}"
+        },
+        "--color-background-alt": {
+          "value": "{color.semantic.modeAware.backgroundAlt.value}"
+        },
+        "--color-background-elevated": {
+          "value": "{color.semantic.modeAware.backgroundElevated.value}"
+        },
+        "--color-surface": {
+          "value": "{color.semantic.modeAware.surface.value}"
+        },
+        "--color-surface-hover": {
+          "value": "{color.semantic.modeAware.surfaceHover.value}"
+        },
+        "--color-surface-subtle": {
+          "value": "{color.semantic.modeAware.surfaceSubtle.value}"
+        },
+        "--color-glass-regular": {
+          "value": "{color.semantic.modeAware.glassRegular.value}"
+        },
+        "--color-glass-clear": {
+          "value": "{color.semantic.modeAware.glassClear.value}"
+        },
+        "--color-glass-stroke": {
+          "value": "{color.semantic.modeAware.glassStroke.value}"
+        },
+        "--color-glass-highlight": {
+          "value": "{color.semantic.modeAware.glassHighlight.value}"
+        },
+        "--color-glass-shadow": {
+          "value": "{color.semantic.modeAware.glassShadow.value}"
+        },
+        "--color-border": {
+          "value": "{color.semantic.modeAware.border.value}"
+        },
+        "--color-border-subtle": {
+          "value": "{color.semantic.modeAware.borderSubtle.value}"
+        },
+        "--color-border-strong": {
+          "value": "{color.semantic.modeAware.borderStrong.value}"
+        },
+        "--color-text-primary": {
+          "value": "{color.semantic.modeAware.textPrimary.value}"
+        },
+        "--color-text-secondary": {
+          "value": "{color.semantic.modeAware.textSecondary.value}"
+        },
+        "--color-text-tertiary": {
+          "value": "{color.semantic.modeAware.textTertiary.value}"
+        },
+        "--color-text-quaternary": {
+          "value": "{color.semantic.modeAware.textQuaternary.value}"
+        },
+        "--color-text-inverse": {
+          "value": "{color.semantic.modeAware.textInverse.value}"
+        },
+        "--color-text-link": {
+          "value": "{color.semantic.modeAware.textLink.value}"
+        },
+        "--color-text-link-hover": {
+          "value": "{color.semantic.modeAware.textLinkHover.value}"
+        },
+        "--color-disabled-text": {
+          "value": "{color.semantic.modeAware.disabledText.value}"
+        },
+        "--color-disabled-icon": {
+          "value": "{color.semantic.modeAware.disabledIcon.value}"
+        },
+        "--color-disabled-surface": {
+          "value": "{color.semantic.modeAware.disabledSurface.value}"
+        },
+        "--color-disabled-border": {
+          "value": "{color.semantic.modeAware.disabledBorder.value}"
+        },
+        "--color-disabled-selected-surface": {
+          "value": "{color.semantic.modeAware.disabledSelectedSurface.value}"
+        },
+        "--color-disabled-selected-border": {
+          "value": "{color.semantic.modeAware.disabledSelectedBorder.value}"
+        },
+        "--color-disabled-selected-text": {
+          "value": "{color.semantic.modeAware.disabledSelectedText.value}"
+        },
+        "--color-overlay": {
+          "value": "{color.semantic.modeAware.overlay.value}"
+        },
+        "--color-focus": {
+          "value": "{color.semantic.modeAware.focus.value}"
+        }
+      }
+    },
+    "effects": {
+      "_description": "Glass / material tokens",
+      "surfaceGlass": {
+        "value": "linear-gradient(180deg, color-mix(in oklch, var(--color-glass-highlight) 88%, transparent), color-mix(in oklch, var(--color-glass-regular) 100%, transparent))"
+      },
+      "surfaceGlassStrong": {
+        "value": "linear-gradient(180deg, color-mix(in oklch, var(--color-glass-highlight) 72%, transparent), color-mix(in oklch, var(--color-glass-clear) 100%, transparent))"
+      },
+      "hairlineBorder": {
+        "value": "1px solid color-mix(in oklch, var(--color-border) 100%, transparent)"
+      },
+      "glassBorder": {
+        "value": "1px solid color-mix(in oklch, var(--color-glass-stroke) 100%, transparent)"
+      },
+      "glassSpecular": {
+        "value": "linear-gradient(180deg, color-mix(in oklch, white 84%, transparent) 0%, color-mix(in oklch, white 24%, transparent) 42%, transparent 100%)"
+      },
+      "luxuryGlow": {
+        "value": "0 0 0 1px color-mix(in oklch, var(--color-accent) 18%, transparent), 0 10px 30px color-mix(in oklch, var(--color-accent) 16%, transparent)"
+      },
+      "backdropRegular": {
+        "value": "blur(24px) saturate(180%)"
+      },
+      "backdropClear": {
+        "value": "blur(32px) saturate(190%)"
+      }
+    }
+  },
+  "typography": {
+    "_description": "System-first typography tuned to Apple-like hierarchy.",
+    "fontFamily": {
+      "display": {
+        "value": "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Inter', 'Noto Sans JP', sans-serif",
+        "description": "Display / title — system display stack"
+      },
+      "heading": {
+        "value": "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Segoe UI', 'Inter', 'Noto Sans JP', sans-serif",
+        "description": "Heading — system stack"
+      },
+      "body": {
+        "value": "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', 'Inter', 'Noto Sans JP', sans-serif",
+        "description": "Body / UI — system stack"
+      },
+      "mono": {
+        "value": "'SF Mono', 'IBM Plex Mono', 'Source Code Pro', monospace",
+        "description": "Code / technical"
+      },
+      "accent": {
+        "value": "-apple-system, BlinkMacSystemFont, 'SF Pro Rounded', 'SF Pro Text', 'Segoe UI', 'Inter', 'Noto Sans JP', sans-serif",
+        "description": "Rounded accent / capsules"
+      },
+      "serif": {
+        "value": "'New York', 'Iowan Old Style', 'Noto Serif JP', serif",
+        "description": "Editorial serif"
+      }
+    },
+    "fontWeight": {
+      "regular": {
+        "value": 400
+      },
+      "medium": {
+        "value": 500
+      },
+      "semibold": {
+        "value": 600
+      },
+      "bold": {
+        "value": 700
+      }
+    },
+    "tracking": {
+      "tight": {
+        "value": "-0.02em"
+      },
+      "normal": {
+        "value": "0em"
+      },
+      "wide": {
+        "value": "0.01em"
+      }
+    },
+    "ui": {
+      "caption": {
+        "fontSize": {
+          "value": "11px"
+        },
+        "lineHeight": {
+          "value": "13px"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.medium.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.body.value}"
+        }
+      },
+      "bodySm": {
+        "fontSize": {
+          "value": "12px"
+        },
+        "lineHeight": {
+          "value": "16px"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.regular.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.body.value}"
+        }
+      },
+      "bodyMd": {
+        "fontSize": {
+          "value": "13px"
+        },
+        "lineHeight": {
+          "value": "18px"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.regular.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.body.value}"
+        }
+      },
+      "bodyLg": {
+        "fontSize": {
+          "value": "14px"
+        },
+        "lineHeight": {
+          "value": "19px"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.regular.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.body.value}"
+        }
+      },
+      "titleSm": {
+        "fontSize": {
+          "value": "14px"
+        },
+        "lineHeight": {
+          "value": "19px"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.semibold.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.heading.value}"
+        }
+      },
+      "titleMd": {
+        "fontSize": {
+          "value": "17px"
+        },
+        "lineHeight": {
+          "value": "22px"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.semibold.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.heading.value}"
+        }
+      },
+      "titleLg": {
+        "fontSize": {
+          "value": "22px"
+        },
+        "lineHeight": {
+          "value": "28px"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.semibold.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.heading.value}"
+        }
+      },
+      "headlineSm": {
+        "fontSize": {
+          "value": "28px"
+        },
+        "lineHeight": {
+          "value": "34px"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.bold.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.display.value}"
+        }
+      },
+      "headlineMd": {
+        "fontSize": {
+          "value": "34px"
+        },
+        "lineHeight": {
+          "value": "41px"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.bold.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.display.value}"
+        }
+      },
+      "headlineLg": {
+        "fontSize": {
+          "value": "48px"
+        },
+        "lineHeight": {
+          "value": "56px"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.bold.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.display.value}"
+        }
+      },
+      "display": {
+        "fontSize": {
+          "value": "56px"
+        },
+        "lineHeight": {
+          "value": "1.05"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.bold.value}"
+        },
+        "letterSpacing": {
+          "value": "{typography.tracking.tight.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.display.value}"
+        }
+      }
+    },
+    "scale": {
+      "display-xl": {
+        "fontSize": {
+          "value": "72px",
+          "description": "Hero headline"
+        },
+        "lineHeight": {
+          "value": "1.02"
+        },
+        "letterSpacing": {
+          "value": "-0.03em"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.bold.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.display.value}"
+        }
+      },
+      "display-lg": {
+        "fontSize": {
+          "value": "56px",
+          "description": "Large hero"
+        },
+        "lineHeight": {
+          "value": "1.05"
+        },
+        "letterSpacing": {
+          "value": "-0.03em"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.bold.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.display.value}"
+        }
+      },
+      "display-md": {
+        "fontSize": {
+          "value": "40px",
+          "description": "Page title"
+        },
+        "lineHeight": {
+          "value": "1.1"
+        },
+        "letterSpacing": {
+          "value": "-0.02em"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.semibold.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.display.value}"
+        }
+      },
+      "heading-lg": {
+        "fontSize": {
+          "value": "32px",
+          "description": "Major section heading"
+        },
+        "lineHeight": {
+          "value": "1.15"
+        },
+        "letterSpacing": {
+          "value": "-0.02em"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.semibold.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.heading.value}"
+        }
+      },
+      "heading-md": {
+        "fontSize": {
+          "value": "24px",
+          "description": "Sub-section heading"
+        },
+        "lineHeight": {
+          "value": "1.2"
+        },
+        "letterSpacing": {
+          "value": "-0.01em"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.semibold.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.heading.value}"
+        }
+      },
+      "heading-sm": {
+        "fontSize": {
+          "value": "17px",
+          "description": "Component heading"
+        },
+        "lineHeight": {
+          "value": "22px"
+        },
+        "letterSpacing": {
+          "value": "{typography.tracking.normal.value}"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.semibold.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.heading.value}"
+        }
+      },
+      "body-lg": {
+        "fontSize": {
+          "value": "21px",
+          "description": "Lead paragraph"
+        },
+        "lineHeight": {
+          "value": "1.45"
+        },
+        "letterSpacing": {
+          "value": "{typography.tracking.normal.value}"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.regular.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.body.value}"
+        }
+      },
+      "body-md": {
+        "fontSize": {
+          "value": "14px",
+          "description": "Default body text"
+        },
+        "lineHeight": {
+          "value": "19px"
+        },
+        "letterSpacing": {
+          "value": "{typography.tracking.normal.value}"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.regular.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.body.value}"
+        }
+      },
+      "body-sm": {
+        "fontSize": {
+          "value": "13px",
+          "description": "Small body / callout"
+        },
+        "lineHeight": {
+          "value": "18px"
+        },
+        "letterSpacing": {
+          "value": "{typography.tracking.normal.value}"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.regular.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.body.value}"
+        }
+      },
+      "editorial-serif": {
+        "fontSize": {
+          "value": "40px",
+          "description": "Optional Apple-like editorial serif"
+        },
+        "lineHeight": {
+          "value": "1.15"
+        },
+        "letterSpacing": {
+          "value": "-0.02em"
+        },
+        "fontWeight": {
+          "value": "{typography.fontWeight.semibold.value}"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.serif.value}"
+        }
+      }
+    }
+  },
+  "spacing": {
+    "_description": "4pt/8pt hybrid spacing rhythm",
+    "0": {
+      "value": "0px",
+      "description": "None"
+    },
+    "1": {
+      "value": "4px",
+      "description": "4pt"
+    },
+    "2": {
+      "value": "8px",
+      "description": "8pt"
+    },
+    "3": {
+      "value": "12px",
+      "description": "12pt"
+    },
+    "4": {
+      "value": "16px",
+      "description": "16pt"
+    },
+    "5": {
+      "value": "20px",
+      "description": "20pt"
+    },
+    "6": {
+      "value": "24px",
+      "description": "24pt"
+    },
+    "8": {
+      "value": "32px",
+      "description": "32pt"
+    },
+    "10": {
+      "value": "40px",
+      "description": "40pt"
+    },
+    "12": {
+      "value": "48px",
+      "description": "48pt"
+    },
+    "14": {
+      "value": "56px",
+      "description": "56pt"
+    },
+    "16": {
+      "value": "64px",
+      "description": "64pt"
+    },
+    "20": {
+      "value": "80px",
+      "description": "80pt"
+    },
+    "24": {
+      "value": "96px",
+      "description": "96pt"
+    },
+    "32": {
+      "value": "128px",
+      "description": "128pt"
+    }
+  },
+  "borderRadius": {
+    "none": {
+      "value": "0px",
+      "description": "Sharp"
+    },
+    "sm": {
+      "value": "10px",
+      "description": "Small Apple-like rounding"
+    },
+    "md": {
+      "value": "14px",
+      "description": "Standard UI rounding"
+    },
+    "lg": {
+      "value": "18px",
+      "description": "Soft panel rounding"
+    },
+    "xl": {
+      "value": "24px",
+      "description": "Bento tile rounding"
+    },
+    "2xl": {
+      "value": "32px",
+      "description": "Large hero tile rounding"
+    },
+    "3xl": {
+      "value": "40px",
+      "description": "Large display rounding"
+    },
+    "full": {
+      "value": "9999px",
+      "description": "Capsule / pill"
+    }
+  },
+  "shadow": {
+    "_description": "Subtle depth + glass shadows",
+    "modeAware": {
+      "sm": {
+        "value": "0 2px 12px color-mix(in oklch, var(--color-glass-shadow) 70%, transparent), inset 0 1px 0 color-mix(in oklch, white 70%, transparent)"
+      },
+      "md": {
+        "value": "0 8px 30px color-mix(in oklch, var(--color-glass-shadow) 85%, transparent), inset 0 1px 0 color-mix(in oklch, white 68%, transparent)"
+      },
+      "lg": {
+        "value": "0 12px 40px color-mix(in oklch, var(--color-glass-shadow) 100%, transparent), inset 0 1px 0 color-mix(in oklch, white 64%, transparent)"
+      },
+      "xl": {
+        "value": "0 18px 60px color-mix(in oklch, var(--color-glass-shadow) 100%, transparent), inset 0 1px 0 color-mix(in oklch, white 60%, transparent)"
+      },
+      "inner": {
+        "value": "inset 0 1px 2px color-mix(in oklch, white 60%, transparent)"
+      },
+      "gold": {
+        "value": "0 6px 24px color-mix(in oklch, var(--color-accent) 18%, transparent), 0 1px 6px color-mix(in oklch, var(--color-accent) 10%, transparent)"
+      },
+      "surface": {
+        "value": "0 8px 30px color-mix(in oklch, black 14%, transparent)"
+      }
+    }
+  },
+  "animation": {
+    "_description": "Smooth, restrained, Apple-like motion",
+    "duration": {
+      "instant": {
+        "value": "120ms",
+        "description": "Micro feedback"
+      },
+      "fast": {
+        "value": "180ms",
+        "description": "Hover / state transition"
+      },
+      "normal": {
+        "value": "280ms",
+        "description": "Standard movement"
+      },
+      "slow": {
+        "value": "420ms",
+        "description": "Sheet / navigation transition"
+      },
+      "graceful": {
+        "value": "650ms",
+        "description": "Hero reveal / editorial movement"
+      },
+      "dramatic": {
+        "value": "900ms",
+        "description": "Major page transition"
+      }
+    },
+    "easing": {
+      "default": {
+        "value": "cubic-bezier(0.2, 0, 0, 1)",
+        "description": "Standard"
+      },
+      "enter": {
+        "value": "cubic-bezier(0.0, 0.0, 0.2, 1.0)",
+        "description": "Enter"
+      },
+      "exit": {
+        "value": "cubic-bezier(0.4, 0.0, 1.0, 1.0)",
+        "description": "Exit"
+      },
+      "spring": {
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "description": "Emphasized ease-out"
+      },
+      "brush": {
+        "value": "cubic-bezier(0.2, 0, 0, 1)",
+        "description": "Reserved motion"
+      }
+    },
+    "keyframes": {
+      "fadeIn": {
+        "value": "opacity: 0 -> 1",
+        "description": "Simple fade"
+      },
+      "slideUp": {
+        "value": "translateY(12px), opacity:0 -> 1",
+        "description": "Rise"
+      },
+      "slideDown": {
+        "value": "translateY(-12px), opacity:0 -> 1",
+        "description": "Drop"
+      },
+      "slideRight": {
+        "value": "translateX(-16px), opacity:0 -> 1",
+        "description": "Slide from left"
+      },
+      "scaleIn": {
+        "value": "scale(0.98), opacity:0 -> 1",
+        "description": "Subtle scale reveal"
+      },
+      "glassShimmer": {
+        "value": "background-position: 0% 0% -> 100% 0%",
+        "description": "Specular glass sweep"
+      },
+      "bentoLift": {
+        "value": "translateY(0) -> translateY(-2px)",
+        "description": "Tile hover lift"
+      },
+      "floatUp": {
+        "value": "translateY(0) -> translateY(-4px) -> translateY(0), infinite",
+        "description": "Very subtle floating"
+      }
+    }
+  },
+  "breakpoints": {
+    "_description": "Responsive breakpoints",
+    "sm": {
+      "value": "480px",
+      "description": "Mobile portrait"
+    },
+    "md": {
+      "value": "768px",
+      "description": "Tablet portrait"
+    },
+    "lg": {
+      "value": "1024px",
+      "description": "Tablet landscape / small desktop"
+    },
+    "xl": {
+      "value": "1280px",
+      "description": "Standard desktop"
+    },
+    "2xl": {
+      "value": "1536px",
+      "description": "Large desktop"
+    }
+  },
+  "layout": {
+    "container": {
+      "sm": {
+        "value": "640px"
+      },
+      "md": {
+        "value": "768px"
+      },
+      "lg": {
+        "value": "1024px"
+      },
+      "xl": {
+        "value": "1200px"
+      },
+      "2xl": {
+        "value": "1440px"
+      }
+    },
+    "grid": {
+      "columns": {
+        "value": 12
+      },
+      "gutter": {
+        "value": "{spacing.4}"
+      },
+      "margin": {
+        "value": "{spacing.5}"
+      }
+    },
+    "bento": {
+      "_description": "Bento grid system",
+      "columns": {
+        "mobile": {
+          "value": 4
+        },
+        "tablet": {
+          "value": 8
+        },
+        "desktop": {
+          "value": 12
+        }
+      },
+      "gap": {
+        "compact": {
+          "value": "12px"
+        },
+        "default": {
+          "value": "16px"
+        },
+        "relaxed": {
+          "value": "20px"
+        }
+      },
+      "rowHeight": {
+        "sm": {
+          "value": "72px"
+        },
+        "md": {
+          "value": "96px"
+        },
+        "lg": {
+          "value": "120px"
+        }
+      },
+      "tilePadding": {
+        "sm": {
+          "value": "{spacing.4}"
+        },
+        "md": {
+          "value": "{spacing.5}"
+        },
+        "lg": {
+          "value": "{spacing.6}"
+        }
+      },
+      "templates": {
+        "hero": {
+          "desktop": [
+            {
+              "area": "featureHero",
+              "colSpan": 6,
+              "rowSpan": 2
+            },
+            {
+              "area": "featureA",
+              "colSpan": 3,
+              "rowSpan": 1
+            },
+            {
+              "area": "featureB",
+              "colSpan": 3,
+              "rowSpan": 1
+            },
+            {
+              "area": "featureC",
+              "colSpan": 3,
+              "rowSpan": 1
+            },
+            {
+              "area": "featureD",
+              "colSpan": 3,
+              "rowSpan": 1
+            }
+          ]
+        },
+        "productShowcase": {
+          "desktop": [
+            {
+              "area": "mediaLarge",
+              "colSpan": 5,
+              "rowSpan": 2
+            },
+            {
+              "area": "specs",
+              "colSpan": 4,
+              "rowSpan": 1
+            },
+            {
+              "area": "cta",
+              "colSpan": 3,
+              "rowSpan": 1
+            },
+            {
+              "area": "detailA",
+              "colSpan": 3,
+              "rowSpan": 1
+            },
+            {
+              "area": "detailB",
+              "colSpan": 4,
+              "rowSpan": 1
+            }
+          ]
+        },
+        "dashboard": {
+          "desktop": [
+            {
+              "area": "summary",
+              "colSpan": 4,
+              "rowSpan": 1
+            },
+            {
+              "area": "chartMain",
+              "colSpan": 5,
+              "rowSpan": 2
+            },
+            {
+              "area": "activity",
+              "colSpan": 3,
+              "rowSpan": 2
+            },
+            {
+              "area": "metricA",
+              "colSpan": 2,
+              "rowSpan": 1
+            },
+            {
+              "area": "metricB",
+              "colSpan": 2,
+              "rowSpan": 1
+            },
+            {
+              "area": "metricC",
+              "colSpan": 3,
+              "rowSpan": 1
+            }
+          ]
+        }
+      }
+    }
+  },
+  "components": {
+    "_description": "Component specifications with glass functional layers and bento-ready surfaces",
+    "formField": {
+      "_description": "Shared styling contract for all input-like components",
+      "surface": "{color.semantic.modeAware.surface.value}",
+      "surfaceAlt": "{color.semantic.modeAware.backgroundAlt.value}",
+      "surfaceHover": "{color.semantic.modeAware.surfaceHover.value}",
+      "text": "{color.semantic.modeAware.textPrimary.value}",
+      "placeholder": "{color.semantic.modeAware.textTertiary.value}",
+      "border": "{color.semantic.modeAware.border.value}",
+      "borderStrong": "{color.semantic.modeAware.borderStrong.value}",
+      "focusRing": "{color.semantic.modeAware.primary.value}",
+      "focusHalo": "{color.semantic.modeAware.primaryMuted.value}",
+      "disabledText": "{color.semantic.modeAware.disabledText.value}",
+      "disabledSurface": "{color.semantic.modeAware.disabledSurface.value}",
+      "disabledBorder": "{color.semantic.modeAware.disabledBorder.value}",
+      "disabledSelectedSurface": "{color.semantic.modeAware.disabledSelectedSurface.value}",
+      "disabledSelectedBorder": "{color.semantic.modeAware.disabledSelectedBorder.value}",
+      "radius": "{borderRadius.lg}",
+      "backdropFilter": "{color.effects.backdropRegular.value}",
+      "blendMode": "normal",
+      "fieldShadow": "{shadow.modeAware.sm.value}",
+      "fieldInset": "inset 0 1px 0 color-mix(in oklch, white 70%, transparent)"
+    },
+    "button": {
+      "variants": [
+        "primary",
+        "secondary",
+        "featured",
+        "outline",
+        "ghost",
+        "destructive",
+        "danger",
+        "glass",
+        "luxury"
+      ],
+      "requiresTitleAttribute": false,
+      "sizes": {
+        "sm": {
+          "height": "30px",
+          "paddingX": "{spacing.3}",
+          "fontSize": "{typography.ui.bodySm.fontSize.value}",
+          "borderRadius": "{borderRadius.full}"
+        },
+        "md": {
+          "height": "36px",
+          "paddingX": "{spacing.4}",
+          "fontSize": "{typography.ui.bodyMd.fontSize.value}",
+          "borderRadius": "{borderRadius.full}"
+        },
+        "lg": {
+          "height": "44px",
+          "paddingX": "{spacing.5}",
+          "fontSize": "{typography.ui.bodyLg.fontSize.value}",
+          "borderRadius": "{borderRadius.full}"
+        },
+        "xl": {
+          "height": "52px",
+          "paddingX": "{spacing.8}",
+          "fontSize": "{typography.ui.bodyLg.fontSize.value}",
+          "borderRadius": "{borderRadius.full}"
+        }
+      },
+      "states": {
+        "default": {
+          "cursor": "pointer"
+        },
+        "hover": {
+          "transform": "scale(1.01)",
+          "transition": "{animation.duration.fast.value} {animation.easing.default.value}"
+        },
+        "active": {
+          "transform": "scale(0.985)"
+        },
+        "focus": {
+          "outline": "none",
+          "boxShadow": "0 0 0 4px var(--color-focus)"
+        },
+        "disabled": {
+          "opacity": "1",
+          "background": "var(--color-disabled-surface)",
+          "color": "var(--color-disabled-text)",
+          "border": "1px solid var(--color-disabled-border)",
+          "boxShadow": "none",
+          "cursor": "not-allowed",
+          "pointerEvents": "none",
+          "transform": "none"
+        },
+        "loading": {
+          "opacity": "0.7",
+          "cursor": "wait"
+        }
+      },
+      "primary": {
+        "background": "var(--color-primary)",
+        "color": "var(--color-text-inverse)",
+        "border": "1px solid color-mix(in oklch, var(--color-primary) 100%, white 6%)",
+        "boxShadow": "{color.effects.luxuryGlow.value}",
+        "hover": {
+          "background": "var(--color-primary-hover)"
+        },
+        "active": {
+          "background": "var(--color-primary-active)"
+        }
+      },
+      "secondary": {
+        "background": "var(--color-secondary)",
+        "color": "var(--color-text-inverse)",
+        "hover": {
+          "background": "var(--color-secondary-hover)"
+        },
+        "active": {
+          "background": "var(--color-secondary-active)"
+        }
+      },
+      "featured": {
+        "background": "var(--color-featured)",
+        "color": "var(--color-text-inverse)",
+        "hover": {
+          "background": "var(--color-featured-hover)"
+        },
+        "active": {
+          "background": "var(--color-featured-active)"
+        }
+      },
+      "outline": {
+        "background": "color-mix(in oklch, var(--color-surface) 88%, transparent)",
+        "color": "var(--color-text-primary)",
+        "border": "1px solid var(--color-border)"
+      },
+      "ghost": {
+        "background": "transparent",
+        "color": "var(--color-text-link)",
+        "hover": {
+          "background": "color-mix(in oklch, var(--color-surface-hover) 72%, transparent)"
+        }
+      },
+      "glass": {
+        "background": "{color.effects.surfaceGlass.value}",
+        "color": "var(--color-text-primary)",
+        "border": "{color.effects.glassBorder.value}",
+        "boxShadow": "{shadow.modeAware.md.value}",
+        "backdropFilter": "{color.effects.backdropRegular.value}"
+      },
+      "destructive": {
+        "background": "color-mix(in oklch, var(--color-surface) 88%, transparent)",
+        "color": "var(--color-destructive)",
+        "border": "1px solid var(--color-destructive)",
+        "hover": {
+          "background": "var(--color-destructive-muted)",
+          "color": "var(--color-destructive-hover)",
+          "border": "1px solid var(--color-destructive-hover)"
+        },
+        "active": {
+          "background": "color-mix(in oklch, var(--color-destructive-muted) 88%, var(--color-surface))",
+          "color": "var(--color-destructive-active)",
+          "border": "1px solid var(--color-destructive-active)"
+        }
+      },
+      "danger": {
+        "background": "color-mix(in oklch, var(--color-surface) 88%, transparent)",
+        "color": "var(--color-destructive)",
+        "border": "1px solid var(--color-destructive)",
+        "hover": {
+          "background": "var(--color-destructive-muted)",
+          "color": "var(--color-destructive-hover)",
+          "border": "1px solid var(--color-destructive-hover)"
+        },
+        "active": {
+          "background": "color-mix(in oklch, var(--color-destructive-muted) 88%, var(--color-surface))",
+          "color": "var(--color-destructive-active)",
+          "border": "1px solid var(--color-destructive-active)"
+        }
+      },
+      "luxury": {
+        "background": "linear-gradient(135deg, color-mix(in oklch, var(--color-primary) 84%, white 12%), color-mix(in oklch, var(--color-primary) 100%, black 8%))",
+        "color": "var(--color-text-inverse)",
+        "border": "1px solid color-mix(in oklch, var(--color-primary) 60%, white 18%)",
+        "boxShadow": "{shadow.modeAware.gold.value}"
+      }
+    },
+    "input": {
+      "variants": [
+        "default",
+        "filled",
+        "flushed",
+        "brand",
+        "glass"
+      ],
+      "sizes": {
+        "sm": {
+          "height": "32px",
+          "paddingX": "{spacing.3}",
+          "fontSize": "{typography.ui.bodySm.fontSize.value}"
+        },
+        "md": {
+          "height": "40px",
+          "paddingX": "{spacing.4}",
+          "fontSize": "{typography.ui.bodyLg.fontSize.value}"
+        },
+        "lg": {
+          "height": "48px",
+          "paddingX": "{spacing.5}",
+          "fontSize": "{typography.ui.titleSm.fontSize.value}"
+        }
+      },
+      "states": {
+        "default": {
+          "border": "1px solid var(--color-border)",
+          "borderRadius": "{borderRadius.lg}"
+        },
+        "hover": {
+          "borderColor": "var(--color-border-strong)"
+        },
+        "focus": {
+          "borderColor": "var(--color-primary)",
+          "boxShadow": "0 0 0 4px var(--color-focus)"
+        },
+        "error": {
+          "borderColor": "var(--color-error)",
+          "boxShadow": "0 0 0 4px var(--color-error-muted)"
+        },
+        "disabled": {
+          "opacity": "1",
+          "background": "var(--color-disabled-surface)",
+          "color": "var(--color-disabled-text)",
+          "borderColor": "var(--color-disabled-border)",
+          "boxShadow": "none",
+          "cursor": "not-allowed"
+        },
+        "readonly": {
+          "background": "color-mix(in oklch, var(--color-background-alt) 72%, var(--color-surface))"
+        }
+      },
+      "brand": {
+        "background": "color-mix(in oklch, var(--color-surface) 92%, transparent)",
+        "border": "1px solid var(--color-border)",
+        "borderRadius": "{borderRadius.lg}",
+        "boxShadow": "{shadow.modeAware.sm.value}",
+        "hover": {
+          "background": "color-mix(in oklch, var(--color-surface-hover) 92%, transparent)",
+          "borderColor": "var(--color-border-strong)"
+        },
+        "focus": {
+          "borderColor": "var(--color-primary)",
+          "boxShadow": "0 0 0 4px var(--color-focus)"
+        },
+        "error": {
+          "borderColor": "var(--color-error)",
+          "boxShadow": "0 0 0 4px var(--color-error-muted)"
+        },
+        "disabled": {
+          "opacity": "1",
+          "background": "var(--color-disabled-surface)",
+          "color": "var(--color-disabled-text)",
+          "borderColor": "var(--color-disabled-border)",
+          "boxShadow": "none",
+          "cursor": "not-allowed"
+        },
+        "readonly": {
+          "background": "color-mix(in oklch, var(--color-background-alt) 72%, var(--color-surface))"
+        }
+      },
+      "glass": {
+        "background": "{color.effects.surfaceGlass.value}",
+        "border": "{color.effects.glassBorder.value}",
+        "borderRadius": "{borderRadius.full}",
+        "boxShadow": "{shadow.modeAware.sm.value}",
+        "backdropFilter": "{color.effects.backdropRegular.value}",
+        "focus": {
+          "borderColor": "var(--color-primary)",
+          "boxShadow": "0 0 0 4px var(--color-focus)"
+        }
+      }
+    },
+    "textarea": {
+      "minHeight": "120px",
+      "resize": "vertical",
+      "states": "same as input",
+      "variants": [
+        "default",
+        "filled",
+        "flushed",
+        "brand",
+        "glass"
+      ],
+      "brand": {
+        "background": "color-mix(in oklch, var(--color-surface) 92%, transparent)",
+        "border": "1px solid var(--color-border)",
+        "borderRadius": "{borderRadius.xl}",
+        "boxShadow": "{shadow.modeAware.sm.value}",
+        "focus": {
+          "borderColor": "var(--color-primary)",
+          "boxShadow": "0 0 0 4px var(--color-focus)"
+        },
+        "disabled": {
+          "opacity": "1",
+          "background": "var(--color-disabled-surface)",
+          "color": "var(--color-disabled-text)",
+          "borderColor": "var(--color-disabled-border)",
+          "boxShadow": "none",
+          "cursor": "not-allowed"
+        },
+        "readonly": {
+          "background": "color-mix(in oklch, var(--color-background-alt) 72%, var(--color-surface))",
+          "color": "var(--color-text-secondary)"
+        }
+      },
+      "glass": {
+        "background": "{color.effects.surfaceGlass.value}",
+        "border": "{color.effects.glassBorder.value}",
+        "borderRadius": "{borderRadius.xl}",
+        "boxShadow": "{shadow.modeAware.sm.value}",
+        "backdropFilter": "{color.effects.backdropRegular.value}",
+        "focus": {
+          "borderColor": "var(--color-primary)",
+          "boxShadow": "0 0 0 4px var(--color-focus)"
+        }
+      }
+    },
+    "select": {
+      "indicator": "chevron.down",
+      "iconFamily": "SF Symbols compatible",
+      "iconPosition": "inline-end",
+      "states": "same as input",
+      "indicatorGapEnd": {
+        "value": "{spacing.3}",
+        "description": "Extra room to the right of chevron-down icon"
+      },
+      "indicatorPaddingInlineEnd": {
+        "value": "calc({spacing.5} + {spacing.3})",
+        "description": "Room for icon plus breathing space"
+      },
+      "variants": [
+        "default",
+        "filled",
+        "flushed",
+        "brand",
+        "glass"
+      ],
+      "brand": {
+        "background": "color-mix(in oklch, var(--color-surface) 92%, transparent)",
+        "border": "1px solid var(--color-border)",
+        "borderRadius": "{borderRadius.lg}",
+        "boxShadow": "{shadow.modeAware.sm.value}",
+        "focus": {
+          "borderColor": "var(--color-primary)",
+          "boxShadow": "0 0 0 4px var(--color-focus)"
+        },
+        "disabled": {
+          "opacity": "1",
+          "background": "var(--color-disabled-surface)",
+          "color": "var(--color-disabled-text)",
+          "borderColor": "var(--color-disabled-border)",
+          "boxShadow": "none",
+          "cursor": "not-allowed"
+        }
+      },
+      "glass": {
+        "background": "{color.effects.surfaceGlass.value}",
+        "border": "{color.effects.glassBorder.value}",
+        "borderRadius": "{borderRadius.full}",
+        "boxShadow": "{shadow.modeAware.sm.value}",
+        "backdropFilter": "{color.effects.backdropRegular.value}",
+        "focus": {
+          "borderColor": "var(--color-primary)",
+          "boxShadow": "0 0 0 4px var(--color-focus)"
+        }
+      },
+      "dropdown": {
+        "background": "color-mix(in oklch, var(--color-surface) 96%, transparent)",
+        "boxShadow": "{shadow.modeAware.lg.value}",
+        "borderRadius": "{borderRadius.xl}",
+        "border": "1px solid color-mix(in oklch, var(--color-border) 88%, transparent)",
+        "backdropFilter": "{color.effects.backdropRegular.value}",
+        "maxHeight": "280px"
+      }
+    },
+    "checkbox": {
+      "size": "18px",
+      "borderRadius": "{borderRadius.sm}",
+      "iconFamily": "SF Symbols compatible",
+      "checkedIcon": "checkmark",
+      "indeterminateIcon": "minus",
+      "states": {
+        "unchecked": {
+          "border": "2px solid var(--color-border)"
+        },
+        "checked": {
+          "background": "var(--color-primary)",
+          "border": "2px solid var(--color-primary)"
+        },
+        "indeterminate": {
+          "background": "var(--color-primary)",
+          "border": "2px solid var(--color-primary)"
+        },
+        "hover": {
+          "borderColor": "var(--color-primary)"
+        },
+        "focus": {
+          "boxShadow": "0 0 0 4px var(--color-focus)"
+        },
+        "disabledUnchecked": {
+          "background": "var(--color-disabled-surface)",
+          "border": "2px solid var(--color-disabled-border)",
+          "iconColor": "var(--color-disabled-icon)",
+          "cursor": "not-allowed"
+        },
+        "disabledChecked": {
+          "background": "var(--color-disabled-selected-surface)",
+          "border": "2px solid var(--color-disabled-selected-border)",
+          "iconColor": "var(--color-disabled-selected-text)",
+          "cursor": "not-allowed"
+        },
+        "disabledIndeterminate": {
+          "background": "var(--color-disabled-selected-surface)",
+          "border": "2px solid var(--color-disabled-selected-border)",
+          "iconColor": "var(--color-disabled-selected-text)",
+          "cursor": "not-allowed"
+        }
+      },
+      "brand": {
+        "unchecked": {
+          "background": "color-mix(in oklch, var(--color-surface) 84%, transparent)",
+          "border": "2px solid var(--color-border)"
+        },
+        "checked": {
+          "background": "var(--color-primary)",
+          "border": "2px solid var(--color-primary)"
+        },
+        "indeterminate": {
+          "background": "var(--color-primary)",
+          "border": "2px solid var(--color-primary)"
+        },
+        "hover": {
+          "borderColor": "var(--color-primary)",
+          "boxShadow": "0 0 0 4px var(--color-focus)"
+        },
+        "focus": {
+          "boxShadow": "0 0 0 4px var(--color-focus)"
+        },
+        "disabledUnchecked": {
+          "background": "var(--color-disabled-surface)",
+          "border": "2px solid var(--color-disabled-border)",
+          "iconColor": "var(--color-disabled-icon)",
+          "cursor": "not-allowed"
+        },
+        "disabledChecked": {
+          "background": "var(--color-disabled-selected-surface)",
+          "border": "2px solid var(--color-disabled-selected-border)",
+          "iconColor": "var(--color-disabled-selected-text)",
+          "cursor": "not-allowed"
+        },
+        "disabledIndeterminate": {
+          "background": "var(--color-disabled-selected-surface)",
+          "border": "2px solid var(--color-disabled-selected-border)",
+          "iconColor": "var(--color-disabled-selected-text)",
+          "cursor": "not-allowed"
+        }
+      }
+    },
+    "radio": {
+      "size": "18px",
+      "dotSize": "7px",
+      "states": "same as checkbox (circular)",
+      "iconFamily": "SF Symbols compatible",
+      "brand": {
+        "unchecked": {
+          "background": "color-mix(in oklch, var(--color-surface) 84%, transparent)",
+          "border": "2px solid var(--color-border)"
+        },
+        "checked": {
+          "background": "color-mix(in oklch, var(--color-surface) 92%, transparent)",
+          "border": "2px solid var(--color-primary)",
+          "dot": "var(--color-primary)"
+        },
+        "hover": {
+          "borderColor": "var(--color-primary)",
+          "boxShadow": "0 0 0 4px var(--color-focus)"
+        },
+        "disabledUnchecked": {
+          "background": "var(--color-disabled-surface)",
+          "border": "2px solid var(--color-disabled-border)",
+          "dot": "transparent",
+          "cursor": "not-allowed"
+        },
+        "disabledChecked": {
+          "background": "var(--color-disabled-surface)",
+          "border": "2px solid var(--color-disabled-selected-border)",
+          "dot": "var(--color-disabled-selected-border)",
+          "cursor": "not-allowed"
+        }
+      }
+    },
+    "toggle": {
+      "width": "40px",
+      "height": "22px",
+      "thumbSize": "16px",
+      "states": {
+        "off": {
+          "background": "color-mix(in oklch, var(--color-border) 80%, transparent)"
+        },
+        "on": {
+          "background": "var(--color-primary)"
+        },
+        "hover": {
+          "boxShadow": "0 0 0 4px var(--color-focus)"
+        },
+        "disabled": {
+          "cursor": "not-allowed"
+        }
+      },
+      "brand": {
+        "off": {
+          "background": "color-mix(in oklch, var(--color-border) 80%, transparent)"
+        },
+        "on": {
+          "background": "var(--color-primary)"
+        },
+        "thumb": {
+          "background": "var(--color-text-inverse)",
+          "boxShadow": "0 1px 2px color-mix(in oklch, black 18%, transparent)"
+        },
+        "hover": {
+          "boxShadow": "0 0 0 4px var(--color-focus)"
+        },
+        "disabledOff": {
+          "background": "var(--color-disabled-surface)",
+          "border": "1px solid var(--color-disabled-border)",
+          "thumb": {
+            "background": "var(--color-disabled-icon)",
+            "boxShadow": "none"
+          },
+          "cursor": "not-allowed"
+        },
+        "disabledOn": {
+          "background": "var(--color-disabled-selected-surface)",
+          "border": "1px solid var(--color-disabled-selected-border)",
+          "thumb": {
+            "background": "var(--color-disabled-selected-text)",
+            "boxShadow": "none"
+          },
+          "cursor": "not-allowed"
+        }
+      }
+    },
+    "card": {
+      "variants": [
+        "default",
+        "outlined",
+        "elevated",
+        "glass",
+        "heroGlass",
+        "media",
+        "luxury",
+        "bento",
+        "bentoGlass"
+      ],
+      "padding": "{spacing.5}",
+      "borderRadius": "{borderRadius.xl}",
+      "default": {
+        "background": "var(--color-surface)",
+        "boxShadow": "{shadow.modeAware.surface.value}"
+      },
+      "outlined": {
+        "border": "1px solid var(--color-border)"
+      },
+      "elevated": {
+        "background": "var(--color-background-elevated)",
+        "boxShadow": "{shadow.modeAware.md.value}"
+      },
+      "glass": {
+        "background": "{color.effects.surfaceGlass.value}",
+        "border": "{color.effects.glassBorder.value}",
+        "boxShadow": "{shadow.modeAware.md.value}",
+        "backdropFilter": "{color.effects.backdropRegular.value}"
+      },
+      "heroGlass": {
+        "background": "{color.effects.surfaceGlassStrong.value}",
+        "border": "{color.effects.glassBorder.value}",
+        "boxShadow": "{shadow.modeAware.lg.value}",
+        "backdropFilter": "{color.effects.backdropClear.value}",
+        "borderRadius": "{borderRadius.2xl}"
+      },
+      "media": {
+        "background": "linear-gradient(180deg, color-mix(in oklch, var(--color-surface) 36%, transparent), color-mix(in oklch, var(--color-background-elevated) 78%, transparent))",
+        "boxShadow": "{shadow.modeAware.surface.value}",
+        "overflow": "clip"
+      },
+      "bento": {
+        "background": "var(--color-surface)",
+        "border": "1px solid var(--color-border)",
+        "boxShadow": "{shadow.modeAware.surface.value}",
+        "padding": "{layout.bento.tilePadding.md.value}",
+        "borderRadius": "{borderRadius.xl}"
+      },
+      "bentoGlass": {
+        "background": "{color.effects.surfaceGlass.value}",
+        "border": "{color.effects.glassBorder.value}",
+        "boxShadow": "{shadow.modeAware.md.value}",
+        "backdropFilter": "{color.effects.backdropRegular.value}",
+        "padding": "{layout.bento.tilePadding.md.value}",
+        "borderRadius": "{borderRadius.xl}"
+      },
+      "luxury": {
+        "border": "1px solid color-mix(in oklch, var(--color-primary) 40%, white 12%)",
+        "boxShadow": "{shadow.modeAware.gold.value}"
+      },
+      "states": {
+        "hover": {
+          "boxShadow": "{shadow.modeAware.lg.value}",
+          "transform": "translateY(-2px)"
+        },
+        "active": {
+          "transform": "translateY(0)"
+        }
+      }
+    },
+    "badge": {
+      "variants": [
+        "default",
+        "success",
+        "warning",
+        "error",
+        "info",
+        "luxury",
+        "glass"
+      ],
+      "sizes": {
+        "sm": {
+          "paddingX": "{spacing.2}",
+          "paddingY": "2px",
+          "fontSize": "{typography.ui.caption.fontSize.value}"
+        },
+        "md": {
+          "paddingX": "{spacing.3}",
+          "paddingY": "{spacing.1}",
+          "fontSize": "{typography.ui.bodySm.fontSize.value}"
+        }
+      },
+      "borderRadius": "{borderRadius.full}",
+      "glass": {
+        "background": "{color.effects.surfaceGlass.value}",
+        "border": "{color.effects.glassBorder.value}",
+        "backdropFilter": "{color.effects.backdropRegular.value}"
+      }
+    },
+    "tag": {
+      "closable": true,
+      "sizes": {
+        "sm": {
+          "height": "22px",
+          "fontSize": "{typography.ui.bodySm.fontSize.value}"
+        },
+        "md": {
+          "height": "28px",
+          "fontSize": "{typography.ui.bodyMd.fontSize.value}"
+        }
+      },
+      "states": {
+        "hover": {
+          "background": "var(--color-surface-hover)"
+        }
+      }
+    },
+    "avatar": {
+      "sizes": {
+        "xs": {
+          "size": "24px",
+          "fontSize": "{typography.ui.caption.fontSize.value}"
+        },
+        "sm": {
+          "size": "32px",
+          "fontSize": "{typography.ui.bodySm.fontSize.value}"
+        },
+        "md": {
+          "size": "40px",
+          "fontSize": "{typography.ui.bodyMd.fontSize.value}"
+        },
+        "lg": {
+          "size": "56px",
+          "fontSize": "{typography.ui.bodyLg.fontSize.value}"
+        },
+        "xl": {
+          "size": "80px",
+          "fontSize": "{typography.ui.titleLg.fontSize.value}"
+        }
+      },
+      "borderRadius": "{borderRadius.full}",
+      "fallback": {
+        "background": "var(--color-brand-muted)",
+        "color": "var(--color-brand)"
+      }
+    },
+    "tooltip": {
+      "background": "var(--color-text-primary)",
+      "color": "var(--color-text-inverse)",
+      "fontSize": "{typography.ui.bodySm.fontSize.value}",
+      "padding": "{spacing.2} {spacing.3}",
+      "borderRadius": "{borderRadius.md}",
+      "maxWidth": "240px",
+      "arrowSize": "6px",
+      "animation": {
+        "duration": "{animation.duration.fast.value}",
+        "easing": "{animation.easing.enter.value}"
+      }
+    },
+    "modal": {
+      "confirmDestructiveRequired": true,
+      "closeIcon": "xmark",
+      "iconFamily": "SF Symbols compatible",
+      "sizes": {
+        "sm": {
+          "maxWidth": "400px"
+        },
+        "md": {
+          "maxWidth": "560px"
+        },
+        "lg": {
+          "maxWidth": "720px"
+        },
+        "full": {
+          "maxWidth": "calc(100vw - 64px)"
+        }
+      },
+      "padding": "{spacing.6}",
+      "borderRadius": "{borderRadius.2xl}",
+      "overlay": "var(--color-overlay)",
+      "surface": "{color.effects.surfaceGlass.value}",
+      "border": "{color.effects.glassBorder.value}",
+      "boxShadow": "{shadow.modeAware.lg.value}",
+      "backdropFilter": "{color.effects.backdropRegular.value}",
+      "animation": {
+        "enter": "scaleIn {animation.duration.normal.value} {animation.easing.enter.value}",
+        "exit": "fadeOut {animation.duration.fast.value} {animation.easing.exit.value}"
+      }
+    },
+    "drawer": {
+      "sizes": {
+        "sm": {
+          "width": "320px"
+        },
+        "md": {
+          "width": "480px"
+        },
+        "lg": {
+          "width": "640px"
+        }
+      },
+      "positions": [
+        "left",
+        "right",
+        "top",
+        "bottom"
+      ],
+      "overlay": "var(--color-overlay)",
+      "surface": "{color.effects.surfaceGlass.value}",
+      "border": "{color.effects.glassBorder.value}",
+      "backdropFilter": "{color.effects.backdropRegular.value}"
+    },
+    "toast": {
+      "variants": [
+        "success",
+        "error",
+        "warning",
+        "info",
+        "glass"
+      ],
+      "width": "340px",
+      "padding": "{spacing.3} {spacing.4}",
+      "borderRadius": "{borderRadius.xl}",
+      "boxShadow": "{shadow.modeAware.lg.value}",
+      "animation": "slideRight {animation.duration.normal.value} {animation.easing.enter.value}",
+      "autoDismiss": "5000ms",
+      "glass": {
+        "background": "{color.effects.surfaceGlass.value}",
+        "border": "{color.effects.glassBorder.value}",
+        "backdropFilter": "{color.effects.backdropRegular.value}"
+      }
+    },
+    "alert": {
+      "variants": [
+        "success",
+        "error",
+        "warning",
+        "info",
+        "glass"
+      ],
+      "padding": "{spacing.3} {spacing.4}",
+      "borderRadius": "{borderRadius.lg}",
+      "borderLeft": "4px solid",
+      "states": {
+        "dismissible": true
+      },
+      "glass": {
+        "background": "{color.effects.surfaceGlass.value}",
+        "border": "{color.effects.glassBorder.value}",
+        "backdropFilter": "{color.effects.backdropRegular.value}"
+      }
+    },
+    "tabs": {
+      "variants": [
+        "underline",
+        "solid",
+        "outline",
+        "capsuleGlass"
+      ],
+      "sizes": {
+        "sm": {
+          "height": "32px",
+          "fontSize": "{typography.ui.bodySm.fontSize.value}"
+        },
+        "md": {
+          "height": "40px",
+          "fontSize": "{typography.ui.bodyMd.fontSize.value}"
+        }
+      },
+      "indicator": {
+        "underline": {
+          "height": "2px",
+          "color": "var(--color-brand)",
+          "animation": "slide {animation.duration.normal.value}"
+        },
+        "solid": {
+          "background": "var(--color-brand)",
+          "borderRadius": "{borderRadius.md}"
+        },
+        "capsuleGlass": {
+          "background": "{color.effects.surfaceGlass.value}",
+          "border": "{color.effects.glassBorder.value}",
+          "borderRadius": "{borderRadius.full}"
+        }
+      },
+      "states": {
+        "default": {
+          "color": "var(--color-text-secondary)"
+        },
+        "active": {
+          "color": "var(--color-text-primary)"
+        },
+        "hover": {
+          "color": "var(--color-text-primary)"
+        },
+        "disabled": {
+          "color": "var(--color-disabled-text)",
+          "opacity": "1",
+          "cursor": "not-allowed"
+        }
+      }
+    },
+    "breadcrumb": {
+      "separator": "／",
+      "fontSize": "{typography.ui.bodySm.fontSize.value}",
+      "activeColor": "var(--color-text-primary)",
+      "inactiveColor": "var(--color-text-secondary)"
+    },
+    "pagination": {
+      "itemSize": "36px",
+      "borderRadius": "{borderRadius.full}",
+      "active": {
+        "background": "var(--color-brand)",
+        "color": "var(--color-text-inverse)"
+      },
+      "states": {
+        "hover": {
+          "background": "var(--color-surface-hover)"
+        }
+      }
+    },
+    "navbar": {
+      "height": "56px",
+      "background": "{color.effects.surfaceGlass.value}",
+      "backdropFilter": "{color.effects.backdropRegular.value}",
+      "borderBottom": "1px solid var(--color-glass-stroke)",
+      "zIndex": 1000,
+      "boxShadow": "{shadow.modeAware.sm.value}"
+    },
+    "sidebar": {
+      "width": "300px",
+      "collapsedWidth": "72px",
+      "background": "{color.effects.surfaceGlass.value}",
+      "backdropFilter": "{color.effects.backdropRegular.value}",
+      "borderRight": "1px solid var(--color-glass-stroke)"
+    },
+    "footer": {
+      "paddingY": "{spacing.12}",
+      "background": "var(--color-surface)",
+      "color": "var(--color-text-secondary)",
+      "borderTop": "1px solid var(--color-border-subtle)"
+    },
+    "divider": {
+      "variants": [
+        "solid",
+        "dashed",
+        "dotted",
+        "decorative"
+      ],
+      "color": "var(--color-border)",
+      "thickness": "1px",
+      "decorative": {
+        "pattern": "soft-gradient-line",
+        "description": "Subtle Apple-like separator"
+      }
+    },
+    "skeleton": {
+      "background": "var(--color-background-alt)",
+      "highlight": "var(--color-surface)",
+      "borderRadius": "{borderRadius.md}",
+      "animation": "shimmer 1.5s ease infinite"
+    },
+    "progressBar": {
+      "height": "6px",
+      "borderRadius": "{borderRadius.full}",
+      "track": "var(--color-background-alt)",
+      "fill": "var(--color-primary)",
+      "luxuryFill": "linear-gradient(90deg, color-mix(in oklch, var(--color-primary) 72%, white 8%), color-mix(in oklch, var(--color-primary) 100%, black 10%))"
+    },
+    "spinner": {
+      "sizes": {
+        "sm": "14px",
+        "md": "20px",
+        "lg": "32px"
+      },
+      "color": "var(--color-primary)",
+      "trackColor": "var(--color-border)",
+      "animation": "spin 0.8s linear infinite"
+    },
+    "accordion": {
+      "borderBottom": "1px solid var(--color-border)",
+      "paddingY": "{spacing.3}",
+      "icon": "chevron.down",
+      "iconFamily": "SF Symbols compatible",
+      "animation": "{animation.duration.normal.value} {animation.easing.default.value}",
+      "states": {
+        "hover": {
+          "background": "var(--color-surface-hover)"
+        },
+        "expanded": {
+          "icon-rotation": "180deg"
+        }
+      }
+    },
+    "table": {
+      "interactionDataAttributes": [
+        "data-action",
+        "data-col",
+        "data-row",
+        "data-row-menu",
+        "data-resize-col"
+      ],
+      "headerBackground": "var(--color-background-alt)",
+      "headerFontWeight": "{typography.fontWeight.semibold.value}",
+      "cellPadding": "{spacing.2} {spacing.3}",
+      "borderBottom": "1px solid var(--color-border-subtle)",
+      "striped": {
+        "oddRowBackground": "var(--color-background-alt)"
+      },
+      "hover": {
+        "rowBackground": "var(--color-surface-hover)"
+      },
+      "sortable": {
+        "indicator": "▲▼"
+      }
+    },
+    "dropdown": {
+      "minWidth": "200px",
+      "maxHeight": "320px",
+      "padding": "{spacing.1}",
+      "borderRadius": "{borderRadius.xl}",
+      "boxShadow": "{shadow.modeAware.lg.value}",
+      "background": "{color.effects.surfaceGlass.value}",
+      "border": "{color.effects.glassBorder.value}",
+      "backdropFilter": "{color.effects.backdropRegular.value}",
+      "item": {
+        "padding": "{spacing.2} {spacing.3}",
+        "borderRadius": "{borderRadius.md}",
+        "hover": {
+          "background": "var(--color-surface-hover)"
+        },
+        "active": {
+          "background": "var(--color-brand-muted)"
+        }
+      }
+    },
+    "stepper": {
+      "dotSize": "28px",
+      "lineHeight": "2px",
+      "completed": {
+        "background": "var(--color-brand)"
+      },
+      "current": {
+        "border": "2px solid var(--color-brand)"
+      },
+      "upcoming": {
+        "border": "2px solid var(--color-border)"
+      }
+    },
+    "searchField": {
+      "height": "40px",
+      "background": "{color.effects.surfaceGlass.value}",
+      "backdropFilter": "{color.effects.backdropRegular.value}",
+      "border": "{color.effects.glassBorder.value}",
+      "borderRadius": "{borderRadius.full}",
+      "iconColor": "var(--color-text-tertiary)",
+      "textColor": "var(--color-text-primary)",
+      "placeholderColor": "var(--color-text-tertiary)"
+    },
+    "floatingPanel": {
+      "background": "{color.effects.surfaceGlass.value}",
+      "backdropFilter": "{color.effects.backdropRegular.value}",
+      "border": "{color.effects.glassBorder.value}",
+      "boxShadow": "{shadow.modeAware.lg.value}",
+      "borderRadius": "{borderRadius.2xl}",
+      "padding": "{spacing.5}"
+    },
+    "bentoTile": {
+      "_description": "Base tile for marketing / dashboard bento layouts",
+      "background": "var(--color-surface)",
+      "border": "1px solid var(--color-border)",
+      "boxShadow": "{shadow.modeAware.surface.value}",
+      "borderRadius": "{borderRadius.xl}",
+      "padding": "{layout.bento.tilePadding.md.value}"
+    },
+    "bentoGlassTile": {
+      "_description": "Glass tile for hero or floating bento surfaces",
+      "background": "{color.effects.surfaceGlass.value}",
+      "border": "{color.effects.glassBorder.value}",
+      "boxShadow": "{shadow.modeAware.md.value}",
+      "backdropFilter": "{color.effects.backdropRegular.value}",
+      "borderRadius": "{borderRadius.xl}",
+      "padding": "{layout.bento.tilePadding.md.value}",
+      "highlightOverlay": "{color.effects.glassSpecular.value}"
+    },
+    "heroBentoTile": {
+      "_description": "Large hero tile with clearer glass",
+      "background": "{color.effects.surfaceGlassStrong.value}",
+      "border": "{color.effects.glassBorder.value}",
+      "boxShadow": "{shadow.modeAware.lg.value}",
+      "backdropFilter": "{color.effects.backdropClear.value}",
+      "borderRadius": "{borderRadius.2xl}",
+      "padding": "{layout.bento.tilePadding.lg.value}",
+      "minHeight": "320px"
+    },
+    "mediaTile": {
+      "_description": "Media-forward tile",
+      "background": "linear-gradient(180deg, color-mix(in oklch, var(--color-surface) 36%, transparent), color-mix(in oklch, var(--color-background-elevated) 78%, transparent))",
+      "borderRadius": "{borderRadius.2xl}",
+      "overflow": "clip"
+    },
+    "statTile": {
+      "_description": "Metrics tile",
+      "background": "var(--color-surface)",
+      "border": "1px solid var(--color-border)",
+      "radius": "{borderRadius.xl}",
+      "padding": "{spacing.5}",
+      "eyebrow": {
+        "font": "{typography.ui.caption.fontSize.value}/{typography.ui.bodySm.lineHeight.value}",
+        "color": "var(--color-text-secondary)"
+      },
+      "value": {
+        "font": "{typography.ui.headlineMd.fontSize.value}/{typography.ui.headlineMd.lineHeight.value}",
+        "color": "var(--color-text-primary)"
+      }
+    }
+  },
+  "accessibility": {
+    "_description": "WCAG 2.1 AA compliance + transparency fallbacks",
+    "contrast": {
+      "normalText": {
+        "value": "4.5:1",
+        "description": "Body text minimum contrast ratio"
+      },
+      "largeText": {
+        "value": "3:1",
+        "description": "Large text minimum"
+      },
+      "uiComponents": {
+        "value": "3:1",
+        "description": "Interactive elements, icons, borders"
+      }
+    },
+    "focus": {
+      "visible": {
+        "value": true,
+        "description": "All interactive elements show visible focus"
+      },
+      "style": {
+        "value": "0 0 0 4px var(--color-focus)",
+        "description": "Focus ring style"
+      },
+      "offset": {
+        "value": "0px",
+        "description": "Focus ring uses halo instead of offset"
+      }
+    },
+    "motion": {
+      "prefersReducedMotion": {
+        "value": true,
+        "description": "Respect OS reduced motion preference"
+      },
+      "reducedAlternative": {
+        "value": "opacity and gentle blur only",
+        "description": "Fallback for reduced motion"
+      }
+    },
+    "transparency": {
+      "prefersReducedTransparencyFallback": {
+        "value": true,
+        "description": "Replace glass backgrounds with surfaceElevated when transparency is reduced."
+      }
+    },
+    "targets": {
+      "minimumSize": {
+        "value": "44px × 44px",
+        "description": "Touch target minimum size"
+      },
+      "minimumSpacing": {
+        "value": "8px",
+        "description": "Minimum gap between touch targets"
+      }
+    },
+    "textResizing": {
+      "support": {
+        "value": "200%",
+        "description": "Content remains functional at 200% zoom"
+      }
+    },
+    "colorIndependence": {
+      "value": true,
+      "description": "Information not conveyed by color alone — always paired with icon, text, or pattern"
+    },
+    "darkModeGuidelines": {
+      "_description": "Readable dark mode with restrained near-black surfaces.",
+      "avoidPureBlackAndWhite": true,
+      "backgroundStrategy": "Use near-black surfaces with small lightness steps between layers.",
+      "surfaceHierarchy": {
+        "background": "#121212",
+        "backgroundAlt": "#181818",
+        "surface": "#1B1B1B",
+        "elevated": "#1E1E1E",
+        "hover": "#232323"
+      },
+      "textUsage": {
+        "primary": "Use for body copy and essential labels.",
+        "secondary": "Use for metadata and supporting labels.",
+        "tertiary": "Use for placeholders and low-priority chrome; never for body copy."
+      },
+      "borderStrategy": {
+        "preferSolidNeutralBordersInDarkMode": true,
+        "avoidAlphaOnlyHairlines": true,
+        "recommendedRange": "#333333 to #3A3A3A"
+      }
+    },
+    "disabledStates": {
+      "_description": "Disabled UI should remain legible and should not rely on opacity alone.",
+      "useOpacityOnly": {
+        "value": false,
+        "description": "Do not express disabled state by opacity reduction alone."
+      },
+      "preserveReadableText": {
+        "value": true,
+        "description": "Disabled text must remain readable in both light and dark modes."
+      },
+      "preserveVisibleBorders": {
+        "value": true,
+        "description": "Disabled inputs and controls must retain visible borders."
+      },
+      "distinguishSelectedDisabled": {
+        "value": true,
+        "description": "Selected disabled controls must remain distinguishable from unselected disabled controls."
+      }
+    }
+  }
+}

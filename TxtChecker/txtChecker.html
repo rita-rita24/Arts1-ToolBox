@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>テキスト品質チェックツール</title>
+
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%232563eb' d='M12 2l8 4v6c0 5.55-3.84 10.74-8 12-4.16-1.26-8-6.45-8-12V6l8-4zm-1 5v10h2V7h-2z'/></svg>">
+
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+  <style>
+    @layer reset, base, component, utility;
+
+    @layer reset {
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    }
+
+    @layer base {
+      :root {
+        color-scheme: light;
+        --primary:       light-dark(oklch(0.55 0.20 260), oklch(0.62 0.20 260));
+        --primary-hover: light-dark(oklch(0.48 0.22 260), oklch(0.72 0.18 260));
+        --danger:        light-dark(oklch(0.53 0.22 25),  oklch(0.60 0.22 25));
+        --danger-hover:  light-dark(oklch(0.45 0.22 25),  oklch(0.68 0.20 25));
+        --success:       light-dark(oklch(0.55 0.18 145), oklch(0.65 0.20 145));
+        --bg:            light-dark(oklch(0.98 0.005 250), oklch(0.0 0.0 0));
+        --surface:       light-dark(oklch(1.0 0.0 0),     oklch(0.13 0.005 250));
+        --border:        light-dark(oklch(0.91 0.01 250),  oklch(0.32 0.01 250));
+        --text:          light-dark(oklch(0.20 0.02 260),  oklch(1.0 0.0 0));
+        --text-muted:    light-dark(oklch(0.50 0.02 255),  oklch(0.68 0.005 250));
+        --header-bg:     light-dark(oklch(0.96 0.01 250),  oklch(0.20 0.005 250));
+        --highlight:     light-dark(oklch(0.93 0.12 95),   oklch(0.40 0.10 60));
+        --preview-bg:    light-dark(oklch(0.99 0.005 250), oklch(0.10 0.005 250));
+        --chip-bg:       light-dark(oklch(0.97 0.01 250),  oklch(0.18 0.005 250));
+        --shadow:        0 8px 30px oklch(0 0 0 / 0.06);
+        --c-digit:  light-dark(oklch(0.93 0.12 95),  oklch(0.50 0.10 80));
+        --c-alpha:  light-dark(oklch(0.91 0.08 250), oklch(0.42 0.08 260));
+        --c-space:  light-dark(oklch(0.93 0.09 155), oklch(0.42 0.09 150));
+        --c-tab:    light-dark(oklch(0.90 0.12 55),  oklch(0.46 0.12 45));
+        --c-kana:   light-dark(oklch(0.92 0.08 340), oklch(0.45 0.08 335));
+        --c-custom: light-dark(oklch(0.92 0.07 290), oklch(0.44 0.07 290));
+      }
+      html, body { min-block-size: 100%; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.55;
+        min-block-size: 100vh;
+      }
+      h1, h2, h3 { text-wrap: balance; }
+      p { text-wrap: pretty; }
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        font-size: 1.25em;
+        line-height: 1;
+        display: inline-block;
+        vertical-align: middle;
+      }
+      button { display: inline-flex; align-items: center; justify-content: center; }
+      input, textarea, select, button { font: inherit; }
+    }
+
+    @layer component {
+      .container {
+        max-inline-size: 1460px;
+        margin-inline: auto;
+        padding: 20px;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-block-end: 8px;
+      }
+      .header h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .header h1 .material-symbols-outlined {
+        font-size: 2rem;
+        color: var(--primary);
+      }
+      .header-copy {
+        color: var(--text-muted);
+        font-size: 0.92rem;
+        margin-block-start: 4px;
+      }
+      .icon-btn {
+        inline-size: 36px;
+        block-size: 36px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        cursor: pointer;
+        box-shadow: var(--shadow);
+      }
+      .icon-btn:hover { background: var(--header-bg); }
+      .toolbar, .search-bar, .panel, .table-panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-block-end: 8px;
+        padding: 8px 12px;
+        align-items: center;
+      }
+      .toolbar-group {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        position: relative;
+        flex-wrap: wrap;
+      }
+      .toolbar-group:not(:last-child)::after {
+        content: '';
+        display: block;
+        inline-size: 1px;
+        block-size: 20px;
+        background: var(--border);
+        margin-inline-start: 2px;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        min-block-size: 36px;
+        background: var(--header-bg);
+        color: var(--text);
+      }
+      .btn:hover { background: var(--border); }
+      .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+      .btn .material-symbols-outlined { font-size: 1.15rem; }
+      .btn-primary { background: var(--primary); color: #fff; }
+      .btn-primary:hover { background: var(--primary-hover); }
+      .btn-danger { background: var(--danger); color: #fff; }
+      .btn-danger:hover { background: var(--danger-hover); }
+      .btn-success { background: var(--success); color: #fff; }
+      .btn-success:hover { filter: brightness(0.95); }
+      .toggle-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-inline: 12px;
+        block-size: 36px;
+        background: var(--header-bg);
+        border-radius: 6px;
+      }
+      .toggle-label { font-size: 0.85rem; color: var(--text-muted); }
+      .toggle {
+        position: relative;
+        inline-size: 42px;
+        block-size: 24px;
+        background: var(--border);
+        border-radius: 14px;
+        cursor: pointer;
+        transition: background 0.2s;
+        flex-shrink: 0;
+      }
+      .toggle.active { background: var(--primary); }
+      .toggle::after {
+        content: '';
+        position: absolute;
+        inset-block-start: 3px;
+        inset-inline-start: 3px;
+        inline-size: 18px;
+        block-size: 18px;
+        background: #fff;
+        border-radius: 50%;
+        transition: transform 0.2s;
+        box-shadow: 0 1px 3px oklch(0 0 0 / 0.2);
+      }
+      .toggle.active::after { transform: translateX(18px); }
+      .search-bar {
+        display: flex;
+        padding: 12px 16px;
+        margin-block-end: 8px;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .search-bar input, .settings-text, .settings-select {
+        padding: 6px 12px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 0.9rem;
+        background: var(--bg);
+        color: var(--text);
+      }
+      .search-bar input {
+        min-inline-size: 220px;
+        block-size: 36px;
+      }
+      .search-bar input:focus, .text-area:focus, .settings-select:focus, .settings-text:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: inset 0 0 0 1px var(--primary);
+      }
+      .search-info { font-size: 0.85rem; color: var(--text-muted); }
+      .mini-status {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-block-end: 8px;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        font-size: 0.82rem;
+        border-radius: 999px;
+        background: var(--chip-bg);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+      }
+      .chip strong { color: var(--text); }
+      .chip.warn strong { color: var(--danger); }
+      .chip.ok strong { color: var(--success); }
+      .main-grid {
+        display: grid;
+        grid-template-columns: 390px minmax(0, 1fr);
+        gap: 10px;
+      }
+      .panel { padding: 14px; }
+      .panel h2 {
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-block-end: 6px;
+      }
+      .panel p.helper, .section-note {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+      }
+      .section {
+        padding-block: 10px;
+        border-block-end: 1px solid var(--border);
+      }
+      .section:last-child { border-block-end: none; padding-block-end: 0; }
+      .field-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-block-end: 6px;
+      }
+      .text-area {
+        inline-size: 100%;
+        min-block-size: 340px;
+        resize: vertical;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px 14px;
+        background: var(--preview-bg);
+        color: var(--text);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+      .check-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .settings-checkbox {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        font-size: 0.88rem;
+        cursor: pointer;
+        background: var(--header-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 10px;
+        min-block-size: 58px;
+      }
+      .settings-checkbox input[type="checkbox"] {
+        inline-size: 16px;
+        block-size: 16px;
+        accent-color: var(--primary);
+        cursor: pointer;
+        margin-block-start: 2px;
+      }
+      .checkbox-title { font-weight: 600; }
+      .checkbox-help { color: var(--text-muted); font-size: 0.78rem; margin-block-start: 2px; }
+      .stack { display: grid; gap: 10px; }
+      .two-panels {
+        display: grid;
+        grid-template-columns: 1.02fr 0.98fr;
+        gap: 10px;
+      }
+      .preview-shell {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--preview-bg);
+        overflow: hidden;
+      }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 10px 10px 0;
+      }
+      .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        font-size: 0.8rem;
+        color: var(--text-muted);
+      }
+      .swatch {
+        inline-size: 12px;
+        block-size: 12px;
+        border-radius: 4px;
+        border: 1px solid oklch(0 0 0 / 0.08);
+      }
+      .preview {
+        max-block-size: 560px;
+        overflow: auto;
+        padding: 10px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.88rem;
+      }
+      .line {
+        display: grid;
+        grid-template-columns: 60px 1fr;
+        gap: 10px;
+        padding: 5px 8px;
+        border-radius: 8px;
+        align-items: start;
+      }
+      .line:hover { background: var(--header-bg); }
+      .line.has-hit { background: color-mix(in oklab, var(--highlight) 55%, var(--surface)); }
+      .line-no { color: var(--text-muted); text-align: right; user-select: none; }
+      .line-text { white-space: pre-wrap; word-break: break-word; }
+      mark.hit {
+        padding: 0 1px;
+        border-radius: 4px;
+        color: var(--text);
+        box-shadow: inset 0 0 0 1px oklch(0 0 0 / 0.07);
+        font-weight: 600;
+      }
+      mark.digit { background: var(--c-digit); }
+      mark.alpha { background: var(--c-alpha); }
+      mark.space { background: var(--c-space); }
+      mark.tab { background: var(--c-tab); }
+      mark.kana { background: var(--c-kana); }
+      mark.custom { background: var(--c-custom); }
+      .table-panel { overflow: hidden; }
+      .table-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px 14px 8px;
+        border-block-end: 1px solid var(--border);
+      }
+      .table-header h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .table-scroll { overflow: auto; max-block-size: 600px; }
+      table {
+        inline-size: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+        table-layout: fixed;
+      }
+      th, td {
+        padding: 10px 12px;
+        border-block-end: 1px solid var(--border);
+        text-align: start;
+        vertical-align: top;
+      }
+      th {
+        background: var(--header-bg);
+        font-weight: 600;
+        position: sticky;
+        inset-block-start: 0;
+        z-index: 2;
+        color: var(--text-muted);
+        font-size: 0.82rem;
+      }
+      td { background: var(--surface); }
+      tbody tr:hover td { background: var(--header-bg); }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        border: 1px solid oklch(0 0 0 / 0.06);
+        margin: 0 4px 4px 0;
+      }
+      .b-digit  { background: var(--c-digit); }
+      .b-alpha  { background: var(--c-alpha); }
+      .b-space  { background: var(--c-space); }
+      .b-tab    { background: var(--c-tab); }
+      .b-kana   { background: var(--c-kana); }
+      .b-custom { background: var(--c-custom); }
+      .empty {
+        padding: 18px;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: oklch(0 0 0 / 0.5);
+        z-index: 3000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .modal-overlay.show { display: flex; }
+      .modal {
+        background: var(--surface);
+        border-radius: 16px;
+        max-inline-size: 720px;
+        inline-size: 100%;
+        padding: 24px;
+        box-shadow: 0 20px 60px oklch(0 0 0 / 0.3);
+      }
+      .modal h3 {
+        font-size: 1.15rem;
+        margin-block-end: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .settings-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0 24px;
+      }
+      .settings-group {
+        margin-block-end: 14px;
+        padding-block-end: 14px;
+        border-block-end: 1px solid var(--border);
+      }
+      .settings-group:last-of-type { border-block-end: none; }
+      .settings-group-wide { grid-column: 1 / -1; }
+      .settings-group > label:first-child:not(.settings-checkbox) {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-block-end: 6px;
+      }
+      .settings-hint {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-block-start: 6px;
+      }
+      .modal-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-block-start: 8px;
+      }
+      .toast-container {
+        position: fixed;
+        inset-block-end: 24px;
+        inset-inline-start: 50%;
+        transform: translateX(-50%);
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .toast {
+        padding: 14px 24px;
+        background: var(--text);
+        color: var(--bg);
+        border-radius: 10px;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 20px oklch(0 0 0 / 0.2);
+        animation: toast-in 0.3s ease, toast-out 0.3s ease 1.4s forwards;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .toast.success { background: var(--success); color: #fff; }
+      .toast.error { background: var(--danger); color: #fff; }
+      .footer-note { color: var(--text-muted); font-size: 0.8rem; margin-block-start: 6px; }
+    }
+
+    @layer utility {
+      .ml-auto { margin-inline-start: auto; }
+      .sr-only {
+        position: absolute;
+        inline-size: 1px;
+        block-size: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      @keyframes toast-in {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes toast-out {
+        from { opacity: 1; }
+        to   { opacity: 0; }
+      }
+      @media (max-width: 1100px) {
+        .main-grid, .two-panels, .settings-grid { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 768px) {
+        .container { padding: 12px; }
+        .header { flex-direction: column; align-items: stretch; }
+        .search-bar { padding: 10px 12px; }
+        .check-grid { grid-template-columns: 1fr; }
+        .line { grid-template-columns: 48px 1fr; }
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div>
+        <h1><span class="material-symbols-outlined">task_alt</span> 文字品質チェッカー Lite</h1>
+        <p class="header-copy">個人用テキスト確認に特化した、自動修正付き版です。タブの置換先は設定モーダルで変更でき、初期値は半角スペース2つです。</p>
+      </div>
+      <button class="icon-btn" id="settingsBtn" title="設定">
+        <span class="material-symbols-outlined">settings</span>
+      </button>
+    </header>
+
+    <div class="toolbar">
+      <div class="toolbar-group">
+        <button class="btn btn-primary" id="checkBtn"><span class="material-symbols-outlined">playlist_add_check</span> チェック</button>
+        <button class="btn btn-success" id="autoFixBtn"><span class="material-symbols-outlined">auto_fix_high</span> 自動修正</button>
+        <button class="btn" id="restoreBtn" disabled><span class="material-symbols-outlined">undo</span> 修正前に戻す</button>
+      </div>
+      <div class="toolbar-group">
+        <button class="btn" id="copySummaryBtn"><span class="material-symbols-outlined">content_copy</span> 結果コピー</button>
+        <button class="btn" id="copyFixedBtn"><span class="material-symbols-outlined">assignment</span> 現在のテキストをコピー</button>
+      </div>
+      <div class="toolbar-group">
+        <button class="btn" id="toggleLinesBtn" disabled><span class="material-symbols-outlined">filter_alt</span> 該当行のみ: OFF</button>
+        <div class="toggle-group" id="autoCheckGroup" tabindex="0" role="switch" aria-checked="true">
+          <span class="toggle-label">自動チェック</span>
+          <div class="toggle active" id="autoCheckToggle"></div>
+        </div>
+      </div>
+      <div class="toolbar-group ml-auto">
+        <button class="btn btn-danger" id="clearBtn"><span class="material-symbols-outlined">delete</span> クリア</button>
+      </div>
+    </div>
+
+    <div class="search-bar">
+      <label class="sr-only" for="customChars">カスタムNG文字</label>
+      <input id="customChars" type="text" placeholder="カスタムNG文字">
+      <label class="sr-only" for="resultFilter">結果一覧の絞り込み</label>
+      <input id="resultFilter" type="text" placeholder="結果一覧の絞り込み">
+      <span class="search-info" id="filterInfo">結果絞り込みなし</span>
+    </div>
+
+    <div class="mini-status" id="miniStatus">
+      <span class="chip" id="chipExistence">検出: <strong>未チェック</strong></span>
+      <span class="chip" id="chipHits">件数: <strong>0</strong></span>
+      <span class="chip" id="chipLines">該当行: <strong>-</strong></span>
+      <span class="chip" id="chipAutoFix">自動修正: <strong>未実行</strong></span>
+    </div>
+
+    <div class="main-grid">
+      <section class="panel">
+        <h2><span class="material-symbols-outlined">edit_note</span> 入力と設定</h2>
+        <p class="helper">標準ルールの ON/OFF とカスタムNG文字を組み合わせて確認できます。自動修正は対応しているルールだけを変換します。</p>
+
+        <div class="section">
+          <label class="field-label" for="inputText">入力テキスト</label>
+          <textarea id="inputText" class="text-area" placeholder="例：&#10;商品コード：ABC１２３&#10;担当：Ａrita&#10;メモ：　先頭に全角スペース&#10;半角ｶﾅも検出&#10;タブ	も確認"></textarea>
+          <div class="footer-note">自動修正対応: 全角数字 / 全角英字 / 全角スペース / タブ / 半角カナ（全角化）</div>
+        </div>
+
+        <div class="section">
+          <label class="field-label">標準チェック項目</label>
+          <div class="check-grid">
+            <label class="settings-checkbox">
+              <input type="checkbox" class="rule-check" value="digit" checked>
+              <span>
+                <div class="checkbox-title">全角数字</div>
+                <div class="checkbox-help">０〜９ を検出 / 半角へ修正</div>
+              </span>
+            </label>
+            <label class="settings-checkbox">
+              <input type="checkbox" class="rule-check" value="alpha" checked>
+              <span>
+                <div class="checkbox-title">全角英字</div>
+                <div class="checkbox-help">Ａ〜Ｚ、ａ〜ｚ を検出 / 半角へ修正</div>
+              </span>
+            </label>
+            <label class="settings-checkbox">
+              <input type="checkbox" class="rule-check" value="space" checked>
+              <span>
+                <div class="checkbox-title">全角スペース</div>
+                <div class="checkbox-help">見落としやすい全角空白 / 半角へ修正</div>
+              </span>
+            </label>
+            <label class="settings-checkbox">
+              <input type="checkbox" class="rule-check" value="tab" checked>
+              <span>
+                <div class="checkbox-title">タブ文字</div>
+                <div class="checkbox-help">設定数の半角スペースへ修正</div>
+              </span>
+            </label>
+            <label class="settings-checkbox">
+              <input type="checkbox" class="rule-check" value="kana" checked>
+              <span>
+                <div class="checkbox-title">半角カナ</div>
+                <div class="checkbox-help">ｱｲｳ などを検出 / 全角へ修正</div>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="section">
+          <label class="field-label" for="customCharsMirror">カスタムNG文字</label>
+          <input id="customCharsMirror" class="settings-text" type="text" placeholder="上部入力欄と同期します">
+          <p class="section-note" style="margin-top:6px;">入力した文字列の各文字を 1 文字ずつ NG 文字として扱います（検出のみ / 自動修正対象ではありません）。</p>
+        </div>
+      </section>
+
+      <div class="stack">
+        <div class="two-panels">
+          <section class="panel">
+            <h2><span class="material-symbols-outlined">visibility</span> ハイライト表示</h2>
+            <p class="helper">選択したルールに一致した文字を色分け表示します。</p>
+            <div class="preview-shell" style="margin-top:10px;">
+              <div class="legend" id="legend"></div>
+              <div class="preview" id="preview">
+                <div class="empty">ここにハイライト結果が表示されます。</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="table-panel">
+            <div class="table-header">
+              <div>
+                <h3><span class="material-symbols-outlined">table_chart</span> 検出結果一覧</h3>
+                <p class="section-note" style="margin-top:4px;">行番号・列番号・検出文字・種別・行内容を確認できます。</p>
+              </div>
+              <div class="chip" id="tableCountChip">0件</div>
+            </div>
+            <div class="table-scroll" id="resultTable">
+              <div class="empty">ここに検出結果一覧が表示されます。</div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="settingsOverlay">
+    <div class="modal">
+      <h3><span class="material-symbols-outlined">settings</span> 設定</h3>
+      <div class="settings-grid">
+        <div class="settings-group">
+          <label for="settingTheme">テーマ</label>
+          <select class="settings-select" id="settingTheme">
+            <option value="light">ライト</option>
+            <option value="dark">ダーク</option>
+            <option value="system">システムに合わせる</option>
+          </select>
+          <div class="settings-hint">UI 全体の配色を切り替えます。</div>
+        </div>
+
+        <div class="settings-group">
+          <label for="settingPreviewFontSize">プレビュー文字サイズ</label>
+          <select class="settings-select" id="settingPreviewFontSize">
+            <option value="0.82rem">小</option>
+            <option value="0.88rem">標準</option>
+            <option value="0.96rem">大</option>
+          </select>
+          <div class="settings-hint">ハイライト表示と結果一覧の文字サイズを調整します。</div>
+        </div>
+
+        <div class="settings-group">
+          <label class="settings-checkbox">
+            <input type="checkbox" id="settingAutoCheck">
+            <span>
+              <div class="checkbox-title">自動チェックを有効化</div>
+              <div class="checkbox-help">入力変更時に自動で再判定します。</div>
+            </span>
+          </label>
+          <label class="settings-checkbox" style="margin-top:8px;">
+            <input type="checkbox" id="settingShowOnlyMatched">
+            <span>
+              <div class="checkbox-title">起動時に該当行のみ表示</div>
+              <div class="checkbox-help">ヒットした行だけを表示する初期状態にします。</div>
+            </span>
+          </label>
+        </div>
+
+        <div class="settings-group">
+          <label for="settingTabSpaces">タブ置換時の半角スペース数</label>
+          <select class="settings-select" id="settingTabSpaces">
+            <option value="2">2</option>
+            <option value="4">4</option>
+            <option value="8">8</option>
+          </select>
+          <div class="settings-hint">自動修正でタブを何個の半角スペースへ置換するかを指定します。初期値は 2 です。</div>
+        </div>
+
+        <div class="settings-group settings-group-wide">
+          <label>初期チェック項目</label>
+          <div class="check-grid" id="settingDefaultRules">
+            <label class="settings-checkbox">
+              <input type="checkbox" value="digit">
+              <span><div class="checkbox-title">全角数字</div><div class="checkbox-help">起動時に有効</div></span>
+            </label>
+            <label class="settings-checkbox">
+              <input type="checkbox" value="alpha">
+              <span><div class="checkbox-title">全角英字</div><div class="checkbox-help">起動時に有効</div></span>
+            </label>
+            <label class="settings-checkbox">
+              <input type="checkbox" value="space">
+              <span><div class="checkbox-title">全角スペース</div><div class="checkbox-help">起動時に有効</div></span>
+            </label>
+            <label class="settings-checkbox">
+              <input type="checkbox" value="tab">
+              <span><div class="checkbox-title">タブ文字</div><div class="checkbox-help">起動時に有効</div></span>
+            </label>
+            <label class="settings-checkbox">
+              <input type="checkbox" value="kana">
+              <span><div class="checkbox-title">半角カナ</div><div class="checkbox-help">起動時に有効</div></span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" id="settingsResetBtn">初期化</button>
+        <button class="btn" id="settingsCancelBtn">キャンセル</button>
+        <button class="btn btn-primary" id="settingsSaveBtn">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    const qs = (sel, root = document) => root.querySelector(sel);
+    const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+    const STORAGE_KEY = 'textQualityCheckerAutofixSettings';
+    const COLOR_SCHEME_QUERY = '(prefers-color-scheme: dark)';
+    const DEFAULT_SETTINGS = {
+      theme: 'system',
+      autoCheck: true,
+      showOnlyMatchedDefault: false,
+      previewFontSize: '0.88rem',
+      tabSpaces: 2,
+      defaultRules: ['digit', 'alpha', 'space', 'tab', 'kana']
+    };
+
+    const RULE_DEFS = {
+      digit: { id: 'digit', label: '全角数字', className: 'digit', badgeClass: 'b-digit', color: 'var(--c-digit)', match: ch => /[０-９]/.test(ch) },
+      alpha: { id: 'alpha', label: '全角英字', className: 'alpha', badgeClass: 'b-alpha', color: 'var(--c-alpha)', match: ch => /[Ａ-Ｚａ-ｚ]/.test(ch) },
+      space: { id: 'space', label: '全角スペース', className: 'space', badgeClass: 'b-space', color: 'var(--c-space)', match: ch => ch === '　' },
+      tab:   { id: 'tab',   label: 'タブ文字',   className: 'tab',   badgeClass: 'b-tab',   color: 'var(--c-tab)',   match: ch => ch === '\t' },
+      kana:  { id: 'kana',  label: '半角カナ',   className: 'kana',  badgeClass: 'b-kana',  color: 'var(--c-kana)',  match: ch => /[ｦ-ﾟ]/.test(ch) },
+      custom:{ id: 'custom',label: 'カスタムNG文字', className: 'custom', badgeClass: 'b-custom', color: 'var(--c-custom)', match: (ch, customSet) => customSet.has(ch) }
+    };
+
+    const els = {
+      inputText: qs('#inputText'),
+      customChars: qs('#customChars'),
+      customCharsMirror: qs('#customCharsMirror'),
+      resultFilter: qs('#resultFilter'),
+      filterInfo: qs('#filterInfo'),
+      checkBtn: qs('#checkBtn'),
+      autoFixBtn: qs('#autoFixBtn'),
+      restoreBtn: qs('#restoreBtn'),
+      copySummaryBtn: qs('#copySummaryBtn'),
+      copyFixedBtn: qs('#copyFixedBtn'),
+      clearBtn: qs('#clearBtn'),
+      toggleLinesBtn: qs('#toggleLinesBtn'),
+      autoCheckGroup: qs('#autoCheckGroup'),
+      autoCheckToggle: qs('#autoCheckToggle'),
+      settingsBtn: qs('#settingsBtn'),
+      settingsOverlay: qs('#settingsOverlay'),
+      settingsCancelBtn: qs('#settingsCancelBtn'),
+      settingsSaveBtn: qs('#settingsSaveBtn'),
+      settingsResetBtn: qs('#settingsResetBtn'),
+      settingTheme: qs('#settingTheme'),
+      settingPreviewFontSize: qs('#settingPreviewFontSize'),
+      settingAutoCheck: qs('#settingAutoCheck'),
+      settingShowOnlyMatched: qs('#settingShowOnlyMatched'),
+      settingTabSpaces: qs('#settingTabSpaces'),
+      settingDefaultRules: qs('#settingDefaultRules'),
+      chipExistence: qs('#chipExistence'),
+      chipHits: qs('#chipHits'),
+      chipLines: qs('#chipLines'),
+      chipAutoFix: qs('#chipAutoFix'),
+      legend: qs('#legend'),
+      preview: qs('#preview'),
+      resultTable: qs('#resultTable'),
+      tableCountChip: qs('#tableCountChip'),
+      toastContainer: qs('#toastContainer')
+    };
+
+    let settings = loadSettings();
+    let autoCheck = settings.autoCheck;
+    let showOnlyMatchedLines = settings.showOnlyMatchedDefault;
+    let lastAnalysis = null;
+    let debounceTimer = null;
+    let lastOriginalTextBeforeFix = '';
+
+    function loadSettings() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : {};
+        return {
+          ...DEFAULT_SETTINGS,
+          ...parsed,
+          tabSpaces: Number(parsed.tabSpaces ?? DEFAULT_SETTINGS.tabSpaces),
+          defaultRules: Array.isArray(parsed.defaultRules) && parsed.defaultRules.length ? parsed.defaultRules : DEFAULT_SETTINGS.defaultRules.slice()
+        };
+      } catch {
+        return { ...DEFAULT_SETTINGS, defaultRules: DEFAULT_SETTINGS.defaultRules.slice() };
+      }
+    }
+
+    function saveSettings() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+        return true;
+      } catch {
+        showToast('設定保存に失敗しました（ブラウザ設定をご確認ください）', 'error');
+        return false;
+      }
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function showToast(message, type = '') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      els.toastContainer.appendChild(toast);
+      setTimeout(() => toast.remove(), 1700);
+    }
+
+    function getThemeMediaQuery() {
+      return typeof window.matchMedia === 'function' ? window.matchMedia(COLOR_SCHEME_QUERY) : null;
+    }
+
+    function resolveTheme(theme) {
+      const media = getThemeMediaQuery();
+      return theme === 'system'
+        ? (media && media.matches ? 'dark' : 'light')
+        : theme;
+    }
+
+    function applyTheme() { document.documentElement.style.colorScheme = resolveTheme(settings.theme); }
+
+    function applyPreviewFontSize() {
+      const size = settings.previewFontSize || DEFAULT_SETTINGS.previewFontSize;
+      els.preview.style.fontSize = size;
+      els.resultTable.style.fontSize = size;
+    }
+
+    function setAutoCheck(next) {
+      autoCheck = !!next;
+      els.autoCheckGroup.setAttribute('aria-checked', String(autoCheck));
+      els.autoCheckToggle.classList.toggle('active', autoCheck);
+    }
+
+    function applyMainRuleChecks() {
+      qsa('.rule-check').forEach(el => { el.checked = settings.defaultRules.includes(el.value); });
+    }
+
+    function updateToggleButton() {
+      els.toggleLinesBtn.innerHTML = `<span class="material-symbols-outlined">filter_alt</span> 該当行のみ: ${showOnlyMatchedLines ? 'ON' : 'OFF'}`;
+    }
+
+    function updateAutoFixChip(text, cssClass = '') {
+      els.chipAutoFix.className = `chip ${cssClass}`.trim();
+      els.chipAutoFix.innerHTML = `自動修正: <strong>${escapeHtml(text)}</strong>`;
+    }
+
+    function getSelectedRuleIds() { return qsa('.rule-check:checked').map(el => el.value); }
+
+    function getCustomSet() {
+      const chars = Array.from(els.customChars.value || '');
+      return new Set(chars.filter(ch => ch !== '\n' && ch !== '\r'));
+    }
+
+    function visibleChar(ch) {
+      if (ch === ' ') return '␠';
+      if (ch === '\t') return '⇥';
+      if (ch === '　') return '□';
+      return ch;
+    }
+
+    function analyzeText(text) {
+      const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+      const lines = normalized.split('\n');
+      const activeRuleIds = getSelectedRuleIds();
+      const customSet = getCustomSet();
+      const activeRules = activeRuleIds.map(id => RULE_DEFS[id]);
+      if (customSet.size > 0) activeRules.push(RULE_DEFS.custom);
+
+      const perRuleCounts = {};
+      activeRules.forEach(rule => { perRuleCounts[rule.id] = 0; });
+      const lineResults = [];
+      const detections = [];
+      const hitLineNumbers = [];
+      let totalHits = 0;
+
+      lines.forEach((line, lineIndex) => {
+        const chars = Array.from(line);
+        const lineParts = [];
+        let lineHitCount = 0;
+        chars.forEach((ch, charIndex) => {
+          const matchedRules = activeRules.filter(rule => rule.match(ch, customSet));
+          if (matchedRules.length === 0) {
+            lineParts.push(escapeHtml(ch));
+            return;
+          }
+          totalHits += 1;
+          lineHitCount += 1;
+          matchedRules.forEach(rule => { perRuleCounts[rule.id] += 1; });
+          const primaryRule = matchedRules[0];
+          const ruleNames = matchedRules.map(rule => rule.label).join(' / ');
+          const displayChar = ch === '\t' ? '⇥' : ch;
+          lineParts.push(`<mark class="hit ${primaryRule.className}" title="${escapeHtml(ruleNames)}">${escapeHtml(displayChar)}</mark>`);
+          detections.push({
+            lineNumber: lineIndex + 1,
+            columnNumber: charIndex + 1,
+            char: ch,
+            visibleChar: visibleChar(ch),
+            rules: matchedRules.map(rule => ({ id: rule.id, label: rule.label, badgeClass: rule.badgeClass })),
+            lineText: line
+          });
+        });
+        if (lineHitCount > 0) hitLineNumbers.push(lineIndex + 1);
+        lineResults.push({
+          lineNumber: lineIndex + 1,
+          text: line,
+          hasHit: lineHitCount > 0,
+          html: line.length ? lineParts.join('') : '<span style="color:var(--text-muted);">(空行)</span>'
+        });
+      });
+
+      return { hasAny: totalHits > 0, totalHits, hitLineNumbers, perRuleCounts, activeRules, detections, lineResults, customChars: Array.from(customSet) };
+    }
+
+    function renderLegend(activeRules) {
+      if (!activeRules.length) {
+        els.legend.innerHTML = '<span class="legend-item">ルールが未選択です</span>';
+        return;
+      }
+      els.legend.innerHTML = activeRules.map(rule => `<span class="legend-item"><span class="swatch" style="background:${rule.color}"></span>${rule.label}</span>`).join('');
+    }
+
+    function updateMiniStatus(analysis) {
+      if (!analysis) {
+        els.chipExistence.className = 'chip';
+        els.chipExistence.innerHTML = '検出: <strong>未チェック</strong>';
+        els.chipHits.innerHTML = '件数: <strong>0</strong>';
+        els.chipLines.innerHTML = '該当行: <strong>-</strong>';
+        renderLegend([]);
+        return;
+      }
+      els.chipExistence.className = `chip ${analysis.hasAny ? 'warn' : 'ok'}`;
+      els.chipExistence.innerHTML = `検出: <strong>${analysis.hasAny ? 'あり' : 'なし'}</strong>`;
+      els.chipHits.innerHTML = `件数: <strong>${analysis.totalHits}</strong>`;
+      els.chipLines.innerHTML = `該当行: <strong>${analysis.hitLineNumbers.length ? analysis.hitLineNumbers.join(', ') : '-'}</strong>`;
+      renderLegend(analysis.activeRules);
+    }
+
+    function renderPreview(analysis) {
+      if (!analysis || !analysis.lineResults.length) {
+        els.preview.innerHTML = '<div class="empty">ここにハイライト結果が表示されます。</div>';
+        return;
+      }
+      const targetLines = showOnlyMatchedLines ? analysis.lineResults.filter(line => line.hasHit) : analysis.lineResults;
+      if (!targetLines.length) {
+        els.preview.innerHTML = '<div class="empty">該当する行はありません。</div>';
+        return;
+      }
+      els.preview.innerHTML = targetLines.map(line => `
+        <div class="line ${line.hasHit ? 'has-hit' : ''}">
+          <div class="line-no">${line.lineNumber}</div>
+          <div class="line-text">${line.html}</div>
+        </div>
+      `).join('');
+    }
+
+    function getFilteredDetections(analysis) {
+      if (!analysis) return [];
+      const keyword = (els.resultFilter.value || '').trim().toLowerCase();
+      if (!keyword) {
+        els.filterInfo.textContent = '結果絞り込みなし';
+        return analysis.detections;
+      }
+      const filtered = analysis.detections.filter(item => {
+        const hay = [item.visibleChar, item.lineText, String(item.lineNumber), String(item.columnNumber), ...item.rules.map(rule => rule.label)].join(' ').toLowerCase();
+        return hay.includes(keyword);
+      });
+      els.filterInfo.textContent = `${filtered.length}件 / ${analysis.detections.length}件を表示`;
+      return filtered;
+    }
+
+    function renderTable(analysis) {
+      if (!analysis || !analysis.detections.length) {
+        els.resultTable.innerHTML = '<div class="empty">ここに検出結果一覧が表示されます。</div>';
+        els.tableCountChip.textContent = '0件';
+        els.filterInfo.textContent = els.resultFilter.value.trim() ? '0件 / 0件を表示' : '結果絞り込みなし';
+        return;
+      }
+      const rowsData = getFilteredDetections(analysis);
+      els.tableCountChip.textContent = `${rowsData.length}件`;
+      if (!rowsData.length) {
+        els.resultTable.innerHTML = '<div class="empty">絞り込み条件に一致する検出結果はありません。</div>';
+        return;
+      }
+      const rows = rowsData.map((item, idx) => {
+        const badges = item.rules.map(rule => `<span class="badge ${rule.badgeClass}">${rule.label}</span>`).join('');
+        return `
+          <tr>
+            <td style="width:64px;">${idx + 1}</td>
+            <td style="width:74px;">${item.lineNumber}</td>
+            <td style="width:74px;">${item.columnNumber}</td>
+            <td class="mono" style="width:86px;">${escapeHtml(item.visibleChar)}</td>
+            <td>${badges}</td>
+            <td class="mono">${escapeHtml(item.lineText || '(空行)')}</td>
+          </tr>
+        `;
+      }).join('');
+      els.resultTable.innerHTML = `
+        <table>
+          <thead>
+            <tr><th>#</th><th>行</th><th>列</th><th>文字</th><th>種別</th><th>行内容</th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+      applyPreviewFontSize();
+    }
+
+    function runCheck() {
+      lastAnalysis = analyzeText(els.inputText.value);
+      updateMiniStatus(lastAnalysis);
+      renderPreview(lastAnalysis);
+      renderTable(lastAnalysis);
+      els.toggleLinesBtn.disabled = !lastAnalysis.hasAny;
+      if (!lastAnalysis.hasAny) {
+        showOnlyMatchedLines = settings.showOnlyMatchedDefault;
+        updateToggleButton();
+      }
+    }
+
+    function queueCheck() {
+      if (!autoCheck) return;
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(runCheck, 150);
+    }
+
+    function toHalfWidthAsciiChar(ch) {
+      const code = ch.charCodeAt(0);
+      if (code >= 0xFF10 && code <= 0xFF19) return String.fromCharCode(code - 0xFEE0);
+      if (code >= 0xFF21 && code <= 0xFF3A) return String.fromCharCode(code - 0xFEE0);
+      if (code >= 0xFF41 && code <= 0xFF5A) return String.fromCharCode(code - 0xFEE0);
+      return ch;
+    }
+
+    function autoFixText() {
+      const selected = new Set(getSelectedRuleIds());
+      const spaceRepeat = ' '.repeat(Math.max(1, Number(settings.tabSpaces) || 2));
+      let text = els.inputText.value;
+      const changes = { digit: 0, alpha: 0, space: 0, tab: 0, kana: 0 };
+      let fixed = '';
+
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (selected.has('digit') && /[０-９]/.test(ch)) {
+          fixed += toHalfWidthAsciiChar(ch);
+          changes.digit += 1;
+          continue;
+        }
+        if (selected.has('alpha') && /[Ａ-Ｚａ-ｚ]/.test(ch)) {
+          fixed += toHalfWidthAsciiChar(ch);
+          changes.alpha += 1;
+          continue;
+        }
+        if (selected.has('space') && ch === '　') {
+          fixed += ' ';
+          changes.space += 1;
+          continue;
+        }
+        if (selected.has('tab') && ch === '\t') {
+          fixed += spaceRepeat;
+          changes.tab += 1;
+          continue;
+        }
+        if (selected.has('kana') && /[ｦ-ﾟ]/.test(ch)) {
+          const rest = text.slice(i);
+          const m = rest.match(/^[ｦ-ﾟ]+/);
+          if (m) {
+            fixed += m[0].normalize('NFKC');
+            changes.kana += [...m[0]].length;
+            i += m[0].length - 1;
+            continue;
+          }
+        }
+        fixed += ch;
+      }
+
+      const total = Object.values(changes).reduce((a, b) => a + b, 0);
+      return { text: fixed, changes, total };
+    }
+
+    function buildFixSummary(changes) {
+      const labels = { digit: '全角数字', alpha: '全角英字', space: '全角スペース', tab: 'タブ', kana: '半角カナ' };
+      return Object.entries(changes).filter(([, count]) => count > 0).map(([key, count]) => `${labels[key]} ${count}件`).join(' / ');
+    }
+
+    function syncCustomInputs(source, target) {
+      target.value = source.value;
+      queueCheck();
+    }
+
+    function buildResultSummaryText() {
+      if (!lastAnalysis) return '未チェック';
+      const activeRules = lastAnalysis.activeRules.map(rule => `${rule.label}:${lastAnalysis.perRuleCounts[rule.id] || 0}件`).join(' / ');
+      return [`検出: ${lastAnalysis.hasAny ? 'あり' : 'なし'}`, `件数: ${lastAnalysis.totalHits}`, `該当行: ${lastAnalysis.hitLineNumbers.length ? lastAnalysis.hitLineNumbers.join(', ') : '-'}`, `有効ルール: ${activeRules || 'なし'}`, `タブ置換設定: 半角スペース${settings.tabSpaces}個`].join('\n');
+    }
+
+    function fallbackCopyText(text) {
+      const temp = document.createElement('textarea');
+      temp.value = text;
+      temp.setAttribute('readonly', '');
+      temp.style.position = 'fixed';
+      temp.style.inset = '-9999px';
+      document.body.appendChild(temp);
+      temp.select();
+      let ok = false;
+      try {
+        ok = document.execCommand('copy');
+      } catch {
+        ok = false;
+      }
+      temp.remove();
+      return ok;
+    }
+
+    function copyTextWithFallback(text, successMessage, errorMessage) {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(text)
+          .then(() => showToast(successMessage, 'success'))
+          .catch(() => {
+            if (fallbackCopyText(text)) {
+              showToast(successMessage, 'success');
+              return;
+            }
+            showToast(errorMessage, 'error');
+          });
+        return;
+      }
+      if (fallbackCopyText(text)) {
+        showToast(successMessage, 'success');
+        return;
+      }
+      showToast(errorMessage, 'error');
+    }
+
+    function copySummary() {
+      copyTextWithFallback(buildResultSummaryText(), '結果をコピーしました', '結果コピーに失敗しました');
+    }
+
+    function copyCurrentText() {
+      copyTextWithFallback(els.inputText.value, '現在のテキストをコピーしました', 'コピーに失敗しました');
+    }
+
+    function openSettings() {
+      els.settingTheme.value = settings.theme;
+      els.settingPreviewFontSize.value = settings.previewFontSize;
+      els.settingAutoCheck.checked = settings.autoCheck;
+      els.settingShowOnlyMatched.checked = settings.showOnlyMatchedDefault;
+      els.settingTabSpaces.value = String(settings.tabSpaces);
+      qsa('input[type="checkbox"]', els.settingDefaultRules).forEach(el => { el.checked = settings.defaultRules.includes(el.value); });
+      els.settingsOverlay.classList.add('show');
+    }
+
+    function closeSettings() { els.settingsOverlay.classList.remove('show'); }
+
+    function applySettingsToUi() {
+      applyTheme();
+      setAutoCheck(settings.autoCheck);
+      showOnlyMatchedLines = settings.showOnlyMatchedDefault;
+      updateToggleButton();
+      applyPreviewFontSize();
+      applyMainRuleChecks();
+      if (lastAnalysis) runCheck();
+      else renderLegend([]);
+    }
+
+    function resetSettings() {
+      settings = { ...DEFAULT_SETTINGS, defaultRules: DEFAULT_SETTINGS.defaultRules.slice() };
+      saveSettings();
+      applySettingsToUi();
+      closeSettings();
+      showToast('設定を初期化しました', 'success');
+    }
+
+    function saveSettingsFromModal() {
+      const defaultRules = qsa('input[type="checkbox"]', els.settingDefaultRules).filter(el => el.checked).map(el => el.value);
+      settings = {
+        theme: els.settingTheme.value,
+        previewFontSize: els.settingPreviewFontSize.value,
+        autoCheck: els.settingAutoCheck.checked,
+        showOnlyMatchedDefault: els.settingShowOnlyMatched.checked,
+        tabSpaces: Number(els.settingTabSpaces.value || 2),
+        defaultRules: defaultRules.length ? defaultRules : DEFAULT_SETTINGS.defaultRules.slice()
+      };
+      saveSettings();
+      applySettingsToUi();
+      closeSettings();
+      showToast('設定を保存しました', 'success');
+      queueCheck();
+    }
+
+    function bindEvents() {
+      els.checkBtn.addEventListener('click', () => {
+        runCheck();
+        showToast('チェックを実行しました', 'success');
+      });
+
+      els.autoFixBtn.addEventListener('click', () => {
+        const result = autoFixText();
+        if (!result.total) {
+          showToast(`自動修正できる項目はありません`);
+          updateAutoFixChip('変更なし');
+          return;
+        }
+        lastOriginalTextBeforeFix = els.inputText.value;
+        els.inputText.value = result.text;
+        els.restoreBtn.disabled = false;
+        updateAutoFixChip(`${result.total}件修正`, 'ok');
+        runCheck();
+        showToast(`自動修正を実行しました: ${buildFixSummary(result.changes)}`, 'success');
+      });
+
+      els.restoreBtn.addEventListener('click', () => {
+        if (!lastOriginalTextBeforeFix) return;
+        els.inputText.value = lastOriginalTextBeforeFix;
+        lastOriginalTextBeforeFix = '';
+        els.restoreBtn.disabled = true;
+        updateAutoFixChip('修正前に復元');
+        runCheck();
+        showToast('修正前のテキストへ戻しました');
+      });
+
+      els.copySummaryBtn.addEventListener('click', copySummary);
+      els.copyFixedBtn.addEventListener('click', copyCurrentText);
+
+      els.clearBtn.addEventListener('click', () => {
+        els.inputText.value = '';
+        els.customChars.value = '';
+        els.customCharsMirror.value = '';
+        els.resultFilter.value = '';
+        applyMainRuleChecks();
+        showOnlyMatchedLines = settings.showOnlyMatchedDefault;
+        updateToggleButton();
+        lastAnalysis = null;
+        lastOriginalTextBeforeFix = '';
+        els.restoreBtn.disabled = true;
+        updateMiniStatus(null);
+        updateAutoFixChip('未実行');
+        renderPreview(null);
+        renderTable(null);
+        els.toggleLinesBtn.disabled = true;
+        els.inputText.focus();
+        showToast('入力内容をクリアしました');
+      });
+
+      els.toggleLinesBtn.addEventListener('click', () => {
+        if (!lastAnalysis || !lastAnalysis.hasAny) return;
+        showOnlyMatchedLines = !showOnlyMatchedLines;
+        updateToggleButton();
+        renderPreview(lastAnalysis);
+      });
+
+      els.autoCheckGroup.addEventListener('click', () => {
+        settings.autoCheck = !autoCheck;
+        saveSettings();
+        setAutoCheck(settings.autoCheck);
+      });
+      els.autoCheckGroup.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          settings.autoCheck = !autoCheck;
+          saveSettings();
+          setAutoCheck(settings.autoCheck);
+        }
+      });
+
+      els.settingsBtn.addEventListener('click', openSettings);
+      els.settingsCancelBtn.addEventListener('click', closeSettings);
+      els.settingsSaveBtn.addEventListener('click', saveSettingsFromModal);
+      els.settingsResetBtn.addEventListener('click', resetSettings);
+      els.settingsOverlay.addEventListener('click', (e) => { if (e.target === els.settingsOverlay) closeSettings(); });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && els.settingsOverlay.classList.contains('show')) closeSettings();
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          e.preventDefault();
+          runCheck();
+        }
+      });
+
+      els.inputText.addEventListener('input', queueCheck);
+      els.customChars.addEventListener('input', () => syncCustomInputs(els.customChars, els.customCharsMirror));
+      els.customCharsMirror.addEventListener('input', () => syncCustomInputs(els.customCharsMirror, els.customChars));
+      els.resultFilter.addEventListener('input', () => renderTable(lastAnalysis));
+      qsa('.rule-check').forEach(el => el.addEventListener('change', queueCheck));
+
+      const colorSchemeMedia = getThemeMediaQuery();
+      if (colorSchemeMedia) {
+        const onColorSchemeChange = () => {
+          if (settings.theme === 'system') applyTheme();
+        };
+        if (typeof colorSchemeMedia.addEventListener === 'function') {
+          colorSchemeMedia.addEventListener('change', onColorSchemeChange);
+        } else if (typeof colorSchemeMedia.addListener === 'function') {
+          colorSchemeMedia.addListener(onColorSchemeChange);
+        }
+      }
+    }
+
+    applySettingsToUi();
+    bindEvents();
+    updateMiniStatus(null);
+    updateAutoFixChip('未実行');
+    updateToggleButton();
+  </script>
+</body>
+</html>

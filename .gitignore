@@ -1,0 +1,90 @@
+# =========================
+# OS Files (macOS / Windows)
+# =========================
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100/
+.Trashes/
+.fseventsd
+
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# =========================
+# Editor / IDE
+# =========================
+.vscode/
+.idea/
+*.iml
+*.suo
+*.user
+*.userossc
+*.sln.docstates
+*.swp
+*.swo
+*~
+.history/
+
+# =========================
+# Logs / Runtime
+# =========================
+*.log
+*.pid
+*.seed
+*.pid.lock
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# Environment / Secrets
+# =========================
+.env
+.env.*
+*.local
+!.env.example
+!.env.sample
+
+# =========================
+# Node / JavaScript
+# =========================
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp/
+.pnp.js
+jspm_packages/
+
+# =========================
+# Build / Test Artifacts
+# =========================
+dist/
+build/
+out/
+coverage/
+.nyc_output/
+.cache/
+.parcel-cache/
+.eslintcache
+*.tsbuildinfo
+playwright-report/
+test-results/
+
+# =========================
+# Temp
+# =========================
+tmp/
+temp/
+*.tmp

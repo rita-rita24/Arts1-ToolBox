@@ -1,0 +1,4227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>やるやん！Todo</title>
+
+  <!-- Material Symbols (Google Fonts CDN) -->
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0"
+  />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;800&family=Noto+Sans+JP:wght@400;500;700;800&display=swap"
+  />
+
+  <style>
+    :root {
+      color-scheme: light;
+      interpolate-size: allow-keywords;
+
+      --bg: light-dark(oklch(0.982 0.01 248), oklch(0.20 0.015 245));
+      --surface: light-dark(oklch(0.997 0.003 248), oklch(0.24 0.015 245));
+      --surface-2: light-dark(oklch(0.986 0.007 248), oklch(0.22 0.014 245));
+      --surface-3: light-dark(oklch(0.972 0.01 248), oklch(0.27 0.02 245));
+      --completed-bg: light-dark(oklch(0.949 0.031 156), oklch(0.28 0.035 152));
+
+      --text: light-dark(oklch(0.29 0.02 255), oklch(0.92 0.01 255));
+      --muted: light-dark(oklch(0.50 0.016 252), oklch(0.68 0.014 255));
+      --completed-text: light-dark(oklch(0.46 0.05 156), oklch(0.63 0.05 152));
+
+      --line: light-dark(oklch(0.89 0.012 248), oklch(0.35 0.015 245));
+      --line-strong: light-dark(oklch(0.82 0.017 248), oklch(0.42 0.02 245));
+
+      --primary: light-dark(oklch(0.61 0.15 244), oklch(0.74 0.13 205));
+      --primary-glow: light-dark(oklch(0.61 0.15 244 / 0.24), oklch(0.74 0.13 205 / 0.22));
+      --accent: oklch(0.74 0.14 80);
+      --celeb: oklch(0.78 0.14 156);
+      --danger: oklch(0.63 0.19 27);
+      --bg-spot-1: light-dark(oklch(0.93 0.03 238 / 0.62), oklch(0.32 0.05 208 / 0.28));
+      --bg-spot-2: light-dark(oklch(0.94 0.03 162 / 0.52), oklch(0.31 0.05 85 / 0.24));
+      --bg-top: light-dark(oklch(0.993 0.006 248), oklch(0.22 0.017 245));
+      --sidebar-start: light-dark(oklch(0.998 0.003 248), oklch(0.25 0.015 245));
+      --sidebar-end: light-dark(oklch(0.988 0.007 248), oklch(0.23 0.014 245));
+      --primary-bg-faint: light-dark(oklch(0.967 0.018 244), oklch(0.31 0.05 205));
+      --primary-bg-soft: light-dark(oklch(0.946 0.028 244), oklch(0.34 0.06 205));
+      --primary-bg-mid: light-dark(oklch(0.918 0.045 244), oklch(0.38 0.07 205));
+      --primary-border-soft: light-dark(oklch(0.83 0.056 244), oklch(0.58 0.08 205));
+      --primary-border: light-dark(oklch(0.74 0.09 244), oklch(0.67 0.09 205));
+      --primary-border-strong: light-dark(oklch(0.67 0.115 244), oklch(0.72 0.10 205));
+      --primary-text-ink: light-dark(oklch(0.48 0.11 244), oklch(0.85 0.09 205));
+      --danger-bg-faint: light-dark(oklch(0.976 0.017 27), oklch(0.33 0.05 25));
+      --danger-bg-soft: light-dark(oklch(0.957 0.028 27), oklch(0.36 0.06 25));
+      --danger-border-soft: light-dark(oklch(0.79 0.09 27), oklch(0.62 0.09 25));
+      --danger-border: light-dark(oklch(0.70 0.12 27), oklch(0.67 0.11 25));
+      --line-soft: light-dark(oklch(0.865 0.012 248), oklch(0.40 0.018 245));
+      --modal-overlay-spot-1: light-dark(oklch(0.66 0.085 244 / 0.18), oklch(0.72 0.08 205 / 0.16));
+      --modal-overlay-spot-2: light-dark(oklch(0.72 0.075 156 / 0.14), oklch(0.73 0.08 85 / 0.14));
+      --modal-overlay-backdrop: rgb(8 12 17 / 0.56);
+      --modal-border: light-dark(oklch(0.85 0.016 248), oklch(0.49 0.03 245));
+      --modal-outline: light-dark(oklch(0.89 0.03 244), oklch(0.55 0.08 205));
+      --focus-ring-line: light-dark(oklch(0.85 0.045 244), oklch(0.58 0.08 205));
+      --focus-halo-1: light-dark(oklch(0.68 0.10 244 / 0.2), oklch(0.72 0.09 205 / 0.20));
+      --focus-halo-2: light-dark(oklch(0.76 0.075 156 / 0.16), oklch(0.74 0.08 85 / 0.14));
+      --accent-shadow: light-dark(oklch(0.74 0.09 80 / 0.38), oklch(0.74 0.09 85 / 0.34));
+      --danger-shadow: light-dark(oklch(0.68 0.13 27 / 0.36), oklch(0.68 0.12 25 / 0.34));
+
+      --shadow-soft: light-dark(oklch(0.44 0.02 248 / 0.08), oklch(0 0 0 / 0.30));
+      --shadow-strong: light-dark(oklch(0.34 0.03 248 / 0.14), oklch(0 0 0 / 0.48));
+
+      --radius-sm: 0.55rem;
+      --radius-md: 0.8rem;
+      --radius-lg: 1rem;
+      --radius-xl: 1.2rem;
+      --radius-full: 999px;
+
+      --space-2xs: 0.2rem;
+      --space-xs: 0.35rem;
+      --space-sm: 0.55rem;
+      --space-md: 0.85rem;
+      --space-lg: 1.15rem;
+      --space-xl: 1.5rem;
+
+      --sidebar-w: 232px;
+      --sidebar-collapsed-w: 72px;
+
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+      accent-color: var(--primary);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 14px;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      background-image:
+        radial-gradient(circle at 8% -6%, var(--bg-spot-1), transparent 44%),
+        radial-gradient(circle at 92% 6%, var(--bg-spot-2), transparent 40%),
+        linear-gradient(180deg, var(--bg-top), var(--bg));
+      background-attachment: fixed;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      font-feature-settings: "palt" 1;
+    }
+
+    body.sidebar-collapsed .shell {
+      grid-template-columns: var(--sidebar-collapsed-w) 1fr;
+    }
+
+    body.focus-open {
+      overflow: hidden;
+    }
+
+    .material-symbols-outlined {
+      font-size: 18px;
+      line-height: 1;
+      vertical-align: middle;
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 20;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      transition: grid-template-columns 180ms var(--ease-smooth);
+    }
+
+    /* =========================
+       Sidebar
+    ========================= */
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: var(--space-lg);
+      padding: var(--space-xl) var(--space-md);
+      border-right: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, var(--sidebar-start), var(--sidebar-end));
+      box-shadow: 2px 0 10px var(--shadow-soft);
+      backdrop-filter: blur(8px);
+      transition: padding 180ms var(--ease-smooth);
+    }
+
+    .sidebar-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-family: "M PLUS Rounded 1c", "Noto Sans JP", sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      line-height: 1.35;
+      letter-spacing: 0.01em;
+      background: linear-gradient(135deg, var(--primary), var(--accent), var(--celeb));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      transition: opacity 160ms var(--ease-smooth), transform 160ms var(--ease-smooth);
+      white-space: nowrap;
+    }
+
+    .sidebar-collapse-btn {
+      flex-shrink: 0;
+    }
+
+    .nav {
+      display: grid;
+      gap: var(--space-sm);
+    }
+
+    .nav-btn {
+      appearance: none;
+      width: 100%;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      border-radius: var(--radius-lg);
+      padding: 0.75rem 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-align: left;
+      transition:
+        background 160ms var(--ease-smooth),
+        color 160ms var(--ease-smooth),
+        border-color 160ms var(--ease-smooth),
+        transform 160ms var(--ease-spring),
+        box-shadow 160ms var(--ease-smooth);
+      overflow: hidden;
+    }
+
+    .nav-btn:hover {
+      transform: translateY(-1px);
+      color: var(--text);
+      border-color: var(--primary-border);
+      background: var(--primary-bg-faint);
+    }
+
+    .nav-btn.active {
+      color: white;
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      box-shadow: 0 8px 20px var(--primary-glow);
+    }
+
+    .nav-icon {
+      width: 1.15rem;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .nav-label {
+      display: inline-block;
+      max-width: 10rem;
+      overflow: hidden;
+      transition:
+        opacity 160ms var(--ease-smooth),
+        max-width 160ms var(--ease-smooth),
+        transform 160ms var(--ease-smooth);
+      white-space: nowrap;
+    }
+
+    body.sidebar-collapsed .sidebar {
+      padding: 0.5rem 0.45rem 0.9rem;
+      gap: var(--space-sm);
+    }
+
+    body.sidebar-collapsed .brand {
+      display: none;
+    }
+
+    body.sidebar-collapsed .nav-label {
+      opacity: 0;
+      max-width: 0;
+      pointer-events: none;
+      transform: translateX(-4px);
+    }
+
+    body.sidebar-collapsed .brand-title {
+      opacity: 0;
+      width: 0;
+      max-width: 0;
+      transform: translateX(-6px);
+      pointer-events: none;
+    }
+
+    body.sidebar-collapsed .nav-btn {
+      width: 2.65rem;
+      height: 2.65rem;
+      justify-content: center;
+      gap: 0;
+      padding: 0;
+      margin-inline: auto;
+    }
+
+    body.sidebar-collapsed .nav {
+      justify-items: center;
+    }
+
+    body.sidebar-collapsed .sidebar-top {
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 0;
+    }
+
+    body.sidebar-collapsed .sidebar-collapse-btn {
+      margin: 0;
+    }
+
+    /* =========================
+       Main
+    ========================= */
+    .main {
+      display: grid;
+      place-items: start center;
+      padding: var(--space-xl);
+    }
+
+    .page-wrap {
+      width: min(100%, 960px);
+      display: grid;
+      gap: var(--space-md);
+    }
+
+    .page {
+      display: none;
+      gap: var(--space-md);
+      animation: pageIn 180ms var(--ease-smooth);
+    }
+
+    .page.active {
+      display: grid;
+    }
+
+    @keyframes pageIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 1.55rem;
+      font-family: "M PLUS Rounded 1c", "Noto Sans JP", sans-serif;
+      font-weight: 800;
+      letter-spacing: 0.005em;
+    }
+
+    .progress-mini {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.65rem;
+      border-radius: var(--radius-full);
+      background: var(--primary-bg-soft);
+      color: var(--text);
+      border: 1px solid var(--primary-border-soft);
+      font-size: 0.82rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: 0 6px 18px var(--shadow-soft);
+      padding: var(--space-md);
+    }
+
+    .card h2 {
+      margin: 0 0 0.7rem;
+      font-size: 0.98rem;
+      font-weight: 800;
+    }
+
+    .muted {
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* =========================
+       Inputs / Buttons
+    ========================= */
+    .row {
+      display: flex;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+      align-items: stretch;
+    }
+
+    .text-input {
+      flex: 1;
+      min-width: 200px;
+      background: var(--surface-2);
+      color: var(--text);
+      border: 2px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 0.85rem;
+      font-size: 0.96rem;
+      outline: none;
+      transition:
+        border-color 160ms var(--ease-smooth),
+        box-shadow 160ms var(--ease-smooth),
+        background 160ms var(--ease-smooth);
+    }
+
+    .text-input::placeholder {
+      color: var(--muted);
+      opacity: 0.85;
+    }
+
+    .text-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .btn,
+    .icon-btn,
+    .mini-btn,
+    .message-chip-btn,
+    .focus-btn {
+      appearance: none;
+      border: none;
+      cursor: pointer;
+      transition:
+        transform 160ms var(--ease-spring),
+        filter 160ms var(--ease-smooth),
+        background 160ms var(--ease-smooth),
+        color 160ms var(--ease-smooth),
+        border-color 160ms var(--ease-smooth),
+        box-shadow 160ms var(--ease-smooth);
+    }
+
+    .btn:hover,
+    .icon-btn:hover,
+    .mini-btn:hover,
+    .message-chip-btn:hover,
+    .focus-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .btn:active,
+    .icon-btn:active,
+    .mini-btn:active,
+    .message-chip-btn:active,
+    .focus-btn:active {
+      transform: translateY(0);
+    }
+
+    .btn {
+      border-radius: var(--radius-md);
+      padding: 0.75rem 0.9rem;
+      font-weight: 800;
+      font-size: 0.92rem;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 8px 20px var(--primary-glow);
+    }
+
+    .btn-subtle {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+
+    .btn-subtle:hover {
+      color: var(--text);
+      border-color: var(--primary);
+      background: var(--primary-bg-soft);
+    }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid var(--danger-border-soft);
+    }
+
+    .btn-danger:hover {
+      background: var(--danger-bg-faint);
+    }
+
+    .icon-btn,
+    .mini-btn,
+    .message-chip-btn,
+    .focus-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 0.8rem;
+      padding: 0.5rem 0.6rem;
+      font-size: 0.86rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .icon-btn:hover,
+    .mini-btn:hover,
+    .message-chip-btn:hover,
+    .focus-btn:hover {
+      color: var(--text);
+      border-color: var(--primary);
+      background: var(--primary-bg-soft);
+    }
+
+    .danger:hover {
+      color: var(--danger);
+      border-color: var(--danger);
+      background: var(--danger-bg-faint);
+    }
+
+    .drag-handle {
+      cursor: grab;
+      width: 1.55rem;
+      height: 1.55rem;
+      min-width: 1.55rem;
+      padding: 0;
+      border-radius: var(--radius-full);
+      border-color: var(--line-soft);
+      background: var(--surface);
+      color: var(--muted);
+      box-shadow: 0 4px 10px var(--shadow-soft);
+      z-index: 2;
+    }
+
+    .drag-handle:active {
+      cursor: grabbing;
+      transform: scale(0.95);
+    }
+
+    .drag-handle:hover {
+      border-color: var(--primary-border-strong);
+      color: var(--primary);
+      background: var(--primary-bg-faint);
+    }
+
+    .subtask-drag-handle:hover,
+    .modal-subtask-drag-handle:hover {
+      transform: translateY(-50%);
+    }
+
+    .drag-handle .material-symbols-outlined {
+      font-size: 14px;
+    }
+
+    .parent-drag-handle,
+    .subtask-drag-handle,
+    .modal-subtask-drag-handle {
+      position: absolute;
+      left: -1.15rem;
+      z-index: 3;
+    }
+
+    .parent-drag-handle {
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .subtask-drag-handle,
+    .modal-subtask-drag-handle {
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .subtask-drag-handle:active,
+    .modal-subtask-drag-handle:active {
+      transform: translateY(-50%) scale(0.95);
+    }
+
+    .parent-drag-handle:hover {
+      transform: translateY(-50%);
+    }
+
+    .parent-drag-handle:active {
+      transform: translateY(-50%) scale(0.95);
+    }
+
+    .focus-btn.playable {
+      color: var(--primary);
+      border-color: var(--primary-border);
+      background: var(--primary-bg-faint);
+    }
+
+    .focus-btn.done {
+      color: var(--primary-text-ink);
+      border-color: var(--primary-border-soft);
+      background: var(--primary-bg-mid);
+      cursor: pointer;
+    }
+
+    .focus-btn.disabled {
+      opacity: 0.4;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .left-slot {
+      width: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* =========================
+       All Done
+    ========================= */
+    .all-done-card {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.85rem 0.95rem;
+      border-radius: var(--radius-lg);
+      background: var(--primary-bg-soft);
+      border: 1px solid var(--primary-border-soft);
+    }
+
+    .all-done-card strong {
+      font-size: 1rem;
+    }
+
+    /* =========================
+       Todo List
+    ========================= */
+    .list-section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 800;
+      padding-inline: 0.1rem;
+    }
+
+    .todo-list {
+      display: grid;
+      gap: 0.7rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .todo-item {
+      position: relative;
+      overflow: visible;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      box-shadow: 0 4px 14px var(--shadow-soft);
+      padding: 0.85rem;
+      display: grid;
+      gap: 0.7rem;
+      transition:
+        background 180ms var(--ease-smooth),
+        border-color 180ms var(--ease-smooth),
+        box-shadow 180ms var(--ease-smooth),
+        transform 160ms var(--ease-spring),
+        opacity 160ms var(--ease-smooth);
+      animation: itemIn 180ms var(--ease-spring);
+    }
+
+    .todo-item:hover {
+      transform: translateY(-1px);
+      border-color: var(--primary-border);
+      box-shadow: 0 8px 20px var(--shadow-strong);
+    }
+
+    .todo-item.done {
+      background: var(--completed-bg);
+      border-color: var(--primary-border-soft);
+    }
+
+    .todo-item.dragging,
+    .subtask-item.dragging,
+    .modal-subtask-row.dragging {
+      opacity: 0.45;
+    }
+
+    .drop-before {
+      box-shadow: inset 0 3px 0 var(--primary);
+    }
+
+    .drop-after {
+      box-shadow: inset 0 -3px 0 var(--primary);
+    }
+
+    .todo-item::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 1.2rem center, var(--primary-glow), transparent 70%);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .todo-item.celebrating::before {
+      opacity: 1;
+      animation: burstFade 780ms var(--ease-smooth) forwards;
+    }
+
+    .todo-item.removing,
+    .subtask-item.removing {
+      animation: itemOut 220ms var(--ease-smooth) forwards;
+    }
+
+    @keyframes itemIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes itemOut {
+      to {
+        opacity: 0;
+        transform: translateX(24px) scale(0.97);
+      }
+    }
+
+    @keyframes burstFade {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .todo-main {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 0.7rem;
+      align-items: center;
+    }
+
+    .todo-meta {
+      display: grid;
+      gap: 0.22rem;
+      min-width: 0;
+      align-content: center;
+    }
+
+    .todo-title {
+      font-size: 0.98rem;
+      font-weight: 800;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .todo-item.done .todo-title {
+      text-decoration: line-through;
+      color: var(--completed-text);
+      text-decoration-thickness: 2px;
+    }
+
+    .todo-tools {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.26rem 0.52rem;
+      border-radius: var(--radius-full);
+      background: var(--primary-bg-mid);
+      color: var(--primary-text-ink);
+      width: fit-content;
+    }
+
+    .subtask-wrap {
+      display: grid;
+      gap: 0.55rem;
+      margin-left: calc(2.5rem + 0.7rem);
+    }
+
+    .subtask-list {
+      display: grid;
+      gap: 0.45rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      min-height: 10px;
+    }
+
+    .subtask-list.empty-dropzone {
+      min-height: 20px;
+      padding: 0.2rem;
+      border-radius: var(--radius-md);
+      border: 1px dashed var(--line-soft);
+      background: var(--surface-3);
+    }
+
+    .subtask-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 0.55rem;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--surface-3);
+      padding: 0.6rem;
+      transition:
+        background 160ms var(--ease-smooth),
+        border-color 160ms var(--ease-smooth),
+        opacity 160ms var(--ease-smooth);
+    }
+
+    .subtask-item.done {
+      background: var(--completed-bg);
+    }
+
+    .subtask-item .text {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .subtask-item.done .text {
+      text-decoration: line-through;
+      color: var(--completed-text);
+      text-decoration-thickness: 2px;
+    }
+
+    .subtask-actions {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .empty {
+      display: grid;
+      place-items: center;
+      gap: 0.45rem;
+      text-align: center;
+      color: var(--muted);
+      padding: 1.6rem 1rem;
+      line-height: 1.7;
+    }
+
+    .empty .material-symbols-outlined {
+      font-size: 28px;
+      color: var(--primary);
+    }
+
+    /* =========================
+       Analysis
+    ========================= */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.7rem;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      padding: 0.9rem;
+      display: grid;
+      gap: 0.28rem;
+      box-shadow: 0 4px 12px var(--shadow-soft);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .stat-value {
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    /* =========================
+       Settings
+    ========================= */
+    .setting-list {
+      display: grid;
+      gap: 0.7rem;
+    }
+
+    .setting-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      padding: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.9rem;
+      box-shadow: 0 4px 12px var(--shadow-soft);
+    }
+
+    .setting-meta {
+      display: grid;
+      gap: 0.22rem;
+    }
+
+    .setting-title {
+      font-weight: 800;
+      font-size: 0.92rem;
+    }
+
+    .toggle {
+      appearance: none;
+      width: 3.2rem;
+      height: 1.85rem;
+      border-radius: 999px;
+      border: none;
+      background: var(--line-strong);
+      position: relative;
+      cursor: pointer;
+      transition: background 160ms var(--ease-smooth);
+      flex-shrink: 0;
+    }
+
+    .toggle::after {
+      content: "";
+      position: absolute;
+      top: 0.2rem;
+      left: 0.2rem;
+      width: 1.45rem;
+      height: 1.45rem;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.15);
+      transition: transform 160ms var(--ease-spring);
+    }
+
+    .toggle:checked {
+      background: var(--primary);
+    }
+
+    .toggle:checked::after {
+      transform: translateX(1.35rem);
+    }
+
+    .message-manager {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .message-row {
+      display: flex;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+      align-items: stretch;
+    }
+
+    .message-list {
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .message-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--surface-3);
+      padding: 0.65rem 0.75rem;
+    }
+
+    .message-text {
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .message-actions {
+      display: flex;
+      gap: 0.35rem;
+      flex-shrink: 0;
+    }
+
+    /* =========================
+       Modal
+    ========================= */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 18%, var(--modal-overlay-spot-1), transparent 44%),
+        radial-gradient(circle at 82% 12%, var(--modal-overlay-spot-2), transparent 42%),
+        var(--modal-overlay-backdrop);
+      backdrop-filter: blur(10px) saturate(1.15);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.15rem;
+      z-index: 3000;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+      animation: fadeIn 180ms ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.975);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-overlay.show .modal {
+      animation: modalIn 240ms var(--ease-spring);
+    }
+
+    .modal {
+      position: relative;
+      width: min(100%, 560px);
+      background:
+        linear-gradient(165deg, var(--surface), var(--surface-2));
+      border: 1px solid var(--modal-border);
+      border-radius: 1.1rem;
+      box-shadow:
+        0 26px 60px var(--shadow-strong),
+        0 0 0 1px var(--modal-outline);
+      overflow: hidden;
+      display: grid;
+      max-height: min(88vh, 760px);
+    }
+
+    .modal::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent), var(--celeb));
+      pointer-events: none;
+    }
+
+    .modal.modal-compact {
+      width: min(100%, 500px);
+    }
+
+    .modal.modal-confirm {
+      width: min(100%, 450px);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      padding: 0.95rem 1.05rem;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, var(--surface), var(--surface-2));
+    }
+
+    .modal-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      min-width: 0;
+    }
+
+    .modal-title {
+      font-size: 1.03rem;
+      font-weight: 800;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+    }
+
+    .modal-close-btn {
+      background: var(--surface-3);
+    }
+
+    .modal-body {
+      padding: 1.05rem;
+      display: grid;
+      gap: 0.95rem;
+      overflow: auto;
+    }
+
+    .modal-section {
+      display: grid;
+      gap: 0.6rem;
+    }
+
+    .modal-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-weight: 800;
+      font-size: 0.82rem;
+      color: var(--muted);
+      letter-spacing: 0.01em;
+    }
+
+    .modal-subtask-list {
+      display: grid;
+      gap: 0.45rem;
+      min-height: 16px;
+      padding-left: 0.95rem;
+    }
+
+    .modal-subtask-list.empty-dropzone {
+      min-height: 58px;
+      align-content: center;
+      padding: 0.62rem;
+      border-radius: var(--radius-md);
+      border: 1px dashed var(--line-soft);
+      background: var(--surface-3);
+    }
+
+    .modal-subtask-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 0.55rem;
+      border: 1px solid var(--line);
+      background: var(--surface-3);
+      border-radius: var(--radius-md);
+      padding: 0.6rem 0.7rem 0.6rem 0.8rem;
+      font-size: 0.88rem;
+      transition: opacity 160ms var(--ease-smooth), border-color 160ms var(--ease-smooth);
+    }
+
+    .modal-subtask-row .left {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .modal-subtask-row .name {
+      min-width: 0;
+      word-break: break-word;
+      line-height: 1.45;
+    }
+
+    .modal-row-actions {
+      display: flex;
+      gap: 0.35rem;
+      justify-self: end;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.55rem;
+      padding: 0.9rem 1.05rem;
+      border-top: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, var(--surface-2), var(--surface-2));
+    }
+
+    .modal-footer .icon-btn {
+      min-height: 2.25rem;
+      padding: 0.5rem 0.8rem;
+      border-radius: 0.75rem;
+    }
+
+    .confirm-message {
+      display: grid;
+      justify-items: center;
+      gap: 0.5rem;
+      font-size: 0.98rem;
+      font-weight: 800;
+      line-height: 1.6;
+      text-align: center;
+      padding: 0.8rem 0.2rem 0.9rem;
+    }
+
+    .confirm-message::before {
+      content: "warning";
+      font-family: "Material Symbols Outlined";
+      font-size: 24px;
+      line-height: 1;
+      color: var(--danger);
+      background: var(--danger-bg-faint);
+      border: 1px solid var(--danger-border-soft);
+      border-radius: var(--radius-full);
+      padding: 0.5rem;
+    }
+
+    .confirm-action-btn {
+      min-width: 7rem;
+    }
+
+    .toast-layer {
+      position: fixed;
+      left: 50%;
+      bottom: 1.15rem;
+      transform: translateX(-50%);
+      z-index: 5000;
+      pointer-events: none;
+      display: grid;
+      justify-items: center;
+      width: min(100vw - 1.5rem, 34rem);
+    }
+
+    .toast {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      max-width: 100%;
+      padding: 0.68rem 0.9rem;
+      border-radius: 0.78rem;
+      border: 1px solid var(--danger-border);
+      background: var(--danger-bg-soft);
+      color: var(--text);
+      font-size: 0.86rem;
+      font-weight: 800;
+      box-shadow: 0 12px 24px var(--shadow-strong);
+      opacity: 0;
+      transform: translateY(8px) scale(0.97);
+      transition: opacity 180ms var(--ease-smooth), transform 180ms var(--ease-smooth);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .toast .material-symbols-outlined {
+      font-size: 17px;
+      color: var(--danger);
+    }
+
+    /* =========================
+       Focus Modal
+    ========================= */
+    .focus-overlay {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at center, rgb(255 255 255 / 0.08), transparent 35%),
+        rgb(8 12 16 / 0.78);
+      backdrop-filter: blur(12px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 4000;
+    }
+
+    .focus-overlay.show {
+      display: flex;
+      animation: fadeIn 160ms ease;
+    }
+
+    .focus-modal {
+      width: min(100%, 760px);
+      min-height: min(72vh, 620px);
+      border-radius: 1.4rem;
+      background:
+        linear-gradient(180deg, var(--surface), var(--surface-2));
+      border: 1px solid var(--focus-ring-line);
+      box-shadow:
+        0 24px 70px var(--shadow-strong),
+        0 0 0 1px var(--modal-outline);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .focus-modal::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 20%, var(--focus-halo-1), transparent 46%),
+        radial-gradient(circle at 50% 80%, var(--focus-halo-2), transparent 36%);
+      pointer-events: none;
+    }
+
+    .focus-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1.1rem;
+      border-bottom: 1px solid var(--line);
+      position: relative;
+      z-index: 1;
+    }
+
+    .focus-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      min-width: 0;
+    }
+
+    .focus-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .focus-body {
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .focus-timer {
+      font-size: clamp(3rem, 12vw, 6.2rem);
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      text-shadow:
+        0 0 20px var(--focus-halo-1),
+        0 0 54px var(--focus-halo-2);
+    }
+
+    .focus-footer {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1rem 1.2rem 1.2rem;
+      border-top: 1px solid var(--line);
+      position: relative;
+      z-index: 1;
+      flex-wrap: wrap;
+    }
+
+    .focus-action-btn {
+      width: 4.5rem;
+      height: 4.5rem;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 10px 24px var(--shadow-soft);
+    }
+
+    .focus-action-btn .material-symbols-outlined {
+      font-size: 30px;
+    }
+
+    .focus-action-btn.complete {
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--celeb));
+      border-color: transparent;
+      box-shadow: 0 12px 30px var(--primary-glow);
+    }
+
+    .focus-action-btn.pause {
+      color: white;
+      background: linear-gradient(135deg, var(--accent), oklch(0.72 0.18 60));
+      border-color: transparent;
+      box-shadow: 0 12px 30px var(--accent-shadow);
+    }
+
+    .focus-action-btn.abort {
+      color: white;
+      background: linear-gradient(135deg, var(--danger), oklch(0.60 0.21 10));
+      border-color: transparent;
+      box-shadow: 0 12px 30px var(--danger-shadow);
+    }
+
+    .focus-action-btn[disabled] {
+      opacity: 0.35;
+      cursor: not-allowed;
+      filter: grayscale(0.2);
+      box-shadow: none;
+    }
+
+    /* =========================
+       Celebration
+    ========================= */
+    .celebration-text {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0.42) rotate(-10deg);
+      opacity: 0;
+      z-index: 3600;
+      pointer-events: none;
+      font-weight: 800;
+      font-size: clamp(3.4rem, 12vw, 7.8rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      white-space: nowrap;
+      color: transparent;
+      background: linear-gradient(
+        135deg,
+        oklch(0.78 0.22 145),
+        oklch(0.80 0.22 35),
+        oklch(0.76 0.24 350),
+        oklch(0.84 0.18 90)
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      filter:
+        drop-shadow(0 8px 20px var(--primary-glow))
+        drop-shadow(0 0 34px oklch(0.84 0.18 90 / 0.35));
+      text-shadow: 0 0 22px rgb(255 255 255 / 0.18);
+    }
+
+    .celebration-text.show {
+      animation: celebrationPop 1.35s var(--ease-spring) forwards;
+    }
+
+    @keyframes celebrationPop {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.32) rotate(-10deg);
+      }
+      18% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.22) rotate(2deg);
+      }
+      34% {
+        transform: translate(-50%, -50%) scale(0.92) rotate(-1deg);
+      }
+      56% {
+        transform: translate(-50%, -55%) scale(1.06) rotate(1deg);
+      }
+      76% {
+        opacity: 1;
+        transform: translate(-50%, -62%) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -78%) scale(1.08);
+      }
+    }
+
+    .confetti {
+      position: fixed;
+      inset: 0;
+      z-index: 3500;
+      pointer-events: none;
+    }
+
+    /* =========================
+       Responsive
+    ========================= */
+    @media (max-width: 900px) {
+      .shell,
+      body.sidebar-collapsed .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+      }
+
+      body.sidebar-collapsed .sidebar {
+        padding-inline: var(--space-md);
+        gap: var(--space-lg);
+      }
+
+      .nav {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .nav-btn {
+        justify-content: center;
+        text-align: center;
+      }
+
+      .main {
+        padding: var(--space-lg);
+      }
+
+      body.sidebar-collapsed .nav-label {
+        opacity: 1;
+        max-width: 10rem;
+        transform: none;
+        pointer-events: auto;
+      }
+
+      body.sidebar-collapsed .brand {
+        display: flex;
+        justify-content: flex-start;
+        width: auto;
+      }
+
+      body.sidebar-collapsed .brand-title {
+        opacity: 1;
+        width: auto;
+        max-width: none;
+        transform: none;
+        pointer-events: auto;
+      }
+
+      body.sidebar-collapsed .nav {
+        justify-items: stretch;
+      }
+
+      body.sidebar-collapsed .nav-btn {
+        width: auto;
+        height: auto;
+        gap: 0.65rem;
+        justify-content: center;
+        padding-inline: 0.85rem;
+      }
+
+      body.sidebar-collapsed .sidebar-top {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .todo-main {
+        grid-template-columns: auto 1fr auto;
+      }
+
+      .todo-tools {
+        grid-column: 3;
+        justify-self: end;
+      }
+
+      .subtask-wrap {
+        margin-left: 0;
+      }
+
+      .celebration-text {
+        font-size: clamp(2.8rem, 14vw, 5.8rem);
+      }
+
+      .focus-timer {
+        font-size: clamp(2.8rem, 16vw, 5rem);
+      }
+
+      .focus-action-btn {
+        width: 4rem;
+        height: 4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="brand">
+          <div class="brand-title">やるやん！Todo</div>
+        </div>
+
+        <button class="icon-btn sidebar-collapse-btn" id="sidebarCollapseBtn" title="サイドバー折りたたみ" aria-label="サイドバー折りたたみ">
+          <span class="material-symbols-outlined" id="sidebarCollapseIcon">left_panel_close</span>
+        </button>
+      </div>
+
+      <nav class="nav" aria-label="ナビゲーション">
+        <button class="nav-btn" data-route="tasks" title="Todoリスト" aria-label="Todoリスト">
+          <span class="nav-icon"><span class="material-symbols-outlined">checklist</span></span>
+          <span class="nav-label">Todoリスト</span>
+        </button>
+        <button class="nav-btn" data-route="analysis" title="分析" aria-label="分析">
+          <span class="nav-icon"><span class="material-symbols-outlined">insights</span></span>
+          <span class="nav-label">分析</span>
+        </button>
+        <button class="nav-btn" data-route="settings" title="設定" aria-label="設定">
+          <span class="nav-icon"><span class="material-symbols-outlined">settings</span></span>
+          <span class="nav-label">設定</span>
+        </button>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="page-wrap">
+        <!-- Tasks -->
+        <section class="page" id="page-tasks">
+          <div class="hero">
+            <h1>Todoリスト</h1>
+
+            <div class="progress-mini" id="progressMini">
+              <span class="material-symbols-outlined">percent</span>
+              <span id="progressMiniText">達成率 0%</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="row">
+              <input id="todoInput" class="text-input" type="text" placeholder="やることを書いてね" autocomplete="off">
+              <button id="addBtn" class="icon-btn" title="親タスク追加" aria-label="親タスク追加">
+                <span class="material-symbols-outlined">add_task</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="list-section-head">
+            <span></span>
+            <span id="taskCountLabel">0件</span>
+          </div>
+
+          <ul class="todo-list" id="todoList"></ul>
+
+          <div class="card empty" id="emptyState">
+            <span class="material-symbols-outlined">task_alt</span>
+            <div style="font-weight: 800;">まだ何もないよ</div>
+          </div>
+
+          <div class="all-done-card" id="allDoneCard" style="display:none;">
+            <span class="material-symbols-outlined" style="font-size:22px; color: var(--primary);">military_tech</span>
+            <div>
+              <strong>全部おわった！</strong>
+            </div>
+          </div>
+
+          <div class="row" id="footerActions" style="display:none;">
+            <button id="clearCompletedBtn" class="icon-btn" title="完了済みを削除" aria-label="完了済みを削除">
+              <span class="material-symbols-outlined">done_all</span>
+            </button>
+            <button id="clearAllBtn" class="icon-btn danger" title="すべて削除" aria-label="すべて削除">
+              <span class="material-symbols-outlined">delete_sweep</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Analysis -->
+        <section class="page" id="page-analysis">
+          <div class="hero">
+            <h1>分析</h1>
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-label">親タスク数</div>
+              <div class="stat-value" id="statParents">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">子タスク数</div>
+              <div class="stat-value" id="statChildren">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">完了済み項目</div>
+              <div class="stat-value" id="statCompleted">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">未完了項目</div>
+              <div class="stat-value" id="statRemaining">0</div>
+            </div>
+            <div class="stat" style="grid-column:1 / -1;">
+              <div class="stat-label">完了率</div>
+              <div class="stat-value" id="statRate">0%</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Settings -->
+        <section class="page" id="page-settings">
+          <div class="hero">
+            <h1>設定</h1>
+          </div>
+
+          <div class="setting-list">
+            <div class="setting-item">
+              <div class="setting-meta">
+                <div class="setting-title">ライトモード</div>
+              </div>
+              <input id="lightModeToggle" class="toggle" type="checkbox">
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-meta">
+                <div class="setting-title">効果音</div>
+              </div>
+              <input id="soundToggle" class="toggle" type="checkbox">
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-meta">
+                <div class="setting-title">お祝い演出</div>
+              </div>
+              <input id="celebrationToggle" class="toggle" type="checkbox">
+            </div>
+
+            <div class="card">
+              <h2>完了メッセージ</h2>
+
+              <div class="message-manager">
+                <div class="message-row">
+                  <input id="messageInput" class="text-input" type="text" placeholder="メッセージを追加 / 編集">
+                  <button id="messageSaveBtn" class="icon-btn" title="メッセージ保存" aria-label="メッセージ保存">
+                    <span class="material-symbols-outlined" id="messageSaveIcon">add_comment</span>
+                  </button>
+                </div>
+
+                <div class="message-list" id="messageList"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Parent Edit Modal -->
+  <div class="modal-overlay" id="parentModalOverlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="parentModalTitle">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="material-symbols-outlined">edit_note</span>
+          <div class="modal-title" id="parentModalTitle">親タスクを編集</div>
+        </div>
+        <button class="icon-btn modal-close-btn" id="closeParentModalBtn" title="閉じる" aria-label="閉じる">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-section">
+          <label class="modal-label" for="parentEditInput">
+            <span class="material-symbols-outlined">title</span>
+            親タスク名
+          </label>
+          <input id="parentEditInput" class="text-input" type="text" placeholder="親タスク名を入力">
+        </div>
+
+        <div class="modal-section">
+          <label class="modal-label" for="modalSubtaskInput">
+            <span class="material-symbols-outlined">subdirectory_arrow_right</span>
+            子タスクを追加
+          </label>
+          <div class="row">
+            <input id="modalSubtaskInput" class="text-input" type="text" placeholder="子タスクを入力">
+            <button id="modalAddSubtaskBtn" class="icon-btn" title="子タスク追加" aria-label="子タスク追加">
+              <span class="material-symbols-outlined">playlist_add</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <div class="modal-label">
+            <span class="material-symbols-outlined">drag_indicator</span>
+            子タスク一覧
+          </div>
+          <div class="modal-subtask-list" id="modalSubtaskList"></div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="icon-btn" id="cancelParentEditBtn" title="キャンセル" aria-label="キャンセル">
+          <span class="material-symbols-outlined">close</span>
+          <span>キャンセル</span>
+        </button>
+        <button class="icon-btn" id="saveParentEditBtn" title="保存" aria-label="保存">
+          <span class="material-symbols-outlined">save</span>
+          <span>保存</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subtask Edit Modal -->
+  <div class="modal-overlay" id="subtaskModalOverlay" aria-hidden="true">
+    <div class="modal modal-compact" role="dialog" aria-modal="true" aria-labelledby="subtaskModalTitle">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="material-symbols-outlined">edit</span>
+          <div class="modal-title" id="subtaskModalTitle">子タスクを編集</div>
+        </div>
+        <button class="icon-btn modal-close-btn" id="closeSubtaskModalBtn" title="閉じる" aria-label="閉じる">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-section">
+          <label class="modal-label" for="subtaskEditInput">
+            <span class="material-symbols-outlined">title</span>
+            子タスク名
+          </label>
+          <input id="subtaskEditInput" class="text-input" type="text" placeholder="子タスク名を入力">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="icon-btn" id="cancelSubtaskEditBtn" title="キャンセル" aria-label="キャンセル">
+          <span class="material-symbols-outlined">close</span>
+          <span>キャンセル</span>
+        </button>
+        <button class="icon-btn" id="saveSubtaskEditBtn" title="保存" aria-label="保存">
+          <span class="material-symbols-outlined">save</span>
+          <span>保存</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modal-overlay" id="confirmModalOverlay" aria-hidden="true">
+    <div class="modal modal-confirm" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="material-symbols-outlined">warning</span>
+          <div class="modal-title" id="confirmModalTitle">確認</div>
+        </div>
+        <button class="icon-btn modal-close-btn" id="closeConfirmModalBtn" title="閉じる" aria-label="閉じる">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="confirm-message" id="confirmMessage">削除してもよろしいですか？</div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="icon-btn" id="cancelConfirmBtn" title="キャンセル" aria-label="キャンセル">
+          <span class="material-symbols-outlined">close</span>
+          <span>キャンセル</span>
+        </button>
+        <button class="icon-btn danger confirm-action-btn" id="confirmDeleteBtn" title="実行" aria-label="実行">
+          <span class="material-symbols-outlined" id="confirmActionIcon">delete_forever</span>
+          <span id="confirmActionLabel">削除する</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Focus Modal -->
+  <div class="focus-overlay" id="focusOverlay" aria-hidden="true">
+    <div class="focus-modal" role="dialog" aria-modal="true" aria-labelledby="focusTaskTitle">
+      <div class="focus-header">
+        <div class="focus-title-wrap">
+          <span class="material-symbols-outlined">center_focus_strong</span>
+          <div class="focus-title" id="focusTaskTitle">タスク名</div>
+        </div>
+      </div>
+
+      <div class="focus-body">
+        <div class="focus-timer" id="focusTimer">00:00:00</div>
+      </div>
+
+      <div class="focus-footer">
+        <button class="focus-action-btn complete" id="focusCompleteBtn" title="完了" aria-label="完了">
+          <span class="material-symbols-outlined">task_alt</span>
+        </button>
+
+        <button class="focus-action-btn pause" id="focusPauseBtn" title="一時停止 / 再開" aria-label="一時停止 / 再開">
+          <span class="material-symbols-outlined" id="focusPauseIcon">pause_circle</span>
+        </button>
+
+        <button class="focus-action-btn abort" id="focusAbortBtn" title="中断" aria-label="中断">
+          <span class="material-symbols-outlined">stop_circle</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="celebration-text" id="celebrationText">やるやん！</div>
+  <canvas class="confetti" id="confettiCanvas"></canvas>
+  <div
+    id="storageWarning"
+    class="card"
+    role="status"
+    aria-live="polite"
+    hidden
+  ></div>
+  <div id="toastLayer" class="toast-layer" aria-live="assertive" aria-atomic="true"></div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      /* ============================================
+         Storage Keys
+      ============================================ */
+      const TODOS_KEY = 'yatta-spa-todos-v8';
+      const SETTINGS_KEY = 'yatta-spa-settings-v8';
+      const SIDEBAR_KEY = 'yatta-spa-sidebar-collapsed-v3';
+      const STORAGE_WARNING_MESSAGE = 'ブラウザ保存に失敗したため、この端末では変更内容が保持されない場合があります。';
+      const MAX_TODO_TEXT_LENGTH = 120;
+      const MAX_SUBTASK_TEXT_LENGTH = 120;
+      const MAX_MESSAGE_TEXT_LENGTH = 80;
+
+      let _storageWarningEl = null;
+      let _storageWarningReason = '';
+      let _storageWarningSticky = false;
+
+      /* STORAGE_HELPERS_START */
+      function _safeStorageGet(storage, key, onError = null) {
+        try {
+          return storage.getItem(key);
+        } catch (error) {
+          onError?.('read', error, { key });
+          return null;
+        }
+      }
+
+      function _safeStorageSet(storage, key, value, onError = null) {
+        try {
+          storage.setItem(key, value);
+          return true;
+        } catch (error) {
+          onError?.('write', error, { key, value });
+          return false;
+        }
+      }
+
+      function _readJsonFromStorage({
+        storage,
+        key,
+        fallback,
+        validate = null,
+        onError = null
+      }) {
+        const raw = _safeStorageGet(storage, key, onError);
+        if (raw == null || raw === '') return fallback;
+
+        try {
+          const parsed = JSON.parse(raw);
+          if (validate && !validate(parsed)) {
+            onError?.('validate', new Error(`Validation failed for key: ${key}`), { key, raw });
+            return fallback;
+          }
+          return parsed;
+        } catch (error) {
+          onError?.('parse', error, { key, raw });
+          const backupKey = `${key}__corrupt__${Date.now()}`;
+          _safeStorageSet(storage, backupKey, raw, onError);
+          return fallback;
+        }
+      }
+
+      function _readBooleanFromStorage({
+        storage,
+        key,
+        fallback = false,
+        onError = null
+      }) {
+        const raw = _safeStorageGet(storage, key, onError);
+        if (raw == null) return fallback;
+        if (raw === 'true') return true;
+        if (raw === 'false') return false;
+        return fallback;
+      }
+
+      function _writeManyToStorage({
+        storage,
+        entries,
+        onError = null
+      }) {
+        for (const [key, value] of entries) {
+          if (!_safeStorageSet(storage, key, value, onError)) {
+            return false;
+          }
+        }
+        return true;
+      }
+      /* STORAGE_HELPERS_END */
+
+      function _reportStorageError(mode, key, error) {
+        _storageWarningReason = error?.message || String(error || 'unknown error');
+        console.warn(`[storage:${mode}] key=${key}`, error);
+      }
+
+      function _applyStorageWarningStyle(el) {
+        if (!el) return;
+        Object.assign(el.style, {
+          position: 'fixed',
+          right: '1rem',
+          bottom: '1rem',
+          maxWidth: 'min(30rem, calc(100vw - 2rem))',
+          padding: '0.7rem 0.85rem',
+          borderRadius: '0.75rem',
+          border: '1px solid var(--danger-border-soft)',
+          background: 'var(--danger-bg-soft)',
+          color: 'var(--text)',
+          fontSize: '0.88rem',
+          fontWeight: '700',
+          boxShadow: '0 0.35rem 0.9rem var(--shadow-strong)',
+          zIndex: '120'
+        });
+      }
+
+      function _getStorageWarningEl() {
+        if (_storageWarningEl && document.body.contains(_storageWarningEl)) return _storageWarningEl;
+        _storageWarningEl = document.getElementById('storageWarning');
+        if (_storageWarningEl) {
+          _applyStorageWarningStyle(_storageWarningEl);
+          return _storageWarningEl;
+        }
+
+        _storageWarningEl = document.createElement('div');
+        _storageWarningEl.id = 'storageWarning';
+        _storageWarningEl.className = 'card';
+        _storageWarningEl.setAttribute('role', 'status');
+        _storageWarningEl.setAttribute('aria-live', 'polite');
+        _storageWarningEl.hidden = true;
+        _applyStorageWarningStyle(_storageWarningEl);
+        document.body.appendChild(_storageWarningEl);
+        return _storageWarningEl;
+      }
+
+      function _setStorageWarning(visible) {
+        const warningEl = _getStorageWarningEl();
+        if (!warningEl) return;
+        if (!visible) {
+          warningEl.hidden = true;
+          warningEl.textContent = '';
+          _storageWarningReason = '';
+          _storageWarningSticky = false;
+          return;
+        }
+
+        const suffix = _storageWarningReason ? ` (${_storageWarningReason})` : '';
+        warningEl.textContent = `${STORAGE_WARNING_MESSAGE}${suffix}`;
+        warningEl.hidden = false;
+      }
+
+      function _readStoredJson(key, fallback, validate = null) {
+        return _readJsonFromStorage({
+          storage: localStorage,
+          key,
+          fallback,
+          validate,
+          onError: (mode, error, meta) => {
+            _reportStorageError(mode, meta?.key || key, error);
+            _storageWarningSticky = true;
+            _setStorageWarning(true);
+          }
+        });
+      }
+
+      function _readStoredBoolean(key, fallback = false) {
+        return _readBooleanFromStorage({
+          storage: localStorage,
+          key,
+          fallback,
+          onError: (mode, error, meta) => {
+            _reportStorageError(mode, meta?.key || key, error);
+            _storageWarningSticky = true;
+            _setStorageWarning(true);
+          }
+        });
+      }
+
+      function _saveStoredState(entries) {
+        const ok = _writeManyToStorage({
+          storage: localStorage,
+          entries,
+          onError: (mode, error, meta) => {
+            _reportStorageError(mode, meta?.key || 'unknown', error);
+            _setStorageWarning(true);
+          }
+        });
+
+        if (ok && !_storageWarningSticky) {
+          _setStorageWarning(false);
+        }
+        return ok;
+      }
+
+      /* ============================================
+         State
+      ============================================ */
+      const defaultMessages = ['やるやん！', 'すごい！', 'えらい！', 'ナイス！', 'かんぺき！', 'さすが！', 'グッジョブ！', 'いいね！', 'てんさい！'];
+
+      let todos = normalizeTodos(_readStoredJson(TODOS_KEY, [], Array.isArray));
+      let settings = loadSettings();
+      let audioCtx = null;
+      let previousAllDoneState = false;
+      let wordIndex = 0;
+      let isSidebarCollapsed = _readStoredBoolean(SIDEBAR_KEY, false);
+
+      const modalState = {
+        parentId: null,
+        subtaskParentId: null,
+        subtaskId: null
+      };
+
+      const confirmState = {
+        action: null,
+        payload: null
+      };
+
+      const messageEditorState = {
+        editIndex: null
+      };
+
+      const focusState = {
+        type: null, // 'parent' | 'subtask'
+        parentId: null,
+        subtaskId: null,
+        tickerId: null
+      };
+
+      let dragState = null;
+      let modalDragState = null;
+      let toastHideTimerId = null;
+
+      /* ============================================
+         DOM Helpers
+      ============================================ */
+      const qs = (sel, root = document) => root.querySelector(sel);
+      const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];
+      const $ = (selector) => qs(selector);
+      const $$ = (selector) => qsa(selector);
+
+      const todoInput = $('#todoInput');
+      const addBtn = $('#addBtn');
+      const todoList = $('#todoList');
+      const emptyState = $('#emptyState');
+      const allDoneCard = $('#allDoneCard');
+      const footerActions = $('#footerActions');
+      const progressMiniText = $('#progressMiniText');
+      const taskCountLabel = $('#taskCountLabel');
+
+      const statParents = $('#statParents');
+      const statChildren = $('#statChildren');
+      const statCompleted = $('#statCompleted');
+      const statRemaining = $('#statRemaining');
+      const statRate = $('#statRate');
+
+      const lightModeToggle = $('#lightModeToggle');
+      const soundToggle = $('#soundToggle');
+      const celebrationToggle = $('#celebrationToggle');
+
+      const messageInput = $('#messageInput');
+      const messageSaveBtn = $('#messageSaveBtn');
+      const messageSaveIcon = $('#messageSaveIcon');
+      const messageList = $('#messageList');
+
+      const celebrationText = $('#celebrationText');
+      const confettiCanvas = $('#confettiCanvas');
+      const toastLayer = $('#toastLayer');
+      const navButtons = $$('.nav-btn');
+
+      const sidebarCollapseBtn = $('#sidebarCollapseBtn');
+      const sidebarCollapseIcon = $('#sidebarCollapseIcon');
+
+      // Parent modal
+      const parentModalOverlay = $('#parentModalOverlay');
+      const closeParentModalBtn = $('#closeParentModalBtn');
+      const cancelParentEditBtn = $('#cancelParentEditBtn');
+      const saveParentEditBtn = $('#saveParentEditBtn');
+      const parentEditInput = $('#parentEditInput');
+      const modalSubtaskInput = $('#modalSubtaskInput');
+      const modalAddSubtaskBtn = $('#modalAddSubtaskBtn');
+      const modalSubtaskList = $('#modalSubtaskList');
+
+      // Subtask modal
+      const subtaskModalOverlay = $('#subtaskModalOverlay');
+      const closeSubtaskModalBtn = $('#closeSubtaskModalBtn');
+      const cancelSubtaskEditBtn = $('#cancelSubtaskEditBtn');
+      const saveSubtaskEditBtn = $('#saveSubtaskEditBtn');
+      const subtaskEditInput = $('#subtaskEditInput');
+
+      // Confirm modal
+      const confirmModalOverlay = $('#confirmModalOverlay');
+      const closeConfirmModalBtn = $('#closeConfirmModalBtn');
+      const cancelConfirmBtn = $('#cancelConfirmBtn');
+      const confirmDeleteBtn = $('#confirmDeleteBtn');
+      const confirmActionIcon = $('#confirmActionIcon');
+      const confirmActionLabel = $('#confirmActionLabel');
+      const confirmMessage = $('#confirmMessage');
+
+      // Focus modal
+      const focusOverlay = $('#focusOverlay');
+      const focusTaskTitle = $('#focusTaskTitle');
+      const focusTimer = $('#focusTimer');
+      const focusCompleteBtn = $('#focusCompleteBtn');
+      const focusPauseBtn = $('#focusPauseBtn');
+      const focusPauseIcon = $('#focusPauseIcon');
+      const focusAbortBtn = $('#focusAbortBtn');
+
+      /* ============================================
+         Utility
+      ============================================ */
+      function uid() {
+        return crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      }
+
+      function escapeHtml(str) {
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+      }
+
+      function showErrorToast(message) {
+        if (!toastLayer) return;
+        toastLayer.innerHTML = `
+          <div class="toast" role="alert">
+            <span class="material-symbols-outlined" aria-hidden="true">error</span>
+            <span>${escapeHtml(message)}</span>
+          </div>
+        `;
+
+        const toast = toastLayer.querySelector('.toast');
+        if (!toast) return;
+
+        requestAnimationFrame(() => {
+          toast.classList.add('show');
+        });
+
+        if (toastHideTimerId) {
+          clearTimeout(toastHideTimerId);
+        }
+        toastHideTimerId = window.setTimeout(() => {
+          toast.classList.remove('show');
+          window.setTimeout(() => {
+            if (toastLayer.contains(toast)) toastLayer.innerHTML = '';
+          }, 180);
+          toastHideTimerId = null;
+        }, 2200);
+      }
+
+      /* TEXT_NORMALIZATION_START */
+      function normalizeInputText(value, maxLength) {
+        const raw = String(value ?? '').trim();
+        if (!raw) return '';
+        if (!Number.isFinite(maxLength) || maxLength <= 0) return raw;
+        return raw.slice(0, maxLength);
+      }
+
+      function normalizeMessageList(list) {
+        if (!Array.isArray(list)) return [];
+        return list
+          .map((value) => normalizeInputText(value, MAX_MESSAGE_TEXT_LENGTH))
+          .filter(Boolean);
+      }
+      /* TEXT_NORMALIZATION_END */
+
+      function createFocusMeta(meta = {}) {
+        return {
+          focusState: meta.focusState || 'idle', // idle | running | paused
+          elapsedMs: Number(meta.elapsedMs) || 0,
+          startedAt: meta.focusState === 'running' && typeof meta.startedAt === 'number' ? meta.startedAt : null
+        };
+      }
+
+      function normalizeFocusMeta(meta = {}) {
+        const normalized = createFocusMeta(meta);
+        if (normalized.focusState === 'running') {
+          // リロード跨ぎで running のままだと不自然なので paused へ寄せる
+          normalized.focusState = 'paused';
+          normalized.startedAt = null;
+        }
+        return normalized;
+      }
+
+      function loadSettings() {
+        const saved = _readStoredJson(SETTINGS_KEY, {}, (value) => typeof value === 'object' && value !== null && !Array.isArray(value));
+        const normalizedMessages = normalizeMessageList(saved.messages);
+        const fallbackMessages = normalizeMessageList(defaultMessages);
+        const messages = normalizedMessages.length > 0 ? normalizedMessages : fallbackMessages;
+        const colorMode = saved.colorMode === 'dark' ? 'dark' : 'light';
+
+        return {
+          colorMode,
+          sound: typeof saved.sound === 'boolean' ? saved.sound : true,
+          celebration: typeof saved.celebration === 'boolean' ? saved.celebration : true,
+          messages
+        };
+      }
+
+      function save() {
+        return _saveStoredState([
+          [TODOS_KEY, JSON.stringify(todos)],
+          [SETTINGS_KEY, JSON.stringify(settings)],
+          [SIDEBAR_KEY, String(isSidebarCollapsed)]
+        ]);
+      }
+
+      function normalizeTodos(list) {
+        if (!Array.isArray(list)) return [];
+        return list.map(todo => ({
+          id: todo.id || uid(),
+          text: normalizeInputText(todo.text, MAX_TODO_TEXT_LENGTH),
+          done: !!todo.done,
+          focus: normalizeFocusMeta(todo.focus),
+          subtasks: Array.isArray(todo.subtasks)
+            ? todo.subtasks.map(sub => ({
+                id: sub.id || uid(),
+                text: normalizeInputText(sub.text, MAX_SUBTASK_TEXT_LENGTH),
+                done: !!sub.done,
+                focus: normalizeFocusMeta(sub.focus)
+              })).filter(sub => sub.text)
+            : []
+        })).filter(todo => todo.text);
+      }
+
+      function hasSubtasks(todo) {
+        return Array.isArray(todo.subtasks) && todo.subtasks.length > 0;
+      }
+
+      function isLeafParent(todo) {
+        return !hasSubtasks(todo);
+      }
+
+      function isRunnableParent(todo) {
+        return isLeafParent(todo);
+      }
+
+      function syncParentStatus(todo) {
+        if (!hasSubtasks(todo)) return todo.done;
+        todo.done = todo.subtasks.every(sub => sub.done);
+        return todo.done;
+      }
+
+      function syncAllParents() {
+        todos.forEach(syncParentStatus);
+      }
+
+      function getTodo(id) {
+        return todos.find(t => t.id === id);
+      }
+
+      function getSubtask(parentId, subId) {
+        const parent = getTodo(parentId);
+        if (!parent) return null;
+        return parent.subtasks.find(sub => sub.id === subId) || null;
+      }
+
+      function getTarget(type, parentId, subtaskId = null) {
+        if (type === 'parent') return getTodo(parentId);
+        if (type === 'subtask') return getSubtask(parentId, subtaskId);
+        return null;
+      }
+
+      function getMessages() {
+        return settings.messages.length > 0 ? settings.messages : defaultMessages;
+      }
+
+      function getElapsedMs(focusMeta) {
+        if (!focusMeta) return 0;
+        if (focusMeta.focusState === 'running' && typeof focusMeta.startedAt === 'number') {
+          return focusMeta.elapsedMs + (Date.now() - focusMeta.startedAt);
+        }
+        return focusMeta.elapsedMs;
+      }
+
+      function formatElapsed(ms) {
+        const totalSec = Math.max(0, Math.floor(ms / 1000));
+        const h = Math.floor(totalSec / 3600).toString().padStart(2, '0');
+        const m = Math.floor((totalSec % 3600) / 60).toString().padStart(2, '0');
+        const s = (totalSec % 60).toString().padStart(2, '0');
+        return `${h}:${m}:${s}`;
+      }
+
+      function getProgressStats() {
+        let total = 0;
+        let completed = 0;
+
+        todos.forEach(todo => {
+          if (hasSubtasks(todo)) {
+            total += todo.subtasks.length;
+            completed += todo.subtasks.filter(s => s.done).length;
+          } else {
+            total += 1;
+            completed += todo.done ? 1 : 0;
+          }
+        });
+
+        return {
+          total,
+          completed,
+          pct: total > 0 ? Math.round((completed / total) * 100) : 0
+        };
+      }
+
+      function getAnalysisStats() {
+        const parents = todos.length;
+        const children = todos.reduce((sum, todo) => sum + todo.subtasks.length, 0);
+
+        let totalItems = 0;
+        let completedItems = 0;
+
+        todos.forEach(todo => {
+          if (hasSubtasks(todo)) {
+            totalItems += todo.subtasks.length;
+            completedItems += todo.subtasks.filter(s => s.done).length;
+          } else {
+            totalItems += 1;
+            completedItems += todo.done ? 1 : 0;
+          }
+        });
+
+        return {
+          parents,
+          children,
+          completedItems,
+          remainingItems: Math.max(0, totalItems - completedItems),
+          rate: totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
+        };
+      }
+
+      function isAllDone() {
+        const s = getProgressStats();
+        return s.total > 0 && s.total === s.completed;
+      }
+
+      function removeDropClasses() {
+        document.querySelectorAll('.drop-before, .drop-after').forEach(el => {
+          el.classList.remove('drop-before', 'drop-after');
+        });
+      }
+
+      function removeModalDropClasses() {
+        document.querySelectorAll('.modal-subtask-row.drop-before, .modal-subtask-row.drop-after, .modal-subtask-list.drop-after').forEach(el => {
+          el.classList.remove('drop-before', 'drop-after');
+        });
+      }
+
+      function moveArrayItem(list, fromIndex, toIndex) {
+        if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) return list;
+        const copy = [...list];
+        const [item] = copy.splice(fromIndex, 1);
+        copy.splice(toIndex, 0, item);
+        return copy;
+      }
+
+      function applyColorMode() {
+        const nextColorMode = settings.colorMode === 'dark' ? 'dark' : 'light';
+        settings.colorMode = nextColorMode;
+        document.documentElement.style.colorScheme = nextColorMode;
+      }
+
+      function applySidebarState() {
+        document.body.classList.toggle('sidebar-collapsed', isSidebarCollapsed);
+        sidebarCollapseIcon.textContent = isSidebarCollapsed ? 'left_panel_open' : 'left_panel_close';
+        save();
+      }
+
+      /* ============================================
+         Router (SPA / Hash)
+      ============================================ */
+      const VALID_ROUTES = ['tasks', 'analysis', 'settings'];
+
+      function getRouteFromHash() {
+        const hash = location.hash.replace(/^#\/?/, '');
+        return VALID_ROUTES.includes(hash) ? hash : 'tasks';
+      }
+
+      function navigate(route) {
+        const target = VALID_ROUTES.includes(route) ? route : 'tasks';
+        if (location.hash !== `#/${target}`) {
+          location.hash = `#/${target}`;
+          return;
+        }
+        renderRoute(target);
+      }
+
+      function renderRoute(route) {
+        $$('.page').forEach(page => page.classList.remove('active'));
+        const page = $(`#page-${route}`);
+        if (page) page.classList.add('active');
+
+        navButtons.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.route === route);
+        });
+      }
+
+      window.addEventListener('hashchange', () => {
+        navigate(getRouteFromHash());
+      });
+
+      navButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (focusOverlay.classList.contains('show')) return;
+          navigate(btn.dataset.route);
+        });
+      });
+
+      /* ============================================
+         Audio
+      ============================================ */
+      function getAudioCtx() {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+      }
+
+      function playTone({
+        time,
+        freq,
+        dur = 0.18,
+        gain = 0.08,
+        type = 'triangle',
+        filterFreq = 3200,
+        q = 0.8,
+        attack = 0.008,
+        releaseTail = 0.02,
+        detune = 0
+      }) {
+        const ctx = getAudioCtx();
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, time);
+        osc.detune.setValueAtTime(detune, time);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(filterFreq, time);
+        filter.Q.setValueAtTime(q, time);
+
+        g.gain.setValueAtTime(0.0001, time);
+        g.gain.exponentialRampToValueAtTime(gain, time + attack);
+        g.gain.exponentialRampToValueAtTime(0.001, time + dur);
+
+        osc.connect(filter).connect(g).connect(ctx.destination);
+        osc.start(time);
+        osc.stop(time + dur + releaseTail);
+      }
+
+      function playLayeredTone({ time, freq, dur = 0.2, gain = 0.08 }) {
+        playTone({
+          time,
+          freq,
+          dur,
+          gain,
+          type: 'triangle',
+          filterFreq: 2800,
+          q: 1
+        });
+
+        playTone({
+          time,
+          freq: freq * 2,
+          dur: dur * 0.75,
+          gain: gain * 0.28,
+          type: 'sine',
+          filterFreq: 4200,
+          q: 0.6
+        });
+      }
+
+      function playSubtaskCompleteSound() {
+        if (!settings.sound) return;
+        try {
+          const ctx = getAudioCtx();
+          const now = ctx.currentTime + 0.005;
+
+          const notes = [
+            { freq: 523.25, t: 0.00, dur: 0.09, gain: 0.070 },
+            { freq: 659.25, t: 0.05, dur: 0.10, gain: 0.065 },
+            { freq: 783.99, t: 0.10, dur: 0.14, gain: 0.060 },
+          ];
+
+          notes.forEach(n => {
+            playLayeredTone({
+              time: now + n.t,
+              freq: n.freq,
+              dur: n.dur,
+              gain: n.gain
+            });
+          });
+
+          playTone({
+            time: now + 0.13,
+            freq: 1046.50,
+            dur: 0.12,
+            gain: 0.025,
+            type: 'sine',
+            filterFreq: 5000,
+            q: 0.4
+          });
+        } catch (e) {}
+      }
+
+      function playParentCompleteSound() {
+        if (!settings.sound) return;
+        try {
+          const ctx = getAudioCtx();
+          const now = ctx.currentTime + 0.005;
+
+          playTone({
+            time: now,
+            freq: 196.00,
+            dur: 0.20,
+            gain: 0.050,
+            type: 'triangle',
+            filterFreq: 1800,
+            q: 1.2
+          });
+
+          const notes = [
+            { freq: 392.00, t: 0.00, dur: 0.12, gain: 0.070 },
+            { freq: 493.88, t: 0.06, dur: 0.13, gain: 0.068 },
+            { freq: 587.33, t: 0.12, dur: 0.15, gain: 0.065 },
+            { freq: 783.99, t: 0.19, dur: 0.24, gain: 0.072 },
+          ];
+
+          notes.forEach(n => {
+            playLayeredTone({
+              time: now + n.t,
+              freq: n.freq,
+              dur: n.dur,
+              gain: n.gain
+            });
+          });
+
+          playTone({
+            time: now + 0.20,
+            freq: 1174.66,
+            dur: 0.22,
+            gain: 0.040,
+            type: 'sine',
+            filterFreq: 5200,
+            q: 0.5
+          });
+
+          playTone({
+            time: now + 0.24,
+            freq: 1567.98,
+            dur: 0.26,
+            gain: 0.032,
+            type: 'sine',
+            filterFreq: 5400,
+            q: 0.5
+          });
+        } catch (e) {}
+      }
+
+      function playAllClearSound() {
+        if (!settings.sound) return;
+        try {
+          const ctx = getAudioCtx();
+          const now = ctx.currentTime + 0.01;
+
+          playTone({
+            time: now,
+            freq: 261.63,
+            dur: 0.26,
+            gain: 0.050,
+            type: 'triangle',
+            filterFreq: 1900,
+            q: 1.1
+          });
+
+          const notes = [
+            { freq: 523.25, t: 0.00, dur: 0.14, gain: 0.070 },
+            { freq: 659.25, t: 0.06, dur: 0.16, gain: 0.068 },
+            { freq: 783.99, t: 0.12, dur: 0.18, gain: 0.068 },
+            { freq: 1046.50, t: 0.20, dur: 0.34, gain: 0.075 },
+          ];
+
+          notes.forEach(n => {
+            playLayeredTone({
+              time: now + n.t,
+              freq: n.freq,
+              dur: n.dur,
+              gain: n.gain
+            });
+          });
+
+          playTone({
+            time: now + 0.22,
+            freq: 1318.51,
+            dur: 0.26,
+            gain: 0.032,
+            type: 'sine',
+            filterFreq: 5200,
+            q: 0.4
+          });
+
+          playTone({
+            time: now + 0.28,
+            freq: 1567.98,
+            dur: 0.32,
+            gain: 0.028,
+            type: 'sine',
+            filterFreq: 5600,
+            q: 0.4
+          });
+
+          playTone({
+            time: now + 0.34,
+            freq: 2093.00,
+            dur: 0.34,
+            gain: 0.020,
+            type: 'sine',
+            filterFreq: 6200,
+            q: 0.35
+          });
+        } catch (e) {}
+      }
+
+      function playAddSound() {
+        if (!settings.sound) return;
+        try {
+          const ctx = getAudioCtx();
+          const now = ctx.currentTime;
+
+          playTone({
+            time: now,
+            freq: 523.25,
+            dur: 0.08,
+            gain: 0.05,
+            type: 'triangle',
+            filterFreq: 2600
+          });
+
+          playTone({
+            time: now + 0.04,
+            freq: 659.25,
+            dur: 0.10,
+            gain: 0.04,
+            type: 'triangle',
+            filterFreq: 2800
+          });
+        } catch (e) {}
+      }
+
+      function playDeleteSound() {
+        if (!settings.sound) return;
+        try {
+          const ctx = getAudioCtx();
+          const now = ctx.currentTime;
+
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          const filter = ctx.createBiquadFilter();
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(380, now);
+          osc.frequency.exponentialRampToValueAtTime(180, now + 0.14);
+
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(1800, now);
+
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+
+          osc.connect(filter).connect(gain).connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.14);
+        } catch (e) {}
+      }
+
+      /* ============================================
+         Confetti / Celebration
+      ============================================ */
+      const ctx2d = confettiCanvas?.getContext?.('2d') || null;
+      const CAN_USE_CONFETTI = !!ctx2d;
+      let confettiPieces = [];
+      let confettiAnimating = false;
+
+      function resizeCanvas() {
+        if (!CAN_USE_CONFETTI) return;
+        confettiCanvas.width = window.innerWidth;
+        confettiCanvas.height = window.innerHeight;
+      }
+
+      if (!CAN_USE_CONFETTI) {
+        confettiCanvas.hidden = true;
+      }
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+
+      function launchConfetti(x, y, count = 86) {
+        if (!settings.celebration || !CAN_USE_CONFETTI) return;
+
+        const colors = ['#31b86a', '#f2b34d', '#ef6e58', '#6c86ff', '#b06fff', '#ff5fb0', '#fff176'];
+
+        for (let i = 0; i < count; i++) {
+          const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.75;
+          const speed = 4 + Math.random() * 9.5;
+          confettiPieces.push({
+            x,
+            y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 3.5,
+            size: 5 + Math.random() * 8,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            rotation: Math.random() * 360,
+            rotSpeed: (Math.random() - 0.5) * 18,
+            life: 1,
+            decay: 0.008 + Math.random() * 0.009,
+            shape: Math.random() > 0.5 ? 'rect' : 'circle'
+          });
+        }
+
+        if (!confettiAnimating) {
+          confettiAnimating = true;
+          animateConfetti();
+        }
+      }
+
+      function animateConfetti() {
+        if (!CAN_USE_CONFETTI) {
+          confettiPieces = [];
+          confettiAnimating = false;
+          return;
+        }
+        ctx2d.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+        confettiPieces.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.17;
+          p.vx *= 0.992;
+          p.rotation += p.rotSpeed;
+          p.life -= p.decay;
+
+          if (p.life > 0) {
+            ctx2d.save();
+            ctx2d.translate(p.x, p.y);
+            ctx2d.rotate(p.rotation * Math.PI / 180);
+            ctx2d.globalAlpha = p.life;
+            ctx2d.fillStyle = p.color;
+
+            if (p.shape === 'rect') {
+              ctx2d.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+            } else {
+              ctx2d.beginPath();
+              ctx2d.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+              ctx2d.fill();
+            }
+            ctx2d.restore();
+          }
+        });
+
+        confettiPieces = confettiPieces.filter(p => p.life > 0);
+
+        if (confettiPieces.length > 0) {
+          requestAnimationFrame(animateConfetti);
+        } else {
+          confettiAnimating = false;
+          ctx2d.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        }
+      }
+
+      function showCelebration(customText = '') {
+        if (!settings.celebration) return;
+        const words = getMessages();
+        celebrationText.textContent = customText || words[wordIndex++ % words.length];
+        celebrationText.classList.remove('show');
+        void celebrationText.offsetWidth;
+        celebrationText.classList.add('show');
+        setTimeout(() => celebrationText.classList.remove('show'), 1350);
+      }
+
+      function celebrateElement(el, options = {}) {
+        const { soundType = 'subtask' } = options;
+
+        if (el?.classList?.contains('todo-item')) {
+          el.classList.add('celebrating');
+          setTimeout(() => el.classList.remove('celebrating'), 820);
+        }
+
+        if (soundType === 'subtask') {
+          playSubtaskCompleteSound();
+        } else if (soundType === 'parent') {
+          playParentCompleteSound();
+        }
+
+        if (settings.celebration) {
+          const rect = el?.getBoundingClientRect?.();
+          if (rect) {
+            launchConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2, 100);
+          } else {
+            launchConfetti(window.innerWidth / 2, window.innerHeight / 2, 100);
+          }
+          showCelebration();
+        }
+      }
+
+      /* ============================================
+         Confirm Modal
+      ============================================ */
+      function openConfirmModal(message, action, payload = null) {
+        if (focusOverlay.classList.contains('show')) return;
+        confirmState.action = action;
+        confirmState.payload = payload;
+        confirmMessage.textContent = message;
+
+        const actionUiMap = {
+          'delete-parent': { icon: 'delete_forever', label: '削除する' },
+          'delete-subtask': { icon: 'delete_forever', label: '削除する' },
+          'delete-subtask-modal': { icon: 'delete_forever', label: '削除する' },
+          'clear-completed': { icon: 'done_all', label: '完了済みを削除' },
+          'clear-all': { icon: 'delete_sweep', label: 'すべて削除' }
+        };
+        const ui = actionUiMap[action] || { icon: 'check_circle', label: '実行する' };
+        if (confirmActionIcon) confirmActionIcon.textContent = ui.icon;
+        if (confirmActionLabel) confirmActionLabel.textContent = ui.label;
+        confirmDeleteBtn.title = ui.label;
+        confirmDeleteBtn.setAttribute('aria-label', ui.label);
+
+        confirmModalOverlay.classList.add('show');
+        confirmModalOverlay.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeConfirmModal() {
+        confirmState.action = null;
+        confirmState.payload = null;
+        confirmModalOverlay.classList.remove('show');
+        confirmModalOverlay.setAttribute('aria-hidden', 'true');
+      }
+
+      function executeConfirmedAction() {
+        if (!confirmState.action) return;
+
+        const { action, payload } = confirmState;
+        closeConfirmModal();
+
+        switch (action) {
+          case 'delete-parent':
+            performDeleteParent(payload.parentId, payload.buttonEl);
+            break;
+          case 'delete-subtask':
+            performDeleteSubtask(payload.parentId, payload.subId, payload.buttonEl);
+            break;
+          case 'delete-subtask-modal':
+            performDeleteSubtask(payload.parentId, payload.subId);
+            break;
+          case 'clear-completed':
+            performClearCompleted();
+            break;
+          case 'clear-all':
+            performClearAll();
+            break;
+          default:
+            break;
+        }
+      }
+
+      /* ============================================
+         Message Manager
+      ============================================ */
+      function renderMessages() {
+        const messages = getMessages();
+        messageList.innerHTML = '';
+
+        messages.forEach((msg, index) => {
+          const item = document.createElement('div');
+          item.className = 'message-item';
+          item.innerHTML = `
+            <div class="message-text">${escapeHtml(msg)}</div>
+            <div class="message-actions">
+              <button class="message-chip-btn edit-message-btn" data-index="${index}" title="メッセージ編集" aria-label="メッセージ編集">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
+              <button class="message-chip-btn danger delete-message-btn" data-index="${index}" title="メッセージ削除" aria-label="メッセージ削除">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+          `;
+          messageList.appendChild(item);
+        });
+
+        updateMessageEditorMode();
+      }
+
+      function updateMessageEditorMode() {
+        if (messageEditorState.editIndex === null) {
+          messageSaveIcon.textContent = 'add_comment';
+          messageSaveBtn.title = 'メッセージ追加';
+          messageSaveBtn.setAttribute('aria-label', 'メッセージ追加');
+          messageInput.placeholder = 'メッセージを追加';
+        } else {
+          messageSaveIcon.textContent = 'save';
+          messageSaveBtn.title = 'メッセージ保存';
+          messageSaveBtn.setAttribute('aria-label', 'メッセージ保存');
+          messageInput.placeholder = 'メッセージを編集';
+        }
+      }
+
+      function saveMessage() {
+        const value = normalizeInputText(messageInput.value, MAX_MESSAGE_TEXT_LENGTH);
+        if (!value) return;
+
+        if (messageEditorState.editIndex === null) {
+          settings.messages.push(value);
+        } else {
+          settings.messages[messageEditorState.editIndex] = value;
+        }
+
+        messageInput.value = '';
+        messageEditorState.editIndex = null;
+        save();
+        renderMessages();
+      }
+
+      function editMessage(index) {
+        const messages = getMessages();
+        if (messages[index] == null) return;
+        messageEditorState.editIndex = index;
+        messageInput.value = messages[index];
+        updateMessageEditorMode();
+        messageInput.focus();
+      }
+
+      function deleteMessage(index) {
+        if (settings.messages.length <= 1) return;
+        settings.messages.splice(index, 1);
+        if (messageEditorState.editIndex === index) {
+          messageEditorState.editIndex = null;
+          messageInput.value = '';
+        }
+        save();
+        renderMessages();
+      }
+
+      /* ============================================
+         Parent / Subtask Edit Modals
+      ============================================ */
+      function openParentModal(parentId) {
+        if (focusOverlay.classList.contains('show')) return;
+        const parent = getTodo(parentId);
+        if (!parent) return;
+
+        modalState.parentId = parentId;
+        parentEditInput.value = parent.text;
+        modalSubtaskInput.value = '';
+        renderParentModalSubtasks(parent);
+        parentModalOverlay.classList.add('show');
+        parentModalOverlay.setAttribute('aria-hidden', 'false');
+        setTimeout(() => parentEditInput.focus(), 0);
+      }
+
+      function closeParentModal() {
+        modalState.parentId = null;
+        parentModalOverlay.classList.remove('show');
+        parentModalOverlay.setAttribute('aria-hidden', 'true');
+        removeModalDropClasses();
+        modalDragState = null;
+      }
+
+      function renderParentModalSubtasks(parent) {
+        if (!parent || parent.subtasks.length === 0) {
+          modalSubtaskList.className = 'modal-subtask-list empty-dropzone';
+          modalSubtaskList.innerHTML = '';
+          return;
+        }
+
+        modalSubtaskList.className = 'modal-subtask-list';
+        modalSubtaskList.innerHTML = parent.subtasks.map(sub => `
+          <div class="modal-subtask-row" data-parent-id="${parent.id}" data-sub-id="${sub.id}">
+            <button
+              class="icon-btn drag-handle modal-subtask-drag-handle"
+              type="button"
+              title="ドラッグで並べ替え"
+              aria-label="ドラッグで並べ替え"
+              draggable="true"
+            >
+              <span class="material-symbols-outlined">drag_indicator</span>
+            </button>
+
+            <div class="left">
+              <span class="material-symbols-outlined" style="font-size:16px; color: var(--muted);">
+                ${sub.done ? 'task_alt' : 'radio_button_unchecked'}
+              </span>
+              <div class="name">${escapeHtml(sub.text)}</div>
+            </div>
+
+            <div class="modal-row-actions">
+              <button
+                class="mini-btn modal-edit-subtask-btn"
+                data-parent-id="${parent.id}"
+                data-sub-id="${sub.id}"
+                type="button"
+                title="編集"
+                aria-label="編集"
+              >
+                <span class="material-symbols-outlined">edit</span>
+              </button>
+              <button
+                class="mini-btn danger modal-delete-subtask-btn"
+                data-parent-id="${parent.id}"
+                data-sub-id="${sub.id}"
+                type="button"
+                title="削除"
+                aria-label="削除"
+              >
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function saveParentEdit() {
+        const parent = getTodo(modalState.parentId);
+        if (!parent) return;
+
+        const value = normalizeInputText(parentEditInput.value, MAX_TODO_TEXT_LENGTH);
+        if (!value) {
+          parentEditInput.focus();
+          return;
+        }
+
+        parent.text = value;
+        save();
+        render();
+        closeParentModal();
+      }
+
+      function addSubtaskFromModal() {
+        const parent = getTodo(modalState.parentId);
+        if (!parent) return;
+
+        const value = normalizeInputText(modalSubtaskInput.value, MAX_SUBTASK_TEXT_LENGTH);
+        if (!value) {
+          showErrorToast('子タスク名を入力してください');
+          modalSubtaskInput.focus();
+          return;
+        }
+
+        parent.subtasks.push({
+          id: uid(),
+          text: value,
+          done: false,
+          focus: createFocusMeta()
+        });
+
+        syncParentStatus(parent);
+        modalSubtaskInput.value = '';
+        playAddSound();
+        renderParentModalSubtasks(parent);
+        save();
+        render();
+        modalSubtaskInput.focus();
+      }
+
+      function openSubtaskModal(parentId, subId) {
+        if (focusOverlay.classList.contains('show')) return;
+        const sub = getSubtask(parentId, subId);
+        if (!sub) return;
+
+        modalState.subtaskParentId = parentId;
+        modalState.subtaskId = subId;
+        subtaskEditInput.value = sub.text;
+        subtaskModalOverlay.classList.add('show');
+        subtaskModalOverlay.setAttribute('aria-hidden', 'false');
+        setTimeout(() => subtaskEditInput.focus(), 0);
+      }
+
+      function closeSubtaskModal() {
+        modalState.subtaskParentId = null;
+        modalState.subtaskId = null;
+        subtaskModalOverlay.classList.remove('show');
+        subtaskModalOverlay.setAttribute('aria-hidden', 'true');
+      }
+
+      function saveSubtaskEdit() {
+        const sub = getSubtask(modalState.subtaskParentId, modalState.subtaskId);
+        if (!sub) return;
+
+        const value = normalizeInputText(subtaskEditInput.value, MAX_SUBTASK_TEXT_LENGTH);
+        if (!value) {
+          subtaskEditInput.focus();
+          return;
+        }
+
+        sub.text = value;
+        save();
+        render();
+        if (modalState.parentId === modalState.subtaskParentId) {
+          const parent = getTodo(modalState.parentId);
+          if (parent) renderParentModalSubtasks(parent);
+        }
+        closeSubtaskModal();
+      }
+
+      /* ============================================
+         Focus Modal / Timer
+      ============================================ */
+      function clearRunningAcrossAllTargets() {
+        todos.forEach(todo => {
+          if (todo.focus.focusState === 'running') {
+            todo.focus.elapsedMs = getElapsedMs(todo.focus);
+            todo.focus.focusState = 'paused';
+            todo.focus.startedAt = null;
+          }
+          todo.subtasks.forEach(sub => {
+            if (sub.focus.focusState === 'running') {
+              sub.focus.elapsedMs = getElapsedMs(sub.focus);
+              sub.focus.focusState = 'paused';
+              sub.focus.startedAt = null;
+            }
+          });
+        });
+      }
+
+      function canOpenFocusForParent(todo) {
+        return !!todo && isRunnableParent(todo);
+      }
+
+      function canOpenFocusForSubtask(sub) {
+        return !!sub;
+      }
+
+      function openFocusModal(type, parentId, subtaskId = null) {
+        if (confirmModalOverlay.classList.contains('show')) return;
+        if (parentModalOverlay.classList.contains('show')) return;
+        if (subtaskModalOverlay.classList.contains('show')) return;
+
+        const target = getTarget(type, parentId, subtaskId);
+        if (!target) return;
+
+        if (type === 'parent' && !canOpenFocusForParent(target)) return;
+        if (type === 'subtask' && !canOpenFocusForSubtask(target)) return;
+        if (target.done) return;
+
+        clearRunningAcrossAllTargets();
+
+        focusState.type = type;
+        focusState.parentId = parentId;
+        focusState.subtaskId = subtaskId;
+
+        target.focus.focusState = 'running';
+        target.focus.startedAt = Date.now();
+
+        focusTaskTitle.textContent = target.text;
+        syncFocusPauseButton();
+        updateFocusTimer();
+
+        focusOverlay.classList.add('show');
+        focusOverlay.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('focus-open');
+
+        if (focusState.tickerId) clearInterval(focusState.tickerId);
+        focusState.tickerId = setInterval(updateFocusTimer, 200);
+
+        save();
+        render();
+      }
+
+      function closeFocusModal() {
+        focusOverlay.classList.remove('show');
+        focusOverlay.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('focus-open');
+        if (focusState.tickerId) {
+          clearInterval(focusState.tickerId);
+          focusState.tickerId = null;
+        }
+        focusState.type = null;
+        focusState.parentId = null;
+        focusState.subtaskId = null;
+      }
+
+      function getActiveFocusTarget() {
+        if (!focusState.type) return null;
+        return getTarget(focusState.type, focusState.parentId, focusState.subtaskId);
+      }
+
+      function updateFocusTimer() {
+        const target = getActiveFocusTarget();
+        if (!target) return;
+        focusTimer.textContent = formatElapsed(getElapsedMs(target.focus));
+      }
+
+      function syncFocusPauseButton() {
+        const target = getActiveFocusTarget();
+        if (!target) return;
+
+        if (target.focus.focusState === 'paused') {
+          focusPauseIcon.textContent = 'play_circle';
+          focusPauseBtn.title = '再開';
+          focusPauseBtn.setAttribute('aria-label', '再開');
+        } else {
+          focusPauseIcon.textContent = 'pause_circle';
+          focusPauseBtn.title = '一時停止';
+          focusPauseBtn.setAttribute('aria-label', '一時停止');
+        }
+      }
+
+      function pauseOrResumeFocus() {
+        const target = getActiveFocusTarget();
+        if (!target) return;
+
+        if (target.focus.focusState === 'running') {
+          target.focus.elapsedMs = getElapsedMs(target.focus);
+          target.focus.focusState = 'paused';
+          target.focus.startedAt = null;
+        } else if (target.focus.focusState === 'paused') {
+          clearRunningAcrossAllTargets();
+          target.focus.focusState = 'running';
+          target.focus.startedAt = Date.now();
+        }
+
+        syncFocusPauseButton();
+        updateFocusTimer();
+        save();
+        render();
+      }
+
+      function abortFocus() {
+        const target = getActiveFocusTarget();
+        if (!target) return;
+
+        target.focus.focusState = 'idle';
+        target.focus.elapsedMs = 0;
+        target.focus.startedAt = null;
+
+        save();
+        render();
+        closeFocusModal();
+      }
+
+      function completeFocus() {
+        const target = getActiveFocusTarget();
+        if (!target) return;
+
+        const elapsed = getElapsedMs(target.focus);
+        target.focus.elapsedMs = elapsed;
+        target.focus.focusState = 'idle';
+        target.focus.startedAt = null;
+        target.done = true;
+
+        if (focusState.type === 'subtask') {
+          const parent = getTodo(focusState.parentId);
+          const wasParentDone = parent.done;
+          syncParentStatus(parent);
+          save();
+
+          const subEl = document.querySelector(`.subtask-item[data-parent-id="${focusState.parentId}"][data-sub-id="${focusState.subtaskId}"]`);
+          celebrateElement(subEl, { soundType: 'subtask' });
+
+          if (!wasParentDone && parent.done) {
+            setTimeout(() => {
+              const parentEl = document.querySelector(`.todo-item[data-id="${focusState.parentId}"]`);
+              celebrateElement(parentEl, { soundType: 'parent' });
+              render();
+            }, 220);
+          } else {
+            render();
+          }
+        } else {
+          const parentEl = document.querySelector(`.todo-item[data-id="${focusState.parentId}"]`);
+          celebrateElement(parentEl, { soundType: 'parent' });
+          save();
+          render();
+        }
+
+        closeFocusModal();
+      }
+
+      function undoCompleted(type, parentId, subId = null) {
+        if (type === 'parent') {
+          const parent = getTodo(parentId);
+          if (!parent || hasSubtasks(parent)) return;
+          parent.done = false;
+          parent.focus.focusState = 'idle';
+          parent.focus.startedAt = null;
+          save();
+          render();
+          return;
+        }
+
+        if (type === 'subtask') {
+          const parent = getTodo(parentId);
+          const sub = getSubtask(parentId, subId);
+          if (!parent || !sub) return;
+
+          sub.done = false;
+          sub.focus.focusState = 'idle';
+          sub.focus.startedAt = null;
+          syncParentStatus(parent);
+          save();
+          render();
+        }
+      }
+
+      /* ============================================
+         Drag & Drop
+      ============================================ */
+      function getDropPosition(targetEl, clientY) {
+        const rect = targetEl.getBoundingClientRect();
+        return clientY < rect.top + rect.height / 2 ? 'before' : 'after';
+      }
+
+      function reorderParents(dragId, targetId, position) {
+        if (!dragId || !targetId || dragId === targetId) return;
+        const fromIndex = todos.findIndex(todo => todo.id === dragId);
+        const targetIndex = todos.findIndex(todo => todo.id === targetId);
+        if (fromIndex < 0 || targetIndex < 0) return;
+
+        let toIndex = targetIndex;
+        if (position === 'after') {
+          toIndex = targetIndex + (fromIndex < targetIndex ? 0 : 1);
+        } else {
+          toIndex = targetIndex - (fromIndex < targetIndex ? 1 : 0);
+        }
+        todos = moveArrayItem(todos, fromIndex, toIndex);
+      }
+
+      function moveSubtask(dragParentId, dragSubId, targetParentId, targetSubId = null, position = 'after') {
+        const fromParent = getTodo(dragParentId);
+        const toParent = getTodo(targetParentId);
+        if (!fromParent || !toParent) return;
+
+        const fromIndex = fromParent.subtasks.findIndex(sub => sub.id === dragSubId);
+        if (fromIndex < 0) return;
+
+        const [movingSubtask] = fromParent.subtasks.splice(fromIndex, 1);
+
+        let insertIndex = toParent.subtasks.length;
+
+        if (targetSubId) {
+          let targetIndex = toParent.subtasks.findIndex(sub => sub.id === targetSubId);
+          if (targetIndex < 0) {
+            targetIndex = toParent.subtasks.length;
+          }
+          insertIndex = position === 'before' ? targetIndex : targetIndex + 1;
+        }
+
+        if (fromParent === toParent && fromIndex < insertIndex) {
+          insertIndex -= 1;
+        }
+
+        toParent.subtasks.splice(insertIndex, 0, movingSubtask);
+
+        syncParentStatus(fromParent);
+        syncParentStatus(toParent);
+      }
+
+      function reorderSubtasksInModal(parentId, dragSubId, targetSubId, position) {
+        const parent = getTodo(parentId);
+        if (!parent) return;
+
+        const fromIndex = parent.subtasks.findIndex(sub => sub.id === dragSubId);
+        const targetIndex = parent.subtasks.findIndex(sub => sub.id === targetSubId);
+        if (fromIndex < 0 || targetIndex < 0 || dragSubId === targetSubId) return;
+
+        let toIndex = targetIndex;
+        if (position === 'after') {
+          toIndex = targetIndex + (fromIndex < targetIndex ? 0 : 1);
+        } else {
+          toIndex = targetIndex - (fromIndex < targetIndex ? 1 : 0);
+        }
+
+        parent.subtasks = moveArrayItem(parent.subtasks, fromIndex, toIndex);
+        syncParentStatus(parent);
+      }
+
+      function clearDragState() {
+        removeDropClasses();
+        document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+        dragState = null;
+      }
+
+      function clearModalDragState() {
+        removeModalDropClasses();
+        document.querySelectorAll('.modal-subtask-row.dragging').forEach(el => el.classList.remove('dragging'));
+        modalDragState = null;
+      }
+
+      /* ============================================
+         Render
+      ============================================ */
+      function render() {
+        syncAllParents();
+        applyColorMode();
+        save();
+
+        const currentAllDone = isAllDone();
+
+        renderTasks();
+        renderAnalysis();
+        renderSettings();
+        renderRoute(getRouteFromHash());
+        applySidebarState();
+
+        if (modalState.parentId) {
+          const parent = getTodo(modalState.parentId);
+          if (parent) {
+            renderParentModalSubtasks(parent);
+          }
+        }
+
+        if (focusOverlay.classList.contains('show')) {
+          const target = getActiveFocusTarget();
+          if (target) {
+            focusTaskTitle.textContent = target.text;
+            syncFocusPauseButton();
+            updateFocusTimer();
+          }
+        }
+
+        if (currentAllDone && !previousAllDoneState) {
+          setTimeout(() => {
+            if (settings.celebration) {
+              showCelebration('全部おわった！');
+              launchConfetti(window.innerWidth / 2, window.innerHeight * 0.32, 140);
+            }
+            playAllClearSound();
+          }, 260);
+        }
+
+        previousAllDoneState = currentAllDone;
+      }
+
+      function getFocusIconForMeta(meta, done) {
+        if (done) return 'task_alt';
+        if (!meta) return 'play_circle';
+        if (meta.focusState === 'running') return 'pause_circle';
+        return 'play_circle';
+      }
+
+      function renderTasks() {
+        todoList.innerHTML = '';
+
+        const progress = getProgressStats();
+        const parentCount = todos.length;
+
+        progressMiniText.textContent = `達成率 ${progress.pct}%`;
+        taskCountLabel.textContent = `${parentCount}件`;
+
+        emptyState.style.display = todos.length === 0 ? '' : 'none';
+        allDoneCard.style.display = isAllDone() ? '' : 'none';
+        footerActions.style.display = todos.length > 0 ? '' : 'none';
+
+        todos.forEach(todo => {
+          const li = document.createElement('li');
+          li.className = `todo-item ${todo.done ? 'done' : ''}`;
+          li.dataset.id = todo.id;
+
+          const doneChildren = todo.subtasks.filter(s => s.done).length;
+          const runnableParent = isRunnableParent(todo);
+
+          const leftControl = runnableParent
+            ? todo.done
+              ? `
+              <button
+                class="focus-btn done undo-parent-btn"
+                data-id="${todo.id}"
+                type="button"
+                title="完了を取り消す"
+                aria-label="完了を取り消す"
+              >
+                <span class="material-symbols-outlined">undo</span>
+              </button>
+            `
+              : `
+              <button
+                class="focus-btn playable open-focus-parent-btn"
+                data-id="${todo.id}"
+                type="button"
+                title="集中モード"
+                aria-label="集中モード"
+              >
+                <span class="material-symbols-outlined">${getFocusIconForMeta(todo.focus, false)}</span>
+              </button>
+            `
+            : `<div class="left-slot"></div>`;
+
+          li.innerHTML = `
+            <button
+              class="icon-btn drag-handle parent-drag-handle"
+              type="button"
+              title="ドラッグで並べ替え"
+              aria-label="ドラッグで並べ替え"
+              draggable="true"
+            >
+              <span class="material-symbols-outlined">drag_indicator</span>
+            </button>
+
+            <div class="todo-main">
+              ${leftControl}
+
+              <div class="todo-meta">
+                <div class="todo-title">${escapeHtml(todo.text)}</div>
+                ${!runnableParent ? `<div><span class="badge">${doneChildren}/${todo.subtasks.length}</span></div>` : ''}
+              </div>
+
+              <div class="todo-tools">
+                <button class="mini-btn edit-parent-btn" data-id="${todo.id}" type="button" title="編集" aria-label="編集">
+                  <span class="material-symbols-outlined">edit_note</span>
+                </button>
+                <button class="mini-btn danger delete-parent-btn" data-id="${todo.id}" type="button" title="削除" aria-label="削除">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </div>
+            </div>
+
+            ${todo.subtasks.length > 0 ? `
+              <div class="subtask-wrap">
+                <ul class="subtask-list" data-parent-id="${todo.id}">
+                  ${todo.subtasks.map(sub => `
+                    <li class="subtask-item ${sub.done ? 'done' : ''}" data-parent-id="${todo.id}" data-sub-id="${sub.id}">
+                      <button
+                        class="icon-btn drag-handle subtask-drag-handle"
+                        type="button"
+                        title="ドラッグで移動"
+                        aria-label="ドラッグで移動"
+                        draggable="true"
+                      >
+                        <span class="material-symbols-outlined">drag_indicator</span>
+                      </button>
+
+                      ${sub.done
+                        ? `
+                        <button
+                          class="focus-btn done undo-subtask-btn"
+                          data-parent-id="${todo.id}"
+                          data-sub-id="${sub.id}"
+                          type="button"
+                          title="完了を取り消す"
+                          aria-label="完了を取り消す"
+                        >
+                          <span class="material-symbols-outlined">undo</span>
+                        </button>
+                      `
+                        : `
+                        <button
+                          class="focus-btn playable open-focus-subtask-btn"
+                          data-parent-id="${todo.id}"
+                          data-sub-id="${sub.id}"
+                          type="button"
+                          title="集中モード"
+                          aria-label="集中モード"
+                        >
+                          <span class="material-symbols-outlined">${getFocusIconForMeta(sub.focus, false)}</span>
+                        </button>
+                      `
+                      }
+
+                      <div class="text">${escapeHtml(sub.text)}</div>
+
+                      <div class="subtask-actions">
+                        <button class="mini-btn edit-subtask-btn" data-parent-id="${todo.id}" data-sub-id="${sub.id}" type="button" title="編集" aria-label="編集">
+                          <span class="material-symbols-outlined">edit</span>
+                        </button>
+                        <button class="mini-btn danger delete-subtask-btn" data-parent-id="${todo.id}" data-sub-id="${sub.id}" type="button" title="削除" aria-label="削除">
+                          <span class="material-symbols-outlined">delete</span>
+                        </button>
+                      </div>
+                    </li>
+                  `).join('')}
+                </ul>
+              </div>
+            ` : ''}
+          `;
+
+          todoList.appendChild(li);
+        });
+      }
+
+      function renderAnalysis() {
+        const stats = getAnalysisStats();
+        statParents.textContent = stats.parents;
+        statChildren.textContent = stats.children;
+        statCompleted.textContent = stats.completedItems;
+        statRemaining.textContent = stats.remainingItems;
+        statRate.textContent = `${stats.rate}%`;
+      }
+
+      function renderSettings() {
+        lightModeToggle.checked = settings.colorMode !== 'dark';
+        soundToggle.checked = !!settings.sound;
+        celebrationToggle.checked = !!settings.celebration;
+        renderMessages();
+      }
+
+      /* ============================================
+         Delete / Clear Actions
+      ============================================ */
+      function performDeleteParent(parentId, buttonEl) {
+        const li = buttonEl?.closest('.todo-item') || document.querySelector(`.todo-item[data-id="${parentId}"]`);
+        if (li) li.classList.add('removing');
+
+        playDeleteSound();
+
+        setTimeout(() => {
+          todos = todos.filter(todo => todo.id !== parentId);
+          render();
+        }, li ? 220 : 0);
+      }
+
+      function performDeleteSubtask(parentId, subId, buttonEl) {
+        const parent = getTodo(parentId);
+        if (!parent) return;
+
+        const li = buttonEl?.closest('.subtask-item');
+        if (li) li.classList.add('removing');
+
+        playDeleteSound();
+
+        setTimeout(() => {
+          parent.subtasks = parent.subtasks.filter(sub => sub.id !== subId);
+          syncParentStatus(parent);
+          render();
+
+          if (modalState.parentId === parentId) {
+            renderParentModalSubtasks(parent);
+          }
+        }, li ? 220 : 0);
+      }
+
+      function performClearCompleted() {
+        const nextTodos = [];
+
+        todos.forEach(todo => {
+          if (hasSubtasks(todo)) {
+            const remainingSubtasks = todo.subtasks.filter(sub => !sub.done);
+            nextTodos.push({
+              ...todo,
+              subtasks: remainingSubtasks,
+              done: false
+            });
+          } else if (!todo.done) {
+            nextTodos.push(todo);
+          }
+        });
+
+        todos = nextTodos;
+        render();
+      }
+
+      function performClearAll() {
+        if (todos.length === 0) return;
+        todos = [];
+        render();
+      }
+
+      /* ============================================
+         CRUD
+      ============================================ */
+      function addTodo() {
+        const text = normalizeInputText(todoInput.value, MAX_TODO_TEXT_LENGTH);
+        if (!text) {
+          showErrorToast('タスク名を入力してください');
+          todoInput.focus();
+          return;
+        }
+
+        todos.unshift({
+          id: uid(),
+          text,
+          done: false,
+          focus: createFocusMeta(),
+          subtasks: []
+        });
+
+        todoInput.value = '';
+        todoInput.focus();
+        playAddSound();
+        render();
+      }
+
+      /* ============================================
+         Events
+      ============================================ */
+      addBtn.addEventListener('click', addTodo);
+
+      [
+        [todoInput, MAX_TODO_TEXT_LENGTH],
+        [messageInput, MAX_MESSAGE_TEXT_LENGTH],
+        [parentEditInput, MAX_TODO_TEXT_LENGTH],
+        [modalSubtaskInput, MAX_SUBTASK_TEXT_LENGTH],
+        [subtaskEditInput, MAX_SUBTASK_TEXT_LENGTH]
+      ].forEach(([inputEl, maxLength]) => {
+        if (!inputEl) return;
+        inputEl.maxLength = maxLength;
+      });
+
+      todoInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.isComposing) {
+          addTodo();
+        }
+      });
+
+      sidebarCollapseBtn.addEventListener('click', () => {
+        if (focusOverlay.classList.contains('show')) return;
+        isSidebarCollapsed = !isSidebarCollapsed;
+        applySidebarState();
+      });
+
+      // Message manager
+      messageSaveBtn.addEventListener('click', saveMessage);
+      messageInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.isComposing) {
+          e.preventDefault();
+          saveMessage();
+        }
+      });
+
+      messageList.addEventListener('click', (e) => {
+        const editBtn = e.target.closest('.edit-message-btn');
+        if (editBtn) {
+          editMessage(Number(editBtn.dataset.index));
+          return;
+        }
+
+        const deleteBtn = e.target.closest('.delete-message-btn');
+        if (deleteBtn) {
+          deleteMessage(Number(deleteBtn.dataset.index));
+        }
+      });
+
+      // Parent modal
+      closeParentModalBtn.addEventListener('click', closeParentModal);
+      cancelParentEditBtn.addEventListener('click', closeParentModal);
+      saveParentEditBtn.addEventListener('click', saveParentEdit);
+      modalAddSubtaskBtn.addEventListener('click', addSubtaskFromModal);
+
+      parentEditInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+          e.preventDefault();
+          saveParentEdit();
+        }
+      });
+
+      modalSubtaskInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.isComposing) {
+          e.preventDefault();
+          addSubtaskFromModal();
+        }
+      });
+
+      parentModalOverlay.addEventListener('click', (e) => {
+        if (e.target === parentModalOverlay) closeParentModal();
+      });
+
+      modalSubtaskList.addEventListener('click', (e) => {
+        const editBtn = e.target.closest('.modal-edit-subtask-btn');
+        if (editBtn) {
+          openSubtaskModal(editBtn.dataset.parentId, editBtn.dataset.subId);
+          return;
+        }
+
+        const deleteBtn = e.target.closest('.modal-delete-subtask-btn');
+        if (deleteBtn) {
+          openConfirmModal('削除してもよろしいですか？', 'delete-subtask-modal', {
+            parentId: deleteBtn.dataset.parentId,
+            subId: deleteBtn.dataset.subId
+          });
+        }
+      });
+
+      // Modal drag (handle only)
+      modalSubtaskList.addEventListener('dragstart', (e) => {
+        const handle = e.target.closest('.modal-subtask-drag-handle');
+        if (!handle) return;
+
+        const row = handle.closest('.modal-subtask-row');
+        if (!row) return;
+
+        modalDragState = {
+          parentId: row.dataset.parentId,
+          subId: row.dataset.subId
+        };
+
+        row.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', row.dataset.subId);
+      });
+
+      modalSubtaskList.addEventListener('dragover', (e) => {
+        if (!modalDragState) return;
+        e.preventDefault();
+        removeModalDropClasses();
+
+        const row = e.target.closest('.modal-subtask-row');
+        if (row && row.dataset.subId !== modalDragState.subId) {
+          const position = getDropPosition(row, e.clientY);
+          row.classList.add(position === 'before' ? 'drop-before' : 'drop-after');
+          return;
+        }
+
+        modalSubtaskList.classList.add('drop-after');
+      });
+
+      modalSubtaskList.addEventListener('drop', (e) => {
+        if (!modalDragState) return;
+        e.preventDefault();
+
+        const row = e.target.closest('.modal-subtask-row');
+        if (row && row.dataset.subId !== modalDragState.subId) {
+          const position = getDropPosition(row, e.clientY);
+          reorderSubtasksInModal(modalDragState.parentId, modalDragState.subId, row.dataset.subId, position);
+          const parent = getTodo(modalDragState.parentId);
+          if (parent) renderParentModalSubtasks(parent);
+          render();
+        }
+
+        clearModalDragState();
+      });
+
+      modalSubtaskList.addEventListener('dragend', () => {
+        clearModalDragState();
+      });
+
+      modalSubtaskList.addEventListener('dragleave', (e) => {
+        const row = e.target.closest('.modal-subtask-row');
+        if (row) {
+          row.classList.remove('drop-before', 'drop-after');
+        }
+      });
+
+      // Subtask modal
+      closeSubtaskModalBtn.addEventListener('click', closeSubtaskModal);
+      cancelSubtaskEditBtn.addEventListener('click', closeSubtaskModal);
+      saveSubtaskEditBtn.addEventListener('click', saveSubtaskEdit);
+
+      subtaskEditInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.isComposing) {
+          e.preventDefault();
+          saveSubtaskEdit();
+        }
+      });
+
+      subtaskModalOverlay.addEventListener('click', (e) => {
+        if (e.target === subtaskModalOverlay) closeSubtaskModal();
+      });
+
+      // Confirm modal
+      closeConfirmModalBtn.addEventListener('click', closeConfirmModal);
+      cancelConfirmBtn.addEventListener('click', closeConfirmModal);
+      confirmDeleteBtn.addEventListener('click', executeConfirmedAction);
+
+      confirmModalOverlay.addEventListener('click', (e) => {
+        if (e.target === confirmModalOverlay) closeConfirmModal();
+      });
+
+      // Focus modal
+      focusCompleteBtn.addEventListener('click', completeFocus);
+      focusPauseBtn.addEventListener('click', pauseOrResumeFocus);
+      focusAbortBtn.addEventListener('click', abortFocus);
+
+      // Main list click
+      todoList.addEventListener('click', (e) => {
+        if (focusOverlay.classList.contains('show')) return;
+
+        const undoParentBtn = e.target.closest('.undo-parent-btn');
+        if (undoParentBtn) {
+          undoCompleted('parent', undoParentBtn.dataset.id);
+          return;
+        }
+
+        const undoSubtaskBtn = e.target.closest('.undo-subtask-btn');
+        if (undoSubtaskBtn) {
+          undoCompleted('subtask', undoSubtaskBtn.dataset.parentId, undoSubtaskBtn.dataset.subId);
+          return;
+        }
+
+        const openFocusParentBtn = e.target.closest('.open-focus-parent-btn');
+        if (openFocusParentBtn) {
+          openFocusModal('parent', openFocusParentBtn.dataset.id);
+          return;
+        }
+
+        const openFocusSubtaskBtn = e.target.closest('.open-focus-subtask-btn');
+        if (openFocusSubtaskBtn) {
+          openFocusModal('subtask', openFocusSubtaskBtn.dataset.parentId, openFocusSubtaskBtn.dataset.subId);
+          return;
+        }
+
+        const editParentBtn = e.target.closest('.edit-parent-btn');
+        if (editParentBtn) {
+          openParentModal(editParentBtn.dataset.id);
+          return;
+        }
+
+        const delParentBtn = e.target.closest('.delete-parent-btn');
+        if (delParentBtn) {
+          openConfirmModal('削除してもよろしいですか？', 'delete-parent', {
+            parentId: delParentBtn.dataset.id,
+            buttonEl: delParentBtn
+          });
+          return;
+        }
+
+        const editSubBtn = e.target.closest('.edit-subtask-btn');
+        if (editSubBtn) {
+          openSubtaskModal(editSubBtn.dataset.parentId, editSubBtn.dataset.subId);
+          return;
+        }
+
+        const delSubBtn = e.target.closest('.delete-subtask-btn');
+        if (delSubBtn) {
+          openConfirmModal('削除してもよろしいですか？', 'delete-subtask', {
+            parentId: delSubBtn.dataset.parentId,
+            subId: delSubBtn.dataset.subId,
+            buttonEl: delSubBtn
+          });
+        }
+      });
+
+      // Drag start (handle only)
+      todoList.addEventListener('dragstart', (e) => {
+        if (focusOverlay.classList.contains('show')) {
+          e.preventDefault();
+          return;
+        }
+
+        const parentHandle = e.target.closest('.parent-drag-handle');
+        if (parentHandle) {
+          const parentItem = parentHandle.closest('.todo-item');
+          if (!parentItem) return;
+
+          dragState = {
+            type: 'parent',
+            id: parentItem.dataset.id
+          };
+          parentItem.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', parentItem.dataset.id);
+          return;
+        }
+
+        const subtaskHandle = e.target.closest('.subtask-drag-handle');
+        if (subtaskHandle) {
+          const subtaskItem = subtaskHandle.closest('.subtask-item');
+          if (!subtaskItem) return;
+
+          dragState = {
+            type: 'subtask',
+            subId: subtaskItem.dataset.subId,
+            fromParentId: subtaskItem.dataset.parentId
+          };
+          subtaskItem.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', subtaskItem.dataset.subId);
+        }
+      });
+
+      todoList.addEventListener('dragend', () => {
+        clearDragState();
+      });
+
+      // Drag over
+      todoList.addEventListener('dragover', (e) => {
+        if (!dragState) return;
+        e.preventDefault();
+        removeDropClasses();
+
+        if (dragState.type === 'parent') {
+          const targetParent = e.target.closest('.todo-item');
+          if (!targetParent || targetParent.dataset.id === dragState.id) return;
+
+          const position = getDropPosition(targetParent, e.clientY);
+          targetParent.classList.add(position === 'before' ? 'drop-before' : 'drop-after');
+          return;
+        }
+
+        if (dragState.type === 'subtask') {
+          const targetSub = e.target.closest('.subtask-item');
+          if (targetSub && targetSub.dataset.subId !== dragState.subId) {
+            const position = getDropPosition(targetSub, e.clientY);
+            targetSub.classList.add(position === 'before' ? 'drop-before' : 'drop-after');
+            return;
+          }
+
+          const targetList = e.target.closest('.subtask-list');
+          if (targetList) {
+            targetList.classList.add('drop-after');
+          }
+        }
+      });
+
+      // Drop
+      todoList.addEventListener('drop', (e) => {
+        if (!dragState) return;
+        e.preventDefault();
+
+        if (dragState.type === 'parent') {
+          const targetParent = e.target.closest('.todo-item');
+          if (targetParent && targetParent.dataset.id !== dragState.id) {
+            const position = getDropPosition(targetParent, e.clientY);
+            reorderParents(dragState.id, targetParent.dataset.id, position);
+            render();
+          }
+          clearDragState();
+          return;
+        }
+
+        if (dragState.type === 'subtask') {
+          const targetSub = e.target.closest('.subtask-item');
+          const targetList = e.target.closest('.subtask-list');
+
+          if (targetSub) {
+            const position = getDropPosition(targetSub, e.clientY);
+            moveSubtask(
+              dragState.fromParentId,
+              dragState.subId,
+              targetSub.dataset.parentId,
+              targetSub.dataset.subId,
+              position
+            );
+            render();
+            clearDragState();
+            return;
+          }
+
+          if (targetList) {
+            moveSubtask(
+              dragState.fromParentId,
+              dragState.subId,
+              targetList.dataset.parentId,
+              null,
+              'after'
+            );
+            render();
+            clearDragState();
+          }
+        }
+      });
+
+      todoList.addEventListener('dragleave', (e) => {
+        const container = e.target.closest('.todo-item, .subtask-item, .subtask-list');
+        if (container) {
+          container.classList.remove('drop-before', 'drop-after');
+        }
+      });
+
+      $('#clearCompletedBtn').addEventListener('click', () => {
+        openConfirmModal('完了済みを削除してもよろしいですか？', 'clear-completed');
+      });
+
+      $('#clearAllBtn').addEventListener('click', () => {
+        openConfirmModal('すべて削除してもよろしいですか？', 'clear-all');
+      });
+
+      lightModeToggle.addEventListener('change', () => {
+        settings.colorMode = lightModeToggle.checked ? 'light' : 'dark';
+        applyColorMode();
+        save();
+      });
+
+      soundToggle.addEventListener('change', () => {
+        settings.sound = soundToggle.checked;
+        save();
+      });
+
+      celebrationToggle.addEventListener('change', () => {
+        settings.celebration = celebrationToggle.checked;
+        save();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+
+        if (focusOverlay.classList.contains('show')) {
+          // 集中モード中は Esc で閉じない
+          return;
+        }
+
+        if (confirmModalOverlay.classList.contains('show')) {
+          closeConfirmModal();
+          return;
+        }
+        if (parentModalOverlay.classList.contains('show')) {
+          closeParentModal();
+          return;
+        }
+        if (subtaskModalOverlay.classList.contains('show')) {
+          closeSubtaskModal();
+        }
+      });
+
+      /* ============================================
+         Init
+      ============================================ */
+      syncAllParents();
+      previousAllDoneState = isAllDone();
+      applySidebarState();
+      render();
+
+      navigate(getRouteFromHash());
+    })();
+  </script>
+</body>
+</html>

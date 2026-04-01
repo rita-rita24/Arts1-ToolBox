@@ -2001,20 +2001,9 @@
       transform: translateX(16px)
     }
   </style>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WRM7PV7BBK"></script>
-  <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-WRM7PV7BBK');</script>
 </head>
 
-<body><noscript>
-    <meta HTTP-EQUIV="refresh" content="0;url='https://tools.corto.jp/demo/manural-demo/?PageSpeed=noscript'" />
-    <style>
-      <!--table,div,span,font,p{display:none} 
-      -->
-    </style>
-    <div style="display:block">Please click <a
-        href="https://tools.corto.jp/demo/manural-demo/?PageSpeed=noscript">here</a> if you are not redirected within a
-      few seconds.</div>
-  </noscript>
+<body>
   <!-- HEADER -->
   <div class="app-header">
     <div class="header-brand">
@@ -2134,32 +2123,45 @@
       categories: []
     };
 
+    function todayISODate() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function createDefaultSettings() {
+      return {
+        siteName: '', siteUrl: 'https://example.com',
+        company: '', contact: '',
+        date: todayISODate(),
+        intro: '', accentColor: '#0EA5E9',
+        showCover: true, version: ''
+      };
+    }
+
+    function createInitialState() {
+      return {
+        platformId: null,
+        activeTab: 'settings',
+        activeModuleId: null,
+        viewMode: 'pc',
+        settings: createDefaultSettings(),
+        modules: {},      // moduleId: { selected, note, editedContent, screenshots:[{data?,url?,label}] }
+        catOpen: {},      // catGroupId: bool
+        customModules: [], // [{id, title, content, _custom:true}]
+        composition: []   // [{type:'module'|'custom'|'heading', id, title?}] — authoritative order
+      };
+    }
+
     // ================================================================
     // STATE
     // ================================================================
-    let S = {
-      platformId: null,
-      activeTab: 'settings',
-      activeModuleId: null,
-      viewMode: 'pc',
-      settings: {
-        siteName: '', siteUrl: 'https://example.com',
-        company: '', contact: '',
-        date: new Date().toISOString().slice(0, 10),
-        intro: '', accentColor: '#0EA5E9',
-        showCover: true, version: ''
-      },
-      modules: {},      // moduleId: { selected, note, editedContent, screenshots:[{data?,url?,label}] }
-      catOpen: {},      // catGroupId: bool
-      customModules: [], // [{id, title, content, _custom:true}]
-      composition: []   // [{type:'module'|'custom'|'heading', id, title?}] — authoritative order
-    };
+    let S = createInitialState();
 
     // ================================================================
     // STATE ACCESSORS
     // ================================================================
     function plat(id) { return (window.MB_PLATFORMS || {})[id || S.platformId] || null; }
     function allPlats() { return Object.values(window.MB_PLATFORMS || {}); }
+    function catUiId(index) { return 'cg-' + index; }
 
     function findMod(moduleId) {
       // 全プラットフォームを横断して検索
@@ -2233,6 +2235,11 @@
       // カスタム項目のカウント更新
       const cel = document.getElementById('catcnt-custom'); if (!cel) return;
       cel.textContent = S.customModules.filter(m => ms(m.id).selected).length;
+    }
+
+    function openAllCategories(platform) {
+      if (!platform) return;
+      platform.categories.forEach((_, i) => { S.catOpen[catUiId(i)] = true; });
     }
 
     function updateSelCount() {
@@ -2430,7 +2437,7 @@
   </div>`;
 
       p.categories.forEach((cat, ci) => {
-        const cId = 'cg-' + ci;
+        const cId = catUiId(ci);
         const isOpen = S.catOpen[cId] !== false;
         const cnt = cat.modules.filter(m => ms(m.id).selected).length;
         html += `
@@ -2611,7 +2618,7 @@
           S.composition = S.composition.filter(c => !(c.type === 'module' && platIds.has(c.id)));
         }
         // アコーディオンをすべて展開
-        p.categories.forEach(c => { S.catOpen[c.id] = true; });
+        openAllCategories(p);
       });
       renderTab('modules');
     }
@@ -2649,7 +2656,7 @@
       ${hasImg
             ? `<span class="ss-size-wrap" title="表示サイズ（%）">
             <input class="ss-size-input" type="number" min="10" max="100" step="5"
-              value="${parseInt(ss.size) || 100}"
+              value="${parseInt(ss.size, 10) || 100}"
               onchange="onSSSize('${mid}',${i},this.value+'%')"
               oninput="onSSSize('${mid}',${i},this.value+'%')">
             <span class="ss-size-unit">%</span>
@@ -2998,7 +3005,7 @@
 
     // px指定でフォントサイズを適用
     function rteApplyFontSize(px) {
-      const n = parseInt(px);
+      const n = parseInt(px, 10);
       if (!n || n < 8 || n > 72) return;
       if (!restoreRteSelection()) return;
       const body = document.getElementById('rte-body');
@@ -3354,13 +3361,7 @@
       if (!confirm('設定・項目の選択・編集内容をすべてリセットします。\nこの操作は元に戻せません。続けますか？')) return;
 
       // 設定を初期値に戻す
-      S.settings = {
-        siteName: '', siteUrl: 'https://example.com',
-        company: '', contact: '',
-        date: new Date().toISOString().slice(0, 10),
-        intro: '', accentColor: '#0EA5E9',
-        showCover: true, version: ''
-      };
+      S.settings = createDefaultSettings();
 
       // モジュール・構成をすべてクリア
       S.modules = {};
@@ -3385,25 +3386,7 @@
 
     function deleteAllCustomItems() {
       if (!confirm('すべての選択を解除し、見出し・独自項目もすべて削除しますか？')) return;
-
-      // 全プラットフォームの全モジュールの selected をリセット
-      Object.values(window.MB_PLATFORMS || {}).forEach(p => {
-        p.categories.forEach(c => c.modules.forEach(m => {
-          if (S.modules[m.id]) S.modules[m.id].selected = false;
-        }));
-      });
-
-      // 独自項目の状態データをクリーンアップ
-      S.customModules.forEach(m => delete S.modules[m.id]);
-
-      // ドロワーを開いていれば閉じる
-      if (S.activeModuleId) { S.activeModuleId = null; closeEditDrawer(); }
-
-      S.composition = [];
-      S.customModules = [];
-
-      // アコーディオンをすべて展開
-      const curPlat = plat(); if (curPlat) curPlat.categories.forEach(c => { S.catOpen[c.id] = true; });
+      clearCompositionAndCustomItems({ expandCategories: true });
       saveLS(); schedPrev();
       renderTab('modules');
       updateSelCount();
@@ -3412,7 +3395,14 @@
 
     function clearAllItems() {
       if (!confirm('すべての選択を解除し、追加した「見出し」や「独自項目」もすべて削除しますか？')) return;
+      clearCompositionAndCustomItems();
+      saveLS(); schedPrev();
+      renderTab('modules');
+      updateSelCount();
+      showToast('🔄 すべての選択をリセットしました');
+    }
 
+    function clearCompositionAndCustomItems({ expandCategories = false } = {}) {
       // 全プラットフォームの全モジュールの selected をリセット
       Object.values(window.MB_PLATFORMS || {}).forEach(p => {
         p.categories.forEach(c => c.modules.forEach(m => {
@@ -3424,15 +3414,15 @@
       S.customModules.forEach(m => delete S.modules[m.id]);
 
       // ドロワーを開いていれば閉じる
-      if (S.activeModuleId) { S.activeModuleId = null; closeEditDrawer(); }
+      if (S.activeModuleId) {
+        S.activeModuleId = null;
+        closeEditDrawer();
+      }
 
       S.composition = [];
       S.customModules = [];
 
-      saveLS(); schedPrev();
-      renderTab('modules');
-      updateSelCount();
-      showToast('🔄 すべての選択をリセットしました');
+      if (expandCategories) openAllCategories(plat());
     }
 
     // ================================================================
@@ -3496,7 +3486,7 @@
         siteName: s.siteName || '（サイト名未設定）',
         siteUrl: s.siteUrl || 'https://example.com',
         company: s.company, contact: s.contact,
-        date: s.date || new Date().toISOString().slice(0, 10),
+        date: s.date || todayISODate(),
         intro: s.intro, accentColor: s.accentColor || '#0EA5E9',
         showCover: s.showCover !== false,
         version: s.version || '',
@@ -3511,15 +3501,18 @@
 
     function procSS(mid, content) {
       // 常にDOMを通してSS枠を処理：画像あり→<figure>に変換、画像なし→出力から削除
-      const d = document.createElement('div'); d.innerHTML = content;
+      const d = document.createElement('div');
+      d.innerHTML = sanitizeRichHTML(content);
       const screenshots = (ms(mid).screenshots) || [];
       d.querySelectorAll('.ss-box').forEach((box, i) => {
         const ss = screenshots[i];
         if (ss && (ss.data || ss.url)) {
-          const src = ss.data || ss.url;
+          const src = sanitizeImageSrc(ss.data || ss.url);
+          if (!src) { box.remove(); return; }
           // キャプションは画像セクションのラベル入力欄から取得
           const alt = e(ss.label || '');
-          const sizeStyle = (ss.size && ss.size !== '100%') ? ` style="max-width:${ss.size};margin-left:0"` : '';
+          const size = normalizePercentSize(ss.size);
+          const sizeStyle = (size !== '100%') ? ` style="max-width:${size};margin-left:0"` : '';
           box.outerHTML = `<figure class="ss-figure"${sizeStyle}><img class="ss-img" src="${src}" alt="${alt}" loading="lazy"><figcaption>${alt}</figcaption></figure>`;
         } else {
           box.remove(); // 画像未設定の空枠は出力HTMLから除去（プレビューには表示継続）
@@ -3529,34 +3522,39 @@
     }
 
     function genManualHTML(opts) {
-      const { siteName, siteUrl, company, contact, date, intro, accentColor, showCover, modules, isPreview, version, platformId } = opts;
+      const { siteName, company, contact, date, intro, accentColor, showCover, modules, isPreview, version, platformId } = opts;
       const ac = accentColor || '#0EA5E9';
+      const safeSiteName = e(siteName);
+      const safeDate = e(date);
+      const safeVersion = e(version);
+      const safeCompany = e(company);
+      const safeContact = e(contact);
 
       let tocIdx = 0;
       const toc = modules.map(m => {
-        if (m._isHeading) return `<li><a href="#s-${m.id}" class="toc-heading-link" onclick="tocNav(event,this)">${m.title}</a></li>`;
+        if (m._isHeading) return `<li><a href="#s-${m.id}" class="toc-heading-link" onclick="tocNav(event,this)">${e(m.title)}</a></li>`;
         tocIdx++;
-        return `<li><a href="#s-${m.id}" class="toc-link" data-id="${m.id}" onclick="tocNav(event,this)">${tocIdx}. ${m.title}</a></li>`;
+        return `<li><a href="#s-${m.id}" class="toc-link" data-id="${m.id}" onclick="tocNav(event,this)">${tocIdx}. ${e(m.title)}</a></li>`;
       }).join('');
 
       let secIdx = 0;
       const secs = modules.map(m => {
-        if (m._isHeading) return `<div class="manual-divider" id="s-${m.id}"><span>${m.title}</span></div>`;
+        if (m._isHeading) return `<div class="manual-divider" id="s-${m.id}"><span>${e(m.title)}</span></div>`;
         secIdx++;
-        const noteHtml = m.note ? `<div class="custom-note"><div class="cn-title">📝 担当者からのメモ</div><div class="cn-body">${m.note.replace(/\n/g, '<br>')}</div></div>` : '';
+        const noteHtml = m.note ? `<div class="custom-note"><div class="cn-title">📝 担当者からのメモ</div><div class="cn-body">${nl2brEscaped(m.note)}</div></div>` : '';
         const editBtn = isPreview ? `<button class="preview-edit-btn" onclick="notifyEdit('${m.id}')" title="この項目を編集">✏️ 編集</button>` : '';
         return `<section id="s-${m.id}" class="section">
       <div class="sec-inner">
         ${editBtn}
         <div class="sec-num">${secIdx}</div>
-        <h2 class="sec-title">${m.title}</h2>
-        <div class="sec-cat">${m.category}</div>
+        <h2 class="sec-title">${e(m.title)}</h2>
+        <div class="sec-cat">${e(m.category)}</div>
         <div class="sec-body">${m.content}${noteHtml}</div>
       </div></section>`;
       }).join('');
 
-      const metaHtml = (version || company || contact) ? `<div class="man-meta-sub">${version ? `<span>対象バージョン: ${version}</span>` : ''}${company ? `<span>制作: ${company}</span>` : ''}${contact ? `<span>担当: ${contact}</span>` : ''}</div>` : '';
-      const introHtml = intro ? `<div class="intro-box"><p>${intro.replace(/\n/g, '<br>')}</p></div>` : '';
+      const metaHtml = (version || company || contact) ? `<div class="man-meta-sub">${version ? `<span>対象バージョン: ${safeVersion}</span>` : ''}${company ? `<span>制作: ${safeCompany}</span>` : ''}${contact ? `<span>担当: ${safeContact}</span>` : ''}</div>` : '';
+      const introHtml = intro ? `<div class="intro-box"><p>${nl2brEscaped(intro)}</p></div>` : '';
 
       const css = getManualCSS(ac) + (isPreview ? getPreviewEditCSS() : '');
 
@@ -3564,13 +3562,13 @@
       const coverHtml = `<div class="man-cover">
   <div class="man-cover-inner">
     <p class="man-cover-label">操作マニュアル</p>
-    <h1 class="man-cover-title">${siteName}</h1>
+    <h1 class="man-cover-title">${safeSiteName}</h1>
     <div class="man-cover-rule"></div>
     <dl class="man-cover-meta">
-      <div class="man-cover-meta-row"><dt>作成日</dt><dd>${date}</dd></div>
-      ${version ? `<div class="man-cover-meta-row"><dt>対象バージョン</dt><dd>${version}</dd></div>` : ''}
-      ${company ? `<div class="man-cover-meta-row"><dt>制作会社</dt><dd>${company}</dd></div>` : ''}
-      ${contact ? `<div class="man-cover-meta-row"><dt>担当者</dt><dd>${contact}</dd></div>` : ''}
+      <div class="man-cover-meta-row"><dt>作成日</dt><dd>${safeDate}</dd></div>
+      ${version ? `<div class="man-cover-meta-row"><dt>対象バージョン</dt><dd>${safeVersion}</dd></div>` : ''}
+      ${company ? `<div class="man-cover-meta-row"><dt>制作会社</dt><dd>${safeCompany}</dd></div>` : ''}
+      ${contact ? `<div class="man-cover-meta-row"><dt>担当者</dt><dd>${safeContact}</dd></div>` : ''}
     </dl>
   </div>
 </div>`;
@@ -3580,7 +3578,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>【${siteName}】操作マニュアル</title>
+<title>【${safeSiteName}】操作マニュアル</title>
 <style>${css}</style>
 </head>
 <body>
@@ -3589,8 +3587,8 @@ ${showCover !== false ? coverHtml : ''}
 <header class="man-header">
   <div class="man-header-inner">
     <div class="man-header-left">
-      <h1 class="man-title">${siteName}<span class="man-title-sub"> 操作マニュアル</span></h1>
-      <div class="man-meta">作成日: ${date}${metaHtml}</div>
+      <h1 class="man-title">${safeSiteName}<span class="man-title-sub"> 操作マニュアル</span></h1>
+      <div class="man-meta">作成日: ${safeDate}${metaHtml}</div>
     </div>
     <div class="man-header-right">
       <div class="search-wrap"><input type="text" id="search" placeholder="🔍 検索..." oninput="doSearch(this.value)" autocomplete="off"></div>
@@ -3625,7 +3623,6 @@ document.querySelectorAll('.section').forEach(function(s){obs.observe(s);});
     }
 
     function getManualCSS(ac) {
-      const acLight = ac + '1a'; // approximate light version via transparency
       return `
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',sans-serif;background:#F8FAFC;color:#1E293B;line-height:1.7}
@@ -3938,10 +3935,73 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
     // ================================================================
     // UTILITIES
     // ================================================================
-    function e(str) { if (!str) return ''; return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+    function e(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function nl2brEscaped(str) {
+      return e(str).replace(/\n/g, '<br>');
+    }
+
+    function sanitizeImageSrc(src) {
+      const val = String(src || '').trim();
+      if (!val) return '';
+      if (/^data:image\//i.test(val)) return val;
+      if (/^https?:\/\//i.test(val)) return val;
+      if (/^blob:/i.test(val)) return val;
+      if (/^(\/|\.\/|\.\.\/)/.test(val)) return val;
+      return '';
+    }
+
+    function normalizePercentSize(size) {
+      const n = parseInt(size, 10);
+      if (!Number.isFinite(n)) return '100%';
+      return `${Math.max(10, Math.min(100, n))}%`;
+    }
+
+    function sanitizeRichHTML(html) {
+      const tpl = document.createElement('template');
+      tpl.innerHTML = String(html || '');
+      tpl.content.querySelectorAll('script,style,iframe,object,embed').forEach(el => el.remove());
+
+      tpl.content.querySelectorAll('*').forEach(el => {
+        [...el.attributes].forEach(attr => {
+          const name = attr.name.toLowerCase();
+          const value = String(attr.value || '').trim();
+
+          if (name.startsWith('on')) {
+            el.removeAttribute(attr.name);
+            return;
+          }
+
+          if ((name === 'href' || name === 'src') && /^javascript:/i.test(value)) {
+            el.removeAttribute(attr.name);
+            return;
+          }
+
+          if (name === 'style' && /(expression\s*\(|javascript:|vbscript:|url\s*\(\s*['"]?\s*javascript:)/i.test(value)) {
+            el.removeAttribute(attr.name);
+          }
+        });
+
+        if (el.tagName === 'A' && el.getAttribute('target') === '_blank') {
+          el.setAttribute('rel', 'noopener noreferrer');
+        }
+      });
+
+      return tpl.innerHTML;
+    }
 
     function showToast(msg) {
-      const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+      const t = document.getElementById('toast');
+      if (!t) return;
+      t.textContent = msg;
+      t.classList.add('show');
       clearTimeout(t._tid); t._tid = setTimeout(() => t.classList.remove('show'), 2600);
     }
 
@@ -3981,7 +4041,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
       if (S._needsMigration) { delete S._needsMigration; migrateComposition(); saveLS(); }
 
       // Set default date if not set
-      if (!S.settings.date) S.settings.date = new Date().toISOString().slice(0, 10);
+      if (!S.settings.date) S.settings.date = todayISODate();
 
       // Restore view mode
       if (S.viewMode === 'mobile') setViewMode('mobile');
@@ -4007,7 +4067,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 
       // ── iframeプレビュー内の編集ボタンから openEdit メッセージを受信 ──
       window.addEventListener('message', function (ev) {
-        if (ev.data && ev.data.type === 'openEdit') {
+        const previewFrame = document.getElementById('preview');
+        if (!previewFrame || ev.source !== previewFrame.contentWindow) return;
+        if (ev.data && ev.data.type === 'openEdit' && typeof ev.data.id === 'string' && findMod(ev.data.id)) {
           S.activeModuleId = ev.data.id;
           _pendingScroll = 's-' + ev.data.id;
           openEditDrawer();
@@ -4025,25 +4087,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 
     init();
   </script>
-  <script src="./demo-lock.js"></script>
-  <script data-pagespeed-no-defer>//<![CDATA[
-    (function () {
-      function f(b) { var a = window; if (a.addEventListener) a.addEventListener("load", b, !1); else if (a.attachEvent) a.attachEvent("onload", b); else { var c = a.onload; a.onload = function () { b.call(this); c && c.call(this) } } }; window.pagespeed = window.pagespeed || {}; var k = window.pagespeed; function l(b, a, c, g, h) { this.h = b; this.i = a; this.l = c; this.j = g; this.b = h; this.c = []; this.a = 0 } l.prototype.f = function (b) { for (var a = 0; 250 > a && this.a < this.b.length; ++a, ++this.a)try { document.querySelector(this.b[this.a]) && this.c.push(this.b[this.a]) } catch (c) { } this.a < this.b.length ? window.setTimeout(this.f.bind(this), 0, b) : b() };
-      k.g = function (b, a, c, g, h) {
-        if (document.querySelector && Function.prototype.bind) {
-          var d = new l(b, a, c, g, h); f(function () {
-            window.setTimeout(function () {
-              d.f(function () {
-                for (var a = "oh=" + d.l + "&n=" + d.j, a = a + "&cs=", b = 0; b < d.c.length; ++b) { var c = 0 < b ? "," : "", c = c + encodeURIComponent(d.c[b]); if (131072 < a.length + c.length) break; a += c } k.criticalCssBeaconData = a; var b = d.h, c = d.i, e; if (window.XMLHttpRequest) e = new XMLHttpRequest; else if (window.ActiveXObject) try { e = new ActiveXObject("Msxml2.XMLHTTP") } catch (m) { try { e = new ActiveXObject("Microsoft.XMLHTTP") } catch (n) { } } e &&
-                  (e.open("POST", b + (-1 == b.indexOf("?") ? "?" : "&") + "url=" + encodeURIComponent(c)), e.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"), e.send(a))
-              })
-            }, 0)
-          })
-        }
-      }; k.criticalCssBeaconInit = k.g;
-    })();
-    pagespeed.selectors = ["#comp-area", "#comp-list", "#preview", "#tab-btn-preview", "*", ".add-custom-btn", ".app-body", ".app-body.preview-active .preview-pane", ".app-body.preview-active .sidebar", ".app-body.preview-active .sidebar-body", ".app-header", ".badge", ".btn", ".btn-danger-ghost", ".btn-ghost", ".btn-primary", ".btn-sm", ".cat-arrow", ".cat-arrow.open", ".cat-cnt", ".cat-group", ".cat-header", ".cat-icon", ".cat-items", ".cat-name", ".color-chip", ".color-chip.active", ".color-row", ".comp-act-btn", ".comp-del-btn", ".comp-drag-handle", ".comp-empty", ".comp-heading-icon", ".comp-heading-input", ".comp-item", ".comp-item-cat", ".comp-item-info", ".comp-item-num", ".comp-item-title", ".comp-item.is-heading", ".comp-item.sortable-chosen", ".comp-item.sortable-ghost", ".comp-module-divider", ".comp-topbar", ".content-editor", ".divider", ".dropdown-item", ".dropdown-menu", ".dropdown-menu.open", ".dropdown-sep", ".dropdown-wrap", ".edit-back", ".edit-drawer", ".edit-drawer-body", ".edit-drawer-cat", ".edit-drawer-close", ".edit-drawer-head", ".edit-drawer-meta", ".edit-drawer-name", ".edit-drawer-overlay", ".edit-drawer-overlay.open", ".edit-drawer.open", ".edit-empty", ".edit-empty-icon", ".edit-empty-text", ".edit-header", ".edit-mod-cat", ".edit-mod-info", ".edit-mod-title", ".edit-section", ".edit-section-label", ".form-field", ".form-input", ".form-label", ".form-section", ".form-section-title", ".form-textarea", ".free-mode-hint", ".free-mode-icon", ".free-mode-text", ".free-mode-text strong", ".header-actions", ".header-actions-compact", ".header-actions-compact .btn", ".header-actions-compact > .dropdown-wrap", ".header-actions-compact > .dropdown-wrap .dropdown-menu", ".header-actions-full", ".header-brand", ".header-brand .logo", ".header-brand h1", ".header-center", ".mod-action-bar", ".mod-action-bar .btn", ".mod-action-bar-bottom", ".mod-card", ".mod-card-head", ".mod-card.sel", ".mod-card.sel .mod-card-head", ".mod-card.sel .mod-name", ".mod-check", ".mod-del-btn", ".mod-edit-btn", ".mod-edited-dot", ".mod-name", ".modal-box", ".modal-footer", ".modal-overlay", ".modal-title", ".module-search", ".module-search input", ".module-search-icon", ".module-topbar", ".note-editor", ".platform-label", ".platform-select", ".preview-bg", ".preview-bg.mobile-mode", ".preview-bg.mobile-mode #preview", ".preview-label", ".preview-pane", ".preview-toolbar", ".preview-toolbar-left", ".preview-toolbar-right", ".reset-link", ".rte-body", ".rte-body .ss-box", ".rte-body .ss-box .ss-box-caption", ".rte-body .ss-box .ss-box-del", ".rte-body .ss-box .ss-box-num", ".rte-body .ss-box .ss-box-thumb", ".rte-body .tbl-wrap", ".rte-body .tip", ".rte-body .tip.warn", ".rte-body a", ".rte-body blockquote", ".rte-body code", ".rte-body h3", ".rte-body ol", ".rte-body p", ".rte-body table", ".rte-body table.tbl-equal", ".rte-body td", ".rte-body th", ".rte-body ul", ".rte-btn", ".rte-btn.active", ".rte-color-swatch", ".rte-color-wrap", ".rte-fs-select", ".rte-hex-input", ".rte-sep", ".rte-toolbar", ".rte-wrap", ".selected-count", ".selected-count strong", ".sidebar", ".sidebar-body", ".sidebar-tab", ".sidebar-tab.active", ".sidebar-tabs", ".ss-clear-btn", ".ss-label-input", ".ss-preview-img", ".ss-preview-img img", ".ss-size-input", ".ss-size-unit", ".ss-size-wrap", ".ss-slot", ".ss-slot-label", ".ss-slot-num", ".ss-slot-num.has", ".ss-slot.dragover", ".ss-thumb", ".ss-upload-btn", ".tbl-ctrl", ".tbl-ctrl-label", ".toast", ".toast.show", ".toggle-label", ".toggle-label .form-label", ".toggle-slider", ".toggle-switch", ".toggle-switch input", ".toggle-switch input + .toggle-slider", ".view-btn", ".view-btn.active", ".view-toggle", "body"]; pagespeed.criticalCssBeaconInit('/mod_pagespeed_beacon/', 'https://tools.corto.jp/demo/manural-demo/', '8UbGqKoKx5', 'D2Mp0WBSHV4', pagespeed.selectors);
-    //]]></script>
 </body>
 
 </html>

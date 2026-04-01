@@ -1,0 +1,1710 @@
+{
+  "meta": {
+    "name": "和彩 WASAI Design System",
+    "version": "1.0.0",
+    "description": "A design system rooted in Japanese aesthetics — balancing Minimal restraint (侘寂 Wabi-Sabi), Bold expression (力 Chikara), Luxury refinement (雅 Miyabi), and Playful spirit (遊 Asobi).",
+    "attributes": [
+      "MINIMAL",
+      "BOLD",
+      "LUXURY",
+      "PLAYFUL"
+    ],
+    "created": "2026-03-25"
+  },
+  "color": {
+    "primitive": {
+      "_description": "Traditional Japanese color palette (和色 Washoku)",
+      "sumi": {
+        "50": {
+          "value": "#F7F6F4",
+          "description": "薄墨 Usuzumi — faintest ink wash"
+        },
+        "100": {
+          "value": "#EDEBE7",
+          "description": "灰白 Haijiro — ash white"
+        },
+        "200": {
+          "value": "#D5D1CA",
+          "description": "素鼠 Sunezumi — plain mouse gray"
+        },
+        "300": {
+          "value": "#B0AAA0",
+          "description": "銀鼠 Ginnezumi — silver gray"
+        },
+        "400": {
+          "value": "#8A8378",
+          "description": "鼠 Nezumi — mouse gray"
+        },
+        "500": {
+          "value": "#6B6459",
+          "description": "煤竹 Susutake — soot bamboo"
+        },
+        "600": {
+          "value": "#4D473E",
+          "description": "消炭 Keshizumi — extinguished charcoal"
+        },
+        "700": {
+          "value": "#36322C",
+          "description": "墨 Sumi — ink"
+        },
+        "800": {
+          "value": "#242119",
+          "description": "漆黒 Shikkoku — lacquer black"
+        },
+        "900": {
+          "value": "#141210",
+          "description": "闇 Yami — darkness"
+        },
+        "950": {
+          "value": "#0A0908",
+          "description": "玄 Gen — profound black"
+        }
+      },
+      "shu": {
+        "50": {
+          "value": "#FEF2EE",
+          "description": "薄桜 Usuzakura — faint cherry"
+        },
+        "100": {
+          "value": "#FDE0D6",
+          "description": "退紅 Arazome — faded crimson"
+        },
+        "200": {
+          "value": "#FBC1AD",
+          "description": "珊瑚 Sango — coral"
+        },
+        "300": {
+          "value": "#F89678",
+          "description": "紅緋 Benihi — scarlet"
+        },
+        "400": {
+          "value": "#F4694A",
+          "description": "猩々緋 Shojohi — bright scarlet"
+        },
+        "500": {
+          "value": "#D94420",
+          "description": "朱 Shu — vermillion"
+        },
+        "600": {
+          "value": "#B53518",
+          "description": "深緋 Kokihi — deep scarlet"
+        },
+        "700": {
+          "value": "#8E2A14",
+          "description": "紅殻 Bengara — red oxide"
+        },
+        "800": {
+          "value": "#6B2112",
+          "description": "弁柄 Bengara — dark red"
+        },
+        "900": {
+          "value": "#4A1810",
+          "description": "栗梅 Kuriume — chestnut plum"
+        },
+        "950": {
+          "value": "#2D0E0A",
+          "description": "深栗 Fukaguri — deep chestnut"
+        }
+      },
+      "ai": {
+        "50": {
+          "value": "#EEF4F9",
+          "description": "白藍 Shiraai — white indigo"
+        },
+        "100": {
+          "value": "#D6E5F0",
+          "description": "水色 Mizuiro — water blue"
+        },
+        "200": {
+          "value": "#AECCE2",
+          "description": "空色 Sorairo — sky blue"
+        },
+        "300": {
+          "value": "#7AADC9",
+          "description": "浅葱 Asagi — light greenish blue"
+        },
+        "400": {
+          "value": "#4D8DB0",
+          "description": "花浅葱 Hanaasagi — flower blue"
+        },
+        "500": {
+          "value": "#2E6B8A",
+          "description": "縹 Hanada — blue"
+        },
+        "600": {
+          "value": "#1D5068",
+          "description": "藍 Ai — indigo"
+        },
+        "700": {
+          "value": "#163D50",
+          "description": "紺 Kon — navy blue"
+        },
+        "800": {
+          "value": "#112F3E",
+          "description": "濃紺 Nokon — dark navy"
+        },
+        "900": {
+          "value": "#0C2230",
+          "description": "紺青 Konjo — prussian blue"
+        },
+        "950": {
+          "value": "#06111A",
+          "description": "深藍 Fukaai — deep indigo"
+        }
+      },
+      "kin": {
+        "50": {
+          "value": "#FFFBF0",
+          "description": "鳥の子 Torinoko — eggshell"
+        },
+        "100": {
+          "value": "#FEF4D9",
+          "description": "淡黄 Tanko — pale yellow"
+        },
+        "200": {
+          "value": "#FDE7AE",
+          "description": "黄金 Kogane — golden"
+        },
+        "300": {
+          "value": "#F9D47A",
+          "description": "山吹 Yamabuki — kerria gold"
+        },
+        "400": {
+          "value": "#E8B83C",
+          "description": "金 Kin — gold"
+        },
+        "500": {
+          "value": "#C49A2A",
+          "description": "黄朽葉 Kikuchiba — golden leaf"
+        },
+        "600": {
+          "value": "#9D7B20",
+          "description": "鬱金 Ukon — turmeric"
+        },
+        "700": {
+          "value": "#745B18",
+          "description": "蒸栗 Mushikuri — steamed chestnut"
+        },
+        "800": {
+          "value": "#524012",
+          "description": "路考茶 Rokocha — deep gold brown"
+        },
+        "900": {
+          "value": "#38290D",
+          "description": "渋紙 Shibugami — tannin paper"
+        },
+        "950": {
+          "value": "#1A1307",
+          "description": "深金茶 Fukakincha — deep gold tea"
+        }
+      },
+      "matcha": {
+        "50": {
+          "value": "#F2F6F0",
+          "description": "白緑 Byakuroku — white green"
+        },
+        "100": {
+          "value": "#E0EAD9",
+          "description": "淡萌黄 Usumoengi — pale sprout"
+        },
+        "200": {
+          "value": "#C1D5B4",
+          "description": "若葉 Wakaba — young leaf"
+        },
+        "300": {
+          "value": "#96B886",
+          "description": "萌黄 Moegi — fresh sprout"
+        },
+        "400": {
+          "value": "#6E9A5E",
+          "description": "抹茶 Matcha — powdered tea"
+        },
+        "500": {
+          "value": "#527A44",
+          "description": "松葉 Matsuba — pine needle"
+        },
+        "600": {
+          "value": "#3F5E34",
+          "description": "常磐 Tokiwa — evergreen"
+        },
+        "700": {
+          "value": "#2F4628",
+          "description": "千歳緑 Chitosemidori — ageless green"
+        },
+        "800": {
+          "value": "#23331E",
+          "description": "深緑 Fukamidori — deep green"
+        },
+        "900": {
+          "value": "#182316",
+          "description": "暗緑 Anryoku — dark green"
+        },
+        "950": {
+          "value": "#0C120B",
+          "description": "深碧 Fukaheki — profound green"
+        }
+      },
+      "fuji": {
+        "50": {
+          "value": "#F5F1F8",
+          "description": "白藤 Shirafuji — white wisteria"
+        },
+        "100": {
+          "value": "#E9DEF0",
+          "description": "薄藤 Usufuji — pale wisteria"
+        },
+        "200": {
+          "value": "#D3BDE1",
+          "description": "藤 Fuji — wisteria"
+        },
+        "300": {
+          "value": "#B894CE",
+          "description": "菫 Sumire — violet"
+        },
+        "400": {
+          "value": "#9D6EBA",
+          "description": "杜若 Kakitsubata — iris purple"
+        },
+        "500": {
+          "value": "#7D4F9A",
+          "description": "紫 Murasaki — purple"
+        },
+        "600": {
+          "value": "#613D78",
+          "description": "古代紫 Kodaimurasaki — ancient purple"
+        },
+        "700": {
+          "value": "#482E5A",
+          "description": "深紫 Fukimurasaki — deep purple"
+        },
+        "800": {
+          "value": "#332040",
+          "description": "紫紺 Shikon — purple-navy"
+        },
+        "900": {
+          "value": "#21152A",
+          "description": "暗紫 Anshi — dark purple"
+        },
+        "950": {
+          "value": "#110B16",
+          "description": "玄紫 Genshi — profound purple"
+        }
+      },
+      "sakura": {
+        "50": {
+          "value": "#FFF5F6",
+          "description": "桜色 Sakurairo — cherry blossom"
+        },
+        "100": {
+          "value": "#FFE5E8",
+          "description": "薄紅 Usukurenai — pale crimson"
+        },
+        "200": {
+          "value": "#FFCAD1",
+          "description": "桃花 Momoiro — peach blossom"
+        },
+        "300": {
+          "value": "#FFA3AE",
+          "description": "撫子 Nadeshiko — pink dianthus"
+        },
+        "400": {
+          "value": "#FF7A8A",
+          "description": "紅梅 Kobai — red plum"
+        },
+        "500": {
+          "value": "#E05568",
+          "description": "躑躅 Tsutsuji — azalea"
+        },
+        "600": {
+          "value": "#BC3F52",
+          "description": "紅 Kurenai — crimson"
+        },
+        "700": {
+          "value": "#8E2F3E",
+          "description": "蘇芳 Suo — sappanwood"
+        },
+        "800": {
+          "value": "#64222D",
+          "description": "臙脂 Enji — rouge"
+        },
+        "900": {
+          "value": "#431720",
+          "description": "深紅 Shinku — deep crimson"
+        },
+        "950": {
+          "value": "#220C10",
+          "description": "暗紅 Anko — dark crimson"
+        }
+      }
+    },
+    "semantic": {
+      "_description": "Purpose-driven color assignments",
+      "light": {
+        "primary": {
+          "value": "{color.primitive.shu.500}",
+          "description": "朱 Vermillion — primary brand accent"
+        },
+        "primaryHover": {
+          "value": "{color.primitive.shu.600}",
+          "description": "Primary hover state"
+        },
+        "primaryActive": {
+          "value": "{color.primitive.shu.700}",
+          "description": "Primary active/pressed state"
+        },
+        "primaryMuted": {
+          "value": "{color.primitive.shu.100}",
+          "description": "Primary muted background"
+        },
+        "secondary": {
+          "value": "{color.primitive.ai.600}",
+          "description": "藍 Indigo — secondary accent"
+        },
+        "secondaryHover": {
+          "value": "{color.primitive.ai.700}",
+          "description": "Secondary hover state"
+        },
+        "secondaryActive": {
+          "value": "{color.primitive.ai.800}",
+          "description": "Secondary active state"
+        },
+        "secondaryMuted": {
+          "value": "{color.primitive.ai.100}",
+          "description": "Secondary muted background"
+        },
+        "accent": {
+          "value": "{color.primitive.kin.400}",
+          "description": "金 Gold — luxury accent"
+        },
+        "accentHover": {
+          "value": "{color.primitive.kin.500}",
+          "description": "Accent hover"
+        },
+        "accentMuted": {
+          "value": "{color.primitive.kin.100}",
+          "description": "Accent muted background"
+        },
+        "success": {
+          "value": "{color.primitive.matcha.500}",
+          "description": "抹茶 — success state"
+        },
+        "successMuted": {
+          "value": "{color.primitive.matcha.100}",
+          "description": "Success muted background"
+        },
+        "warning": {
+          "value": "{color.primitive.kin.500}",
+          "description": "山吹 — warning state"
+        },
+        "warningMuted": {
+          "value": "{color.primitive.kin.100}",
+          "description": "Warning muted background"
+        },
+        "error": {
+          "value": "{color.primitive.shu.500}",
+          "description": "朱 — error state"
+        },
+        "errorMuted": {
+          "value": "{color.primitive.shu.100}",
+          "description": "Error muted background"
+        },
+        "info": {
+          "value": "{color.primitive.ai.500}",
+          "description": "藍 — info state"
+        },
+        "infoMuted": {
+          "value": "{color.primitive.ai.100}",
+          "description": "Info muted background"
+        },
+        "background": {
+          "value": "#FAFAF7",
+          "description": "和紙 Washi — warm off-white"
+        },
+        "backgroundAlt": {
+          "value": "#F3F2ED",
+          "description": "鳥の子 — subtle warm surface"
+        },
+        "backgroundElevated": {
+          "value": "#FFFFFF",
+          "description": "Elevated surface"
+        },
+        "surface": {
+          "value": "#FFFFFF",
+          "description": "Card / component surface"
+        },
+        "surfaceHover": {
+          "value": "#F7F6F4",
+          "description": "Surface hover"
+        },
+        "border": {
+          "value": "{color.primitive.sumi.200}",
+          "description": "Default border"
+        },
+        "borderSubtle": {
+          "value": "{color.primitive.sumi.100}",
+          "description": "Subtle divider"
+        },
+        "borderStrong": {
+          "value": "{color.primitive.sumi.400}",
+          "description": "Strong / focused border"
+        },
+        "textPrimary": {
+          "value": "{color.primitive.sumi.800}",
+          "description": "Primary text"
+        },
+        "textSecondary": {
+          "value": "{color.primitive.sumi.500}",
+          "description": "Secondary text"
+        },
+        "textTertiary": {
+          "value": "{color.primitive.sumi.400}",
+          "description": "Tertiary / placeholder text"
+        },
+        "textInverse": {
+          "value": "#FAFAF7",
+          "description": "Text on dark backgrounds"
+        },
+        "textLink": {
+          "value": "{color.primitive.ai.600}",
+          "description": "Link text"
+        },
+        "textLinkHover": {
+          "value": "{color.primitive.ai.700}",
+          "description": "Link hover"
+        },
+        "overlay": {
+          "value": "rgba(20, 18, 16, 0.48)",
+          "description": "Modal / drawer overlay"
+        },
+        "focus": {
+          "value": "{color.primitive.ai.400}",
+          "description": "Focus ring color"
+        }
+      },
+      "dark": {
+        "primary": {
+          "value": "{color.primitive.shu.400}",
+          "description": "Vermillion — lighter for dark"
+        },
+        "primaryHover": {
+          "value": "{color.primitive.shu.300}",
+          "description": "Primary hover dark"
+        },
+        "primaryActive": {
+          "value": "{color.primitive.shu.500}",
+          "description": "Primary active dark"
+        },
+        "primaryMuted": {
+          "value": "rgba(217, 68, 32, 0.15)",
+          "description": "Primary muted dark"
+        },
+        "secondary": {
+          "value": "{color.primitive.ai.400}",
+          "description": "Indigo lighter for dark"
+        },
+        "secondaryHover": {
+          "value": "{color.primitive.ai.300}",
+          "description": "Secondary hover dark"
+        },
+        "secondaryActive": {
+          "value": "{color.primitive.ai.500}",
+          "description": "Secondary active dark"
+        },
+        "secondaryMuted": {
+          "value": "rgba(29, 80, 104, 0.2)",
+          "description": "Secondary muted dark"
+        },
+        "accent": {
+          "value": "{color.primitive.kin.400}",
+          "description": "Gold accent in dark mode"
+        },
+        "accentHover": {
+          "value": "{color.primitive.kin.300}",
+          "description": "Accent hover dark"
+        },
+        "accentMuted": {
+          "value": "rgba(232, 184, 60, 0.12)",
+          "description": "Accent muted dark"
+        },
+        "success": {
+          "value": "{color.primitive.matcha.400}",
+          "description": "Success dark"
+        },
+        "successMuted": {
+          "value": "rgba(82, 122, 68, 0.15)",
+          "description": "Success muted dark"
+        },
+        "warning": {
+          "value": "{color.primitive.kin.400}",
+          "description": "Warning dark"
+        },
+        "warningMuted": {
+          "value": "rgba(196, 154, 42, 0.15)",
+          "description": "Warning muted dark"
+        },
+        "error": {
+          "value": "{color.primitive.shu.400}",
+          "description": "Error dark"
+        },
+        "errorMuted": {
+          "value": "rgba(217, 68, 32, 0.15)",
+          "description": "Error muted dark"
+        },
+        "info": {
+          "value": "{color.primitive.ai.400}",
+          "description": "Info dark"
+        },
+        "infoMuted": {
+          "value": "rgba(46, 107, 138, 0.15)",
+          "description": "Info muted dark"
+        },
+        "background": {
+          "value": "#121110",
+          "description": "闇 Dark background"
+        },
+        "backgroundAlt": {
+          "value": "#1A1816",
+          "description": "Subtle dark surface"
+        },
+        "backgroundElevated": {
+          "value": "#222019",
+          "description": "Elevated dark surface"
+        },
+        "surface": {
+          "value": "#1E1C18",
+          "description": "Dark card surface"
+        },
+        "surfaceHover": {
+          "value": "#2A2722",
+          "description": "Dark surface hover"
+        },
+        "border": {
+          "value": "rgba(213, 209, 202, 0.12)",
+          "description": "Dark border"
+        },
+        "borderSubtle": {
+          "value": "rgba(213, 209, 202, 0.06)",
+          "description": "Subtle dark divider"
+        },
+        "borderStrong": {
+          "value": "rgba(213, 209, 202, 0.24)",
+          "description": "Strong dark border"
+        },
+        "textPrimary": {
+          "value": "#EAE8E3",
+          "description": "Primary text dark"
+        },
+        "textSecondary": {
+          "value": "#9B958C",
+          "description": "Secondary text dark"
+        },
+        "textTertiary": {
+          "value": "#6B6459",
+          "description": "Tertiary text dark"
+        },
+        "textInverse": {
+          "value": "{color.primitive.sumi.800}",
+          "description": "Inverse text dark"
+        },
+        "textLink": {
+          "value": "{color.primitive.ai.400}",
+          "description": "Link text dark"
+        },
+        "textLinkHover": {
+          "value": "{color.primitive.ai.300}",
+          "description": "Link hover dark"
+        },
+        "overlay": {
+          "value": "rgba(0, 0, 0, 0.64)",
+          "description": "Modal overlay dark"
+        },
+        "focus": {
+          "value": "{color.primitive.ai.400}",
+          "description": "Focus ring dark"
+        }
+      }
+    }
+  },
+  "typography": {
+    "_description": "9-level type scale — rooted in Japanese typographic tradition. Display fonts use Shippori Mincho for editorial beauty; body uses Noto Sans JP for clarity.",
+    "fontFamily": {
+      "display": {
+        "value": "'Shippori Mincho', 'Noto Serif JP', 'YuMincho', serif",
+        "description": "Display / heading — Mincho (明朝) for elegance"
+      },
+      "heading": {
+        "value": "'Shippori Mincho', 'Noto Serif JP', 'YuMincho', serif",
+        "description": "Heading — Mincho for hierarchy"
+      },
+      "body": {
+        "value": "'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif",
+        "description": "Body / UI — Gothic (ゴシック) for readability"
+      },
+      "mono": {
+        "value": "'IBM Plex Mono', 'Source Code Pro', monospace",
+        "description": "Code / technical"
+      },
+      "accent": {
+        "value": "'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif",
+        "description": "Accent / caption"
+      }
+    },
+    "scale": {
+      "display-xl": {
+        "fontSize": {
+          "value": "4.5rem",
+          "description": "72px — Hero headline (看板)"
+        },
+        "lineHeight": {
+          "value": "1.1"
+        },
+        "letterSpacing": {
+          "value": "0.04em"
+        },
+        "fontWeight": {
+          "value": "700"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.display}"
+        }
+      },
+      "display-lg": {
+        "fontSize": {
+          "value": "3.5rem",
+          "description": "56px — Section headline"
+        },
+        "lineHeight": {
+          "value": "1.15"
+        },
+        "letterSpacing": {
+          "value": "0.03em"
+        },
+        "fontWeight": {
+          "value": "600"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.display}"
+        }
+      },
+      "display-md": {
+        "fontSize": {
+          "value": "2.5rem",
+          "description": "40px — Page title"
+        },
+        "lineHeight": {
+          "value": "1.2"
+        },
+        "letterSpacing": {
+          "value": "0.02em"
+        },
+        "fontWeight": {
+          "value": "600"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.display}"
+        }
+      },
+      "heading-lg": {
+        "fontSize": {
+          "value": "2rem",
+          "description": "32px — Major section heading"
+        },
+        "lineHeight": {
+          "value": "1.3"
+        },
+        "letterSpacing": {
+          "value": "0.01em"
+        },
+        "fontWeight": {
+          "value": "600"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.heading}"
+        }
+      },
+      "heading-md": {
+        "fontSize": {
+          "value": "1.5rem",
+          "description": "24px — Sub-section heading"
+        },
+        "lineHeight": {
+          "value": "1.4"
+        },
+        "letterSpacing": {
+          "value": "0.01em"
+        },
+        "fontWeight": {
+          "value": "500"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.heading}"
+        }
+      },
+      "heading-sm": {
+        "fontSize": {
+          "value": "1.25rem",
+          "description": "20px — Component heading"
+        },
+        "lineHeight": {
+          "value": "1.4"
+        },
+        "letterSpacing": {
+          "value": "0.005em"
+        },
+        "fontWeight": {
+          "value": "500"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.heading}"
+        }
+      },
+      "body-lg": {
+        "fontSize": {
+          "value": "1.125rem",
+          "description": "18px — Lead paragraph"
+        },
+        "lineHeight": {
+          "value": "1.75"
+        },
+        "letterSpacing": {
+          "value": "0.01em"
+        },
+        "fontWeight": {
+          "value": "400"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.body}"
+        }
+      },
+      "body-md": {
+        "fontSize": {
+          "value": "1rem",
+          "description": "16px — Default body text"
+        },
+        "lineHeight": {
+          "value": "1.75"
+        },
+        "letterSpacing": {
+          "value": "0.01em"
+        },
+        "fontWeight": {
+          "value": "400"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.body}"
+        }
+      },
+      "body-sm": {
+        "fontSize": {
+          "value": "0.875rem",
+          "description": "14px — Small text / captions"
+        },
+        "lineHeight": {
+          "value": "1.6"
+        },
+        "letterSpacing": {
+          "value": "0.01em"
+        },
+        "fontWeight": {
+          "value": "400"
+        },
+        "fontFamily": {
+          "value": "{typography.fontFamily.body}"
+        }
+      }
+    }
+  },
+  "spacing": {
+    "_description": "8px base grid with Japanese-inspired naming (間 Ma — the beauty of space)",
+    "0": {
+      "value": "0px",
+      "description": "None"
+    },
+    "1": {
+      "value": "4px",
+      "description": "一間 — half unit"
+    },
+    "2": {
+      "value": "8px",
+      "description": "二間 — base unit"
+    },
+    "3": {
+      "value": "12px",
+      "description": "三間"
+    },
+    "4": {
+      "value": "16px",
+      "description": "四間 — standard gap"
+    },
+    "5": {
+      "value": "20px",
+      "description": "五間"
+    },
+    "6": {
+      "value": "24px",
+      "description": "六間 — component padding"
+    },
+    "8": {
+      "value": "32px",
+      "description": "八間 — section gap small"
+    },
+    "10": {
+      "value": "40px",
+      "description": "十間"
+    },
+    "12": {
+      "value": "48px",
+      "description": "十二間 — section padding"
+    },
+    "16": {
+      "value": "64px",
+      "description": "十六間 — large section"
+    },
+    "20": {
+      "value": "80px",
+      "description": "二十間"
+    },
+    "24": {
+      "value": "96px",
+      "description": "二十四間 — hero spacing"
+    },
+    "32": {
+      "value": "128px",
+      "description": "三十二間 — major section"
+    },
+    "40": {
+      "value": "160px",
+      "description": "四十間 — page-level spacing"
+    },
+    "48": {
+      "value": "192px",
+      "description": "四十八間 — maximum spacing"
+    }
+  },
+  "borderRadius": {
+    "none": {
+      "value": "0px",
+      "description": "Sharp — 折紙 Origami precision"
+    },
+    "sm": {
+      "value": "4px",
+      "description": "Subtle rounding"
+    },
+    "md": {
+      "value": "8px",
+      "description": "Standard rounding"
+    },
+    "lg": {
+      "value": "12px",
+      "description": "Card rounding"
+    },
+    "xl": {
+      "value": "16px",
+      "description": "Large rounding"
+    },
+    "2xl": {
+      "value": "24px",
+      "description": "Pill element"
+    },
+    "full": {
+      "value": "9999px",
+      "description": "Circle / full pill"
+    }
+  },
+  "shadow": {
+    "_description": "Layered shadows inspired by 浮世絵 Ukiyo-e depth planes",
+    "light": {
+      "sm": {
+        "value": "0 1px 2px rgba(20,18,16,0.04), 0 1px 4px rgba(20,18,16,0.03)"
+      },
+      "md": {
+        "value": "0 2px 4px rgba(20,18,16,0.04), 0 4px 12px rgba(20,18,16,0.06)"
+      },
+      "lg": {
+        "value": "0 4px 8px rgba(20,18,16,0.04), 0 8px 24px rgba(20,18,16,0.08)"
+      },
+      "xl": {
+        "value": "0 8px 16px rgba(20,18,16,0.06), 0 16px 48px rgba(20,18,16,0.10)"
+      },
+      "inner": {
+        "value": "inset 0 1px 3px rgba(20,18,16,0.06)"
+      },
+      "gold": {
+        "value": "0 4px 16px rgba(232,184,60,0.15), 0 1px 4px rgba(232,184,60,0.10)"
+      }
+    },
+    "dark": {
+      "sm": {
+        "value": "0 1px 2px rgba(0,0,0,0.20), 0 1px 4px rgba(0,0,0,0.16)"
+      },
+      "md": {
+        "value": "0 2px 4px rgba(0,0,0,0.20), 0 4px 12px rgba(0,0,0,0.24)"
+      },
+      "lg": {
+        "value": "0 4px 8px rgba(0,0,0,0.24), 0 8px 24px rgba(0,0,0,0.28)"
+      },
+      "xl": {
+        "value": "0 8px 16px rgba(0,0,0,0.28), 0 16px 48px rgba(0,0,0,0.32)"
+      },
+      "inner": {
+        "value": "inset 0 1px 3px rgba(0,0,0,0.24)"
+      },
+      "gold": {
+        "value": "0 4px 16px rgba(232,184,60,0.10), 0 1px 4px rgba(232,184,60,0.06)"
+      }
+    }
+  },
+  "animation": {
+    "_description": "Motion inspired by 能 Noh — deliberate, graceful, purposeful",
+    "duration": {
+      "instant": {
+        "value": "100ms",
+        "description": "Micro-feedback"
+      },
+      "fast": {
+        "value": "200ms",
+        "description": "Hover / focus transitions"
+      },
+      "normal": {
+        "value": "300ms",
+        "description": "Standard transitions"
+      },
+      "slow": {
+        "value": "500ms",
+        "description": "Entrance animations"
+      },
+      "graceful": {
+        "value": "800ms",
+        "description": "Major reveals"
+      },
+      "dramatic": {
+        "value": "1200ms",
+        "description": "Hero / page transitions"
+      }
+    },
+    "easing": {
+      "default": {
+        "value": "cubic-bezier(0.2, 0, 0.0, 1.0)",
+        "description": "Standard — starts deliberate, finishes smooth"
+      },
+      "enter": {
+        "value": "cubic-bezier(0.0, 0.0, 0.2, 1.0)",
+        "description": "Enter — decelerates into rest"
+      },
+      "exit": {
+        "value": "cubic-bezier(0.4, 0.0, 1.0, 1.0)",
+        "description": "Exit — accelerates out"
+      },
+      "spring": {
+        "value": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "description": "Playful spring — for 遊 Asobi elements"
+      },
+      "brush": {
+        "value": "cubic-bezier(0.22, 0.61, 0.36, 1)",
+        "description": "Brush stroke — like calligraphy (書道 Shodo)"
+      }
+    },
+    "keyframes": {
+      "fadeIn": {
+        "value": "opacity: 0 → 1",
+        "description": "Simple fade appearance"
+      },
+      "slideUp": {
+        "value": "translateY(16px), opacity:0 → 0, 1",
+        "description": "Rise from below"
+      },
+      "slideDown": {
+        "value": "translateY(-16px), opacity:0 → 0, 1",
+        "description": "Descend from above"
+      },
+      "slideRight": {
+        "value": "translateX(-24px), opacity:0 → 0, 1",
+        "description": "Slide from left — reading direction (横書き)"
+      },
+      "scaleIn": {
+        "value": "scale(0.95), opacity:0 → 1, 1",
+        "description": "Subtle scale reveal"
+      },
+      "brushReveal": {
+        "value": "clipPath: inset(0 100% 0 0) → inset(0 0 0 0)",
+        "description": "Brush stroke reveal — left to right"
+      },
+      "inkDrop": {
+        "value": "scale(0), opacity:0 → scale(1), opacity:1 via radial expansion",
+        "description": "Ink drop — ripple outward"
+      },
+      "floatUp": {
+        "value": "translateY(0) → translateY(-6px) → translateY(0), infinite",
+        "description": "Gentle floating — like 花筏 Hanaikada (petals on water)"
+      }
+    }
+  },
+  "breakpoints": {
+    "_description": "Layout breakpoints using Japanese paper size metaphors",
+    "sm": {
+      "value": "480px",
+      "description": "葉書 Hagaki — mobile portrait"
+    },
+    "md": {
+      "value": "768px",
+      "description": "半紙 Hanshi — tablet portrait"
+    },
+    "lg": {
+      "value": "1024px",
+      "description": "半切 Hansetsu — tablet landscape / small desktop"
+    },
+    "xl": {
+      "value": "1280px",
+      "description": "全紙 Zenshi — standard desktop"
+    },
+    "2xl": {
+      "value": "1536px",
+      "description": "大判 Oban — large desktop"
+    }
+  },
+  "layout": {
+    "container": {
+      "sm": {
+        "value": "640px"
+      },
+      "md": {
+        "value": "768px"
+      },
+      "lg": {
+        "value": "1024px"
+      },
+      "xl": {
+        "value": "1200px"
+      },
+      "2xl": {
+        "value": "1400px"
+      }
+    },
+    "grid": {
+      "columns": {
+        "value": 12
+      },
+      "gutter": {
+        "value": "{spacing.6}"
+      },
+      "margin": {
+        "value": "{spacing.6}"
+      }
+    }
+  },
+  "components": {
+    "_description": "30 component specifications with all interactive states",
+    "button": {
+      "variants": [
+        "primary",
+        "secondary",
+        "outline",
+        "ghost",
+        "danger",
+        "luxury"
+      ],
+      "sizes": {
+        "sm": {
+          "height": "32px",
+          "paddingX": "{spacing.3}",
+          "fontSize": "{typography.scale.body-sm.fontSize}",
+          "borderRadius": "{borderRadius.sm}"
+        },
+        "md": {
+          "height": "40px",
+          "paddingX": "{spacing.4}",
+          "fontSize": "{typography.scale.body-md.fontSize}",
+          "borderRadius": "{borderRadius.md}"
+        },
+        "lg": {
+          "height": "48px",
+          "paddingX": "{spacing.6}",
+          "fontSize": "{typography.scale.body-lg.fontSize}",
+          "borderRadius": "{borderRadius.md}"
+        },
+        "xl": {
+          "height": "56px",
+          "paddingX": "{spacing.8}",
+          "fontSize": "{typography.scale.body-lg.fontSize}",
+          "borderRadius": "{borderRadius.lg}"
+        }
+      },
+      "states": {
+        "default": {
+          "cursor": "pointer"
+        },
+        "hover": {
+          "transform": "translateY(-1px)",
+          "transition": "{animation.duration.fast} {animation.easing.default}"
+        },
+        "active": {
+          "transform": "translateY(0px) scale(0.98)"
+        },
+        "focus": {
+          "outline": "2px solid {color.semantic.light.focus}",
+          "outlineOffset": "2px"
+        },
+        "disabled": {
+          "opacity": "0.4",
+          "cursor": "not-allowed",
+          "pointerEvents": "none"
+        },
+        "loading": {
+          "opacity": "0.7",
+          "cursor": "wait"
+        }
+      },
+      "primary": {
+        "background": "{color.semantic.light.primary}",
+        "color": "{color.semantic.light.textInverse}",
+        "hover": {
+          "background": "{color.semantic.light.primaryHover}"
+        },
+        "active": {
+          "background": "{color.semantic.light.primaryActive}"
+        }
+      },
+      "luxury": {
+        "background": "linear-gradient(135deg, {color.primitive.kin.400}, {color.primitive.kin.600})",
+        "color": "#FFFFFF",
+        "border": "1px solid {color.primitive.kin.300}",
+        "boxShadow": "{shadow.light.gold}"
+      }
+    },
+    "input": {
+      "variants": [
+        "default",
+        "filled",
+        "flushed"
+      ],
+      "sizes": {
+        "sm": {
+          "height": "32px",
+          "paddingX": "{spacing.3}",
+          "fontSize": "{typography.scale.body-sm.fontSize}"
+        },
+        "md": {
+          "height": "40px",
+          "paddingX": "{spacing.4}",
+          "fontSize": "{typography.scale.body-md.fontSize}"
+        },
+        "lg": {
+          "height": "48px",
+          "paddingX": "{spacing.5}",
+          "fontSize": "{typography.scale.body-lg.fontSize}"
+        }
+      },
+      "states": {
+        "default": {
+          "border": "1px solid {color.semantic.light.border}",
+          "borderRadius": "{borderRadius.md}"
+        },
+        "hover": {
+          "borderColor": "{color.semantic.light.borderStrong}"
+        },
+        "focus": {
+          "borderColor": "{color.semantic.light.primary}",
+          "boxShadow": "0 0 0 3px {color.semantic.light.primaryMuted}"
+        },
+        "error": {
+          "borderColor": "{color.semantic.light.error}",
+          "boxShadow": "0 0 0 3px {color.semantic.light.errorMuted}"
+        },
+        "disabled": {
+          "opacity": "0.4",
+          "background": "{color.semantic.light.backgroundAlt}"
+        },
+        "readonly": {
+          "background": "{color.semantic.light.backgroundAlt}"
+        }
+      }
+    },
+    "textarea": {
+      "minHeight": "120px",
+      "resize": "vertical",
+      "states": "same as input"
+    },
+    "select": {
+      "indicator": "chevron-down icon",
+      "states": "same as input",
+      "dropdown": {
+        "background": "{color.semantic.light.surface}",
+        "boxShadow": "{shadow.light.lg}",
+        "borderRadius": "{borderRadius.lg}",
+        "maxHeight": "280px"
+      }
+    },
+    "checkbox": {
+      "size": "20px",
+      "borderRadius": "{borderRadius.sm}",
+      "states": {
+        "unchecked": {
+          "border": "2px solid {color.semantic.light.border}"
+        },
+        "checked": {
+          "background": "{color.semantic.light.primary}",
+          "border": "none"
+        },
+        "indeterminate": {
+          "background": "{color.semantic.light.primary}"
+        },
+        "hover": {
+          "borderColor": "{color.semantic.light.primary}"
+        },
+        "focus": {
+          "boxShadow": "0 0 0 3px {color.semantic.light.primaryMuted}"
+        },
+        "disabled": {
+          "opacity": "0.4"
+        }
+      }
+    },
+    "radio": {
+      "size": "20px",
+      "dotSize": "8px",
+      "states": "same as checkbox (circular)"
+    },
+    "toggle": {
+      "width": "44px",
+      "height": "24px",
+      "thumbSize": "18px",
+      "states": {
+        "off": {
+          "background": "{color.semantic.light.border}"
+        },
+        "on": {
+          "background": "{color.semantic.light.primary}"
+        },
+        "hover": {
+          "boxShadow": "0 0 0 3px {color.semantic.light.primaryMuted}"
+        },
+        "disabled": {
+          "opacity": "0.4"
+        }
+      }
+    },
+    "card": {
+      "variants": [
+        "default",
+        "outlined",
+        "elevated",
+        "luxury"
+      ],
+      "padding": "{spacing.6}",
+      "borderRadius": "{borderRadius.lg}",
+      "default": {
+        "background": "{color.semantic.light.surface}",
+        "boxShadow": "{shadow.light.sm}"
+      },
+      "outlined": {
+        "border": "1px solid {color.semantic.light.border}"
+      },
+      "elevated": {
+        "boxShadow": "{shadow.light.md}"
+      },
+      "luxury": {
+        "border": "1px solid {color.primitive.kin.300}",
+        "boxShadow": "{shadow.light.gold}"
+      },
+      "states": {
+        "hover": {
+          "boxShadow": "{shadow.light.md}",
+          "transform": "translateY(-2px)"
+        },
+        "active": {
+          "transform": "translateY(0)"
+        }
+      }
+    },
+    "badge": {
+      "variants": [
+        "default",
+        "success",
+        "warning",
+        "error",
+        "info",
+        "luxury"
+      ],
+      "sizes": {
+        "sm": {
+          "paddingX": "{spacing.2}",
+          "paddingY": "2px",
+          "fontSize": "0.6875rem"
+        },
+        "md": {
+          "paddingX": "{spacing.3}",
+          "paddingY": "{spacing.1}",
+          "fontSize": "{typography.scale.body-sm.fontSize}"
+        }
+      },
+      "borderRadius": "{borderRadius.full}"
+    },
+    "tag": {
+      "closable": true,
+      "sizes": {
+        "sm": {
+          "height": "24px",
+          "fontSize": "0.75rem"
+        },
+        "md": {
+          "height": "32px",
+          "fontSize": "0.875rem"
+        }
+      },
+      "states": {
+        "hover": {
+          "background": "{color.semantic.light.surfaceHover}"
+        }
+      }
+    },
+    "avatar": {
+      "sizes": {
+        "xs": {
+          "size": "24px",
+          "fontSize": "0.6875rem"
+        },
+        "sm": {
+          "size": "32px",
+          "fontSize": "0.75rem"
+        },
+        "md": {
+          "size": "40px",
+          "fontSize": "0.875rem"
+        },
+        "lg": {
+          "size": "56px",
+          "fontSize": "1.125rem"
+        },
+        "xl": {
+          "size": "80px",
+          "fontSize": "1.5rem"
+        }
+      },
+      "borderRadius": "{borderRadius.full}",
+      "fallback": {
+        "background": "{color.semantic.light.primaryMuted}",
+        "color": "{color.semantic.light.primary}"
+      }
+    },
+    "tooltip": {
+      "background": "{color.primitive.sumi.700}",
+      "color": "#FFFFFF",
+      "fontSize": "{typography.scale.body-sm.fontSize}",
+      "padding": "{spacing.2} {spacing.3}",
+      "borderRadius": "{borderRadius.md}",
+      "maxWidth": "240px",
+      "arrowSize": "6px",
+      "animation": {
+        "duration": "{animation.duration.fast}",
+        "easing": "{animation.easing.enter}"
+      }
+    },
+    "modal": {
+      "sizes": {
+        "sm": {
+          "maxWidth": "400px"
+        },
+        "md": {
+          "maxWidth": "560px"
+        },
+        "lg": {
+          "maxWidth": "720px"
+        },
+        "full": {
+          "maxWidth": "calc(100vw - 64px)"
+        }
+      },
+      "padding": "{spacing.8}",
+      "borderRadius": "{borderRadius.xl}",
+      "overlay": "{color.semantic.light.overlay}",
+      "animation": {
+        "enter": "scaleIn {animation.duration.normal} {animation.easing.enter}",
+        "exit": "fadeOut {animation.duration.fast} {animation.easing.exit}"
+      }
+    },
+    "drawer": {
+      "sizes": {
+        "sm": {
+          "width": "320px"
+        },
+        "md": {
+          "width": "480px"
+        },
+        "lg": {
+          "width": "640px"
+        }
+      },
+      "positions": [
+        "left",
+        "right",
+        "top",
+        "bottom"
+      ],
+      "overlay": "{color.semantic.light.overlay}"
+    },
+    "toast": {
+      "variants": [
+        "success",
+        "error",
+        "warning",
+        "info"
+      ],
+      "width": "360px",
+      "padding": "{spacing.4} {spacing.5}",
+      "borderRadius": "{borderRadius.lg}",
+      "boxShadow": "{shadow.light.lg}",
+      "animation": "slideRight {animation.duration.normal} {animation.easing.enter}",
+      "autoDismiss": "5000ms"
+    },
+    "alert": {
+      "variants": [
+        "success",
+        "error",
+        "warning",
+        "info"
+      ],
+      "padding": "{spacing.4} {spacing.5}",
+      "borderRadius": "{borderRadius.md}",
+      "borderLeft": "4px solid",
+      "states": {
+        "dismissible": true
+      }
+    },
+    "tabs": {
+      "variants": [
+        "underline",
+        "solid",
+        "outline"
+      ],
+      "sizes": {
+        "sm": {
+          "height": "36px",
+          "fontSize": "{typography.scale.body-sm.fontSize}"
+        },
+        "md": {
+          "height": "44px",
+          "fontSize": "{typography.scale.body-md.fontSize}"
+        }
+      },
+      "indicator": {
+        "underline": {
+          "height": "2px",
+          "color": "{color.semantic.light.primary}",
+          "animation": "slide {animation.duration.normal}"
+        },
+        "solid": {
+          "background": "{color.semantic.light.primary}",
+          "borderRadius": "{borderRadius.md}"
+        }
+      },
+      "states": {
+        "default": {
+          "color": "{color.semantic.light.textSecondary}"
+        },
+        "active": {
+          "color": "{color.semantic.light.textPrimary}"
+        },
+        "hover": {
+          "color": "{color.semantic.light.textPrimary}"
+        },
+        "disabled": {
+          "opacity": "0.4"
+        }
+      }
+    },
+    "breadcrumb": {
+      "separator": "／",
+      "fontSize": "{typography.scale.body-sm.fontSize}",
+      "activeColor": "{color.semantic.light.textPrimary}",
+      "inactiveColor": "{color.semantic.light.textSecondary}"
+    },
+    "pagination": {
+      "itemSize": "40px",
+      "borderRadius": "{borderRadius.md}",
+      "active": {
+        "background": "{color.semantic.light.primary}",
+        "color": "#FFFFFF"
+      },
+      "states": {
+        "hover": {
+          "background": "{color.semantic.light.surfaceHover}"
+        }
+      }
+    },
+    "navbar": {
+      "height": "64px",
+      "background": "rgba(250, 250, 247, 0.85)",
+      "backdropFilter": "blur(12px) saturate(180%)",
+      "borderBottom": "1px solid {color.semantic.light.borderSubtle}",
+      "zIndex": 1000
+    },
+    "sidebar": {
+      "width": "280px",
+      "collapsedWidth": "72px",
+      "background": "{color.semantic.light.backgroundAlt}",
+      "borderRight": "1px solid {color.semantic.light.borderSubtle}"
+    },
+    "footer": {
+      "paddingY": "{spacing.16}",
+      "background": "{color.primitive.sumi.800}",
+      "color": "{color.semantic.dark.textPrimary}"
+    },
+    "divider": {
+      "variants": [
+        "solid",
+        "dashed",
+        "dotted",
+        "decorative"
+      ],
+      "color": "{color.semantic.light.border}",
+      "thickness": "1px",
+      "decorative": {
+        "pattern": "wave",
+        "description": "波 Nami — traditional wave pattern divider"
+      }
+    },
+    "skeleton": {
+      "background": "{color.semantic.light.backgroundAlt}",
+      "highlight": "{color.semantic.light.surface}",
+      "borderRadius": "{borderRadius.md}",
+      "animation": "shimmer 1.5s ease infinite"
+    },
+    "progressBar": {
+      "height": "8px",
+      "borderRadius": "{borderRadius.full}",
+      "track": "{color.semantic.light.backgroundAlt}",
+      "fill": "{color.semantic.light.primary}",
+      "luxuryFill": "linear-gradient(90deg, {color.primitive.kin.400}, {color.primitive.kin.600})"
+    },
+    "spinner": {
+      "sizes": {
+        "sm": "16px",
+        "md": "24px",
+        "lg": "40px"
+      },
+      "color": "{color.semantic.light.primary}",
+      "trackColor": "{color.semantic.light.border}",
+      "animation": "spin 0.8s linear infinite"
+    },
+    "accordion": {
+      "borderBottom": "1px solid {color.semantic.light.border}",
+      "paddingY": "{spacing.4}",
+      "icon": "chevron",
+      "animation": "{animation.duration.normal} {animation.easing.default}",
+      "states": {
+        "hover": {
+          "background": "{color.semantic.light.surfaceHover}"
+        },
+        "expanded": {
+          "icon-rotation": "180deg"
+        }
+      }
+    },
+    "table": {
+      "headerBackground": "{color.semantic.light.backgroundAlt}",
+      "headerFontWeight": "600",
+      "cellPadding": "{spacing.3} {spacing.4}",
+      "borderBottom": "1px solid {color.semantic.light.borderSubtle}",
+      "striped": {
+        "oddRowBackground": "{color.semantic.light.backgroundAlt}"
+      },
+      "hover": {
+        "rowBackground": "{color.semantic.light.surfaceHover}"
+      },
+      "sortable": {
+        "indicator": "▲▼"
+      }
+    },
+    "dropdown": {
+      "minWidth": "200px",
+      "maxHeight": "320px",
+      "padding": "{spacing.1}",
+      "borderRadius": "{borderRadius.lg}",
+      "boxShadow": "{shadow.light.lg}",
+      "item": {
+        "padding": "{spacing.2} {spacing.3}",
+        "borderRadius": "{borderRadius.md}",
+        "hover": {
+          "background": "{color.semantic.light.surfaceHover}"
+        },
+        "active": {
+          "background": "{color.semantic.light.primaryMuted}"
+        }
+      }
+    },
+    "stepper": {
+      "dotSize": "32px",
+      "lineHeight": "2px",
+      "completed": {
+        "background": "{color.semantic.light.primary}"
+      },
+      "current": {
+        "border": "2px solid {color.semantic.light.primary}"
+      },
+      "upcoming": {
+        "border": "2px solid {color.semantic.light.border}"
+      }
+    }
+  },
+  "accessibility": {
+    "_description": "WCAG 2.1 AA compliance requirements",
+    "contrast": {
+      "normalText": {
+        "value": "4.5:1",
+        "description": "Body text minimum contrast ratio"
+      },
+      "largeText": {
+        "value": "3:1",
+        "description": "18px+ or 14px bold minimum"
+      },
+      "uiComponents": {
+        "value": "3:1",
+        "description": "Interactive elements, icons, borders"
+      }
+    },
+    "focus": {
+      "visible": {
+        "value": true,
+        "description": "All interactive elements show visible focus"
+      },
+      "style": {
+        "value": "2px solid {color.semantic.light.focus}",
+        "description": "Focus ring style"
+      },
+      "offset": {
+        "value": "2px",
+        "description": "Focus ring offset from element"
+      }
+    },
+    "motion": {
+      "prefersReducedMotion": {
+        "value": true,
+        "description": "Respect OS reduced motion preference"
+      },
+      "reducedAlternative": {
+        "value": "opacity transitions only",
+        "description": "Fallback for reduced motion"
+      }
+    },
+    "targets": {
+      "minimumSize": {
+        "value": "44px × 44px",
+        "description": "Touch target minimum size"
+      },
+      "minimumSpacing": {
+        "value": "8px",
+        "description": "Minimum gap between touch targets"
+      }
+    },
+    "textResizing": {
+      "support": {
+        "value": "200%",
+        "description": "Content remains functional at 200% zoom"
+      }
+    },
+    "colorIndependence": {
+      "value": true,
+      "description": "Information not conveyed by color alone — always paired with icon, text, or pattern"
+    }
+  }
+}

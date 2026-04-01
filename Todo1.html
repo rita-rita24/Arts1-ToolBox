@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MIYABI Single Task Todo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Shippori+Mincho:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+  <style>
+    /* Layer Definition */
+    @layer reset, base, component, utility;
+
+    /* 1. Reset Layer */
+    @layer reset {
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    }
+
+    /* 2. Base Layer */
+    @layer base {
+      :root {
+        color-scheme: light dark;
+
+        /* Typography */
+        --font-body: 'Noto Sans JP', sans-serif;
+        --font-heading: 'Shippori Mincho', serif;
+
+        /* Semantic Colors (oklch + light-dark) */
+        --color-primary: light-dark(oklch(40.85% 0.0669 232.20), oklch(61.50% 0.0669 232.20));
+        --color-primary-hover: light-dark(oklch(34.15% 0.0669 232.20), oklch(72.19% 0.0669 232.20));
+        --color-background: light-dark(oklch(98.43% 0.0040 106.47), oklch(18.22% 0.0040 106.47));
+        --color-surface: light-dark(oklch(100% 0 89.88), oklch(22.21% 0 89.88));
+        --color-surface-hover: light-dark(oklch(97.34% 0.0029 84.56), oklch(25.60% 0.0029 84.56));
+        --color-border: light-dark(oklch(86.19% 0.0105 81.79), oklch(34.85% 0.0105 81.79));
+        --color-text-primary: light-dark(oklch(24.83% 0.0152 89.92), oklch(94.60% 0.0152 89.92));
+        --color-text-secondary: light-dark(oklch(50.64% 0.0191 79.25), oklch(76.68% 0.0191 79.25));
+        --color-text-inverse: light-dark(oklch(98.43% 0.0040 106.47), oklch(24.83% 0.0040 106.47));
+        --color-destructive: light-dark(oklch(44.94% 0.1284 14.65), oklch(63.74% 0.1284 14.65));
+        --color-success: light-dark(oklch(53.57% 0.0921 137.96), oklch(63.89% 0.0921 137.96));
+        --color-overlay: light-dark(oklch(18.38% 0.0052 67.50 / 0.48), oklch(18.38% 0.0052 67.50 / 0.64));
+
+        /* Spacing & Radii */
+        --spacing-2: 8px;
+        --spacing-3: 12px;
+        --spacing-4: 16px;
+        --spacing-6: 24px;
+        --radius-md: 8px;
+        --radius-lg: 12px;
+        --radius-xl: 16px;
+
+        /* Shadows */
+        --shadow-sm: 0 1px 2px color-mix(in oklch, var(--color-text-primary) 8%, transparent);
+        --shadow-lg: 0 4px 8px color-mix(in oklch, var(--color-text-primary) 8%, transparent), 0 8px 24px color-mix(in oklch, var(--color-text-primary) 12%, transparent);
+      }
+
+      body {
+        font-family: var(--font-body);
+        background-color: var(--color-background);
+        color: var(--color-text-primary);
+        line-height: 1.6;
+        padding: var(--spacing-6);
+      }
+
+      h1, h2, h3 { font-family: var(--font-heading); }
+    }
+
+    /* 3. Component Layer */
+    @layer component {
+      .app-layout {
+        max-width: 1120px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 220px minmax(0, 1fr);
+        gap: var(--spacing-6);
+        align-items: start;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: var(--spacing-6);
+        margin-bottom: 0;
+      }
+
+      .sidebar-title {
+        font-size: 18px;
+        margin-bottom: var(--spacing-4);
+      }
+
+      .sidebar-nav {
+        display: grid;
+        gap: var(--spacing-2);
+      }
+
+      .nav-btn {
+        width: 100%;
+        text-align: left;
+        height: 40px;
+        padding: 0 var(--spacing-3);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        background: transparent;
+        color: var(--color-text-primary);
+        cursor: pointer;
+        font-family: var(--font-body);
+        font-weight: 500;
+      }
+
+      .nav-btn:hover {
+        background: var(--color-surface-hover);
+      }
+
+      .nav-btn.is-active {
+        background: var(--color-primary);
+        color: var(--color-text-inverse);
+        border-color: var(--color-primary);
+      }
+
+      .main-panel {
+        min-width: 0;
+      }
+
+      .screen {
+        display: block;
+      }
+
+      .container {
+        max-width: 640px;
+        margin: 0;
+      }
+
+      .header {
+        margin-bottom: var(--spacing-6);
+        text-align: center;
+      }
+
+      .card {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-4);
+        margin-bottom: var(--spacing-4);
+        box-shadow: var(--shadow-sm);
+      }
+
+      .input-group {
+        display: flex;
+        gap: var(--spacing-2);
+        margin-bottom: var(--spacing-4);
+      }
+
+      .input {
+        flex: 1;
+        height: 36px;
+        padding: 0 var(--spacing-3);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        background: var(--color-surface);
+        color: var(--color-text-primary);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        height: 36px;
+        padding: 0 var(--spacing-4);
+        border-radius: var(--radius-md);
+        border: none;
+        cursor: pointer;
+        font-family: var(--font-body);
+        font-weight: 500;
+        transition: 200ms cubic-bezier(0.2, 0, 0, 1);
+      }
+
+      .btn-primary {
+        background: var(--color-primary);
+        color: var(--color-text-inverse);
+      }
+      .btn-primary:hover { background: var(--color-primary-hover); }
+
+      .btn-outline {
+        background: transparent;
+        border: 1px solid var(--color-border);
+        color: var(--color-text-primary);
+      }
+      .btn-outline:hover { background: var(--color-surface-hover); }
+
+      .btn-icon {
+        padding: 0 var(--spacing-2);
+      }
+
+      /* Task Tree */
+      .task-parent {
+        margin-bottom: var(--spacing-4);
+      }
+      .task-parent-header {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: var(--spacing-2);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .task-child-list {
+        padding-left: var(--spacing-6);
+        border-left: 2px solid var(--color-border);
+      }
+      .task-child {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-2) var(--spacing-3);
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--spacing-2);
+      }
+
+      /* Modal */
+      .modal-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: var(--color-overlay);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+
+      .modal-content {
+        background: var(--color-surface);
+        padding: var(--spacing-6);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        text-align: center;
+        width: 100%;
+        max-width: 400px;
+      }
+
+      .timer-display {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 48px;
+        font-weight: 700;
+        margin: var(--spacing-4) 0;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: center;
+        gap: var(--spacing-4);
+      }
+
+      .modal-btn {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        color: var(--color-text-inverse);
+      }
+      .btn-pause { background: var(--color-text-secondary); }
+      .btn-stop { background: var(--color-destructive); }
+      .btn-complete { background: var(--color-success); }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--spacing-4);
+      }
+
+      .stat-value {
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-top: var(--spacing-2);
+      }
+
+      .setting-row {
+        display: grid;
+        gap: var(--spacing-2);
+      }
+
+      @media (max-width: 900px) {
+        .app-layout {
+          grid-template-columns: 1fr;
+          gap: var(--spacing-4);
+        }
+
+        .sidebar {
+          position: static;
+        }
+
+        .sidebar-nav {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .nav-btn {
+          text-align: center;
+          padding: 0 var(--spacing-2);
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    }
+
+    /* 4. Utility Layer */
+    @layer utility {
+      .is-hidden { display: none !important; }
+      .text-muted { color: var(--color-text-secondary); font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar card">
+      <h2 class="sidebar-title">MIYABI Focus</h2>
+      <nav id="sidebar-nav" class="sidebar-nav">
+        <button class="nav-btn is-active" data-action="switch-view" data-view="task" title="タスク画面へ移動">タスク</button>
+        <button class="nav-btn" data-action="switch-view" data-view="analysis" title="分析画面へ移動">分析</button>
+        <button class="nav-btn" data-action="switch-view" data-view="settings" title="設定画面へ移動">設定</button>
+      </nav>
+    </aside>
+
+    <main class="main-panel">
+      <section class="screen" data-screen="task">
+        <div class="container">
+          <header class="header">
+            <h1>MIYABI Focus Todo</h1>
+            <p class="text-muted">親タスクを分解し、1つのタスクに集中します。</p>
+          </header>
+
+          <div class="card">
+            <div class="input-group">
+              <input type="text" id="parent-input" class="input" placeholder="新しい親タスクを入力...">
+              <button id="add-parent-btn" class="btn btn-primary" title="親タスクを追加">追加</button>
+            </div>
+          </div>
+
+          <div id="tree-root"></div>
+        </div>
+      </section>
+
+      <section class="screen is-hidden" data-screen="analysis">
+        <div class="container">
+          <header class="header">
+            <h1>分析</h1>
+            <p class="text-muted">現在のタスク進捗と累積フォーカス時間</p>
+          </header>
+          <div class="stats-grid">
+            <article class="card">
+              <p class="text-muted">親タスク数</p>
+              <p id="analysis-total-parents" class="stat-value">0</p>
+            </article>
+            <article class="card">
+              <p class="text-muted">子タスク総数</p>
+              <p id="analysis-total-children" class="stat-value">0</p>
+            </article>
+            <article class="card">
+              <p class="text-muted">完了した子タスク</p>
+              <p id="analysis-completed-children" class="stat-value">0</p>
+            </article>
+            <article class="card">
+              <p class="text-muted">累積フォーカス時間</p>
+              <p id="analysis-focus-time" class="stat-value">00:00</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen is-hidden" data-screen="settings">
+        <div class="container">
+          <header class="header">
+            <h1>設定</h1>
+            <p class="text-muted">表示設定を変更できます</p>
+          </header>
+          <div class="card setting-row">
+            <label for="color-scheme-select">カラースキーム</label>
+            <select id="color-scheme-select" class="input" title="カラースキームを選択">
+              <option value="auto">システム設定に従う</option>
+              <option value="light">ライト</option>
+              <option value="dark">ダーク</option>
+            </select>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="focus-modal" class="modal-overlay is-hidden">
+    <div class="modal-content">
+      <h2 id="modal-task-title">タスク名</h2>
+      <div class="timer-display" id="timer-display">00:00</div>
+      <div class="modal-actions">
+        <button class="modal-btn btn-pause" id="btn-pause" title="一時停止">
+          <span class="material-symbols-outlined" id="pause-icon">pause</span>
+        </button>
+        <button class="modal-btn btn-stop" id="btn-stop" title="中断">
+          <span class="material-symbols-outlined">stop</span>
+        </button>
+        <button class="modal-btn btn-complete" id="btn-complete" title="完了">
+          <span class="material-symbols-outlined">check</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * JavaScript Standards (MIYABI UI)
+     * - Optional Chaining (?.)
+     * - Nullish Coalescing (??)
+     * - Spread Syntax (...)
+     * - Destructuring
+     * - Security: escapeHTML
+     */
+
+    // Helpers
+    const qs = (sel, root = document) => root.querySelector(sel);
+    const qsa = (sel, root = document) => [...(root?.querySelectorAll(sel) ?? [])];
+    const escapeHTML = (str) => {
+      if (!str) return '';
+      return str.replace(/[&<>'"]/g, tag => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[tag] ?? tag));
+    };
+
+    // State Management
+    let _state = {
+      parents: [],
+      activeChildId: null,
+      currentView: 'task',
+      timer: {
+        seconds: 0,
+        intervalId: null,
+        isPaused: false
+      }
+    };
+
+    // DOM Elements
+    const $treeRoot = qs('#tree-root');
+    const $parentInput = qs('#parent-input');
+    const $addParentBtn = qs('#add-parent-btn');
+    const $modal = qs('#focus-modal');
+    const $modalTitle = qs('#modal-task-title');
+    const $timerDisplay = qs('#timer-display');
+    const $sidebarNav = qs('#sidebar-nav');
+    const $screenList = qsa('[data-screen]');
+    const $navButtons = qsa('[data-action="switch-view"]', $sidebarNav);
+    const $totalParents = qs('#analysis-total-parents');
+    const $totalChildren = qs('#analysis-total-children');
+    const $completedChildren = qs('#analysis-completed-children');
+    const $focusTime = qs('#analysis-focus-time');
+    const $colorSchemeSelect = qs('#color-scheme-select');
+
+    // Utility: Format Time
+    const formatTime = (totalSeconds) => {
+      const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+      const s = (totalSeconds % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    };
+
+    const updateAnalysis = () => {
+      const parents = _state.parents ?? [];
+      const children = parents.flatMap(parent => parent.children ?? []);
+      const completed = children.filter(child => child.status === 'completed');
+      const spent = completed.reduce((sum, child) => sum + (child.timeSpent ?? 0), 0);
+
+      if ($totalParents) $totalParents.textContent = String(parents.length);
+      if ($totalChildren) $totalChildren.textContent = String(children.length);
+      if ($completedChildren) $completedChildren.textContent = String(completed.length);
+      if ($focusTime) $focusTime.textContent = formatTime(spent);
+    };
+
+    const switchView = (view) => {
+      const nextView = view ?? 'task';
+      _state = { ..._state, currentView: nextView };
+
+      $screenList.forEach($screen => {
+        const { screen = '' } = $screen.dataset ?? {};
+        $screen.classList.toggle('is-hidden', screen !== nextView);
+      });
+
+      $navButtons.forEach($button => {
+        const { view: buttonView = '' } = $button.dataset ?? {};
+        $button.classList.toggle('is-active', buttonView === nextView);
+      });
+    };
+
+    // Render Function
+    const render = () => {
+      if (!_state?.parents) return;
+
+      let html = '';
+      _state.parents.forEach(parent => {
+        html += `
+          <div class="task-parent card">
+            <div class="task-parent-header">
+              <span>${escapeHTML(parent.title)}</span>
+            </div>
+            <div class="input-group">
+              <input type="text" id="child-input-${parent.id}" class="input" placeholder="子タスクを追加...">
+              <button class="btn btn-outline" data-action="add-child" data-parent-id="${parent.id}" title="子タスクを追加">追加</button>
+            </div>
+            <div class="task-child-list">
+        `;
+
+        parent.children.forEach(child => {
+          const isCompleted = child.status === 'completed';
+          const timeText = child.timeSpent > 0 ? `<span class="text-muted">実績: ${formatTime(child.timeSpent)}</span>` : '';
+
+          html += `
+            <div class="task-child" style="opacity: ${isCompleted ? '0.6' : '1'}">
+              <div>
+                <span style="text-decoration: ${isCompleted ? 'line-through' : 'none'}">${escapeHTML(child.title)}</span>
+                ${timeText}
+              </div>
+              ${!isCompleted ? `
+                <button class="btn btn-primary btn-icon" data-action="start-child" data-parent-id="${parent.id}" data-child-id="${child.id}" title="タスクを開始">
+                  <span class="material-symbols-outlined" style="pointer-events:none;">play_arrow</span>
+                </button>
+              ` : '<span class="material-symbols-outlined text-muted">done</span>'}
+            </div>
+          `;
+        });
+
+        html += `</div></div>`;
+      });
+
+      $treeRoot.innerHTML = html;
+      updateAnalysis();
+    };
+
+    // Action Handlers
+    const addParent = () => {
+      const title = $parentInput?.value?.trim() ?? '';
+      if (!title) return;
+
+      const newParent = { id: Date.now().toString(), title, children: [] };
+      _state = { ..._state, parents: [..._state.parents, newParent] };
+      $parentInput.value = '';
+      render();
+    };
+
+    const addChild = (parentId) => {
+      const $input = qs(`#child-input-${parentId}`);
+      const title = $input?.value?.trim() ?? '';
+      if (!title) return;
+
+      const newChild = { id: Date.now().toString(), title, status: 'pending', timeSpent: 0 };
+
+      const nextParents = _state.parents.map(p => {
+        if (p.id === parentId) {
+          return { ...p, children: [...p.children, newChild] };
+        }
+        return p;
+      });
+
+      _state = { ..._state, parents: nextParents };
+      render();
+    };
+
+    // Timer Logic
+    const updateTimerDisplay = () => {
+      if ($timerDisplay) {
+        $timerDisplay.textContent = formatTime(_state.timer.seconds);
+      }
+    };
+
+    const startTimer = () => {
+      if (_state.timer.intervalId) clearInterval(_state.timer.intervalId);
+      _state.timer.intervalId = setInterval(() => {
+        if (!_state.timer.isPaused) {
+          _state.timer.seconds += 1;
+          updateTimerDisplay();
+        }
+      }, 1000);
+    };
+
+    const stopTimer = () => {
+      if (_state.timer.intervalId) {
+        clearInterval(_state.timer.intervalId);
+        _state.timer.intervalId = null;
+      }
+    };
+
+    const openModal = (childId, parentId) => {
+      const parent = _state.parents.find(p => p.id === parentId);
+      const child = parent?.children?.find(c => c.id === childId);
+      if (!child) return;
+
+      _state = {
+        ..._state,
+        activeChildId: childId,
+        timer: { seconds: 0, intervalId: null, isPaused: false }
+      };
+
+      if ($modalTitle) $modalTitle.textContent = child.title;
+      updateTimerDisplay();
+      qs('#pause-icon').textContent = 'pause';
+
+      $modal?.classList.remove('is-hidden');
+      startTimer();
+    };
+
+    const closeModal = () => {
+      stopTimer();
+      $modal?.classList.add('is-hidden');
+      _state = { ..._state, activeChildId: null };
+      render();
+    };
+
+    // Modal Actions
+    const handlePause = () => {
+      _state.timer.isPaused = !_state.timer.isPaused;
+      const $icon = qs('#pause-icon');
+      if ($icon) $icon.textContent = _state.timer.isPaused ? 'play_arrow' : 'pause';
+    };
+
+    const handleStop = () => {
+      closeModal(); // 時間は記録せず終了
+    };
+
+    const handleComplete = () => {
+      const timeSpent = _state.timer.seconds;
+      const activeId = _state.activeChildId;
+
+      const nextParents = _state.parents.map(p => {
+        const nextChildren = p.children.map(c => {
+          if (c.id === activeId) {
+            return { ...c, status: 'completed', timeSpent };
+          }
+          return c;
+        });
+        return { ...p, children: nextChildren };
+      });
+
+      _state = { ..._state, parents: nextParents };
+      closeModal();
+    };
+
+    // Event Listeners (Delegation)
+    $addParentBtn?.addEventListener('click', addParent);
+
+    $sidebarNav?.addEventListener('click', (e) => {
+      const $target = e.target instanceof Element ? e.target : null;
+      const $button = $target?.closest('[data-action="switch-view"]');
+      const { view = '' } = $button?.dataset ?? {};
+      if (!view) return;
+      switchView(view);
+    });
+
+    $treeRoot?.addEventListener('click', (e) => {
+      const $target = e.target instanceof Element ? e.target : null;
+      const { action = '', parentId = '', childId = '' } = $target?.dataset ?? {};
+      if (action === 'add-child') addChild(parentId);
+      if (action === 'start-child') openModal(childId, parentId);
+    });
+
+    $colorSchemeSelect?.addEventListener('change', (e) => {
+      const { value = 'auto' } = e.target ?? {};
+      document.documentElement.style.colorScheme = value === 'auto' ? 'light dark' : value;
+    });
+
+    qs('#btn-pause')?.addEventListener('click', handlePause);
+    qs('#btn-stop')?.addEventListener('click', handleStop);
+    qs('#btn-complete')?.addEventListener('click', handleComplete);
+
+    // Initial render
+    switchView(_state.currentView);
+    render();
+  </script>
+</body>
+</html>

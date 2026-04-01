@@ -1,0 +1,2450 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YOHAKU — Manual Creation Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================
+   YOHAKU DESIGN SYSTEM — CSS FOUNDATION
+   ============================================ */
+
+:root {
+  --yo-color-sumi-900: #141414;
+  --yo-color-sumi-800: #2C2C2B;
+  --yo-color-washi-100: #F9F8F6;
+  --yo-color-washi-200: #FFFFFF;
+  --yo-color-shu-500: #FF4D00;
+  --yo-color-ruri-500: #0038B8;
+  --yo-color-hai-300: #E0DFDC;
+  --yo-color-moegi-500: #6B8E23;
+  --yo-color-kurenai-500: #D71345;
+
+  --yo-space-1: 0.25rem;
+  --yo-space-2: 0.5rem;
+  --yo-space-3: 1rem;
+  --yo-space-4: 1.5rem;
+  --yo-space-5: 2rem;
+  --yo-space-6: 3rem;
+  --yo-space-7: 4rem;
+  --yo-space-8: 6rem;
+  --yo-space-9: 8rem;
+
+  --yo-font-latin: 'Inter', sans-serif;
+  --yo-font-jp: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+  --yo-font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+
+  --yo-radius-sharp: 0px;
+  --yo-radius-subtle: 2px;
+  --yo-border-hairline: 1px solid var(--yo-color-hai-300);
+
+  --yo-ease-ceremony: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --yo-duration-fast: 150ms;
+  --yo-duration-slow: 400ms;
+
+  --yo-text-primary: var(--yo-color-sumi-900);
+  --yo-text-secondary: var(--yo-color-sumi-800);
+  --yo-bg-canvas: var(--yo-color-washi-100);
+  --yo-bg-surface: var(--yo-color-washi-200);
+  --yo-border-color: var(--yo-color-hai-300);
+}
+
+[data-theme="dark"] {
+  --yo-text-primary: #F9F8F6;
+  --yo-text-secondary: #E0DFDC;
+  --yo-bg-canvas: #141414;
+  --yo-bg-surface: #2C2C2B;
+  --yo-border-color: #3A3A39;
+}
+
+/* ============================================
+   RESET & BASE
+   ============================================ */
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--yo-font-latin);
+  color: var(--yo-text-primary);
+  background: var(--yo-bg-canvas);
+  line-height: 1.7;
+  overflow-x: hidden;
+  transition: background var(--yo-duration-slow) var(--yo-ease-ceremony),
+              color var(--yo-duration-slow) var(--yo-ease-ceremony);
+}
+
+/* Japanese text segments */
+.jp, [lang="ja"] {
+  font-family: var(--yo-font-jp);
+  line-height: 1.8;
+}
+
+/* Focus states — Omotenashi */
+*:focus-visible {
+  outline: 2px solid var(--yo-color-shu-500);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--yo-color-shu-500);
+  color: #fff;
+}
+
+/* Scrollbar — Shibui */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--yo-border-color);
+  border-radius: 0;
+}
+
+/* ============================================
+   TYPOGRAPHY SCALE
+   ============================================ */
+
+.text-display {
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.text-h1 {
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+.text-h2 {
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.text-h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.text-large {
+  font-size: 1.25rem;
+  line-height: 1.6;
+}
+
+.text-body {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--yo-text-secondary);
+}
+
+.text-ui {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.text-small {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--yo-text-secondary);
+}
+
+.text-micro {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+/* ============================================
+   COMPONENT: BUTTONS
+   ============================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yo-space-2);
+  font-family: var(--yo-font-latin);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: var(--yo-space-2) var(--yo-space-4);
+  border: none;
+  cursor: pointer;
+  transition: all var(--yo-duration-fast) var(--yo-ease-ceremony);
+  border-radius: var(--yo-radius-subtle);
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--yo-text-primary);
+  color: var(--yo-bg-canvas);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.btn-primary:active {
+  transform: scale(0.98) translateY(0);
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--yo-text-primary);
+  border: 1px solid var(--yo-border-color);
+}
+
+.btn-secondary:hover {
+  border-color: var(--yo-text-primary);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--yo-text-secondary);
+  padding: var(--yo-space-1) var(--yo-space-2);
+}
+
+.btn-ghost:hover {
+  background: var(--yo-bg-surface);
+  color: var(--yo-color-shu-500);
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--yo-text-secondary);
+  border-radius: var(--yo-radius-subtle);
+  transition: all var(--yo-duration-fast) var(--yo-ease-ceremony);
+}
+
+.btn-icon:hover {
+  background: var(--yo-bg-surface);
+  color: var(--yo-text-primary);
+  transform: rotate(4deg);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--yo-color-kurenai-500);
+  border: 1px solid var(--yo-color-kurenai-500);
+}
+
+.btn-danger:hover {
+  background: var(--yo-color-kurenai-500);
+  color: #fff;
+}
+
+/* ============================================
+   COMPONENT: FORM INPUTS
+   ============================================ */
+
+.input {
+  width: 100%;
+  font-family: var(--yo-font-latin);
+  font-size: 0.875rem;
+  padding: var(--yo-space-2) 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--yo-border-color);
+  color: var(--yo-text-primary);
+  transition: border-color var(--yo-duration-fast) var(--yo-ease-ceremony);
+}
+
+.input:focus {
+  outline: none;
+  border-bottom: 2px solid var(--yo-color-shu-500);
+  padding-bottom: calc(var(--yo-space-2) - 1px);
+}
+
+.input::placeholder {
+  color: var(--yo-border-color);
+}
+
+.input-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--yo-text-secondary);
+  margin-bottom: var(--yo-space-1);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.textarea {
+  width: 100%;
+  font-family: var(--yo-font-mono);
+  font-size: 0.875rem;
+  padding: var(--yo-space-3);
+  background: var(--yo-bg-surface);
+  border: 1px solid var(--yo-border-color);
+  border-radius: var(--yo-radius-sharp);
+  color: var(--yo-text-primary);
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.7;
+  transition: border-color var(--yo-duration-fast) var(--yo-ease-ceremony);
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--yo-color-shu-500);
+}
+
+.select-wrap {
+  position: relative;
+}
+
+.select {
+  width: 100%;
+  font-family: var(--yo-font-latin);
+  font-size: 0.875rem;
+  padding: var(--yo-space-2) var(--yo-space-5) var(--yo-space-2) 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--yo-border-color);
+  color: var(--yo-text-primary);
+  appearance: none;
+  cursor: pointer;
+}
+
+.select:focus {
+  outline: none;
+  border-bottom: 2px solid var(--yo-color-shu-500);
+}
+
+.select-wrap::after {
+  content: '▾';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  color: var(--yo-text-secondary);
+  pointer-events: none;
+}
+
+/* Checkbox */
+.checkbox-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--yo-space-2);
+  cursor: pointer;
+}
+
+.checkbox {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--yo-border-color);
+  border-radius: 0;
+  cursor: pointer;
+  position: relative;
+  transition: all var(--yo-duration-fast) var(--yo-ease-ceremony);
+}
+
+.checkbox:checked {
+  background: var(--yo-text-primary);
+  border-color: var(--yo-text-primary);
+}
+
+.checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: solid var(--yo-bg-canvas);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Switch/Toggle — Architectural rectangle */
+.switch {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  background: var(--yo-border-color);
+  border-radius: 0;
+  cursor: pointer;
+  transition: background var(--yo-duration-fast) var(--yo-ease-ceremony);
+}
+
+.switch.active {
+  background: var(--yo-text-primary);
+}
+
+.switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: var(--yo-bg-canvas);
+  transition: transform var(--yo-duration-slow) var(--yo-ease-ceremony);
+}
+
+.switch.active .switch-thumb {
+  transform: translateX(20px);
+}
+
+/* ============================================
+   COMPONENT: BADGE/TAG
+   ============================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-radius: 2px;
+  line-height: 1.6;
+}
+
+.badge-draft {
+  background: var(--yo-border-color);
+  color: var(--yo-text-secondary);
+}
+
+.badge-published {
+  background: #e8f0d4;
+  color: var(--yo-color-moegi-500);
+}
+
+[data-theme="dark"] .badge-published {
+  background: #2a3518;
+}
+
+.badge-archived {
+  background: #f0e8e0;
+  color: #8B6914;
+}
+
+[data-theme="dark"] .badge-archived {
+  background: #2d2518;
+}
+
+/* ============================================
+   COMPONENT: TOAST/SNACKBAR
+   ============================================ */
+
+.toast-container {
+  position: fixed;
+  bottom: var(--yo-space-5);
+  left: var(--yo-space-5);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: var(--yo-space-2);
+}
+
+.toast {
+  padding: var(--yo-space-3) var(--yo-space-4);
+  background: var(--yo-text-primary);
+  color: var(--yo-bg-canvas);
+  font-size: 0.875rem;
+  border-radius: var(--yo-radius-sharp);
+  transform: translateY(20px);
+  opacity: 0;
+  animation: toastIn var(--yo-duration-slow) var(--yo-ease-ceremony) forwards;
+  max-width: 360px;
+}
+
+.toast.dismissing {
+  animation: toastOut 300ms ease forwards;
+}
+
+.toast-success { border-left: 4px solid var(--yo-color-moegi-500); }
+.toast-error { border-left: 4px solid var(--yo-color-kurenai-500); }
+.toast-info { border-left: 4px solid var(--yo-color-ruri-500); }
+
+@keyframes toastIn {
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes toastOut {
+  to { transform: translateY(20px); opacity: 0; }
+}
+
+/* ============================================
+   COMPONENT: MODAL/DIALOG
+   ============================================ */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(249,248,246,0.8);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--yo-duration-slow) var(--yo-ease-ceremony);
+}
+
+[data-theme="dark"] .modal-backdrop {
+  background: rgba(20,20,20,0.85);
+}
+
+.modal-backdrop.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal {
+  background: var(--yo-bg-surface);
+  border: 1px solid var(--yo-border-color);
+  width: 90vw;
+  max-width: 640px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: var(--yo-space-7) var(--yo-space-8) var(--yo-space-5) var(--yo-space-5);
+  transform: translateY(20px);
+  transition: transform var(--yo-duration-slow) var(--yo-ease-ceremony);
+}
+
+.modal-backdrop.open .modal {
+  transform: translateY(0);
+}
+
+.modal-header {
+  margin-bottom: var(--yo-space-6);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--yo-space-3);
+  margin-top: var(--yo-space-6);
+  padding-top: var(--yo-space-4);
+  border-top: var(--yo-border-hairline);
+}
+
+/* ============================================
+   COMPONENT: TABS
+   ============================================ */
+
+.tabs {
+  display: flex;
+  gap: var(--yo-space-5);
+  border-bottom: 1px solid var(--yo-border-color);
+  position: relative;
+}
+
+.tab {
+  padding: var(--yo-space-2) 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--yo-text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: color var(--yo-duration-fast) var(--yo-ease-ceremony);
+}
+
+.tab:hover {
+  color: var(--yo-text-primary);
+}
+
+.tab.active {
+  color: var(--yo-text-primary);
+  font-weight: 600;
+}
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--yo-text-primary);
+  animation: tabSlide var(--yo-duration-slow) var(--yo-ease-ceremony);
+}
+
+@keyframes tabSlide {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* ============================================
+   COMPONENT: ACCORDION
+   ============================================ */
+
+.accordion-item {
+  border-bottom: 1px solid var(--yo-border-color);
+}
+
+.accordion-trigger {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--yo-space-4) 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--yo-font-latin);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--yo-text-primary);
+  text-align: left;
+}
+
+.accordion-trigger svg {
+  transition: transform var(--yo-duration-slow) var(--yo-ease-ceremony);
+  flex-shrink: 0;
+}
+
+.accordion-item.open .accordion-trigger svg {
+  transform: rotate(180deg);
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--yo-duration-slow) var(--yo-ease-ceremony);
+}
+
+.accordion-item.open .accordion-content {
+  max-height: 600px;
+}
+
+.accordion-body {
+  padding: 0 0 var(--yo-space-4) 0;
+}
+
+/* ============================================
+   COMPONENT: PROGRESS BAR
+   ============================================ */
+
+.progress {
+  width: 100%;
+  height: 2px;
+  background: var(--yo-border-color);
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--yo-color-shu-500);
+  transition: width var(--yo-duration-slow) var(--yo-ease-ceremony);
+}
+
+/* ============================================
+   COMPONENT: SPINNER
+   ============================================ */
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  background: var(--yo-text-primary);
+  animation: spinFlip 1.2s infinite var(--yo-ease-ceremony);
+}
+
+@keyframes spinFlip {
+  0% { transform: perspective(200px) rotateX(0) rotateY(0); }
+  50% { transform: perspective(200px) rotateX(180deg) rotateY(0); }
+  100% { transform: perspective(200px) rotateX(180deg) rotateY(180deg); }
+}
+
+/* ============================================
+   COMPONENT: ALERT/BANNER
+   ============================================ */
+
+.alert {
+  padding: var(--yo-space-3) var(--yo-space-4);
+  border-left: 4px solid;
+  font-size: 0.875rem;
+}
+
+.alert-info {
+  border-color: var(--yo-color-ruri-500);
+  background: rgba(0,56,184,0.05);
+}
+
+.alert-success {
+  border-color: var(--yo-color-moegi-500);
+  background: rgba(107,142,35,0.05);
+}
+
+.alert-error {
+  border-color: var(--yo-color-kurenai-500);
+  background: rgba(215,19,69,0.05);
+}
+
+/* ============================================
+   COMPONENT: TOOLTIP
+   ============================================ */
+
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--yo-text-primary);
+  color: var(--yo-bg-canvas);
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--yo-duration-slow) var(--yo-ease-ceremony);
+}
+
+[data-tooltip]:hover::after {
+  opacity: 1;
+}
+
+/* ============================================
+   COMPONENT: CODE BLOCK
+   ============================================ */
+
+.code-block {
+  background: #1a1a1a;
+  color: #e0dfdc;
+  padding: var(--yo-space-4);
+  font-family: var(--yo-font-mono);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  overflow-x: auto;
+  border-radius: var(--yo-radius-sharp);
+  position: relative;
+}
+
+.code-block .copy-btn {
+  position: absolute;
+  top: var(--yo-space-2);
+  right: var(--yo-space-2);
+  background: rgba(255,255,255,0.1);
+  color: #999;
+  border: none;
+  padding: 4px 8px;
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all var(--yo-duration-fast) var(--yo-ease-ceremony);
+}
+
+.code-block .copy-btn:hover {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+/* ============================================
+   COMPONENT: MARKDOWN RENDERER
+   ============================================ */
+
+.markdown h1 { font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 700; letter-spacing: -0.015em; margin: var(--yo-space-7) 0 var(--yo-space-4); }
+.markdown h2 { font-size: clamp(1.5rem, 2.5vw, 2rem); font-weight: 600; margin: var(--yo-space-6) 0 var(--yo-space-3); }
+.markdown h3 { font-size: 1.5rem; font-weight: 600; margin: var(--yo-space-5) 0 var(--yo-space-3); }
+.markdown h4 { font-size: 1.25rem; font-weight: 600; margin: var(--yo-space-4) 0 var(--yo-space-2); }
+.markdown h5 { font-size: 1rem; font-weight: 600; margin: var(--yo-space-4) 0 var(--yo-space-2); }
+.markdown h6 { font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin: var(--yo-space-4) 0 var(--yo-space-2); }
+
+.markdown p {
+  margin-bottom: var(--yo-space-4);
+  color: var(--yo-text-secondary);
+  line-height: 1.8;
+}
+
+.markdown ul, .markdown ol {
+  margin-bottom: var(--yo-space-4);
+  padding-left: var(--yo-space-4);
+}
+
+.markdown ul {
+  list-style: none;
+}
+
+.markdown ul li::before {
+  content: '■';
+  color: var(--yo-text-primary);
+  font-size: 0.5em;
+  display: inline-block;
+  width: 1.5em;
+  margin-left: -1.5em;
+  vertical-align: middle;
+}
+
+.markdown ol {
+  list-style: decimal;
+}
+
+.markdown li {
+  margin-bottom: var(--yo-space-2);
+  color: var(--yo-text-secondary);
+  line-height: 1.7;
+}
+
+.markdown blockquote {
+  border-left: 4px solid var(--yo-color-shu-500);
+  padding: var(--yo-space-3) var(--yo-space-4);
+  margin: var(--yo-space-4) 0;
+  font-size: 1.125rem;
+  color: var(--yo-text-secondary);
+  font-style: italic;
+}
+
+.markdown code {
+  font-family: var(--yo-font-mono);
+  font-size: 0.85em;
+  background: rgba(0,0,0,0.06);
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+[data-theme="dark"] .markdown code {
+  background: rgba(255,255,255,0.1);
+}
+
+.markdown pre {
+  background: #1a1a1a;
+  color: #e0dfdc;
+  padding: var(--yo-space-4);
+  font-family: var(--yo-font-mono);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  overflow-x: auto;
+  margin: var(--yo-space-4) 0;
+}
+
+.markdown pre code {
+  background: none;
+  padding: 0;
+}
+
+.markdown hr {
+  border: none;
+  border-top: 1px solid var(--yo-border-color);
+  margin: var(--yo-space-6) 0;
+}
+
+.markdown a {
+  color: var(--yo-text-primary);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--yo-duration-fast) var(--yo-ease-ceremony);
+}
+
+.markdown a:hover {
+  text-decoration-color: var(--yo-color-shu-500);
+}
+
+.markdown strong {
+  font-weight: 600;
+  color: var(--yo-text-primary);
+}
+
+.markdown em {
+  font-style: italic;
+}
+
+.markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--yo-space-4) 0;
+  font-size: 0.875rem;
+}
+
+.markdown th {
+  text-align: left;
+  font-weight: 600;
+  padding: var(--yo-space-2) var(--yo-space-3);
+  border-bottom: 2px solid var(--yo-text-primary);
+}
+
+.markdown td {
+  padding: var(--yo-space-2) var(--yo-space-3);
+  border-bottom: 1px solid var(--yo-border-color);
+  color: var(--yo-text-secondary);
+}
+
+/* ============================================
+   COMPONENT: DIVIDER
+   ============================================ */
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--yo-border-color);
+  margin: var(--yo-space-6) 0;
+}
+
+/* ============================================
+   COMPONENT: CARD
+   ============================================ */
+
+.card {
+  background: var(--yo-bg-surface);
+  border: 1px solid var(--yo-border-color);
+  padding: var(--yo-space-4);
+  transition: border-color var(--yo-duration-fast) var(--yo-ease-ceremony);
+}
+
+.card:hover {
+  border-color: var(--yo-text-secondary);
+}
+
+.card-clickable {
+  cursor: pointer;
+}
+
+/* ============================================
+   COMPONENT: SLIDER
+   ============================================ */
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 1px;
+  background: var(--yo-border-color);
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  background: var(--yo-text-primary);
+  cursor: pointer;
+  border-radius: 0;
+}
+
+/* ============================================
+   APP SHELL — LAYOUT
+   ============================================ */
+
+.app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--yo-border-color);
+  background: var(--yo-bg-canvas);
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--yo-duration-slow) var(--yo-ease-ceremony);
+}
+
+.sidebar-header {
+  padding: var(--yo-space-5) var(--yo-space-4);
+  border-bottom: 1px solid var(--yo-border-color);
+}
+
+.sidebar-brand {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.sidebar-brand span {
+  color: var(--yo-color-shu-500);
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--yo-space-3) 0;
+}
+
+.nav-section-label {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--yo-text-secondary);
+  padding: var(--yo-space-3) var(--yo-space-4) var(--yo-space-1);
+  font-weight: 600;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--yo-space-2);
+  padding: var(--yo-space-2) var(--yo-space-4);
+  font-size: 0.875rem;
+  color: var(--yo-text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--yo-duration-fast) var(--yo-ease-ceremony);
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: var(--yo-font-latin);
+}
+
+.nav-item:hover {
+  color: var(--yo-text-primary);
+  background: var(--yo-bg-surface);
+}
+
+.nav-item.active {
+  color: var(--yo-text-primary);
+  font-weight: 600;
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 3px;
+  height: 24px;
+  background: var(--yo-color-shu-500);
+}
+
+.nav-item {
+  position: relative;
+}
+
+.sidebar-footer {
+  padding: var(--yo-space-3) var(--yo-space-4);
+  border-top: 1px solid var(--yo-border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Main Content */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.topbar {
+  height: 52px;
+  border-bottom: 1px solid var(--yo-border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--yo-space-5);
+  flex-shrink: 0;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--yo-space-3);
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--yo-space-2);
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: var(--yo-space-2);
+  font-size: 0.75rem;
+  color: var(--yo-text-secondary);
+}
+
+.breadcrumbs span {
+  opacity: 0.5;
+}
+
+.breadcrumb-link {
+  color: var(--yo-text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.breadcrumb-link:hover {
+  color: var(--yo-text-primary);
+}
+
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ============================================
+   VIEW: DASHBOARD
+   ============================================ */
+
+.view {
+  display: none;
+}
+
+.view.active {
+  display: block;
+  animation: viewFadeIn var(--yo-duration-slow) var(--yo-ease-ceremony);
+}
+
+@keyframes viewFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dashboard {
+  padding: var(--yo-space-8) var(--yo-space-8) var(--yo-space-9);
+  max-width: 960px;
+}
+
+.dashboard-greeting {
+  margin-bottom: var(--yo-space-7);
+}
+
+.dashboard-greeting h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--yo-space-2);
+}
+
+.dashboard-greeting p {
+  color: var(--yo-text-secondary);
+  font-size: 1rem;
+  max-width: 480px;
+}
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--yo-space-3);
+  margin-bottom: var(--yo-space-7);
+}
+
+.stat-card {
+  padding: var(--yo-space-4);
+  border: 1px solid var(--yo-border-color);
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--yo-text-secondary);
+  margin-top: var(--yo-space-1);
+}
+
+.dashboard-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--yo-space-4);
+}
+
+.manual-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yo-space-3);
+}
+
+.manual-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--yo-space-4);
+  border: 1px solid var(--yo-border-color);
+  cursor: pointer;
+  transition: border-color var(--yo-duration-fast) var(--yo-ease-ceremony);
+  background: var(--yo-bg-surface);
+}
+
+.manual-list-item:hover {
+  border-color: var(--yo-text-secondary);
+}
+
+.manual-list-item-info h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: var(--yo-space-1);
+}
+
+.manual-list-item-info p {
+  font-size: 0.75rem;
+  color: var(--yo-text-secondary);
+}
+
+.manual-list-item-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--yo-space-3);
+  flex-shrink: 0;
+}
+
+.manual-list-item-meta .text-small {
+  text-align: right;
+}
+
+/* ============================================
+   VIEW: EDITOR
+   ============================================ */
+
+.editor-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  height: 100%;
+}
+
+.editor-outline {
+  border-right: 1px solid var(--yo-border-color);
+  padding: var(--yo-space-4) 0;
+  overflow-y: auto;
+}
+
+.outline-header {
+  padding: 0 var(--yo-space-4) var(--yo-space-3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.outline-item {
+  display: flex;
+  align-items: center;
+  gap: var(--yo-space-2);
+  padding: var(--yo-space-2) var(--yo-space-4);
+  font-size: 0.875rem;
+  color: var(--yo-text-secondary);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: var(--yo-font-latin);
+  transition: all var(--yo-duration-fast) var(--yo-ease-ceremony);
+}
+
+.outline-item:hover {
+  color: var(--yo-text-primary);
+}
+
+.outline-item.active {
+  color: var(--yo-text-primary);
+  font-weight: 600;
+  background: var(--yo-bg-surface);
+}
+
+.outline-item.depth-1 { padding-left: calc(var(--yo-space-4) + var(--yo-space-3)); font-size: 0.8125rem; }
+.outline-item.depth-2 { padding-left: calc(var(--yo-space-4) + var(--yo-space-5)); font-size: 0.75rem; }
+
+.outline-item .drag-handle {
+  opacity: 0;
+  cursor: grab;
+  transition: opacity var(--yo-duration-fast);
+}
+
+.outline-item:hover .drag-handle {
+  opacity: 0.4;
+}
+
+.editor-main {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.editor-toolbar {
+  padding: var(--yo-space-2) var(--yo-space-5);
+  border-bottom: 1px solid var(--yo-border-color);
+  display: flex;
+  align-items: center;
+  gap: var(--yo-space-1);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.toolbar-separator {
+  width: 1px;
+  height: 20px;
+  background: var(--yo-border-color);
+  margin: 0 var(--yo-space-2);
+}
+
+.editor-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--yo-space-7) var(--yo-space-8) var(--yo-space-9);
+  max-width: 720px;
+}
+
+.editor-title-input {
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  border: none;
+  background: transparent;
+  width: 100%;
+  color: var(--yo-text-primary);
+  padding: 0;
+  margin-bottom: var(--yo-space-6);
+}
+
+.editor-title-input:focus {
+  outline: none;
+}
+
+.editor-title-input::placeholder {
+  color: var(--yo-border-color);
+}
+
+.section-editor {
+  margin-bottom: var(--yo-space-7);
+  animation: viewFadeIn var(--yo-duration-slow) var(--yo-ease-ceremony);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--yo-space-3);
+}
+
+.section-title-input {
+  font-size: 1.5rem;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  width: 100%;
+  color: var(--yo-text-primary);
+  padding: var(--yo-space-2) 0;
+}
+
+.section-title-input:focus {
+  outline: none;
+  border-bottom: 2px solid var(--yo-color-shu-500);
+}
+
+.section-title-input::placeholder {
+  color: var(--yo-border-color);
+}
+
+.section-content-area {
+  width: 100%;
+  min-height: 200px;
+  font-family: var(--yo-font-mono);
+  font-size: 0.875rem;
+  padding: var(--yo-space-3);
+  background: var(--yo-bg-surface);
+  border: 1px solid var(--yo-border-color);
+  color: var(--yo-text-primary);
+  resize: vertical;
+  line-height: 1.8;
+  transition: border-color var(--yo-duration-fast) var(--yo-ease-ceremony);
+}
+
+.section-content-area:focus {
+  outline: none;
+  border-color: var(--yo-color-shu-500);
+}
+
+.add-section-btn {
+  width: 100%;
+  padding: var(--yo-space-4);
+  border: 1px dashed var(--yo-border-color);
+  background: transparent;
+  color: var(--yo-text-secondary);
+  font-family: var(--yo-font-latin);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--yo-duration-fast) var(--yo-ease-ceremony);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--yo-space-2);
+}
+
+.add-section-btn:hover {
+  border-color: var(--yo-color-shu-500);
+  color: var(--yo-color-shu-500);
+}
+
+/* ============================================
+   VIEW: PREVIEW
+   ============================================ */
+
+.preview-area {
+  padding: var(--yo-space-8);
+  max-width: 720px;
+}
+
+.preview-meta {
+  margin-bottom: var(--yo-space-7);
+}
+
+/* ============================================
+   VIEW: SETTINGS
+   ============================================ */
+
+.settings {
+  padding: var(--yo-space-8);
+  max-width: 640px;
+}
+
+.settings-group {
+  margin-bottom: var(--yo-space-6);
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--yo-space-3) 0;
+  border-bottom: 1px solid var(--yo-border-color);
+}
+
+.settings-row-info h4 {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.settings-row-info p {
+  font-size: 0.75rem;
+  color: var(--yo-text-secondary);
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+
+.empty-state {
+  text-align: left;
+  padding: var(--yo-space-9) 0;
+  max-width: 400px;
+}
+
+.empty-state h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: var(--yo-space-2);
+}
+
+.empty-state p {
+  color: var(--yo-text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: var(--yo-space-5);
+}
+
+/* ============================================
+   RESPONSIVE — Mobile
+   ============================================ */
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 500;
+    transform: translateX(-100%);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 499;
+  }
+
+  .sidebar-overlay.open {
+    display: block;
+  }
+
+  .mobile-menu-btn {
+    display: flex !important;
+  }
+
+  .editor-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .editor-outline {
+    display: none;
+  }
+
+  .dashboard {
+    padding: var(--yo-space-5) var(--yo-space-4) var(--yo-space-7);
+  }
+
+  .editor-content {
+    padding: var(--yo-space-5) var(--yo-space-4) var(--yo-space-7);
+  }
+
+  .preview-area {
+    padding: var(--yo-space-5) var(--yo-space-4);
+  }
+
+  .settings {
+    padding: var(--yo-space-5) var(--yo-space-4);
+  }
+
+  .modal {
+    padding: var(--yo-space-5);
+    width: 95vw;
+  }
+}
+
+.mobile-menu-btn {
+  display: none;
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================
+   UTILITY
+   ============================================ */
+
+.hidden { display: none !important; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.gap-2 { gap: var(--yo-space-2); }
+.gap-3 { gap: var(--yo-space-3); }
+.ml-auto { margin-left: auto; }
+.mt-3 { margin-top: var(--yo-space-3); }
+.mt-4 { margin-top: var(--yo-space-4); }
+.mt-6 { margin-top: var(--yo-space-6); }
+.mb-3 { margin-bottom: var(--yo-space-3); }
+.mb-4 { margin-bottom: var(--yo-space-4); }
+.w-full { width: 100%; }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">YO<span>|</span>HAKU</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Navigation</div>
+      <button class="nav-item active" data-view="dashboard" onclick="navigateTo('dashboard')">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" data-view="editor" onclick="navigateTo('editor')">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 1.5l3 3-9 9H2.5v-3l9-9z"/></svg>
+        Editor
+      </button>
+      <button class="nav-item" data-view="preview" onclick="navigateTo('preview')">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/></svg>
+        Preview
+      </button>
+
+      <div class="nav-section-label" style="margin-top: var(--yo-space-3);">Manuals</div>
+      <div id="sidebarManualList"></div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="nav-item" data-view="settings" onclick="navigateTo('settings')" style="width: auto; padding: var(--yo-space-1) var(--yo-space-2);">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2m0 10v2M1 8h2m10 0h2m-1.5-5.5L12 4m-8 8-1.5 1.5m0-11L4 4m8 8 1.5 1.5"/></svg>
+        Settings
+      </button>
+      <div class="flex items-center gap-2">
+        <span class="text-micro" style="color: var(--yo-text-secondary);">Dark</span>
+        <div class="switch" id="themeSwitch" onclick="toggleTheme()">
+          <div class="switch-thumb"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="btn-icon mobile-menu-btn" onclick="toggleSidebar()" data-tooltip="Menu">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="3" y1="5" x2="15" y2="5"/><line x1="3" y1="9" x2="15" y2="9"/><line x1="3" y1="13" x2="15" y2="13"/></svg>
+        </button>
+        <div class="breadcrumbs" id="breadcrumbs">
+          <span class="breadcrumb-link" onclick="navigateTo('dashboard')">YOHAKU</span>
+          <span>/</span>
+          <span id="breadcrumbCurrent">Dashboard</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div id="topbarActions"></div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="content-area">
+
+      <!-- DASHBOARD VIEW -->
+      <div class="view active" id="view-dashboard">
+        <div class="dashboard">
+          <div class="dashboard-greeting">
+            <h1>Manuals</h1>
+            <p>Create documentation with quiet precision. Each manual is a craft, not a chore.</p>
+          </div>
+
+          <div class="dashboard-stats" id="dashboardStats">
+            <div class="stat-card">
+              <div class="stat-value" id="statTotal">0</div>
+              <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="statDraft">0</div>
+              <div class="stat-label">Drafts</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="statPublished">0</div>
+              <div class="stat-label">Published</div>
+            </div>
+          </div>
+
+          <div class="dashboard-section-header">
+            <h2 class="text-h3">All Manuals</h2>
+            <button class="btn btn-primary" onclick="openCreateModal()">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>
+              New Manual
+            </button>
+          </div>
+
+          <div id="manualListContainer">
+            <div class="empty-state" id="emptyState">
+              <h3>No manuals yet</h3>
+              <p>Begin your first document. Click "New Manual" to start crafting with intention.</p>
+              <button class="btn btn-secondary" onclick="openCreateModal()">Create your first manual</button>
+            </div>
+            <div class="manual-list" id="manualList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EDITOR VIEW -->
+      <div class="view" id="view-editor">
+        <div class="editor-layout">
+          <div class="editor-outline">
+            <div class="outline-header">
+              <span class="text-micro" style="color: var(--yo-text-secondary);">Outline</span>
+              <button class="btn-icon" onclick="addSection()" data-tooltip="Add section">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>
+              </button>
+            </div>
+            <div id="outlineList"></div>
+          </div>
+          <div class="editor-main">
+            <div class="editor-toolbar">
+              <button class="btn-icon" onclick="insertMarkdown('**','**')" data-tooltip="Bold">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M3 2h5a3 3 0 0 1 0 6H3V2zm0 6h6a3 3 0 0 1 0 6H3V8z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+              </button>
+              <button class="btn-icon" onclick="insertMarkdown('*','*')" data-tooltip="Italic">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="8" y1="2" x2="6" y2="12"/><line x1="5" y1="2" x2="10" y2="2"/><line x1="4" y1="12" x2="9" y2="12"/></svg>
+              </button>
+              <div class="toolbar-separator"></div>
+              <button class="btn-icon" onclick="insertMarkdown('## ','')" data-tooltip="Heading">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2v10M12 2v10M2 7h10"/></svg>
+              </button>
+              <button class="btn-icon" onclick="insertMarkdown('- ','')" data-tooltip="List">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="5" y1="3" x2="12" y2="3"/><line x1="5" y1="7" x2="12" y2="7"/><line x1="5" y1="11" x2="12" y2="11"/><rect x="2" y="2.5" width="1" height="1" fill="currentColor"/><rect x="2" y="6.5" width="1" height="1" fill="currentColor"/><rect x="2" y="10.5" width="1" height="1" fill="currentColor"/></svg>
+              </button>
+              <button class="btn-icon" onclick="insertMarkdown('> ','')" data-tooltip="Quote">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h3L4 10M8 4h3L9 10"/></svg>
+              </button>
+              <button class="btn-icon" onclick="insertMarkdown('`','`')" data-tooltip="Inline code">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4,4 1,7 4,10"/><polyline points="10,4 13,7 10,10"/></svg>
+              </button>
+              <button class="btn-icon" onclick="insertMarkdown('```\n','\n```')" data-tooltip="Code block">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="12" height="12" rx="0"/><polyline points="4,5 2,7 4,9"/><polyline points="10,5 12,7 10,9"/></svg>
+              </button>
+              <div class="toolbar-separator"></div>
+              <button class="btn-icon" onclick="insertMarkdown('[link text](url)','')" data-tooltip="Link">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 8a3 3 0 0 0 4.24 0l2-2a3 3 0 0 0-4.24-4.24L6.8 2.96"/><path d="M8 6a3 3 0 0 0-4.24 0l-2 2a3 3 0 0 0 4.24 4.24L7.2 11.04"/></svg>
+              </button>
+              <button class="btn-icon" onclick="insertMarkdown('---\n','')" data-tooltip="Divider">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="7" x2="13" y2="7"/></svg>
+              </button>
+              <button class="btn-icon" onclick="insertMarkdown('| Header | Header |\n|--------|--------|\n| Cell   | Cell   |\n','')" data-tooltip="Table">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="12" height="12"/><line x1="1" y1="5" x2="13" y2="5"/><line x1="1" y1="9" x2="13" y2="9"/><line x1="7" y1="1" x2="7" y2="13"/></svg>
+              </button>
+            </div>
+            <div class="editor-content" id="editorContent">
+              <input class="editor-title-input" id="editorTitleInput" placeholder="Manual Title" oninput="onTitleChange(this.value)">
+              <div id="sectionsContainer"></div>
+              <button class="add-section-btn" onclick="addSection()">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>
+                Add Section
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PREVIEW VIEW -->
+      <div class="view" id="view-preview">
+        <div class="preview-area">
+          <div class="preview-meta" id="previewMeta"></div>
+          <div class="markdown" id="previewContent">
+            <div class="empty-state">
+              <h3>Nothing to preview</h3>
+              <p>Select a manual from the dashboard and add content to see a preview.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS VIEW -->
+      <div class="view" id="view-settings">
+        <div class="settings">
+          <h2 class="text-h2" style="margin-bottom: var(--yo-space-6);">Settings</h2>
+
+          <div class="settings-group">
+            <h3 class="text-ui mb-3" style="text-transform: uppercase; letter-spacing: 0.05em; color: var(--yo-text-secondary);">Appearance</h3>
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <h4>Dark Mode</h4>
+                <p>Switch between light and dark themes</p>
+              </div>
+              <div class="switch" id="settingsThemeSwitch" onclick="toggleTheme()">
+                <div class="switch-thumb"></div>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <h4>Editor Font Size</h4>
+                <p>Adjust the text size in the editor</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-small" id="fontSizeLabel">14px</span>
+                <input type="range" min="12" max="20" value="14" style="width:120px" oninput="setEditorFontSize(this.value)">
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h3 class="text-ui mb-3" style="text-transform: uppercase; letter-spacing: 0.05em; color: var(--yo-text-secondary);">Data</h3>
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <h4>Export All Manuals</h4>
+                <p>Download all data as JSON</p>
+              </div>
+              <button class="btn btn-secondary" onclick="exportAllData()">Export</button>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <h4>Import Data</h4>
+                <p>Restore from a JSON backup</p>
+              </div>
+              <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">Import</button>
+              <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <h4>Clear All Data</h4>
+                <p>Permanently delete all manuals</p>
+              </div>
+              <button class="btn btn-danger" onclick="clearAllData()">Clear</button>
+            </div>
+          </div>
+
+          <div class="alert alert-info mt-6">
+            All data is stored in your browser's localStorage. Clearing browser data will remove your manuals.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- CREATE MANUAL MODAL -->
+<div class="modal-backdrop" id="createModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="text-h2">New Manual</h2>
+      <p class="text-body" style="margin-top: var(--yo-space-2);">Give it a name and description. You can change these later.</p>
+    </div>
+    <div>
+      <div style="margin-bottom: var(--yo-space-4);">
+        <label class="input-label">Title</label>
+        <input class="input" id="newManualTitle" placeholder="e.g. Onboarding Guide" autofocus>
+      </div>
+      <div style="margin-bottom: var(--yo-space-4);">
+        <label class="input-label">Description</label>
+        <input class="input" id="newManualDesc" placeholder="A brief summary (optional)">
+      </div>
+      <div>
+        <label class="input-label">Status</label>
+        <div class="select-wrap">
+          <select class="select" id="newManualStatus">
+            <option value="draft">Draft</option>
+            <option value="published">Published</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeCreateModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="createManual()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-backdrop" id="deleteModal">
+  <div class="modal" style="max-width: 420px;">
+    <div class="modal-header">
+      <h2 class="text-h3">Delete Manual</h2>
+      <p class="text-body" style="margin-top: var(--yo-space-2);">This action cannot be undone. The manual and all its sections will be permanently removed.</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn btn-danger" id="confirmDeleteBtn" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ============================================
+   YOHAKU — APPLICATION STATE & LOGIC
+   ============================================ */
+
+const STORAGE_KEY = 'yohaku_manuals';
+const THEME_KEY = 'yohaku_theme';
+
+let state = {
+  manuals: [],
+  currentManualId: null,
+  currentSectionId: null,
+  currentView: 'dashboard',
+  deleteTargetId: null,
+};
+
+// ── Persistence ──
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) state.manuals = JSON.parse(raw);
+  } catch(e) { state.manuals = []; }
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.manuals));
+}
+
+function loadTheme() {
+  const theme = localStorage.getItem(THEME_KEY) || 'light';
+  applyTheme(theme);
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const sw1 = document.getElementById('themeSwitch');
+  const sw2 = document.getElementById('settingsThemeSwitch');
+  if (theme === 'dark') {
+    sw1?.classList.add('active');
+    sw2?.classList.add('active');
+  } else {
+    sw1?.classList.remove('active');
+    sw2?.classList.remove('active');
+  }
+  localStorage.setItem(THEME_KEY, theme);
+}
+
+function toggleTheme() {
+  const current = localStorage.getItem(THEME_KEY) || 'light';
+  applyTheme(current === 'light' ? 'dark' : 'light');
+}
+
+// ── Navigation ──
+
+function navigateTo(view, skipUpdate) {
+  state.currentView = view;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(`view-${view}`)?.classList.add('active');
+
+  document.querySelectorAll('.nav-item[data-view]').forEach(n => n.classList.remove('active'));
+  document.querySelector(`.nav-item[data-view="${view}"]`)?.classList.add('active');
+
+  const labels = { dashboard: 'Dashboard', editor: 'Editor', preview: 'Preview', settings: 'Settings' };
+  document.getElementById('breadcrumbCurrent').textContent = labels[view] || view;
+
+  updateTopbarActions();
+  if (view === 'preview') renderPreview();
+  if (view === 'dashboard' && !skipUpdate) renderDashboard();
+
+  // Close mobile sidebar
+  document.getElementById('sidebar')?.classList.remove('open');
+  document.getElementById('sidebarOverlay')?.classList.remove('open');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+
+function updateTopbarActions() {
+  const container = document.getElementById('topbarActions');
+  if (state.currentView === 'editor' && state.currentManualId) {
+    const manual = getManual(state.currentManualId);
+    container.innerHTML = `
+      <button class="btn btn-ghost" onclick="navigateTo('preview')" data-tooltip="Preview">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3"/><path d="M1 7s2.5-4 6-4 6 4 6 4-2.5 4-6 4-6-4-6-4z"/></svg>
+        Preview
+      </button>
+      <button class="btn btn-ghost" onclick="exportCurrentManual()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2v8m-3-3l3 3 3-3M2 12h10"/></svg>
+        Export
+      </button>
+    `;
+  } else {
+    container.innerHTML = '';
+  }
+}
+
+// ── Helpers ──
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+
+function getManual(id) { return state.manuals.find(m => m.id === id); }
+
+function fmtDate(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+// ── Toast ──
+
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.textContent = message;
+  container.appendChild(el);
+  setTimeout(() => {
+    el.classList.add('dismissing');
+    setTimeout(() => el.remove(), 300);
+  }, 3000);
+}
+
+// ── Dashboard ──
+
+function renderDashboard() {
+  const total = state.manuals.length;
+  const drafts = state.manuals.filter(m => m.status === 'draft').length;
+  const published = state.manuals.filter(m => m.status === 'published').length;
+
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statDraft').textContent = drafts;
+  document.getElementById('statPublished').textContent = published;
+
+  const listEl = document.getElementById('manualList');
+  const emptyEl = document.getElementById('emptyState');
+
+  if (total === 0) {
+    emptyEl.style.display = 'block';
+    listEl.innerHTML = '';
+    return;
+  }
+
+  emptyEl.style.display = 'none';
+
+  const sorted = [...state.manuals].sort((a, b) => b.updatedAt - a.updatedAt);
+  listEl.innerHTML = sorted.map(m => `
+    <div class="manual-list-item" onclick="openManual('${m.id}')">
+      <div class="manual-list-item-info">
+        <h3>${esc(m.title) || 'Untitled'}</h3>
+        <p>${esc(m.description) || 'No description'}</p>
+      </div>
+      <div class="manual-list-item-meta">
+        <span class="badge badge-${m.status}">${m.status.toUpperCase()}</span>
+        <span class="text-small">${fmtDate(m.updatedAt)}</span>
+        <button class="btn-icon" onclick="event.stopPropagation(); openDeleteModal('${m.id}')" data-tooltip="Delete">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="2,4 12,4"/><path d="M5 4V2h4v2M3 4l1 8h6l1-8"/></svg>
+        </button>
+      </div>
+    </div>
+  `).join('');
+
+  renderSidebarManuals();
+}
+
+function renderSidebarManuals() {
+  const el = document.getElementById('sidebarManualList');
+  el.innerHTML = state.manuals.sort((a,b) => b.updatedAt - a.updatedAt).slice(0, 8).map(m => `
+    <button class="nav-item ${state.currentManualId === m.id ? 'active' : ''}" onclick="openManual('${m.id}')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2" y="1" width="10" height="12"/><line x1="4" y1="4" x2="10" y2="4"/><line x1="4" y1="7" x2="8" y2="7"/></svg>
+      ${esc(m.title) || 'Untitled'}
+    </button>
+  `).join('');
+}
+
+// ── CRUD ──
+
+function openCreateModal() {
+  document.getElementById('newManualTitle').value = '';
+  document.getElementById('newManualDesc').value = '';
+  document.getElementById('newManualStatus').value = 'draft';
+  document.getElementById('createModal').classList.add('open');
+  setTimeout(() => document.getElementById('newManualTitle').focus(), 100);
+}
+
+function closeCreateModal() {
+  document.getElementById('createModal').classList.remove('open');
+}
+
+function createManual() {
+  const title = document.getElementById('newManualTitle').value.trim();
+  const desc = document.getElementById('newManualDesc').value.trim();
+  const status = document.getElementById('newManualStatus').value;
+  if (!title) { showToast('Please enter a title.', 'error'); return; }
+
+  const manual = {
+    id: uid(),
+    title,
+    description: desc,
+    status,
+    sections: [
+      { id: uid(), title: 'Introduction', content: 'Start writing here...' }
+    ],
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
+
+  state.manuals.push(manual);
+  saveState();
+  closeCreateModal();
+  showToast('Manual created.', 'success');
+  openManual(manual.id);
+}
+
+function openManual(id) {
+  state.currentManualId = id;
+  const manual = getManual(id);
+  if (!manual) return;
+
+  document.getElementById('editorTitleInput').value = manual.title;
+  renderSections();
+  renderOutline();
+  renderSidebarManuals();
+  navigateTo('editor');
+
+  document.getElementById('breadcrumbCurrent').textContent = manual.title || 'Editor';
+}
+
+function openDeleteModal(id) {
+  state.deleteTargetId = id;
+  document.getElementById('deleteModal').classList.add('open');
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('open');
+  state.deleteTargetId = null;
+}
+
+function confirmDelete() {
+  if (!state.deleteTargetId) return;
+  state.manuals = state.manuals.filter(m => m.id !== state.deleteTargetId);
+  if (state.currentManualId === state.deleteTargetId) state.currentManualId = null;
+  saveState();
+  closeDeleteModal();
+  renderDashboard();
+  navigateTo('dashboard');
+  showToast('Manual deleted.', 'info');
+}
+
+// ── Editor ──
+
+function onTitleChange(val) {
+  const manual = getManual(state.currentManualId);
+  if (!manual) return;
+  manual.title = val;
+  manual.updatedAt = Date.now();
+  saveState();
+  renderSidebarManuals();
+  document.getElementById('breadcrumbCurrent').textContent = val || 'Editor';
+}
+
+function renderSections() {
+  const manual = getManual(state.currentManualId);
+  if (!manual) return;
+  const container = document.getElementById('sectionsContainer');
+  container.innerHTML = manual.sections.map((s, i) => `
+    <div class="section-editor" data-section-id="${s.id}">
+      <div class="section-header">
+        <span class="text-micro" style="color: var(--yo-text-secondary);">Section ${i + 1}</span>
+        <div class="flex items-center gap-2">
+          ${manual.sections.length > 1 ? `
+          <button class="btn-icon" onclick="moveSection('${s.id}', -1)" data-tooltip="Move up">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2v8M3 5l3-3 3 3"/></svg>
+          </button>
+          <button class="btn-icon" onclick="moveSection('${s.id}', 1)" data-tooltip="Move down">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 10V2M3 7l3 3 3-3"/></svg>
+          </button>
+          <button class="btn-icon" onclick="removeSection('${s.id}')" data-tooltip="Remove">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>
+          </button>` : ''}
+        </div>
+      </div>
+      <input class="section-title-input" value="${esc(s.title)}" placeholder="Section title" oninput="updateSectionTitle('${s.id}', this.value)">
+      <textarea class="section-content-area" placeholder="Write content in Markdown..." oninput="updateSectionContent('${s.id}', this.value)" onfocus="state.currentSectionId='${s.id}'">${esc(s.content)}</textarea>
+    </div>
+  `).join('');
+}
+
+function addSection() {
+  const manual = getManual(state.currentManualId);
+  if (!manual) { showToast('Open a manual first.', 'error'); return; }
+  const section = { id: uid(), title: '', content: '' };
+  manual.sections.push(section);
+  manual.updatedAt = Date.now();
+  saveState();
+  renderSections();
+  renderOutline();
+  // Focus new section
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('.section-title-input');
+    inputs[inputs.length - 1]?.focus();
+  }, 50);
+}
+
+function removeSection(sectionId) {
+  const manual = getManual(state.currentManualId);
+  if (!manual || manual.sections.length <= 1) return;
+  manual.sections = manual.sections.filter(s => s.id !== sectionId);
+  manual.updatedAt = Date.now();
+  saveState();
+  renderSections();
+  renderOutline();
+}
+
+function moveSection(sectionId, direction) {
+  const manual = getManual(state.currentManualId);
+  if (!manual) return;
+  const idx = manual.sections.findIndex(s => s.id === sectionId);
+  const newIdx = idx + direction;
+  if (newIdx < 0 || newIdx >= manual.sections.length) return;
+  [manual.sections[idx], manual.sections[newIdx]] = [manual.sections[newIdx], manual.sections[idx]];
+  manual.updatedAt = Date.now();
+  saveState();
+  renderSections();
+  renderOutline();
+}
+
+function updateSectionTitle(sectionId, val) {
+  const manual = getManual(state.currentManualId);
+  if (!manual) return;
+  const section = manual.sections.find(s => s.id === sectionId);
+  if (section) { section.title = val; manual.updatedAt = Date.now(); saveState(); renderOutline(); }
+}
+
+function updateSectionContent(sectionId, val) {
+  const manual = getManual(state.currentManualId);
+  if (!manual) return;
+  const section = manual.sections.find(s => s.id === sectionId);
+  if (section) { section.content = val; manual.updatedAt = Date.now(); saveState(); }
+}
+
+function renderOutline() {
+  const manual = getManual(state.currentManualId);
+  if (!manual) return;
+  const el = document.getElementById('outlineList');
+  el.innerHTML = manual.sections.map((s, i) => `
+    <button class="outline-item ${state.currentSectionId === s.id ? 'active' : ''}" onclick="scrollToSection('${s.id}')">
+      <span class="drag-handle" style="color: var(--yo-text-secondary);">⠿</span>
+      ${esc(s.title) || `Section ${i + 1}`}
+    </button>
+  `).join('');
+}
+
+function scrollToSection(sectionId) {
+  state.currentSectionId = sectionId;
+  renderOutline();
+  const el = document.querySelector(`[data-section-id="${sectionId}"]`);
+  el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function insertMarkdown(before, after) {
+  const activeTextarea = document.querySelector('.section-content-area:focus');
+  if (!activeTextarea) { showToast('Click into a section first.', 'info'); return; }
+  const start = activeTextarea.selectionStart;
+  const end = activeTextarea.selectionEnd;
+  const text = activeTextarea.value;
+  const selected = text.substring(start, end);
+  activeTextarea.value = text.substring(0, start) + before + selected + after + text.substring(end);
+  activeTextarea.focus();
+  activeTextarea.selectionStart = start + before.length;
+  activeTextarea.selectionEnd = start + before.length + selected.length;
+  activeTextarea.dispatchEvent(new Event('input'));
+}
+
+// ── Preview / Markdown Render ──
+
+function renderPreview() {
+  const manual = getManual(state.currentManualId);
+  const metaEl = document.getElementById('previewMeta');
+  const contentEl = document.getElementById('previewContent');
+
+  if (!manual) {
+    metaEl.innerHTML = '';
+    contentEl.innerHTML = '<div class="empty-state"><h3>Nothing to preview</h3><p>Select a manual from the dashboard first.</p></div>';
+    return;
+  }
+
+  metaEl.innerHTML = `
+    <span class="badge badge-${manual.status}" style="margin-bottom: var(--yo-space-3); display: inline-flex;">${manual.status.toUpperCase()}</span>
+    <h1 class="text-h1">${esc(manual.title) || 'Untitled'}</h1>
+    ${manual.description ? `<p class="text-large" style="color: var(--yo-text-secondary); margin-top: var(--yo-space-2);">${esc(manual.description)}</p>` : ''}
+    <p class="text-small" style="margin-top: var(--yo-space-3);">Last updated: ${fmtDate(manual.updatedAt)}</p>
+    <hr class="divider">
+  `;
+
+  const sectionsHtml = manual.sections.map(s => {
+    let md = '';
+    if (s.title) md += `# ${s.title}\n\n`;
+    md += s.content || '';
+    return renderMarkdown(md);
+  }).join('<hr class="divider">');
+
+  contentEl.innerHTML = sectionsHtml || '<p class="text-body">No content yet.</p>';
+}
+
+function renderMarkdown(md) {
+  let html = esc(md);
+
+  // Code blocks (fenced)
+  html = html.replace(/```([\s\S]*?)```/g, (_, code) => `<pre><code>${code.trim()}</code></pre>`);
+
+  // Inline code
+  html = html.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+
+  // Tables
+  html = html.replace(/^(\|.+\|)\n(\|[-| :]+\|)\n((?:\|.+\|\n?)+)/gm, (_, header, sep, body) => {
+    const heads = header.split('|').filter(c => c.trim()).map(c => `<th>${c.trim()}</th>`).join('');
+    const rows = body.trim().split('\n').map(row => {
+      const cells = row.split('|').filter(c => c.trim()).map(c => `<td>${c.trim()}</td>`).join('');
+      return `<tr>${cells}</tr>`;
+    }).join('');
+    return `<table><thead><tr>${heads}</tr></thead><tbody>${rows}</tbody></table>`;
+  });
+
+  // Headings
+  html = html.replace(/^###### (.+)$/gm, '<h6>$1</h6>');
+  html = html.replace(/^##### (.+)$/gm, '<h5>$1</h5>');
+  html = html.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+  // Blockquote
+  html = html.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+
+  // Horizontal rule
+  html = html.replace(/^---$/gm, '<hr>');
+
+  // Bold & italic
+  html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+  // Links
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+
+  // Unordered list
+  html = html.replace(/(^- .+$(\n|$))+/gm, match => {
+    const items = match.trim().split('\n').map(l => `<li>${l.replace(/^- /, '')}</li>`).join('');
+    return `<ul>${items}</ul>`;
+  });
+
+  // Ordered list
+  html = html.replace(/(^\d+\. .+$(\n|$))+/gm, match => {
+    const items = match.trim().split('\n').map(l => `<li>${l.replace(/^\d+\. /, '')}</li>`).join('');
+    return `<ol>${items}</ol>`;
+  });
+
+  // Paragraphs (double newline)
+  html = html.replace(/\n\n/g, '</p><p>');
+  // Wrap remaining text
+  if (!html.startsWith('<')) html = '<p>' + html;
+  if (!html.endsWith('>')) html += '</p>';
+  // Clean empty paragraphs
+  html = html.replace(/<p>\s*<\/p>/g, '');
+  html = html.replace(/<p>(<h[1-6]>)/g, '$1');
+  html = html.replace(/(<\/h[1-6]>)<\/p>/g, '$1');
+  html = html.replace(/<p>(<ul>)/g, '$1');
+  html = html.replace(/(<\/ul>)<\/p>/g, '$1');
+  html = html.replace(/<p>(<ol>)/g, '$1');
+  html = html.replace(/(<\/ol>)<\/p>/g, '$1');
+  html = html.replace(/<p>(<blockquote>)/g, '$1');
+  html = html.replace(/(<\/blockquote>)<\/p>/g, '$1');
+  html = html.replace(/<p>(<pre>)/g, '$1');
+  html = html.replace(/(<\/pre>)<\/p>/g, '$1');
+  html = html.replace(/<p>(<table>)/g, '$1');
+  html = html.replace(/(<\/table>)<\/p>/g, '$1');
+  html = html.replace(/<p>(<hr>)/g, '$1');
+  html = html.replace(/(<hr>)<\/p>/g, '$1');
+
+  return html;
+}
+
+function esc(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Export / Import ──
+
+function exportCurrentManual() {
+  const manual = getManual(state.currentManualId);
+  if (!manual) return;
+
+  // Build markdown output
+  let md = `# ${manual.title}\n\n`;
+  if (manual.description) md += `> ${manual.description}\n\n---\n\n`;
+  manual.sections.forEach(s => {
+    if (s.title) md += `## ${s.title}\n\n`;
+    md += (s.content || '') + '\n\n';
+  });
+
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${manual.title || 'manual'}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Exported as Markdown.', 'success');
+}
+
+function exportAllData() {
+  const blob = new Blob([JSON.stringify(state.manuals, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'yohaku-backup.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('All data exported.', 'success');
+}
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (Array.isArray(data)) {
+        state.manuals = data;
+        saveState();
+        renderDashboard();
+        showToast('Data imported successfully.', 'success');
+      } else {
+        showToast('Invalid file format.', 'error');
+      }
+    } catch(err) {
+      showToast('Failed to parse file.', 'error');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function clearAllData() {
+  if (confirm('Are you sure? This will permanently delete all manuals.')) {
+    state.manuals = [];
+    state.currentManualId = null;
+    saveState();
+    renderDashboard();
+    navigateTo('dashboard');
+    showToast('All data cleared.', 'info');
+  }
+}
+
+// ── Settings ──
+
+function setEditorFontSize(val) {
+  document.getElementById('fontSizeLabel').textContent = val + 'px';
+  document.querySelectorAll('.section-content-area').forEach(el => {
+    el.style.fontSize = val + 'px';
+  });
+}
+
+// ── Keyboard Shortcuts ──
+
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+    e.preventDefault();
+    saveState();
+    showToast('Saved.', 'success');
+  }
+  if (e.key === 'Escape') {
+    closeCreateModal();
+    closeDeleteModal();
+  }
+});
+
+// ── Init ──
+
+function init() {
+  loadState();
+  loadTheme();
+  renderDashboard();
+}
+
+init();
+</script>
+</body>
+</html>

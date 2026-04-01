@@ -1,0 +1,2508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>紙 Kami — Manual Creation Tool</title>
+<style>
+/* ============================================================
+   DESIGN TOKENS — Japanese Aesthetic System "Kami" (紙)
+   Based on: Ma, Wabi-sabi, Shibui, Kanso, Omotenashi
+   ============================================================ */
+
+:root {
+  /* — Color: Light Mode (Inspired by washi paper, sumi ink, indigo) — */
+  --color-bg-primary: #F7F5F0;         /* Unbleached washi */
+  --color-bg-secondary: #EFECE4;       /* Aged paper */
+  --color-bg-tertiary: #E6E2D8;        /* Warm stone */
+  --color-bg-surface: #FFFFFF;          /* Clean surface */
+  --color-bg-elevated: #FFFFFF;
+  --color-bg-sidebar: #F0EDE5;
+  --color-bg-hover: rgba(0,0,0,0.03);
+  --color-bg-active: rgba(0,0,0,0.06);
+  --color-bg-selected: #E8E4DA;
+
+  --color-text-primary: #1A1A18;        /* Sumi ink */
+  --color-text-secondary: #5C5A52;      /* Diluted ink */
+  --color-text-tertiary: #8A877D;       /* Light wash */
+  --color-text-placeholder: #B0ADA4;
+  --color-text-inverse: #F7F5F0;
+  --color-text-link: #2B5797;           /* Ai-iro (indigo blue) */
+
+  --color-accent-primary: #2B5797;      /* Ai-iro — traditional indigo */
+  --color-accent-primary-hover: #1E3F6F;
+  --color-accent-secondary: #8B4E6A;    /* Ebi-iro — muted plum */
+  --color-accent-warm: #C4713B;         /* Kitsune-iro — fox amber */
+  --color-accent-success: #4A7C59;      /* Matcha green */
+  --color-accent-warning: #B8860B;      /* Gold ochre */
+  --color-accent-danger: #A0522D;       /* Bengara — iron red */
+  --color-accent-info: #5B7F95;         /* Asagi-iro — pale blue */
+
+  --color-border-light: rgba(0,0,0,0.06);
+  --color-border-default: rgba(0,0,0,0.10);
+  --color-border-strong: rgba(0,0,0,0.18);
+  --color-border-focus: var(--color-accent-primary);
+
+  /* — Typography — */
+  --font-sans: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI", "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-serif: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", Georgia, "Times New Roman", serif;
+  --font-mono: "SF Mono", "Cascadia Code", "Fira Code", "Source Code Pro", Menlo, Consolas, monospace;
+
+  /* 9-level type scale — modular 1.25 ratio */
+  --text-2xs: 0.64rem;     /* 10.24px — Captions, metadata */
+  --text-xs: 0.8rem;       /* 12.8px  — Small labels */
+  --text-sm: 0.875rem;     /* 14px    — Secondary text */
+  --text-base: 1rem;       /* 16px    — Body */
+  --text-md: 1.125rem;     /* 18px    — Lead text */
+  --text-lg: 1.25rem;      /* 20px    — H4 */
+  --text-xl: 1.5rem;       /* 24px    — H3 */
+  --text-2xl: 2rem;        /* 32px    — H2 */
+  --text-3xl: 2.5rem;      /* 40px    — H1 */
+
+  --leading-tight: 1.3;
+  --leading-normal: 1.7;
+  --leading-relaxed: 1.9;
+  --letter-tight: -0.02em;
+  --letter-normal: 0;
+  --letter-wide: 0.04em;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* — Spacing: 8px grid with Ma (間) rhythm — */
+  --space-0: 0;
+  --space-1: 0.25rem;   /* 4px  — micro */
+  --space-2: 0.5rem;    /* 8px  — tight */
+  --space-3: 0.75rem;   /* 12px — compact */
+  --space-4: 1rem;      /* 16px — base */
+  --space-5: 1.5rem;    /* 24px — comfortable */
+  --space-6: 2rem;      /* 32px — spacious */
+  --space-7: 2.5rem;    /* 40px — open */
+  --space-8: 3rem;      /* 48px — generous */
+  --space-9: 4rem;      /* 64px — dramatic Ma */
+  --space-10: 5rem;     /* 80px — grand Ma */
+  --space-11: 6rem;     /* 96px — monumental */
+
+  /* — Radius — */
+  --radius-none: 0;
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* — Elevation — subtle, not dramatic — */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-xl: 0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-inner: inset 0 1px 3px rgba(0,0,0,0.06);
+
+  /* — Motion: Ceremony-inspired — */
+  --duration-instant: 80ms;
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --duration-deliberate: 600ms;
+  --ease-default: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.25, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* — Layout — */
+  --sidebar-width: 280px;
+  --sidebar-width-collapsed: 56px;
+  --toolbar-height: 48px;
+  --content-max-width: 780px;
+
+  /* — Z-index — */
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+}
+
+/* — Dark Mode — */
+[data-theme="dark"] {
+  --color-bg-primary: #141413;
+  --color-bg-secondary: #1C1C1A;
+  --color-bg-tertiary: #242422;
+  --color-bg-surface: #1E1E1C;
+  --color-bg-elevated: #262624;
+  --color-bg-sidebar: #191917;
+  --color-bg-hover: rgba(255,255,255,0.04);
+  --color-bg-active: rgba(255,255,255,0.07);
+  --color-bg-selected: #2A2A27;
+
+  --color-text-primary: #E8E5DC;
+  --color-text-secondary: #A09D94;
+  --color-text-tertiary: #6E6B63;
+  --color-text-placeholder: #504E47;
+  --color-text-inverse: #1A1A18;
+  --color-text-link: #6B9FD4;
+
+  --color-accent-primary: #6B9FD4;
+  --color-accent-primary-hover: #8BB5E0;
+  --color-accent-secondary: #B87D99;
+  --color-accent-warm: #D49460;
+
+  --color-border-light: rgba(255,255,255,0.05);
+  --color-border-default: rgba(255,255,255,0.08);
+  --color-border-strong: rgba(255,255,255,0.15);
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+::selection {
+  background: rgba(43,87,151,0.15);
+  color: var(--color-text-primary);
+}
+
+[data-theme="dark"] ::selection {
+  background: rgba(107,159,212,0.25);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--color-text-link);
+  text-decoration: none;
+}
+
+
+/* ============================================================
+   LAYOUT SHELL
+   ============================================================ */
+.app {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* — Sidebar — */
+.sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  height: 100vh;
+  background: var(--color-bg-sidebar);
+  border-right: 1px solid var(--color-border-light);
+  display: flex;
+  flex-direction: column;
+  transition: width var(--duration-normal) var(--ease-default),
+              min-width var(--duration-normal) var(--ease-default),
+              transform var(--duration-normal) var(--ease-default);
+  overflow: hidden;
+  position: relative;
+  z-index: var(--z-sticky);
+}
+
+.sidebar.collapsed {
+  width: var(--sidebar-width-collapsed);
+  min-width: var(--sidebar-width-collapsed);
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  border-bottom: 1px solid var(--color-border-light);
+  min-height: 56px;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar-brand-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-lg);
+  color: var(--color-accent-primary);
+  flex-shrink: 0;
+}
+
+.sidebar-brand-text {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-brand-name {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--letter-wide);
+  line-height: 1.2;
+}
+
+.sidebar-brand-sub {
+  font-size: var(--text-2xs);
+  color: var(--color-text-tertiary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.collapsed .sidebar-brand-text {
+  display: none;
+}
+
+.sidebar-toggle-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-tertiary);
+  transition: background var(--duration-fast) var(--ease-default),
+              color var(--duration-fast) var(--ease-default);
+  flex-shrink: 0;
+}
+
+.sidebar-toggle-btn:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+}
+
+/* Sidebar actions */
+.sidebar-actions {
+  padding: var(--space-3) var(--space-3) var(--space-2);
+}
+
+.btn-new-manual {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-accent-primary);
+  border: 1px dashed var(--color-border-default);
+  transition: all var(--duration-fast) var(--ease-default);
+  justify-content: flex-start;
+  background: transparent;
+}
+
+.btn-new-manual:hover {
+  border-color: var(--color-accent-primary);
+  background: rgba(43,87,151,0.04);
+}
+
+.collapsed .btn-new-manual span {
+  display: none;
+}
+
+.collapsed .btn-new-manual {
+  justify-content: center;
+  padding: var(--space-2);
+  border-style: solid;
+}
+
+/* Sidebar search */
+.sidebar-search {
+  padding: 0 var(--space-3) var(--space-3);
+}
+
+.search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input-wrap svg {
+  position: absolute;
+  left: var(--space-3);
+  color: var(--color-text-placeholder);
+  pointer-events: none;
+  width: 14px;
+  height: 14px;
+}
+
+.search-input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3) var(--space-2) calc(var(--space-3) + 20px);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  transition: border-color var(--duration-fast) var(--ease-default);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--color-accent-primary);
+}
+
+.search-input::placeholder {
+  color: var(--color-text-placeholder);
+}
+
+.collapsed .sidebar-search {
+  display: none;
+}
+
+/* Sidebar nav list */
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 var(--space-2) var(--space-3);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-default) transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: var(--color-border-default);
+  border-radius: var(--radius-full);
+}
+
+.nav-section {
+  margin-bottom: var(--space-2);
+}
+
+.nav-section-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  user-select: none;
+}
+
+.nav-section-label:hover {
+  color: var(--color-text-secondary);
+}
+
+.collapsed .nav-section-label span {
+  display: none;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-default);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+}
+
+.nav-item:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.nav-item.active {
+  background: var(--color-bg-selected);
+  color: var(--color-text-primary);
+  font-weight: var(--weight-medium);
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 16px;
+  background: var(--color-accent-primary);
+  border-radius: 0 2px 2px 0;
+}
+
+.nav-item-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-xs);
+  opacity: 0.6;
+}
+
+.nav-item-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.collapsed .nav-item-text {
+  display: none;
+}
+
+.nav-item-actions {
+  margin-left: auto;
+  display: flex;
+  gap: var(--space-1);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.nav-item:hover .nav-item-actions {
+  opacity: 1;
+}
+
+.nav-item-action {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-tertiary);
+  font-size: 11px;
+  transition: all var(--duration-fast) var(--ease-default);
+}
+
+.nav-item-action:hover {
+  background: var(--color-bg-active);
+  color: var(--color-accent-danger);
+}
+
+/* Sidebar footer */
+.sidebar-footer {
+  padding: var(--space-3) var(--space-3);
+  border-top: 1px solid var(--color-border-light);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.btn-theme-toggle {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--color-text-tertiary);
+  font-size: var(--text-sm);
+  transition: all var(--duration-fast) var(--ease-default);
+}
+
+.btn-theme-toggle:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+}
+
+.sidebar-footer-meta {
+  font-size: var(--text-2xs);
+  color: var(--color-text-tertiary);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.collapsed .sidebar-footer-meta {
+  display: none;
+}
+
+
+/* ============================================================
+   MAIN CONTENT
+   ============================================================ */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--color-bg-primary);
+}
+
+/* — Toolbar — */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-5);
+  height: var(--toolbar-height);
+  min-height: var(--toolbar-height);
+  border-bottom: 1px solid var(--color-border-light);
+  background: var(--color-bg-primary);
+  gap: var(--space-3);
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  flex: 1;
+}
+
+.toolbar-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+  min-width: 0;
+}
+
+.toolbar-breadcrumb-sep {
+  font-size: var(--text-xs);
+  color: var(--color-text-placeholder);
+}
+
+.toolbar-title-input {
+  background: transparent;
+  border: none;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-primary);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  min-width: 120px;
+  max-width: 400px;
+  transition: background var(--duration-fast) var(--ease-default);
+}
+
+.toolbar-title-input:hover {
+  background: var(--color-bg-hover);
+}
+
+.toolbar-title-input:focus {
+  outline: none;
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Toolbar buttons */
+.toolbar-btn {
+  height: 32px;
+  padding: 0 var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-secondary);
+  transition: all var(--duration-fast) var(--ease-default);
+  white-space: nowrap;
+}
+
+.toolbar-btn:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.toolbar-btn.active {
+  background: var(--color-bg-selected);
+  color: var(--color-text-primary);
+}
+
+.toolbar-btn-icon {
+  width: 32px;
+  padding: 0;
+  justify-content: center;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--color-border-light);
+}
+
+.toolbar-btn-primary {
+  background: var(--color-accent-primary);
+  color: var(--color-text-inverse);
+}
+
+.toolbar-btn-primary:hover {
+  background: var(--color-accent-primary-hover);
+  color: var(--color-text-inverse);
+}
+
+/* Status badge */
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.02em;
+}
+
+.status-badge-draft {
+  background: rgba(184,134,11,0.1);
+  color: var(--color-accent-warning);
+}
+
+.status-badge-published {
+  background: rgba(74,124,89,0.1);
+  color: var(--color-accent-success);
+}
+
+.status-badge-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+
+/* ============================================================
+   CONTENT AREA
+   ============================================================ */
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+  padding: var(--space-7) var(--space-5);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-default) transparent;
+}
+
+.content-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.content-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.content-area::-webkit-scrollbar-thumb {
+  background: var(--color-border-default);
+  border-radius: var(--radius-full);
+}
+
+.content-wrap {
+  width: 100%;
+  max-width: var(--content-max-width);
+}
+
+/* — Empty state — */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-10) var(--space-5);
+  min-height: 400px;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: var(--space-5);
+  opacity: 0.3;
+}
+
+.empty-state-title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.empty-state-desc {
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+  max-width: 360px;
+  margin-bottom: var(--space-6);
+}
+
+.btn-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-accent-primary);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  transition: background var(--duration-fast) var(--ease-default),
+              transform var(--duration-fast) var(--ease-default);
+}
+
+.btn-cta:hover {
+  background: var(--color-accent-primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-cta:active {
+  transform: translateY(0);
+}
+
+
+/* ============================================================
+   EDITOR VIEW
+   ============================================================ */
+.editor-pane {
+  width: 100%;
+}
+
+.editor-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border-light);
+  flex-wrap: wrap;
+}
+
+.editor-meta-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+.editor-meta-label {
+  font-weight: var(--weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.tag-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px var(--space-2);
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-full);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.tag-remove {
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+  transition: all var(--duration-fast) var(--ease-default);
+}
+
+.tag-remove:hover {
+  background: var(--color-accent-danger);
+  color: white;
+}
+
+/* Format toolbar */
+.editor-format-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-light);
+  border-bottom: none;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.fmt-btn {
+  width: 30px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  transition: all var(--duration-fast) var(--ease-default);
+}
+
+.fmt-btn:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.fmt-btn.active {
+  background: var(--color-bg-active);
+  color: var(--color-accent-primary);
+}
+
+.fmt-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--color-border-light);
+  margin: 0 var(--space-1);
+}
+
+/* Editor textarea */
+.editor-textarea {
+  width: 100%;
+  min-height: 500px;
+  padding: var(--space-5);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-primary);
+  resize: vertical;
+  transition: border-color var(--duration-fast) var(--ease-default);
+  tab-size: 2;
+}
+
+.editor-textarea:focus {
+  outline: none;
+  border-color: var(--color-accent-primary);
+}
+
+.editor-textarea::placeholder {
+  color: var(--color-text-placeholder);
+  font-family: var(--font-sans);
+  font-style: italic;
+}
+
+/* Word count bar */
+.editor-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  margin-top: var(--space-2);
+  font-size: var(--text-2xs);
+  color: var(--color-text-tertiary);
+}
+
+
+/* ============================================================
+   VIEWER / PREVIEW
+   ============================================================ */
+.viewer-pane {
+  width: 100%;
+}
+
+.viewer-header {
+  margin-bottom: var(--space-7);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.viewer-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--letter-tight);
+  line-height: var(--leading-tight);
+  margin-bottom: var(--space-3);
+  color: var(--color-text-primary);
+}
+
+.viewer-meta-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  flex-wrap: wrap;
+}
+
+.viewer-meta-row .tag {
+  background: rgba(43,87,151,0.08);
+  color: var(--color-accent-primary);
+}
+
+/* Rendered content */
+.viewer-content {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--color-text-primary);
+}
+
+.viewer-content h1 {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--letter-tight);
+  margin: var(--space-8) 0 var(--space-4);
+  line-height: var(--leading-tight);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.viewer-content h2 {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  margin: var(--space-7) 0 var(--space-3);
+  line-height: var(--leading-tight);
+  color: var(--color-text-primary);
+}
+
+.viewer-content h3 {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  margin: var(--space-6) 0 var(--space-3);
+  color: var(--color-text-primary);
+}
+
+.viewer-content p {
+  margin-bottom: var(--space-4);
+}
+
+.viewer-content ul, .viewer-content ol {
+  margin-bottom: var(--space-4);
+  padding-left: var(--space-5);
+}
+
+.viewer-content li {
+  margin-bottom: var(--space-2);
+}
+
+.viewer-content code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 2px 6px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+.viewer-content pre {
+  margin-bottom: var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
+
+.viewer-content pre code {
+  padding: 0;
+  background: none;
+}
+
+.viewer-content blockquote {
+  margin: var(--space-4) 0;
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--color-accent-primary);
+  background: rgba(43,87,151,0.03);
+  color: var(--color-text-secondary);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.viewer-content hr {
+  border: none;
+  height: 1px;
+  background: var(--color-border-light);
+  margin: var(--space-6) 0;
+}
+
+.viewer-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.viewer-content th, .viewer-content td {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-light);
+  text-align: left;
+}
+
+.viewer-content th {
+  background: var(--color-bg-secondary);
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+}
+
+.viewer-content strong {
+  font-weight: var(--weight-semibold);
+}
+
+.viewer-content em {
+  font-style: italic;
+}
+
+.viewer-content img {
+  max-width: 100%;
+  border-radius: var(--radius-md);
+}
+
+
+/* ============================================================
+   TOAST NOTIFICATION
+   ============================================================ */
+.toast-container {
+  position: fixed;
+  bottom: var(--space-5);
+  right: var(--space-5);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  pointer-events: auto;
+  animation: toastIn var(--duration-normal) var(--ease-out) forwards;
+  max-width: 360px;
+}
+
+.toast.toast-out {
+  animation: toastOut var(--duration-normal) var(--ease-in) forwards;
+}
+
+.toast-icon {
+  font-size: var(--text-md);
+  flex-shrink: 0;
+}
+
+.toast-success .toast-icon { color: var(--color-accent-success); }
+.toast-error .toast-icon { color: var(--color-accent-danger); }
+.toast-info .toast-icon { color: var(--color-accent-info); }
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(4px) scale(0.98); }
+}
+
+
+/* ============================================================
+   MODAL / DIALOG
+   ============================================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+  animation: fadeIn var(--duration-fast) var(--ease-default);
+  backdrop-filter: blur(2px);
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal {
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  max-width: 440px;
+  width: 100%;
+  animation: modalIn var(--duration-normal) var(--ease-out);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.modal-title {
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+}
+
+.modal-close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-tertiary);
+  font-size: var(--text-md);
+  transition: all var(--duration-fast) var(--ease-default);
+}
+
+.modal-close:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.modal-body {
+  padding: var(--space-5);
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--color-border-light);
+}
+
+.modal-btn {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  transition: all var(--duration-fast) var(--ease-default);
+}
+
+.modal-btn-secondary {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.modal-btn-secondary:hover {
+  background: var(--color-bg-active);
+}
+
+.modal-btn-danger {
+  background: var(--color-accent-danger);
+  color: white;
+}
+
+.modal-btn-danger:hover {
+  filter: brightness(1.1);
+}
+
+.modal-btn-primary {
+  background: var(--color-accent-primary);
+  color: var(--color-text-inverse);
+}
+
+.modal-btn-primary:hover {
+  background: var(--color-accent-primary-hover);
+}
+
+.form-group {
+  margin-bottom: var(--space-4);
+}
+
+.form-label {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.form-input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+  font-size: var(--text-sm);
+  transition: border-color var(--duration-fast) var(--ease-default);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--color-accent-primary);
+}
+
+.form-select {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+  font-size: var(--text-sm);
+  appearance: none;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    transform: translateX(-100%);
+    z-index: var(--z-overlay);
+    box-shadow: var(--shadow-xl);
+  }
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  .mobile-menu-btn {
+    display: flex !important;
+  }
+  .toolbar-breadcrumb {
+    display: none;
+  }
+  .content-area {
+    padding: var(--space-4) var(--space-3);
+  }
+  .editor-format-bar {
+    overflow-x: auto;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-menu-btn {
+    display: none !important;
+  }
+  .mobile-overlay {
+    display: none !important;
+  }
+}
+
+.mobile-menu-btn {
+  display: none;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+}
+
+.mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: calc(var(--z-overlay) - 1);
+}
+
+.mobile-overlay.hidden {
+  display: none;
+}
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+.hidden { display: none !important; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Fade-in animation for content transitions */
+.fade-in {
+  animation: contentFadeIn var(--duration-normal) var(--ease-out);
+}
+
+@keyframes contentFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Keyboard shortcut hint */
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-default);
+  border-radius: 3px;
+  color: var(--color-text-tertiary);
+  line-height: 1.6;
+}
+
+/* Tooltip */
+[data-tooltip] {
+  position: relative;
+}
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  background: var(--color-text-primary);
+  color: var(--color-text-inverse);
+  font-size: var(--text-2xs);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+[data-tooltip]:hover::after {
+  opacity: 1;
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <!-- ==================== SIDEBAR ==================== -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Manual index">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon" aria-hidden="true">紙</div>
+        <div class="sidebar-brand-text">
+          <div class="sidebar-brand-name">Kami</div>
+          <div class="sidebar-brand-sub">Manual Creator</div>
+        </div>
+      </div>
+      <button class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Toggle sidebar" data-tooltip="Toggle sidebar">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8L10 13"/></svg>
+      </button>
+    </div>
+
+    <div class="sidebar-actions">
+      <button class="btn-new-manual" id="btnNewManual" aria-label="Create new manual">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2v10M2 7h10"/></svg>
+        <span>New Manual</span>
+      </button>
+    </div>
+
+    <div class="sidebar-search">
+      <div class="search-input-wrap">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="4.25"/><path d="M9 9l3.5 3.5"/></svg>
+        <input class="search-input" id="searchInput" type="text" placeholder="Search manuals…" aria-label="Search manuals">
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebarNav" aria-label="Manuals list">
+      <!-- Populated by JS -->
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn-theme-toggle" id="themeToggle" aria-label="Toggle dark mode" data-tooltip="Theme">
+        <svg id="themeIconLight" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3.25"/><path d="M8 1.5v1M8 13.5v1M1.5 8h1M13.5 8h1M3.4 3.4l.7.7M11.9 11.9l.7.7M3.4 12.6l.7-.7M11.9 4.1l.7-.7"/></svg>
+        <svg id="themeIconDark" class="hidden" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13.5 9.5a5.5 5.5 0 01-7-7 5.5 5.5 0 107 7z"/></svg>
+      </button>
+      <div class="sidebar-footer-meta" id="footerMeta">3 manuals</div>
+    </div>
+  </aside>
+
+  <!-- Mobile overlay -->
+  <div class="mobile-overlay hidden" id="mobileOverlay"></div>
+
+  <!-- ==================== MAIN ==================== -->
+  <main class="main" id="mainContent">
+    <div class="toolbar" id="toolbar">
+      <div class="toolbar-left">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5h12M3 9h12M3 13h12"/></svg>
+        </button>
+        <div class="toolbar-breadcrumb" id="breadcrumb">
+          <span>Kami</span>
+          <span class="toolbar-breadcrumb-sep">/</span>
+          <span id="breadcrumbTitle">Select a manual</span>
+        </div>
+      </div>
+      <div class="toolbar-right" id="toolbarRight">
+        <!-- Populated when a manual is selected -->
+      </div>
+    </div>
+
+    <div class="content-area" id="contentArea">
+      <div class="content-wrap" id="contentWrap">
+        <!-- Dynamic content -->
+        <div class="empty-state" id="emptyState">
+          <div class="empty-state-icon" aria-hidden="true">紙</div>
+          <div class="empty-state-title">Welcome to Kami</div>
+          <div class="empty-state-desc">Create structured manuals and documentation with clarity and intention. Select a manual from the sidebar or create a new one to begin.</div>
+          <button class="btn-cta" id="btnEmptyNew">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2v10M2 7h10"/></svg>
+            Create First Manual
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Delete confirmation modal -->
+<div class="modal-overlay hidden" id="deleteModal">
+  <div class="modal" role="dialog" aria-labelledby="deleteModalTitle">
+    <div class="modal-header">
+      <div class="modal-title" id="deleteModalTitle">Delete Manual</div>
+      <button class="modal-close" id="deleteModalClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:var(--text-sm);color:var(--color-text-secondary);">
+        Are you sure you want to delete "<strong id="deleteManualName"></strong>"? This action cannot be undone.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-secondary" id="deleteModalCancel">Cancel</button>
+      <button class="modal-btn modal-btn-danger" id="deleteModalConfirm">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- New / Edit modal -->
+<div class="modal-overlay hidden" id="newModal">
+  <div class="modal" role="dialog" aria-labelledby="newModalTitle">
+    <div class="modal-header">
+      <div class="modal-title" id="newModalTitle">New Manual</div>
+      <button class="modal-close" id="newModalClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label" for="newManualTitle">Title</label>
+        <input class="form-input" id="newManualTitle" type="text" placeholder="e.g., Onboarding Guide">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="newManualCategory">Category</label>
+        <select class="form-select" id="newManualCategory">
+          <option value="general">General</option>
+          <option value="engineering">Engineering</option>
+          <option value="operations">Operations</option>
+          <option value="design">Design</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-secondary" id="newModalCancel">Cancel</button>
+      <button class="modal-btn modal-btn-primary" id="newModalCreate">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+
+<script>
+/* ============================================================
+   Kami — Manual Creation Tool
+   Pure Vanilla JS, Zero Dependencies
+   ============================================================ */
+(function() {
+  'use strict';
+
+  // ————————————————————————————————————————————
+  // State
+  // ————————————————————————————————————————————
+  const state = {
+    manuals: [],
+    activeId: null,
+    view: 'viewer', // 'editor' | 'viewer'
+    searchQuery: '',
+    sidebarCollapsed: false,
+    theme: 'light',
+    deleteTarget: null
+  };
+
+  // ————————————————————————————————————————————
+  // Sample data
+  // ————————————————————————————————————————————
+  function createSampleData() {
+    return [
+      {
+        id: genId(),
+        title: 'Getting Started Guide',
+        category: 'general',
+        status: 'published',
+        tags: ['onboarding', 'quickstart'],
+        content: `# Getting Started Guide
+
+Welcome to Kami — a manual creation tool built with clarity and intention.
+
+## Quick Start
+
+1. **Create a manual** using the sidebar button or the \`+\` icon
+2. **Write content** using simple Markdown syntax in the editor
+3. **Preview** your work by toggling to the viewer mode
+4. **Organize** manuals by category for easy navigation
+
+## Markdown Reference
+
+Kami supports standard Markdown syntax:
+
+\`\`\`
+# Heading 1
+## Heading 2
+### Heading 3
+
+**Bold text** and *italic text*
+
+- Unordered list item
+- Another item
+
+1. Ordered list
+2. Second item
+
+> Blockquote for emphasis
+
+\`inline code\` and code blocks
+\`\`\`
+
+## Design Philosophy
+
+> The tool is designed around the Japanese concept of **Ma** (間) — the mindful use of negative space to create rhythm and readability.
+
+Key principles:
+- **Kanso** — Simplicity and elimination of clutter
+- **Shibui** — Subtle, understated elegance
+- **Omotenashi** — Thoughtful attention to the user experience
+
+---
+
+*Last updated: March 2026*`,
+        createdAt: new Date('2026-03-20').toISOString(),
+        updatedAt: new Date('2026-03-25').toISOString()
+      },
+      {
+        id: genId(),
+        title: 'API Integration Manual',
+        category: 'engineering',
+        status: 'draft',
+        tags: ['api', 'technical'],
+        content: `# API Integration Manual
+
+## Overview
+
+This manual covers the integration patterns and best practices for connecting with our REST API endpoints.
+
+## Authentication
+
+All requests require a bearer token passed in the \`Authorization\` header:
+
+\`\`\`
+Authorization: Bearer your_token_here
+\`\`\`
+
+## Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /api/v1/users | List all users |
+| POST | /api/v1/users | Create a user |
+| GET | /api/v1/users/:id | Get user detail |
+| PUT | /api/v1/users/:id | Update user |
+
+## Rate Limits
+
+- Standard tier: **100 requests/minute**
+- Premium tier: **1000 requests/minute**
+
+> Note: Rate limit headers are included in every response. Check \`X-RateLimit-Remaining\` to monitor usage.
+
+## Error Handling
+
+All errors follow a consistent structure:
+
+\`\`\`
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Field 'email' is required",
+    "details": []
+  }
+}
+\`\`\`
+
+---
+
+*Status: Draft — Under review*`,
+        createdAt: new Date('2026-03-22').toISOString(),
+        updatedAt: new Date('2026-03-24').toISOString()
+      },
+      {
+        id: genId(),
+        title: 'Brand Guidelines',
+        category: 'design',
+        status: 'published',
+        tags: ['brand', 'design', 'identity'],
+        content: `# Brand Guidelines
+
+## Core Identity
+
+Our brand expresses **quiet confidence** through precision, restraint, and purposeful design choices.
+
+## Color Palette
+
+### Primary Colors
+
+- **Sumi** (#1A1A18) — Primary ink, used for text and emphasis
+- **Washi** (#F7F5F0) — Background, evoking handmade paper
+- **Ai-iro** (#2B5797) — Accent indigo, for interactive elements
+
+### Secondary Colors
+
+- **Ebi-iro** (#8B4E6A) — Muted plum for secondary accents
+- **Kitsune-iro** (#C4713B) — Warm amber for highlights
+- **Matcha** (#4A7C59) — Success and positive states
+
+## Typography
+
+- Headlines: System sans-serif, semibold weight
+- Body: System sans-serif, regular weight, 1.7 line-height
+- Code: System monospace, slightly smaller size
+
+> Typography should breathe. Generous line-height and careful spacing create the sense of Ma — purposeful emptiness.
+
+## Spacing Principles
+
+All spacing follows an **8px grid system**. Key rules:
+
+1. Content sections use **32–48px** vertical rhythm
+2. Related elements use **8–16px** gaps
+3. Padding inside containers: **24px** minimum
+
+## Voice & Tone
+
+- Clear and direct
+- Respectful of the reader's time
+- Technical precision without jargon
+- Calm confidence over excitement
+
+---
+
+*Version 2.0 — March 2026*`,
+        createdAt: new Date('2026-03-18').toISOString(),
+        updatedAt: new Date('2026-03-25').toISOString()
+      }
+    ];
+  }
+
+  function genId() {
+    return 'k_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+
+  // ————————————————————————————————————————————
+  // Storage (in-memory with optional localStorage)
+  // ————————————————————————————————————————————
+  function loadData() {
+    try {
+      const saved = localStorage.getItem('kami_manuals');
+      if (saved) {
+        state.manuals = JSON.parse(saved);
+        return;
+      }
+    } catch(e) { /* localStorage not available */ }
+    state.manuals = createSampleData();
+  }
+
+  function saveData() {
+    try {
+      localStorage.setItem('kami_manuals', JSON.stringify(state.manuals));
+    } catch(e) { /* silent */ }
+  }
+
+  function loadTheme() {
+    try {
+      const t = localStorage.getItem('kami_theme');
+      if (t) state.theme = t;
+    } catch(e) {}
+    applyTheme();
+  }
+
+  function saveTheme() {
+    try {
+      localStorage.setItem('kami_theme', state.theme);
+    } catch(e) {}
+  }
+
+  function applyTheme() {
+    document.documentElement.setAttribute('data-theme', state.theme);
+    document.getElementById('themeIconLight').classList.toggle('hidden', state.theme === 'dark');
+    document.getElementById('themeIconDark').classList.toggle('hidden', state.theme === 'light');
+  }
+
+  // ————————————————————————————————————————————
+  // DOM references
+  // ————————————————————————————————————————————
+  const $ = id => document.getElementById(id);
+
+  const els = {};
+  function cacheEls() {
+    ['sidebar','sidebarToggle','sidebarNav','searchInput','btnNewManual',
+     'toolbar','toolbarRight','breadcrumbTitle','contentWrap','contentArea',
+     'emptyState','themeToggle','footerMeta','mobileMenuBtn','mobileOverlay',
+     'deleteModal','deleteManualName','deleteModalClose','deleteModalCancel','deleteModalConfirm',
+     'newModal','newModalTitle','newManualTitle','newManualCategory','newModalClose','newModalCancel','newModalCreate',
+     'toastContainer','btnEmptyNew','breadcrumb'
+    ].forEach(id => els[id] = $(id));
+  }
+
+  // ————————————————————————————————————————————
+  // Sidebar rendering
+  // ————————————————————————————————————————————
+  function renderSidebar() {
+    const nav = els.sidebarNav;
+    const q = state.searchQuery.toLowerCase();
+    const filtered = state.manuals.filter(m =>
+      m.title.toLowerCase().includes(q) ||
+      m.tags.some(t => t.toLowerCase().includes(q)) ||
+      m.category.toLowerCase().includes(q)
+    );
+
+    // Group by category
+    const groups = {};
+    filtered.forEach(m => {
+      if (!groups[m.category]) groups[m.category] = [];
+      groups[m.category].push(m);
+    });
+
+    const categoryLabels = {
+      general: 'General',
+      engineering: 'Engineering',
+      operations: 'Operations',
+      design: 'Design'
+    };
+
+    let html = '';
+    const order = ['general','engineering','design','operations'];
+    order.forEach(cat => {
+      const items = groups[cat];
+      if (!items || items.length === 0) return;
+      html += `<div class="nav-section">
+        <div class="nav-section-label"><span>${categoryLabels[cat] || cat}</span></div>`;
+      items.forEach(m => {
+        const active = m.id === state.activeId ? ' active' : '';
+        const icon = m.status === 'published' ? '◉' : '○';
+        html += `<div class="nav-item${active}" data-id="${m.id}" role="button" tabindex="0" aria-label="${m.title}">
+          <span class="nav-item-icon">${icon}</span>
+          <span class="nav-item-text">${escHtml(m.title)}</span>
+          <div class="nav-item-actions">
+            <button class="nav-item-action" data-action="delete" data-id="${m.id}" aria-label="Delete ${m.title}" data-tooltip="Delete">&times;</button>
+          </div>
+        </div>`;
+      });
+      html += '</div>';
+    });
+
+    if (filtered.length === 0 && q) {
+      html = `<div style="padding:var(--space-5) var(--space-3);text-align:center;">
+        <div style="font-size:var(--text-sm);color:var(--color-text-tertiary);">No manuals match "${escHtml(q)}"</div>
+      </div>`;
+    }
+
+    nav.innerHTML = html;
+    els.footerMeta.textContent = `${state.manuals.length} manual${state.manuals.length !== 1 ? 's' : ''}`;
+
+    // Show/hide empty state
+    if (!state.activeId) {
+      renderEmptyState();
+    }
+  }
+
+  // ————————————————————————————————————————————
+  // Content rendering
+  // ————————————————————————————————————————————
+  function renderEmptyState() {
+    els.contentWrap.innerHTML = `
+      <div class="empty-state fade-in">
+        <div class="empty-state-icon" aria-hidden="true">紙</div>
+        <div class="empty-state-title">Welcome to Kami</div>
+        <div class="empty-state-desc">Create structured manuals and documentation with clarity and intention. Select a manual from the sidebar or create a new one.</div>
+        <button class="btn-cta" id="btnEmptyNew2">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2v10M2 7h10"/></svg>
+          Create Manual
+        </button>
+      </div>`;
+    const btn = $('btnEmptyNew2');
+    if (btn) btn.addEventListener('click', openNewModal);
+
+    els.toolbarRight.innerHTML = '';
+    els.breadcrumbTitle.textContent = 'Select a manual';
+  }
+
+  function renderToolbar(manual) {
+    els.breadcrumbTitle.textContent = manual.title;
+
+    const statusClass = manual.status === 'published' ? 'status-badge-published' : 'status-badge-draft';
+    const statusLabel = manual.status === 'published' ? 'Published' : 'Draft';
+    const editorActive = state.view === 'editor' ? ' active' : '';
+    const viewerActive = state.view === 'viewer' ? ' active' : '';
+
+    els.toolbarRight.innerHTML = `
+      <span class="status-badge ${statusClass}"><span class="status-badge-dot"></span>${statusLabel}</span>
+      <div class="toolbar-divider"></div>
+      <button class="toolbar-btn${viewerActive}" data-view="viewer" aria-label="Preview mode">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5.25"/><circle cx="7" cy="7" r="2"/></svg>
+        <span class="toolbar-btn-label">Preview</span>
+      </button>
+      <button class="toolbar-btn${editorActive}" data-view="editor" aria-label="Edit mode">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.5 2.5l2 2M2 10l6.5-6.5 2 2L4 12H2v-2z"/></svg>
+        <span class="toolbar-btn-label">Edit</span>
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="toolbar-btn" id="btnToggleStatus" aria-label="Toggle status">
+        ${manual.status === 'draft' ? 'Publish' : 'Unpublish'}
+      </button>
+      <button class="toolbar-btn toolbar-btn-primary" id="btnExport" aria-label="Export">
+        Export
+      </button>`;
+
+    // Bind toolbar view buttons
+    els.toolbarRight.querySelectorAll('[data-view]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.view = btn.dataset.view;
+        renderContent();
+      });
+    });
+
+    const btnStatus = $('btnToggleStatus');
+    if (btnStatus) btnStatus.addEventListener('click', toggleStatus);
+
+    const btnExport = $('btnExport');
+    if (btnExport) btnExport.addEventListener('click', exportManual);
+  }
+
+  function renderContent() {
+    const manual = state.manuals.find(m => m.id === state.activeId);
+    if (!manual) {
+      renderEmptyState();
+      return;
+    }
+
+    renderToolbar(manual);
+
+    if (state.view === 'editor') {
+      renderEditor(manual);
+    } else {
+      renderViewer(manual);
+    }
+  }
+
+  function renderEditor(manual) {
+    const tagsHtml = manual.tags.map(t =>
+      `<span class="tag">${escHtml(t)}<button class="tag-remove" data-tag="${escHtml(t)}" aria-label="Remove tag ${t}">&times;</button></span>`
+    ).join('');
+
+    els.contentWrap.innerHTML = `
+      <div class="editor-pane fade-in">
+        <div class="editor-meta">
+          <div class="editor-meta-item">
+            <span class="editor-meta-label">Category:</span>
+            <span>${capitalize(manual.category)}</span>
+          </div>
+          <div class="editor-meta-item">
+            <span class="editor-meta-label">Updated:</span>
+            <span>${formatDate(manual.updatedAt)}</span>
+          </div>
+          <div class="editor-meta-item">
+            <span class="editor-meta-label">Tags:</span>
+            <div class="tag-input-wrap" id="tagWrap">
+              ${tagsHtml}
+              <input type="text" style="border:none;background:none;font-size:var(--text-2xs);width:80px;padding:2px 4px;outline:none;color:var(--color-text-secondary);" id="tagInput" placeholder="Add tag…" aria-label="Add tag">
+            </div>
+          </div>
+        </div>
+
+        <div class="editor-format-bar" role="toolbar" aria-label="Formatting options">
+          <button class="fmt-btn" data-fmt="h1" data-tooltip="Heading 1"><b>H1</b></button>
+          <button class="fmt-btn" data-fmt="h2" data-tooltip="Heading 2"><b>H2</b></button>
+          <button class="fmt-btn" data-fmt="h3" data-tooltip="Heading 3"><b>H3</b></button>
+          <div class="fmt-sep"></div>
+          <button class="fmt-btn" data-fmt="bold" data-tooltip="Bold"><b>B</b></button>
+          <button class="fmt-btn" data-fmt="italic" data-tooltip="Italic"><i>I</i></button>
+          <button class="fmt-btn" data-fmt="code" data-tooltip="Code"><span style="font-family:var(--font-mono);font-size:12px;">&lt;/&gt;</span></button>
+          <div class="fmt-sep"></div>
+          <button class="fmt-btn" data-fmt="ul" data-tooltip="List">• List</button>
+          <button class="fmt-btn" data-fmt="quote" data-tooltip="Quote">"</button>
+          <button class="fmt-btn" data-fmt="hr" data-tooltip="Divider">—</button>
+          <button class="fmt-btn" data-fmt="table" data-tooltip="Table">⊞</button>
+        </div>
+
+        <textarea class="editor-textarea" id="editorTextarea" placeholder="Write your documentation using Markdown…\n\nStart with a heading: # My Title" spellcheck="true">${escHtml(manual.content)}</textarea>
+
+        <div class="editor-status-bar">
+          <span id="wordCount">${countWords(manual.content)} words · ${manual.content.length} characters</span>
+          <span><kbd>Tab</kbd> to indent · Markdown supported</span>
+        </div>
+      </div>`;
+
+    // Bind editor events
+    const textarea = $('editorTextarea');
+    textarea.addEventListener('input', debounce(function() {
+      manual.content = textarea.value;
+      manual.updatedAt = new Date().toISOString();
+      saveData();
+      const wc = $('wordCount');
+      if (wc) wc.textContent = `${countWords(textarea.value)} words · ${textarea.value.length} characters`;
+    }, 300));
+
+    // Tab key support
+    textarea.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        this.value = this.value.substring(0, start) + '  ' + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 2;
+        this.dispatchEvent(new Event('input'));
+      }
+    });
+
+    // Format buttons
+    els.contentWrap.querySelectorAll('[data-fmt]').forEach(btn => {
+      btn.addEventListener('click', () => insertFormat(textarea, btn.dataset.fmt));
+    });
+
+    // Tag input
+    const tagInput = $('tagInput');
+    if (tagInput) {
+      tagInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && this.value.trim()) {
+          e.preventDefault();
+          const tag = this.value.trim().toLowerCase();
+          if (!manual.tags.includes(tag)) {
+            manual.tags.push(tag);
+            saveData();
+            renderEditor(manual);
+          }
+          this.value = '';
+        }
+      });
+    }
+
+    // Tag remove
+    els.contentWrap.querySelectorAll('.tag-remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        manual.tags = manual.tags.filter(t => t !== btn.dataset.tag);
+        saveData();
+        renderEditor(manual);
+      });
+    });
+  }
+
+  function renderViewer(manual) {
+    const tagsHtml = manual.tags.map(t =>
+      `<span class="tag">${escHtml(t)}</span>`
+    ).join('');
+
+    const renderedContent = renderMarkdown(manual.content);
+
+    els.contentWrap.innerHTML = `
+      <div class="viewer-pane fade-in">
+        <div class="viewer-header">
+          <h1 class="viewer-title">${escHtml(manual.title)}</h1>
+          <div class="viewer-meta-row">
+            <span>${capitalize(manual.category)}</span>
+            <span>·</span>
+            <span>Updated ${formatDate(manual.updatedAt)}</span>
+            <span>·</span>
+            <span>${countWords(manual.content)} words</span>
+            ${tagsHtml ? '<span>·</span>' + tagsHtml : ''}
+          </div>
+        </div>
+        <div class="viewer-content">${renderedContent}</div>
+      </div>`;
+  }
+
+  // ————————————————————————————————————————————
+  // Simple Markdown renderer
+  // ————————————————————————————————————————————
+  function renderMarkdown(md) {
+    let html = escHtml(md);
+
+    // Code blocks (``` ... ```)
+    html = html.replace(/```([\s\S]*?)```/g, function(_, code) {
+      return '<pre><code>' + code.trim() + '</code></pre>';
+    });
+
+    // Inline code
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+    // Tables
+    html = html.replace(/^(\|.+\|)\n(\|[-| :]+\|)\n((?:\|.+\|\n?)+)/gm, function(_, headerRow, sepRow, bodyRows) {
+      const headers = headerRow.split('|').filter(c => c.trim());
+      const rows = bodyRows.trim().split('\n').map(r => r.split('|').filter(c => c.trim()));
+      let table = '<table><thead><tr>';
+      headers.forEach(h => table += `<th>${h.trim()}</th>`);
+      table += '</tr></thead><tbody>';
+      rows.forEach(r => {
+        table += '<tr>';
+        r.forEach(c => table += `<td>${c.trim()}</td>`);
+        table += '</tr>';
+      });
+      table += '</tbody></table>';
+      return table;
+    });
+
+    // Headings
+    html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+    // Horizontal rule
+    html = html.replace(/^---$/gm, '<hr>');
+
+    // Blockquote
+    html = html.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+
+    // Bold and italic
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+    // Unordered list
+    html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+
+    // Ordered list
+    html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+
+    // Paragraphs - wrap remaining text in <p>
+    html = html.split('\n\n').map(block => {
+      block = block.trim();
+      if (!block) return '';
+      if (block.match(/^<(h[1-6]|ul|ol|li|pre|blockquote|hr|table|thead|tbody|tr|th|td)/)) return block;
+      if (!block.startsWith('<')) return `<p>${block.replace(/\n/g, '<br>')}</p>`;
+      return block;
+    }).join('\n');
+
+    // Merge consecutive blockquotes
+    html = html.replace(/<\/blockquote>\s*<blockquote>/g, '<br>');
+
+    return html;
+  }
+
+  // ————————————————————————————————————————————
+  // Format insertion helpers
+  // ————————————————————————————————————————————
+  function insertFormat(textarea, fmt) {
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selected = textarea.value.substring(start, end);
+    let before = '', after = '', insert = '';
+
+    switch(fmt) {
+      case 'h1': before = '# '; break;
+      case 'h2': before = '## '; break;
+      case 'h3': before = '### '; break;
+      case 'bold': before = '**'; after = '**'; break;
+      case 'italic': before = '*'; after = '*'; break;
+      case 'code':
+        if (selected.includes('\n')) { before = '```\n'; after = '\n```'; }
+        else { before = '`'; after = '`'; }
+        break;
+      case 'ul': before = '- '; break;
+      case 'quote': before = '> '; break;
+      case 'hr': insert = '\n---\n'; break;
+      case 'table': insert = '\n| Column 1 | Column 2 | Column 3 |\n|----------|----------|----------|\n| Cell 1   | Cell 2   | Cell 3   |\n'; break;
+    }
+
+    if (insert) {
+      textarea.value = textarea.value.substring(0, start) + insert + textarea.value.substring(end);
+      textarea.selectionStart = textarea.selectionEnd = start + insert.length;
+    } else {
+      const replacement = before + (selected || 'text') + after;
+      textarea.value = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
+      textarea.selectionStart = start + before.length;
+      textarea.selectionEnd = start + before.length + (selected || 'text').length;
+    }
+    textarea.focus();
+    textarea.dispatchEvent(new Event('input'));
+  }
+
+  // ————————————————————————————————————————————
+  // Actions
+  // ————————————————————————————————————————————
+  function selectManual(id) {
+    state.activeId = id;
+    state.view = 'viewer';
+    renderSidebar();
+    renderContent();
+    closeMobileMenu();
+  }
+
+  function openNewModal() {
+    els.newModal.classList.remove('hidden');
+    els.newManualTitle.value = '';
+    els.newManualCategory.value = 'general';
+    els.newModalTitle.textContent = 'New Manual';
+    setTimeout(() => els.newManualTitle.focus(), 100);
+  }
+
+  function closeNewModal() {
+    els.newModal.classList.add('hidden');
+  }
+
+  function createManual() {
+    const title = els.newManualTitle.value.trim();
+    if (!title) {
+      showToast('Please enter a title', 'error');
+      return;
+    }
+
+    const manual = {
+      id: genId(),
+      title,
+      category: els.newManualCategory.value,
+      status: 'draft',
+      tags: [],
+      content: `# ${title}\n\nStart writing your documentation here…`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    state.manuals.unshift(manual);
+    saveData();
+    closeNewModal();
+    state.view = 'editor';
+    selectManual(manual.id);
+    showToast(`"${title}" created`, 'success');
+  }
+
+  function openDeleteModal(id) {
+    const manual = state.manuals.find(m => m.id === id);
+    if (!manual) return;
+    state.deleteTarget = id;
+    els.deleteManualName.textContent = manual.title;
+    els.deleteModal.classList.remove('hidden');
+  }
+
+  function closeDeleteModal() {
+    els.deleteModal.classList.add('hidden');
+    state.deleteTarget = null;
+  }
+
+  function confirmDelete() {
+    if (!state.deleteTarget) return;
+    const manual = state.manuals.find(m => m.id === state.deleteTarget);
+    const title = manual ? manual.title : '';
+    state.manuals = state.manuals.filter(m => m.id !== state.deleteTarget);
+    if (state.activeId === state.deleteTarget) {
+      state.activeId = null;
+    }
+    saveData();
+    closeDeleteModal();
+    renderSidebar();
+    renderContent();
+    showToast(`"${title}" deleted`, 'info');
+  }
+
+  function toggleStatus() {
+    const manual = state.manuals.find(m => m.id === state.activeId);
+    if (!manual) return;
+    manual.status = manual.status === 'draft' ? 'published' : 'draft';
+    manual.updatedAt = new Date().toISOString();
+    saveData();
+    renderSidebar();
+    renderContent();
+    showToast(`Status: ${capitalize(manual.status)}`, 'success');
+  }
+
+  function exportManual() {
+    const manual = state.manuals.find(m => m.id === state.activeId);
+    if (!manual) return;
+    const blob = new Blob([manual.content], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = manual.title.replace(/[^a-zA-Z0-9_-]/g, '_') + '.md';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Exported as Markdown', 'success');
+  }
+
+  function toggleSidebar() {
+    state.sidebarCollapsed = !state.sidebarCollapsed;
+    els.sidebar.classList.toggle('collapsed', state.sidebarCollapsed);
+    const arrow = els.sidebarToggle.querySelector('svg');
+    arrow.style.transform = state.sidebarCollapsed ? 'rotate(180deg)' : '';
+  }
+
+  function toggleTheme() {
+    state.theme = state.theme === 'light' ? 'dark' : 'light';
+    applyTheme();
+    saveTheme();
+  }
+
+  function openMobileMenu() {
+    els.sidebar.classList.add('mobile-open');
+    els.mobileOverlay.classList.remove('hidden');
+  }
+
+  function closeMobileMenu() {
+    els.sidebar.classList.remove('mobile-open');
+    els.mobileOverlay.classList.add('hidden');
+  }
+
+  // ————————————————————————————————————————————
+  // Toast
+  // ————————————————————————————————————————————
+  function showToast(message, type = 'info') {
+    const icons = { success: '✓', error: '✕', info: '○' };
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `<span class="toast-icon">${icons[type]}</span><span>${escHtml(message)}</span>`;
+    els.toastContainer.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add('toast-out');
+      setTimeout(() => toast.remove(), 300);
+    }, 2800);
+  }
+
+  // ————————————————————————————————————————————
+  // Utilities
+  // ————————————————————————————————————————————
+  function escHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function capitalize(s) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  function formatDate(iso) {
+    const d = new Date(iso);
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  }
+
+  function countWords(text) {
+    return text.trim().split(/\s+/).filter(w => w.length > 0).length;
+  }
+
+  function debounce(fn, ms) {
+    let timer;
+    return function(...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn.apply(this, args), ms);
+    };
+  }
+
+  // ————————————————————————————————————————————
+  // Event binding
+  // ————————————————————————————————————————————
+  function bindEvents() {
+    // Sidebar nav clicks (event delegation)
+    els.sidebarNav.addEventListener('click', function(e) {
+      const action = e.target.closest('[data-action]');
+      if (action) {
+        e.stopPropagation();
+        if (action.dataset.action === 'delete') {
+          openDeleteModal(action.dataset.id);
+        }
+        return;
+      }
+      const item = e.target.closest('.nav-item');
+      if (item) selectManual(item.dataset.id);
+    });
+
+    // Keyboard nav on sidebar items
+    els.sidebarNav.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        const item = e.target.closest('.nav-item');
+        if (item) {
+          e.preventDefault();
+          selectManual(item.dataset.id);
+        }
+      }
+    });
+
+    // Sidebar toggle
+    els.sidebarToggle.addEventListener('click', toggleSidebar);
+
+    // New manual buttons
+    els.btnNewManual.addEventListener('click', openNewModal);
+    if (els.btnEmptyNew) els.btnEmptyNew.addEventListener('click', openNewModal);
+
+    // Search
+    els.searchInput.addEventListener('input', function() {
+      state.searchQuery = this.value;
+      renderSidebar();
+    });
+
+    // Theme toggle
+    els.themeToggle.addEventListener('click', toggleTheme);
+
+    // Mobile menu
+    els.mobileMenuBtn.addEventListener('click', openMobileMenu);
+    els.mobileOverlay.addEventListener('click', closeMobileMenu);
+
+    // Delete modal
+    els.deleteModalClose.addEventListener('click', closeDeleteModal);
+    els.deleteModalCancel.addEventListener('click', closeDeleteModal);
+    els.deleteModalConfirm.addEventListener('click', confirmDelete);
+
+    // New modal
+    els.newModalClose.addEventListener('click', closeNewModal);
+    els.newModalCancel.addEventListener('click', closeNewModal);
+    els.newModalCreate.addEventListener('click', createManual);
+    els.newManualTitle.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') createManual();
+    });
+
+    // Close modals on overlay click
+    els.deleteModal.addEventListener('click', function(e) {
+      if (e.target === this) closeDeleteModal();
+    });
+    els.newModal.addEventListener('click', function(e) {
+      if (e.target === this) closeNewModal();
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Ctrl/Cmd + N = New manual
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        openNewModal();
+      }
+      // Ctrl/Cmd + E = Toggle editor/viewer
+      if ((e.ctrlKey || e.metaKey) && e.key === 'e' && state.activeId) {
+        e.preventDefault();
+        state.view = state.view === 'editor' ? 'viewer' : 'editor';
+        renderContent();
+      }
+      // Escape = Close modals
+      if (e.key === 'Escape') {
+        closeDeleteModal();
+        closeNewModal();
+        closeMobileMenu();
+      }
+    });
+  }
+
+  // ————————————————————————————————————————————
+  // Init
+  // ————————————————————————————————————————————
+  function init() {
+    cacheEls();
+    loadTheme();
+    loadData();
+    bindEvents();
+    renderSidebar();
+    renderContent();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
