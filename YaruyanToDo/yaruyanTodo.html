@@ -35,11 +35,11 @@
 
       --primary: light-dark(oklch(0.61 0.15 244), oklch(0.74 0.13 205));
       --primary-glow: light-dark(oklch(0.61 0.15 244 / 0.24), oklch(0.74 0.13 205 / 0.22));
-      --accent: oklch(0.74 0.14 80);
-      --celeb: oklch(0.78 0.14 156);
+      --accent: light-dark(oklch(0.56 0.10 244), oklch(0.66 0.08 205));
+      --celeb: light-dark(oklch(0.67 0.08 228), oklch(0.72 0.07 220));
       --danger: oklch(0.63 0.19 27);
       --bg-spot-1: light-dark(oklch(0.93 0.03 238 / 0.62), oklch(0.32 0.05 208 / 0.28));
-      --bg-spot-2: light-dark(oklch(0.94 0.03 162 / 0.52), oklch(0.31 0.05 85 / 0.24));
+      --bg-spot-2: light-dark(oklch(0.945 0.02 246 / 0.54), oklch(0.30 0.04 220 / 0.24));
       --bg-top: light-dark(oklch(0.993 0.006 248), oklch(0.22 0.017 245));
       --sidebar-start: light-dark(oklch(0.998 0.003 248), oklch(0.25 0.015 245));
       --sidebar-end: light-dark(oklch(0.988 0.007 248), oklch(0.23 0.014 245));
@@ -56,14 +56,22 @@
       --danger-border: light-dark(oklch(0.70 0.12 27), oklch(0.67 0.11 25));
       --line-soft: light-dark(oklch(0.865 0.012 248), oklch(0.40 0.018 245));
       --modal-overlay-spot-1: light-dark(oklch(0.66 0.085 244 / 0.18), oklch(0.72 0.08 205 / 0.16));
-      --modal-overlay-spot-2: light-dark(oklch(0.72 0.075 156 / 0.14), oklch(0.73 0.08 85 / 0.14));
+      --modal-overlay-spot-2: light-dark(oklch(0.69 0.07 238 / 0.14), oklch(0.69 0.07 220 / 0.14));
       --modal-overlay-backdrop: rgb(8 12 17 / 0.56);
       --modal-border: light-dark(oklch(0.85 0.016 248), oklch(0.49 0.03 245));
       --modal-outline: light-dark(oklch(0.89 0.03 244), oklch(0.55 0.08 205));
       --focus-ring-line: light-dark(oklch(0.85 0.045 244), oklch(0.58 0.08 205));
       --focus-halo-1: light-dark(oklch(0.68 0.10 244 / 0.2), oklch(0.72 0.09 205 / 0.20));
-      --focus-halo-2: light-dark(oklch(0.76 0.075 156 / 0.16), oklch(0.74 0.08 85 / 0.14));
-      --accent-shadow: light-dark(oklch(0.74 0.09 80 / 0.38), oklch(0.74 0.09 85 / 0.34));
+      --focus-halo-2: light-dark(oklch(0.74 0.06 236 / 0.16), oklch(0.70 0.07 220 / 0.14));
+      --focus-overlay-base: rgb(7 14 20 / 0.76);
+      --focus-overlay-deep: rgb(4 9 14 / 0.9);
+      --focus-surface-start: light-dark(oklch(0.994 0.007 244), oklch(0.24 0.02 245));
+      --focus-surface-end: light-dark(oklch(0.964 0.018 244), oklch(0.20 0.02 245));
+      --success: light-dark(oklch(0.60 0.12 154), oklch(0.72 0.10 154));
+      --success-bg-soft: light-dark(oklch(0.95 0.025 154), oklch(0.33 0.045 154));
+      --success-border: light-dark(oklch(0.76 0.07 154), oklch(0.60 0.07 154));
+      --success-glow: light-dark(oklch(0.64 0.11 154 / 0.24), oklch(0.72 0.09 154 / 0.24));
+      --accent-shadow: light-dark(oklch(0.63 0.08 244 / 0.34), oklch(0.66 0.08 220 / 0.32));
       --danger-shadow: light-dark(oklch(0.68 0.13 27 / 0.36), oklch(0.68 0.12 25 / 0.34));
 
       --shadow-soft: light-dark(oklch(0.44 0.02 248 / 0.08), oklch(0 0 0 / 0.30));
@@ -89,6 +97,118 @@
       --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
 
       accent-color: var(--primary);
+    }
+
+    :root[data-theme="ocean"] {
+      --primary: light-dark(oklch(0.61 0.15 244), oklch(0.74 0.13 205));
+      --primary-glow: light-dark(oklch(0.61 0.15 244 / 0.24), oklch(0.74 0.13 205 / 0.22));
+      --primary-bg-faint: light-dark(oklch(0.967 0.018 244), oklch(0.31 0.05 205));
+      --primary-bg-soft: light-dark(oklch(0.946 0.028 244), oklch(0.34 0.06 205));
+      --primary-bg-mid: light-dark(oklch(0.918 0.045 244), oklch(0.38 0.07 205));
+      --primary-border-soft: light-dark(oklch(0.83 0.056 244), oklch(0.58 0.08 205));
+      --primary-border: light-dark(oklch(0.74 0.09 244), oklch(0.67 0.09 205));
+      --primary-border-strong: light-dark(oklch(0.67 0.115 244), oklch(0.72 0.10 205));
+      --primary-text-ink: light-dark(oklch(0.48 0.11 244), oklch(0.85 0.09 205));
+      --accent: light-dark(oklch(0.56 0.10 244), oklch(0.66 0.08 205));
+      --celeb: light-dark(oklch(0.67 0.08 228), oklch(0.72 0.07 220));
+    }
+
+    :root[data-theme="emerald"] {
+      --primary: light-dark(oklch(0.60 0.12 166), oklch(0.72 0.10 158));
+      --primary-glow: light-dark(oklch(0.60 0.12 166 / 0.24), oklch(0.72 0.10 158 / 0.24));
+      --primary-bg-faint: light-dark(oklch(0.967 0.016 166), oklch(0.31 0.045 160));
+      --primary-bg-soft: light-dark(oklch(0.944 0.025 166), oklch(0.34 0.055 160));
+      --primary-bg-mid: light-dark(oklch(0.915 0.042 166), oklch(0.38 0.066 160));
+      --primary-border-soft: light-dark(oklch(0.82 0.05 166), oklch(0.58 0.074 160));
+      --primary-border: light-dark(oklch(0.72 0.085 166), oklch(0.66 0.084 160));
+      --primary-border-strong: light-dark(oklch(0.65 0.10 166), oklch(0.70 0.09 160));
+      --primary-text-ink: light-dark(oklch(0.45 0.09 166), oklch(0.84 0.08 160));
+      --accent: light-dark(oklch(0.57 0.10 178), oklch(0.66 0.08 170));
+      --celeb: light-dark(oklch(0.66 0.08 154), oklch(0.73 0.07 150));
+    }
+
+    :root[data-theme="amber"] {
+      --primary: light-dark(oklch(0.66 0.14 80), oklch(0.74 0.11 80));
+      --primary-glow: light-dark(oklch(0.66 0.14 80 / 0.24), oklch(0.74 0.11 80 / 0.24));
+      --primary-bg-faint: light-dark(oklch(0.972 0.018 82), oklch(0.34 0.04 80));
+      --primary-bg-soft: light-dark(oklch(0.955 0.026 82), oklch(0.36 0.05 80));
+      --primary-bg-mid: light-dark(oklch(0.93 0.042 82), oklch(0.40 0.06 80));
+      --primary-border-soft: light-dark(oklch(0.85 0.05 82), oklch(0.61 0.07 80));
+      --primary-border: light-dark(oklch(0.77 0.085 82), oklch(0.68 0.08 80));
+      --primary-border-strong: light-dark(oklch(0.70 0.10 82), oklch(0.72 0.09 80));
+      --primary-text-ink: light-dark(oklch(0.50 0.10 82), oklch(0.86 0.08 80));
+      --accent: light-dark(oklch(0.61 0.12 72), oklch(0.69 0.09 72));
+      --celeb: light-dark(oklch(0.69 0.09 92), oklch(0.76 0.08 94));
+    }
+
+    :root[data-theme="rose"] {
+      --primary: light-dark(oklch(0.62 0.14 22), oklch(0.72 0.10 18));
+      --primary-glow: light-dark(oklch(0.62 0.14 22 / 0.24), oklch(0.72 0.10 18 / 0.24));
+      --primary-bg-faint: light-dark(oklch(0.97 0.016 24), oklch(0.33 0.045 20));
+      --primary-bg-soft: light-dark(oklch(0.95 0.026 24), oklch(0.35 0.056 20));
+      --primary-bg-mid: light-dark(oklch(0.92 0.042 24), oklch(0.39 0.066 20));
+      --primary-border-soft: light-dark(oklch(0.84 0.052 24), oklch(0.60 0.07 20));
+      --primary-border: light-dark(oklch(0.75 0.086 24), oklch(0.67 0.08 20));
+      --primary-border-strong: light-dark(oklch(0.68 0.10 24), oklch(0.71 0.09 20));
+      --primary-text-ink: light-dark(oklch(0.49 0.10 24), oklch(0.85 0.08 20));
+      --accent: light-dark(oklch(0.58 0.11 12), oklch(0.67 0.08 12));
+      --celeb: light-dark(oklch(0.67 0.08 30), oklch(0.74 0.07 28));
+    }
+
+    :root[data-theme="indigo"] {
+      --primary: light-dark(oklch(0.56 0.11 286), oklch(0.69 0.08 276));
+      --primary-glow: light-dark(oklch(0.56 0.11 286 / 0.24), oklch(0.69 0.08 276 / 0.24));
+      --primary-bg-faint: light-dark(oklch(0.965 0.015 286), oklch(0.31 0.04 276));
+      --primary-bg-soft: light-dark(oklch(0.944 0.023 286), oklch(0.34 0.05 276));
+      --primary-bg-mid: light-dark(oklch(0.912 0.038 286), oklch(0.38 0.06 276));
+      --primary-border-soft: light-dark(oklch(0.81 0.045 286), oklch(0.58 0.065 276));
+      --primary-border: light-dark(oklch(0.71 0.08 286), oklch(0.65 0.074 276));
+      --primary-border-strong: light-dark(oklch(0.64 0.094 286), oklch(0.69 0.083 276));
+      --primary-text-ink: light-dark(oklch(0.44 0.09 286), oklch(0.83 0.07 276));
+      --accent: light-dark(oklch(0.54 0.10 266), oklch(0.65 0.075 260));
+      --celeb: light-dark(oklch(0.63 0.08 306), oklch(0.71 0.066 300));
+    }
+
+    :root[data-theme="slate"] {
+      --primary: light-dark(oklch(0.54 0.05 252), oklch(0.68 0.04 242));
+      --primary-glow: light-dark(oklch(0.54 0.05 252 / 0.24), oklch(0.68 0.04 242 / 0.24));
+      --primary-bg-faint: light-dark(oklch(0.965 0.008 252), oklch(0.30 0.02 242));
+      --primary-bg-soft: light-dark(oklch(0.948 0.012 252), oklch(0.33 0.026 242));
+      --primary-bg-mid: light-dark(oklch(0.92 0.02 252), oklch(0.36 0.032 242));
+      --primary-border-soft: light-dark(oklch(0.82 0.02 252), oklch(0.57 0.036 242));
+      --primary-border: light-dark(oklch(0.73 0.032 252), oklch(0.64 0.042 242));
+      --primary-border-strong: light-dark(oklch(0.66 0.04 252), oklch(0.68 0.048 242));
+      --primary-text-ink: light-dark(oklch(0.43 0.036 252), oklch(0.82 0.04 242));
+      --accent: light-dark(oklch(0.53 0.04 262), oklch(0.66 0.03 252));
+      --celeb: light-dark(oklch(0.62 0.03 234), oklch(0.71 0.03 232));
+    }
+
+    :root[data-theme="mint"] {
+      --primary: light-dark(oklch(0.62 0.10 198), oklch(0.72 0.08 196));
+      --primary-glow: light-dark(oklch(0.62 0.10 198 / 0.24), oklch(0.72 0.08 196 / 0.24));
+      --primary-bg-faint: light-dark(oklch(0.967 0.015 198), oklch(0.31 0.036 196));
+      --primary-bg-soft: light-dark(oklch(0.948 0.022 198), oklch(0.34 0.046 196));
+      --primary-bg-mid: light-dark(oklch(0.92 0.035 198), oklch(0.38 0.056 196));
+      --primary-border-soft: light-dark(oklch(0.83 0.042 198), oklch(0.58 0.06 196));
+      --primary-border: light-dark(oklch(0.74 0.07 198), oklch(0.66 0.07 196));
+      --primary-border-strong: light-dark(oklch(0.67 0.084 198), oklch(0.70 0.078 196));
+      --primary-text-ink: light-dark(oklch(0.47 0.078 198), oklch(0.84 0.066 196));
+      --accent: light-dark(oklch(0.57 0.08 206), oklch(0.67 0.07 204));
+      --celeb: light-dark(oklch(0.66 0.07 182), oklch(0.74 0.06 180));
+    }
+
+    :root[data-theme="sunset"] {
+      --primary: light-dark(oklch(0.61 0.13 46), oklch(0.70 0.10 42));
+      --primary-glow: light-dark(oklch(0.61 0.13 46 / 0.24), oklch(0.70 0.10 42 / 0.24));
+      --primary-bg-faint: light-dark(oklch(0.97 0.016 46), oklch(0.32 0.042 42));
+      --primary-bg-soft: light-dark(oklch(0.95 0.024 46), oklch(0.35 0.052 42));
+      --primary-bg-mid: light-dark(oklch(0.92 0.039 46), oklch(0.39 0.062 42));
+      --primary-border-soft: light-dark(oklch(0.84 0.048 46), oklch(0.59 0.068 42));
+      --primary-border: light-dark(oklch(0.75 0.08 46), oklch(0.66 0.077 42));
+      --primary-border-strong: light-dark(oklch(0.68 0.095 46), oklch(0.70 0.085 42));
+      --primary-text-ink: light-dark(oklch(0.48 0.09 46), oklch(0.84 0.075 42));
+      --accent: light-dark(oklch(0.56 0.10 30), oklch(0.65 0.08 30));
+      --celeb: light-dark(oklch(0.66 0.08 62), oklch(0.73 0.07 62));
     }
 
     *,
@@ -191,10 +311,7 @@
       font-weight: 800;
       line-height: 1.35;
       letter-spacing: 0.01em;
-      background: linear-gradient(135deg, var(--primary), var(--accent), var(--celeb));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
+      color: var(--primary-text-ink);
       transition: opacity 160ms var(--ease-smooth), transform 160ms var(--ease-smooth);
       white-space: nowrap;
     }
@@ -242,7 +359,7 @@
     .nav-btn.active {
       color: white;
       border-color: transparent;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
+      background: var(--primary);
       box-shadow: 0 8px 20px var(--primary-glow);
     }
 
@@ -635,23 +752,6 @@
     }
 
     /* =========================
-       All Done
-    ========================= */
-    .all-done-card {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.85rem 0.95rem;
-      border-radius: var(--radius-lg);
-      background: var(--primary-bg-soft);
-      border: 1px solid var(--primary-border-soft);
-    }
-
-    .all-done-card strong {
-      font-size: 1rem;
-    }
-
-    /* =========================
        Todo List
     ========================= */
     .list-section-head {
@@ -780,6 +880,30 @@
       word-break: break-word;
     }
 
+    .achievement-time {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-full);
+      background: var(--surface-2);
+      padding: 0.16rem 0.45rem;
+      letter-spacing: 0.01em;
+    }
+
+    .achievement-time .material-symbols-outlined {
+      font-size: 13px;
+      color: var(--primary);
+    }
+
+    .todo-achievement {
+      margin-top: 0.14rem;
+    }
+
     .todo-item.done .todo-title {
       text-decoration: line-through;
       color: var(--completed-text);
@@ -853,6 +977,16 @@
       font-size: 0.9rem;
       line-height: 1.5;
       word-break: break-word;
+    }
+
+    .subtask-text-wrap {
+      min-width: 0;
+      display: grid;
+      gap: 0.2rem;
+    }
+
+    .subtask-achievement {
+      justify-self: start;
     }
 
     .subtask-item.done .text {
@@ -944,6 +1078,59 @@
       font-size: 0.92rem;
     }
 
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.55rem;
+    }
+
+    .theme-btn {
+      appearance: none;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--surface-2);
+      color: var(--text);
+      padding: 0.55rem 0.5rem;
+      display: grid;
+      justify-items: center;
+      gap: 0.32rem;
+      cursor: pointer;
+      min-height: 4.1rem;
+      transition:
+        border-color 160ms var(--ease-smooth),
+        box-shadow 160ms var(--ease-smooth),
+        transform 160ms var(--ease-spring),
+        background 160ms var(--ease-smooth);
+    }
+
+    .theme-btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--primary-border);
+      background: var(--primary-bg-faint);
+    }
+
+    .theme-btn.active {
+      border-color: var(--primary-border-strong);
+      box-shadow: 0 0 0 2px var(--primary-glow);
+      background: var(--primary-bg-soft);
+    }
+
+    .theme-dot {
+      width: 1.05rem;
+      height: 1.05rem;
+      border-radius: 50%;
+      border: 2px solid rgb(255 255 255 / 0.86);
+      box-shadow: 0 0 0 1px rgb(0 0 0 / 0.1);
+    }
+
+    .theme-name {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--muted);
+      line-height: 1.25;
+      text-align: center;
+    }
+
     .toggle {
       appearance: none;
       width: 3.2rem;
@@ -976,6 +1163,105 @@
 
     .toggle:checked::after {
       transform: translateX(1.35rem);
+    }
+
+    /* Theme Switch */
+    .switch {
+      font-size: 17px;
+      position: relative;
+      display: inline-block;
+      width: 4em;
+      height: 2.2em;
+      border-radius: 30px;
+      box-shadow: 0 0 10px rgb(0 0 0 / 0.1);
+      flex-shrink: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #2a2a2a;
+      transition: 0.4s;
+      border-radius: 30px;
+      overflow: hidden;
+    }
+
+    .slider::before {
+      position: absolute;
+      content: "";
+      height: 1.2em;
+      width: 1.2em;
+      border-radius: 20px;
+      left: 0.5em;
+      bottom: 0.5em;
+      transition: 0.4s;
+      transition-timing-function: cubic-bezier(0.81, -0.04, 0.38, 1.5);
+      box-shadow: inset 8px -4px 0 0 #fff;
+    }
+
+    .switch input:checked + .slider {
+      background-color: #00a6ff;
+    }
+
+    .switch input:checked + .slider::before {
+      transform: translateX(1.8em);
+      box-shadow: inset 15px -4px 0 15px #ffcf48;
+    }
+
+    .star {
+      background-color: #fff;
+      border-radius: 50%;
+      position: absolute;
+      width: 5px;
+      transition: all 0.4s;
+      height: 5px;
+    }
+
+    .star_1 {
+      left: 2.5em;
+      top: 0.5em;
+    }
+
+    .star_2 {
+      left: 2.2em;
+      top: 1.2em;
+    }
+
+    .star_3 {
+      left: 3em;
+      top: 0.9em;
+    }
+
+    .switch input:checked ~ .slider .star {
+      opacity: 0;
+    }
+
+    .cloud {
+      width: 3.5em;
+      position: absolute;
+      bottom: -1.4em;
+      left: -1.1em;
+      opacity: 0;
+      transition: all 0.4s;
+    }
+
+    .switch input:checked ~ .slider .cloud {
+      opacity: 1;
+    }
+
+    .switch input:focus-visible + .slider {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
     }
 
     .message-manager {
@@ -1082,7 +1368,7 @@
       position: absolute;
       inset: 0 0 auto;
       height: 3px;
-      background: linear-gradient(90deg, var(--primary), var(--accent), var(--celeb));
+      background: linear-gradient(90deg, var(--primary-border), var(--primary));
       pointer-events: none;
     }
 
@@ -1277,6 +1563,15 @@
       color: var(--danger);
     }
 
+    .toast.success {
+      border-color: var(--success-border);
+      background: var(--success-bg-soft);
+    }
+
+    .toast.success .material-symbols-outlined {
+      color: var(--success);
+    }
+
     /* =========================
        Focus Modal
     ========================= */
@@ -1284,30 +1579,31 @@
       position: fixed;
       inset: 0;
       background:
-        radial-gradient(circle at center, rgb(255 255 255 / 0.08), transparent 35%),
-        rgb(8 12 16 / 0.78);
-      backdrop-filter: blur(12px);
+        radial-gradient(circle at 50% 12%, var(--focus-halo-1), transparent 42%),
+        radial-gradient(circle at 50% 88%, var(--focus-halo-2), transparent 38%),
+        linear-gradient(180deg, var(--focus-overlay-base), var(--focus-overlay-deep));
+      backdrop-filter: blur(14px) saturate(1.12);
       display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
+      align-items: stretch;
+      justify-content: stretch;
+      padding: clamp(0.35rem, 1vw, 0.75rem);
       z-index: 4000;
     }
 
     .focus-overlay.show {
       display: flex;
-      animation: fadeIn 160ms ease;
+      animation: fadeIn 180ms ease;
     }
 
     .focus-modal {
-      width: min(100%, 760px);
-      min-height: min(72vh, 620px);
-      border-radius: 1.4rem;
+      width: min(100%, calc(100vw - clamp(0.7rem, 2vw, 1.2rem)));
+      min-height: calc(100vh - clamp(0.7rem, 2vw, 1.2rem));
+      border-radius: clamp(1rem, 2.2vw, 1.8rem);
       background:
-        linear-gradient(180deg, var(--surface), var(--surface-2));
+        linear-gradient(165deg, var(--focus-surface-start), var(--focus-surface-end));
       border: 1px solid var(--focus-ring-line);
       box-shadow:
-        0 24px 70px var(--shadow-strong),
+        0 26px 72px var(--shadow-strong),
         0 0 0 1px var(--modal-outline);
       display: grid;
       grid-template-rows: auto 1fr auto;
@@ -1320,8 +1616,9 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(circle at 50% 20%, var(--focus-halo-1), transparent 46%),
-        radial-gradient(circle at 50% 80%, var(--focus-halo-2), transparent 36%);
+        radial-gradient(circle at 50% 16%, var(--focus-halo-1), transparent 48%),
+        radial-gradient(circle at 50% 84%, var(--focus-halo-2), transparent 40%);
+      transition: opacity 160ms var(--ease-smooth);
       pointer-events: none;
     }
 
@@ -1330,10 +1627,12 @@
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
-      padding: 1rem 1.1rem;
+      padding: clamp(0.95rem, 2vw, 1.35rem) clamp(1rem, 2.4vw, 1.6rem);
       border-bottom: 1px solid var(--line);
       position: relative;
       z-index: 1;
+      background:
+        linear-gradient(180deg, var(--focus-surface-start), rgb(255 255 255 / 0));
     }
 
     .focus-title-wrap {
@@ -1344,7 +1643,7 @@
     }
 
     .focus-title {
-      font-size: 1.05rem;
+      font-size: clamp(1rem, 1.7vw, 1.22rem);
       font-weight: 800;
       line-height: 1.35;
       word-break: break-word;
@@ -1352,37 +1651,59 @@
 
     .focus-body {
       display: grid;
-      place-items: center;
-      padding: 1rem;
+      align-content: center;
+      justify-items: center;
+      gap: clamp(0.65rem, 1.8vw, 1.1rem);
+      padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 4vw, 3rem);
       position: relative;
       z-index: 1;
     }
 
     .focus-timer {
-      font-size: clamp(3rem, 12vw, 6.2rem);
+      font-size: clamp(3.6rem, 16vw, 10rem);
       font-weight: 800;
-      letter-spacing: -0.05em;
+      letter-spacing: -0.045em;
       font-variant-numeric: tabular-nums;
-      line-height: 1;
+      line-height: 0.92;
       text-shadow:
-        0 0 20px var(--focus-halo-1),
-        0 0 54px var(--focus-halo-2);
+        0 0 24px var(--focus-halo-1),
+        0 0 62px var(--focus-halo-2);
+      transition: opacity 160ms var(--ease-smooth);
+    }
+
+    .focus-overlay.focus-paused .focus-modal::before {
+      opacity: 0.42;
+    }
+
+    .focus-overlay.focus-paused .focus-timer {
+      opacity: 0.78;
+    }
+
+    .focus-timer-caption {
+      margin-top: -0.2rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
     }
 
     .focus-footer {
       display: flex;
       justify-content: center;
-      gap: 1rem;
-      padding: 1rem 1.2rem 1.2rem;
+      gap: clamp(0.8rem, 2vw, 1.2rem);
+      padding: clamp(0.9rem, 2.2vw, 1.2rem) clamp(1rem, 3vw, 1.6rem) clamp(1rem, 2.3vw, 1.35rem);
       border-top: 1px solid var(--line);
       position: relative;
       z-index: 1;
       flex-wrap: wrap;
+      background:
+        linear-gradient(180deg, rgb(255 255 255 / 0), var(--focus-surface-end));
     }
 
     .focus-action-btn {
-      width: 4.5rem;
-      height: 4.5rem;
+      width: clamp(4.2rem, 8vw, 5rem);
+      height: clamp(4.2rem, 8vw, 5rem);
       border-radius: 999px;
       display: inline-flex;
       align-items: center;
@@ -1390,30 +1711,30 @@
       border: 1px solid var(--line);
       background: var(--surface);
       color: var(--text);
-      box-shadow: 0 10px 24px var(--shadow-soft);
+      box-shadow: 0 12px 28px var(--shadow-soft);
     }
 
     .focus-action-btn .material-symbols-outlined {
-      font-size: 30px;
+      font-size: 32px;
     }
 
     .focus-action-btn.complete {
       color: white;
-      background: linear-gradient(135deg, var(--primary), var(--celeb));
+      background: var(--primary);
       border-color: transparent;
       box-shadow: 0 12px 30px var(--primary-glow);
     }
 
     .focus-action-btn.pause {
       color: white;
-      background: linear-gradient(135deg, var(--accent), oklch(0.72 0.18 60));
+      background: var(--accent);
       border-color: transparent;
       box-shadow: 0 12px 30px var(--accent-shadow);
     }
 
     .focus-action-btn.abort {
       color: white;
-      background: linear-gradient(135deg, var(--danger), oklch(0.60 0.21 10));
+      background: var(--danger);
       border-color: transparent;
       box-shadow: 0 12px 30px var(--danger-shadow);
     }
@@ -1434,31 +1755,22 @@
       top: 50%;
       transform: translate(-50%, -50%) scale(0.42) rotate(-10deg);
       opacity: 0;
-      z-index: 3600;
+      z-index: 4600;
       pointer-events: none;
       font-weight: 800;
-      font-size: clamp(3.4rem, 12vw, 7.8rem);
+      font-size: clamp(4rem, 14vw, 8.6rem);
       line-height: 0.95;
       letter-spacing: -0.04em;
       white-space: nowrap;
-      color: transparent;
-      background: linear-gradient(
-        135deg,
-        oklch(0.78 0.22 145),
-        oklch(0.80 0.22 35),
-        oklch(0.76 0.24 350),
-        oklch(0.84 0.18 90)
-      );
-      -webkit-background-clip: text;
-      background-clip: text;
+      color: var(--primary-text-ink);
       filter:
-        drop-shadow(0 8px 20px var(--primary-glow))
-        drop-shadow(0 0 34px oklch(0.84 0.18 90 / 0.35));
+        drop-shadow(0 10px 24px var(--primary-glow))
+        drop-shadow(0 0 30px var(--focus-halo-1));
       text-shadow: 0 0 22px rgb(255 255 255 / 0.18);
     }
 
     .celebration-text.show {
-      animation: celebrationPop 1.35s var(--ease-spring) forwards;
+      animation: celebrationPop 1.05s var(--ease-spring) forwards;
     }
 
     @keyframes celebrationPop {
@@ -1466,30 +1778,30 @@
         opacity: 0;
         transform: translate(-50%, -50%) scale(0.32) rotate(-10deg);
       }
-      18% {
+      16% {
         opacity: 1;
         transform: translate(-50%, -50%) scale(1.22) rotate(2deg);
       }
-      34% {
+      30% {
         transform: translate(-50%, -50%) scale(0.92) rotate(-1deg);
       }
       56% {
         transform: translate(-50%, -55%) scale(1.06) rotate(1deg);
       }
-      76% {
+      74% {
         opacity: 1;
-        transform: translate(-50%, -62%) scale(1);
+        transform: translate(-50%, -60%) scale(1);
       }
       100% {
         opacity: 0;
-        transform: translate(-50%, -78%) scale(1.08);
+        transform: translate(-50%, -72%) scale(1.06);
       }
     }
 
     .confetti {
       position: fixed;
       inset: 0;
-      z-index: 3500;
+      z-index: 4500;
       pointer-events: none;
     }
 
@@ -1525,6 +1837,15 @@
 
       .main {
         padding: var(--space-lg);
+      }
+
+      .focus-overlay {
+        padding: 0.4rem;
+      }
+
+      .focus-modal {
+        width: calc(100vw - 0.8rem);
+        min-height: calc(100vh - 0.8rem);
       }
 
       body.sidebar-collapsed .nav-label {
@@ -1572,6 +1893,10 @@
         grid-template-columns: 1fr;
       }
 
+      .theme-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       .todo-main {
         grid-template-columns: auto 1fr auto;
       }
@@ -1590,12 +1915,34 @@
       }
 
       .focus-timer {
-        font-size: clamp(2.8rem, 16vw, 5rem);
+        font-size: clamp(3rem, 20vw, 5.8rem);
       }
 
       .focus-action-btn {
-        width: 4rem;
-        height: 4rem;
+        width: 4.15rem;
+        height: 4.15rem;
+      }
+
+      .focus-overlay {
+        padding: 0;
+      }
+
+      .focus-modal {
+        width: 100vw;
+        min-height: 100vh;
+        border-radius: 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .celebration-text.show {
+        animation: none;
+      }
+
+      .focus-overlay.show,
+      .modal-overlay.show .modal,
+      .page {
+        animation: none;
       }
     }
   </style>
@@ -1663,13 +2010,6 @@
             <div style="font-weight: 800;">まだ何もないよ</div>
           </div>
 
-          <div class="all-done-card" id="allDoneCard" style="display:none;">
-            <span class="material-symbols-outlined" style="font-size:22px; color: var(--primary);">military_tech</span>
-            <div>
-              <strong>全部おわった！</strong>
-            </div>
-          </div>
-
           <div class="row" id="footerActions" style="display:none;">
             <button id="clearCompletedBtn" class="icon-btn" title="完了済みを削除" aria-label="完了済みを削除">
               <span class="material-symbols-outlined">done_all</span>
@@ -1719,9 +2059,28 @@
           <div class="setting-list">
             <div class="setting-item">
               <div class="setting-meta">
-                <div class="setting-title">ライトモード</div>
+                <div class="setting-title">ライト/ダークモード切り替え</div>
               </div>
-              <input id="lightModeToggle" class="toggle" type="checkbox">
+              <label class="switch" for="lightModeToggle">
+                <input checked id="lightModeToggle" type="checkbox" aria-label="ライト/ダークモード切り替え" />
+                <span class="slider">
+                  <div class="star star_1"></div>
+                  <div class="star star_2"></div>
+                  <div class="star star_3"></div>
+                  <svg viewBox="0 0 16 16" class="cloud_1 cloud" aria-hidden="true">
+                    <path
+                      transform="matrix(.77976 0 0 .78395-299.99-418.63)"
+                      fill="#fff"
+                      d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"
+                    ></path>
+                  </svg>
+                </span>
+              </label>
+            </div>
+
+            <div class="card">
+              <h2>テーマカラー</h2>
+              <div class="theme-grid" id="themeColorGrid" role="radiogroup" aria-label="テーマカラー"></div>
             </div>
 
             <div class="setting-item">
@@ -1893,6 +2252,7 @@
 
       <div class="focus-body">
         <div class="focus-timer" id="focusTimer">00:00:00</div>
+        <div class="focus-timer-caption" id="focusTimerCaption">経過時間</div>
       </div>
 
       <div class="focus-footer">
@@ -2119,6 +2479,17 @@
          State
       ============================================ */
       const defaultMessages = ['やるやん！', 'すごい！', 'えらい！', 'ナイス！', 'かんぺき！', 'さすが！', 'グッジョブ！', 'いいね！', 'てんさい！'];
+      const THEME_PRESETS = [
+        { id: 'ocean', label: 'オーシャン', swatch: '#4f73f4' },
+        { id: 'emerald', label: 'エメラルド', swatch: '#2f9f78' },
+        { id: 'amber', label: 'アンバー', swatch: '#d38a2e' },
+        { id: 'rose', label: 'ローズ', swatch: '#c05f69' },
+        { id: 'indigo', label: 'インディゴ', swatch: '#7a63d7' },
+        { id: 'slate', label: 'スレート', swatch: '#667089' },
+        { id: 'mint', label: 'ミント', swatch: '#3f9eb2' },
+        { id: 'sunset', label: 'サンセット', swatch: '#c46b3f' }
+      ];
+      const THEME_IDS = new Set(THEME_PRESETS.map(theme => theme.id));
 
       let todos = normalizeTodos(_readStoredJson(TODOS_KEY, [], Array.isArray));
       let settings = loadSettings();
@@ -2165,7 +2536,6 @@
       const addBtn = $('#addBtn');
       const todoList = $('#todoList');
       const emptyState = $('#emptyState');
-      const allDoneCard = $('#allDoneCard');
       const footerActions = $('#footerActions');
       const progressMiniText = $('#progressMiniText');
       const taskCountLabel = $('#taskCountLabel');
@@ -2177,6 +2547,7 @@
       const statRate = $('#statRate');
 
       const lightModeToggle = $('#lightModeToggle');
+      const themeColorGrid = $('#themeColorGrid');
       const soundToggle = $('#soundToggle');
       const celebrationToggle = $('#celebrationToggle');
 
@@ -2223,6 +2594,7 @@
       const focusOverlay = $('#focusOverlay');
       const focusTaskTitle = $('#focusTaskTitle');
       const focusTimer = $('#focusTimer');
+      const focusTimerCaption = $('#focusTimerCaption');
       const focusCompleteBtn = $('#focusCompleteBtn');
       const focusPauseBtn = $('#focusPauseBtn');
       const focusPauseIcon = $('#focusPauseIcon');
@@ -2241,11 +2613,16 @@
         return d.innerHTML;
       }
 
-      function showErrorToast(message) {
+      function showToast(message, options = {}) {
+        const {
+          type = 'error',
+          icon = type === 'success' ? 'task_alt' : 'error',
+          durationMs = type === 'success' ? 1700 : 2200
+        } = options;
         if (!toastLayer) return;
         toastLayer.innerHTML = `
-          <div class="toast" role="alert">
-            <span class="material-symbols-outlined" aria-hidden="true">error</span>
+          <div class="toast ${type}" role="alert">
+            <span class="material-symbols-outlined" aria-hidden="true">${icon}</span>
             <span>${escapeHtml(message)}</span>
           </div>
         `;
@@ -2266,7 +2643,11 @@
             if (toastLayer.contains(toast)) toastLayer.innerHTML = '';
           }, 180);
           toastHideTimerId = null;
-        }, 2200);
+        }, durationMs);
+      }
+
+      function showErrorToast(message) {
+        showToast(message, { type: 'error', icon: 'error', durationMs: 2200 });
       }
 
       /* TEXT_NORMALIZATION_START */
@@ -2309,9 +2690,13 @@
         const fallbackMessages = normalizeMessageList(defaultMessages);
         const messages = normalizedMessages.length > 0 ? normalizedMessages : fallbackMessages;
         const colorMode = saved.colorMode === 'dark' ? 'dark' : 'light';
+        const themeColor = typeof saved.themeColor === 'string' && THEME_IDS.has(saved.themeColor)
+          ? saved.themeColor
+          : 'ocean';
 
         return {
           colorMode,
+          themeColor,
           sound: typeof saved.sound === 'boolean' ? saved.sound : true,
           celebration: typeof saved.celebration === 'boolean' ? saved.celebration : true,
           messages
@@ -2478,6 +2863,12 @@
         const nextColorMode = settings.colorMode === 'dark' ? 'dark' : 'light';
         settings.colorMode = nextColorMode;
         document.documentElement.style.colorScheme = nextColorMode;
+      }
+
+      function applyThemeColor() {
+        const nextTheme = THEME_IDS.has(settings.themeColor) ? settings.themeColor : 'ocean';
+        settings.themeColor = nextTheme;
+        document.documentElement.setAttribute('data-theme', nextTheme);
       }
 
       function applySidebarState() {
@@ -2746,6 +3137,102 @@
         } catch (e) {}
       }
 
+      function playFocusStartSound() {
+        if (!settings.sound) return;
+        try {
+          const ctx = getAudioCtx();
+          const now = ctx.currentTime;
+          playTone({
+            time: now,
+            freq: 349.23,
+            dur: 0.08,
+            gain: 0.038,
+            type: 'sine',
+            filterFreq: 2400,
+            q: 0.7
+          });
+          playTone({
+            time: now + 0.05,
+            freq: 523.25,
+            dur: 0.1,
+            gain: 0.042,
+            type: 'triangle',
+            filterFreq: 2800,
+            q: 0.8
+          });
+        } catch (e) {}
+      }
+
+      function playFocusShiftSound(mode = 'pause') {
+        if (!settings.sound) return;
+        try {
+          const ctx = getAudioCtx();
+          const now = ctx.currentTime;
+
+          if (mode === 'resume') {
+            playTone({
+              time: now,
+              freq: 392.0,
+              dur: 0.07,
+              gain: 0.034,
+              type: 'triangle',
+              filterFreq: 2500
+            });
+            playTone({
+              time: now + 0.05,
+              freq: 587.33,
+              dur: 0.09,
+              gain: 0.03,
+              type: 'triangle',
+              filterFreq: 2900
+            });
+            return;
+          }
+
+          playTone({
+            time: now,
+            freq: 440.0,
+            dur: 0.08,
+            gain: 0.03,
+            type: 'sine',
+            filterFreq: 2200
+          });
+          playTone({
+            time: now + 0.05,
+            freq: 329.63,
+            dur: 0.08,
+            gain: 0.027,
+            type: 'sine',
+            filterFreq: 2100
+          });
+        } catch (e) {}
+      }
+
+      function playFocusAbortSound() {
+        if (!settings.sound) return;
+        try {
+          const ctx = getAudioCtx();
+          const now = ctx.currentTime;
+
+          playTone({
+            time: now,
+            freq: 320.0,
+            dur: 0.1,
+            gain: 0.03,
+            type: 'triangle',
+            filterFreq: 1700
+          });
+          playTone({
+            time: now + 0.06,
+            freq: 220.0,
+            dur: 0.12,
+            gain: 0.028,
+            type: 'triangle',
+            filterFreq: 1500
+          });
+        } catch (e) {}
+      }
+
       function playAddSound() {
         if (!settings.sound) return;
         try {
@@ -2821,11 +3308,11 @@
       function launchConfetti(x, y, count = 86) {
         if (!settings.celebration || !CAN_USE_CONFETTI) return;
 
-        const colors = ['#31b86a', '#f2b34d', '#ef6e58', '#6c86ff', '#b06fff', '#ff5fb0', '#fff176'];
+        const colors = ['#3f5fda', '#5e7dea', '#86a4ff', '#b8cbff', '#f7f9ff'];
 
         for (let i = 0; i < count; i++) {
           const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.75;
-          const speed = 4 + Math.random() * 9.5;
+          const speed = 5.2 + Math.random() * 10.8;
           confettiPieces.push({
             x,
             y,
@@ -2836,7 +3323,7 @@
             rotation: Math.random() * 360,
             rotSpeed: (Math.random() - 0.5) * 18,
             life: 1,
-            decay: 0.008 + Math.random() * 0.009,
+            decay: 0.015 + Math.random() * 0.012,
             shape: Math.random() > 0.5 ? 'rect' : 'circle'
           });
         }
@@ -2898,11 +3385,16 @@
         celebrationText.classList.remove('show');
         void celebrationText.offsetWidth;
         celebrationText.classList.add('show');
-        setTimeout(() => celebrationText.classList.remove('show'), 1350);
+        setTimeout(() => celebrationText.classList.remove('show'), 1050);
       }
 
       function celebrateElement(el, options = {}) {
-        const { soundType = 'subtask' } = options;
+        const {
+          soundType = 'subtask',
+          burstCount = 100,
+          centerBurst = false,
+          skipVisual = false
+        } = options;
 
         if (el?.classList?.contains('todo-item')) {
           el.classList.add('celebrating');
@@ -2915,12 +3407,16 @@
           playParentCompleteSound();
         }
 
-        if (settings.celebration) {
-          const rect = el?.getBoundingClientRect?.();
-          if (rect) {
-            launchConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2, 100);
+        if (settings.celebration && !skipVisual) {
+          if (centerBurst) {
+            launchConfetti(window.innerWidth / 2, window.innerHeight * 0.46, burstCount);
           } else {
-            launchConfetti(window.innerWidth / 2, window.innerHeight / 2, 100);
+            const rect = el?.getBoundingClientRect?.();
+            if (rect) {
+              launchConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2, burstCount);
+            } else {
+              launchConfetti(window.innerWidth / 2, window.innerHeight * 0.46, burstCount);
+            }
           }
           showCelebration();
         }
@@ -3270,6 +3766,7 @@
         focusState.parentId = parentId;
         focusState.subtaskId = subtaskId;
 
+        target.focus.elapsedMs = getElapsedMs(target.focus);
         target.focus.focusState = 'running';
         target.focus.startedAt = Date.now();
 
@@ -3284,6 +3781,7 @@
         if (focusState.tickerId) clearInterval(focusState.tickerId);
         focusState.tickerId = setInterval(updateFocusTimer, 200);
 
+        playFocusStartSound();
         save();
         render();
       }
@@ -3292,6 +3790,8 @@
         focusOverlay.classList.remove('show');
         focusOverlay.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('focus-open');
+        focusOverlay.classList.remove('focus-paused');
+        if (focusTimerCaption) focusTimerCaption.textContent = '経過時間';
         if (focusState.tickerId) {
           clearInterval(focusState.tickerId);
           focusState.tickerId = null;
@@ -3320,10 +3820,14 @@
           focusPauseIcon.textContent = 'play_circle';
           focusPauseBtn.title = '再開';
           focusPauseBtn.setAttribute('aria-label', '再開');
+          focusOverlay.classList.add('focus-paused');
+          if (focusTimerCaption) focusTimerCaption.textContent = '一時停止中';
         } else {
           focusPauseIcon.textContent = 'pause_circle';
           focusPauseBtn.title = '一時停止';
           focusPauseBtn.setAttribute('aria-label', '一時停止');
+          focusOverlay.classList.remove('focus-paused');
+          if (focusTimerCaption) focusTimerCaption.textContent = '経過時間';
         }
       }
 
@@ -3335,10 +3839,12 @@
           target.focus.elapsedMs = getElapsedMs(target.focus);
           target.focus.focusState = 'paused';
           target.focus.startedAt = null;
+          playFocusShiftSound('pause');
         } else if (target.focus.focusState === 'paused') {
           clearRunningAcrossAllTargets();
           target.focus.focusState = 'running';
           target.focus.startedAt = Date.now();
+          playFocusShiftSound('resume');
         }
 
         syncFocusPauseButton();
@@ -3355,6 +3861,7 @@
         target.focus.elapsedMs = 0;
         target.focus.startedAt = null;
 
+        playFocusAbortSound();
         save();
         render();
         closeFocusModal();
@@ -3364,33 +3871,38 @@
         const target = getActiveFocusTarget();
         if (!target) return;
 
+        const completedType = focusState.type;
+        const completedParentId = focusState.parentId;
         const elapsed = getElapsedMs(target.focus);
         target.focus.elapsedMs = elapsed;
         target.focus.focusState = 'idle';
         target.focus.startedAt = null;
         target.done = true;
 
-        if (focusState.type === 'subtask') {
-          const parent = getTodo(focusState.parentId);
+        celebrateElement(null, {
+          soundType: completedType === 'parent' ? 'parent' : 'subtask',
+          centerBurst: true,
+          burstCount: completedType === 'parent' ? 190 : 170
+        });
+
+        if (completedType === 'subtask') {
+          const parent = getTodo(completedParentId);
+          if (!parent) {
+            save();
+            render();
+            closeFocusModal();
+            return;
+          }
           const wasParentDone = parent.done;
           syncParentStatus(parent);
           save();
-
-          const subEl = document.querySelector(`.subtask-item[data-parent-id="${focusState.parentId}"][data-sub-id="${focusState.subtaskId}"]`);
-          celebrateElement(subEl, { soundType: 'subtask' });
+          render();
 
           if (!wasParentDone && parent.done) {
-            setTimeout(() => {
-              const parentEl = document.querySelector(`.todo-item[data-id="${focusState.parentId}"]`);
-              celebrateElement(parentEl, { soundType: 'parent' });
-              render();
-            }, 220);
-          } else {
-            render();
+            const parentEl = document.querySelector(`.todo-item[data-id="${completedParentId}"]`);
+            celebrateElement(parentEl, { soundType: 'parent', skipVisual: true });
           }
         } else {
-          const parentEl = document.querySelector(`.todo-item[data-id="${focusState.parentId}"]`);
-          celebrateElement(parentEl, { soundType: 'parent' });
           save();
           render();
         }
@@ -3404,6 +3916,7 @@
           if (!parent || hasSubtasks(parent)) return;
           parent.done = false;
           parent.focus.focusState = 'idle';
+          parent.focus.elapsedMs = 0;
           parent.focus.startedAt = null;
           save();
           render();
@@ -3417,6 +3930,7 @@
 
           sub.done = false;
           sub.focus.focusState = 'idle';
+          sub.focus.elapsedMs = 0;
           sub.focus.startedAt = null;
           syncParentStatus(parent);
           save();
@@ -3514,6 +4028,7 @@
       function render() {
         syncAllParents();
         applyColorMode();
+        applyThemeColor();
         save();
 
         const currentAllDone = isAllDone();
@@ -3543,7 +4058,7 @@
         if (currentAllDone && !previousAllDoneState) {
           setTimeout(() => {
             if (settings.celebration) {
-              showCelebration('全部おわった！');
+              showCelebration();
               launchConfetti(window.innerWidth / 2, window.innerHeight * 0.32, 140);
             }
             playAllClearSound();
@@ -3570,7 +4085,6 @@
         taskCountLabel.textContent = `${parentCount}件`;
 
         emptyState.style.display = todos.length === 0 ? '' : 'none';
-        allDoneCard.style.display = isAllDone() ? '' : 'none';
         footerActions.style.display = todos.length > 0 ? '' : 'none';
 
         todos.forEach(todo => {
@@ -3580,6 +4094,14 @@
 
           const doneChildren = todo.subtasks.filter(s => s.done).length;
           const runnableParent = isRunnableParent(todo);
+          const parentAchievement = todo.done && runnableParent
+            ? `
+              <div class="achievement-time todo-achievement" title="実績時間">
+                <span class="material-symbols-outlined">timer</span>
+                <span>${formatElapsed(todo.focus?.elapsedMs || 0)}</span>
+              </div>
+            `
+            : '';
 
           const leftControl = runnableParent
             ? todo.done
@@ -3623,6 +4145,7 @@
 
               <div class="todo-meta">
                 <div class="todo-title">${escapeHtml(todo.text)}</div>
+                ${parentAchievement}
                 ${!runnableParent ? `<div><span class="badge">${doneChildren}/${todo.subtasks.length}</span></div>` : ''}
               </div>
 
@@ -3678,7 +4201,18 @@
                       `
                       }
 
-                      <div class="text">${escapeHtml(sub.text)}</div>
+                      <div class="subtask-text-wrap">
+                        <div class="text">${escapeHtml(sub.text)}</div>
+                        ${sub.done
+                          ? `
+                          <div class="achievement-time subtask-achievement" title="実績時間">
+                            <span class="material-symbols-outlined">timer</span>
+                            <span>${formatElapsed(sub.focus?.elapsedMs || 0)}</span>
+                          </div>
+                        `
+                          : ''
+                        }
+                      </div>
 
                       <div class="subtask-actions">
                         <button class="mini-btn edit-subtask-btn" data-parent-id="${todo.id}" data-sub-id="${sub.id}" type="button" title="編集" aria-label="編集">
@@ -3708,10 +4242,29 @@
         statRate.textContent = `${stats.rate}%`;
       }
 
+      function renderThemeOptions() {
+        if (!themeColorGrid) return;
+        themeColorGrid.innerHTML = THEME_PRESETS.map((theme) => `
+          <button
+            class="theme-btn ${settings.themeColor === theme.id ? 'active' : ''}"
+            type="button"
+            role="radio"
+            aria-checked="${settings.themeColor === theme.id}"
+            data-theme-color="${theme.id}"
+            title="${theme.label}"
+            aria-label="${theme.label}"
+          >
+            <span class="theme-dot" style="background:${theme.swatch};"></span>
+            <span class="theme-name">${theme.label}</span>
+          </button>
+        `).join('');
+      }
+
       function renderSettings() {
         lightModeToggle.checked = settings.colorMode !== 'dark';
         soundToggle.checked = !!settings.sound;
         celebrationToggle.checked = !!settings.celebration;
+        renderThemeOptions();
         renderMessages();
       }
 
@@ -4179,6 +4732,20 @@
         settings.colorMode = lightModeToggle.checked ? 'light' : 'dark';
         applyColorMode();
         save();
+      });
+
+      themeColorGrid?.addEventListener('click', (e) => {
+        const themeBtn = e.target.closest('.theme-btn');
+        if (!themeBtn) return;
+
+        const nextTheme = themeBtn.dataset.themeColor;
+        if (!nextTheme || !THEME_IDS.has(nextTheme)) return;
+        if (settings.themeColor === nextTheme) return;
+
+        settings.themeColor = nextTheme;
+        applyThemeColor();
+        save();
+        render();
       });
 
       soundToggle.addEventListener('change', () => {

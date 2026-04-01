@@ -1,27 +1,57 @@
-# このリポジトリを点検し、今日やる価値が高い改善を最大3件まで実施してください。
+# AGENTS.md
 
-## 目的:
-- HTML1ファイル業務ツールの品質と販売価値を毎日上げる
-- 破壊的変更は避ける
-- 1回の実行で小さく確実に前進する
+## Repo overview
+This repository contains multiple single-file HTML business tools.
+Each tool lives in its own subdirectory.
+Prioritize small, safe, high-confidence changes.
 
-## 必須作業:
-1. バグ、例外処理不足、UIの壊れやすい箇所を調査
-2. 優先度が最も高い改善を1〜3件だけ選ぶ
-3. 実装可能なら修正する
-4. READMEの変更点を更新する
-5. 課題やおすすめのタスクを調査・分析
-6. 最後に以下の形式で要約する
+## Common rules
+- Keep each tool self-contained in its own folder.
+- Do not move files across tools unless explicitly requested.
+- Do not add a build step unless explicitly requested.
+- Prefer local-first behavior.
+- Do not add telemetry or external network calls unless explicitly requested.
 
-## 出力形式:
-- 今日実施した変更
-- 変更理由
-- 影響範囲
-- 未対応だが重要な課題
-- 次回おすすめタスク 3件
+## Verification
+Before finishing work:
+1. Only modify the target tool directory unless explicitly requested.
+2. Confirm the target tool opens without console errors.
+3. Update that tool's README.md if behavior changed.
 
-## 制約:
-- 大規模リファクタは禁止
-- 既存の公開仕様は壊さない
-- 1回で完了できる小さな変更を優先
-- 変更前後で必ず動作確認する
+## CSS Rules
+- Use CSS layers in this order: `reset -> base -> component -> utility`.
+- Do not write styles outside declared layers.
+- Use CSS nesting when possible.
+- Use `oklch` for color definitions.
+- Do not import external reset CSS.
+
+## JavaScript Rules
+- Prefer JavaScript-based color scheme control.
+- Control color mode via `document.documentElement.style.colorScheme`.
+- Keep behavior deterministic and easy to maintain.
+- Do not introduce unnecessary dependencies.
+- Write code that works in a single-file HTML environment when possible.
+
+## DOM Helper Rules
+- Use the following DOM helper functions for element selection:
+  - `const qs = (sel, root = document) => root.querySelector(sel);`
+  - `const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];`
+
+## Naming Rules
+- Prefix DOM element variables with `$`.
+  - Example: `$button`, `$modal`, `$input`
+- Prefix private/internal variables, methods, or fields with `_`.
+  - Example: `_state`, `_render()`
+- Write constants in `UPPER_SNAKE_CASE`.
+  - Example: `MAX_ITEMS`, `DEFAULT_DELAY`
+
+## Event Rules
+- Prefer event delegation over direct event binding.
+- Direct binding is allowed only for:
+  - toolbar buttons
+  - other static controls
+
+## Implementation Notes
+- Keep CSS and JavaScript consistent with the repository rules.
+- Do not introduce alternative naming styles unless already required by existing code.
+- Prefer consistency over personal style.

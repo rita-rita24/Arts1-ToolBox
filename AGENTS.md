@@ -5,10 +5,6 @@ This repository contains multiple single-file HTML business tools.
 Each tool lives in its own subdirectory.
 Prioritize small, safe, high-confidence changes.
 
-## Directory layout
-- `YaruyanTodo/`
-- `TxtChecker/`
-
 ## Common rules
 - Keep each tool self-contained in its own folder.
 - Do not move files across tools unless explicitly requested.
