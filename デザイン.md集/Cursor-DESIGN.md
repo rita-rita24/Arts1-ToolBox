@@ -205,6 +205,18 @@ The border system is particularly distinctive -- Cursor uses `oklab()` color spa
 - **Compressed text, open layout**: Aggressive negative letter-spacing on CursorGothic headlines is balanced by generous surrounding margins. Text is dense; space around it breathes.
 - **Section variation**: Alternating surface tones (cream → lighter cream → cream) create subtle section differentiation without harsh boundaries.
 
+### Theme Mode Policy
+- **Default mode**: Build the page in Cursor's light warm-cream mode -- `#f2f1ed` and related cream surfaces with `#26251e` text.
+- **Dark UI stays bounded**: Dark editor surfaces belong inside screenshots, code previews, or explicitly requested dark modules; they should not silently turn the surrounding page chrome dark.
+- **No casual mixing**: Do not scatter dark sections, dark cards, or dark navigation into an otherwise light page unless the prompt explicitly calls for a dark variant.
+- **Section inheritance**: If a dark section is intentionally used, switch the whole local system together -- surface, text, border, button, and link treatments should all follow that section mode.
+
+### Four Design Principles (CRAP)
+- **Contrast**: Build hierarchy through warm surface shifts, dark ink text, and sparing use of orange or crimson accents. Contrast should direct the eye to priority actions, not make the page noisier.
+- **Repetition**: Repeat Cursor's signatures -- warm cream surfaces, oklab border treatments, pill shapes, and the three-font role split. If a pattern already exists, strengthen it instead of introducing a fourth visual voice.
+- **Alignment**: Keep headlines, buttons, cards, editor frames, and timeline steps on shared columns and baselines. Timeline connectors and text blocks should resolve to clean vertical axes, not drift independently.
+- **Proximity**: Group each action with its label, helper text, or timeline description so the relationship is obvious at a glance. Use larger spacing only when content genuinely shifts to a new section or mode.
+
 ### Border Radius Scale
 - Micro (1.5px): Fine detail elements
 - Small (2px): Inline elements, code spans
@@ -281,6 +293,11 @@ The border system is particularly distinctive -- Cursor uses `oklab()` color spa
 
 ## 9. Agent Prompt Guide
 
+### Theme Decision
+- Default to a single light warm-cream page using `#f2f1ed`, `#ebeae5`, and `#e6e5e0`.
+- Treat dark editor UI as embedded content unless the brief explicitly asks for a dark page or dark section.
+- When a section changes mode, every nested UI token in that section must change with it.
+
 ### Quick Color Reference
 - Primary CTA background: `#ebeae5` (warm cream button)
 - Page background: `#f2f1ed` (warm off-white)
@@ -299,11 +316,13 @@ The border system is particularly distinctive -- Cursor uses `oklab()` color spa
 - "Design an AI timeline showing four steps: Thinking (`#dfa88f`), Grep (`#9fc9a2`), Read (`#9fbbe0`), Edit (`#c0a8dd`). Each step: 14px system-ui label + 16px CursorGothic description + vertical connecting line in `rgba(38,37,30,0.1)`."
 
 ### Iteration Guide
-1. Always use warm tones -- `#f2f1ed` background, `#26251e` text, never pure white/black for primary surfaces
-2. Letter-spacing scales with font size for CursorGothic: -2.16px at 72px, -0.72px at 36px, -0.325px at 26px, normal at 16px
-3. Use `rgba(38, 37, 30, alpha)` as a CSS-compatible fallback for oklab borders
-4. Three fonts, three voices: CursorGothic (display/UI), jjannon (editorial), berkeleyMono (code)
-5. Pill shapes (9999px radius) for tags and filters; 8px radius for primary buttons and cards
-6. Hover states use `#cf2d56` text color -- the warm crimson shift is a signature interaction
-7. Shadows use large blur values (28px, 70px) for diffused atmospheric depth
-8. The sub-8px spacing scale (1.5, 2, 2.5, 3, 4, 5, 6px) is critical for icon/text micro-alignment
+1. Decide the page mode first: default to the light warm-cream canvas, and keep dark UI confined to screenshots or explicitly requested dark sections
+2. Always use warm tones -- `#f2f1ed` background, `#26251e` text, never pure white/black for primary surfaces
+3. Letter-spacing scales with font size for CursorGothic: -2.16px at 72px, -0.72px at 36px, -0.325px at 26px, normal at 16px
+4. Use `rgba(38, 37, 30, alpha)` as a CSS-compatible fallback for oklab borders
+5. Three fonts, three voices: CursorGothic (display/UI), jjannon (editorial), berkeleyMono (code)
+6. Pill shapes (9999px radius) for tags and filters; 8px radius for primary buttons and cards
+7. Hover states use `#cf2d56` text color -- the warm crimson shift is a signature interaction
+8. Shadows use large blur values (28px, 70px) for diffused atmospheric depth
+9. The sub-8px spacing scale (1.5, 2, 2.5, 3, 4, 5, 6px) is critical for icon/text micro-alignment
+10. Run a CRAP pass before finishing: keep contrast intentional, repeat the established visual language, lock edges to shared axes, and keep related content clustered together

@@ -198,6 +198,18 @@ The color story is starkly binary. Product sections alternate between pure black
 - **Vertical rhythm through color blocks**: Rather than using spacing alone to separate sections, Apple uses alternating background colors (black, `#f5f5f7`, white). Each color change signals a new "scene."
 - **Compression within, expansion between**: Text blocks are tightly set (negative letter-spacing, tight line-heights) while the space surrounding them is vast. This creates a tension between density and openness.
 
+### Theme Mode Policy
+- **Default mode**: For standalone pages and unspecified briefs, use a single light Apple page built on `#f5f5f7` with `#1d1d1f` text.
+- **Dark or alternating scenes are explicit choices**: Use a full dark page or Apple's black/light-gray alternation only when the prompt explicitly asks for an immersive hero, homepage-style composition, or faithful recreation of a matching reference.
+- **Switch only at section boundaries**: If alternation is requested, change mode only at full-width scene boundaries. Inside each section, all local text, links, cards, and CTAs must follow that section's mode.
+- **Known exception**: The translucent dark navigation glass can persist across light sections because it is a brand-specific global element, not a random mode switch.
+
+### Four Design Principles (CRAP)
+- **Contrast**: Use Apple's black vs light-gray scene changes, white vs near-black text, and singular blue accent to make hierarchy unmistakable. Contrast should frame the product and the primary action, never compete with them.
+- **Repetition**: Repeat the recurring section rhythm, pill CTA language, tight typography, and restrained material palette. Repetition is what makes the site feel machined and deliberate instead of loosely assembled.
+- **Alignment**: Center hero copy, product imagery, and CTAs on the same axis, or lock body text, links, and media to one shared left edge when the layout is left-aligned. Vertical edges should feel engineered, not approximate.
+- **Proximity**: Keep each product story compact -- product name, supporting copy, pricing, and actions should read as one cluster. Separate different stories with full scene breaks rather than tiny gaps.
+
 ### Border Radius Scale
 - Micro (5px): Small containers, link tags
 - Standard (8px): Buttons, product cards, image containers
@@ -283,6 +295,11 @@ The color story is starkly binary. Product sections alternate between pure black
 
 ## 9. Agent Prompt Guide
 
+### Theme Decision
+- Default to a single light Apple page using `#f5f5f7` with `#1d1d1f` text.
+- Use a single dark page or alternating black/light-gray scenes only if the brief explicitly asks for them.
+- If alternation is used, switch only at full-width section boundaries and keep each section internally consistent.
+
 ### Quick Color Reference
 - Primary CTA: Apple Blue (`#0071e3`)
 - Page background (light): `#f5f5f7`
@@ -303,11 +320,13 @@ The color story is starkly binary. Product sections alternate between pure black
 - "Design a 'Learn more' link: text #0066cc on light bg or #2997ff on dark bg, 14px SF Pro Text, underline on hover. After the text, include a right-arrow chevron character (>). Wrap in a container with 980px border-radius for pill shape when used as a standalone CTA."
 
 ### Iteration Guide
-1. Every interactive element gets Apple Blue (`#0071e3`) — no other accent colors
-2. Section backgrounds alternate: black for immersive moments, `#f5f5f7` for informational moments
-3. Typography optical sizing: SF Pro Display at 20px+, SF Pro Text below — never mix
-4. Negative letter-spacing at all sizes: -0.28px at 56px, -0.374px at 17px, -0.224px at 14px, -0.12px at 12px
-5. The navigation glass effect (translucent dark + blur) is non-negotiable — it defines the Apple web experience
-6. Products always appear on solid color fields — never on gradients, textures, or lifestyle backgrounds in hero modules
-7. Shadow is rare and always soft: `3px 5px 30px 0.22 opacity` or nothing at all
-8. Pill CTAs use 980px radius — this creates the signature Apple rounded-rectangle-that-looks-like-a-capsule shape
+1. Decide the page mode first: default to a single light page, and only use dark or alternating scenes when the brief explicitly asks for them
+2. Every interactive element gets Apple Blue (`#0071e3`) — no other accent colors
+3. Section backgrounds alternate only when an explicit Apple-style scene rhythm is requested
+4. Typography optical sizing: SF Pro Display at 20px+, SF Pro Text below — never mix
+5. Negative letter-spacing at all sizes: -0.28px at 56px, -0.374px at 17px, -0.224px at 14px, -0.12px at 12px
+6. The navigation glass effect (translucent dark + blur) is non-negotiable — it defines the Apple web experience
+7. Products always appear on solid color fields — never on gradients, textures, or lifestyle backgrounds in hero modules
+8. Shadow is rare and always soft: `3px 5px 30px 0.22 opacity` or nothing at all
+9. Pill CTAs use 980px radius — this creates the signature Apple rounded-rectangle-that-looks-like-a-capsule shape
+10. Run a CRAP pass before finishing: preserve strong contrast, repeat Apple's few core patterns, align every major edge to the same axis, and keep related product information tightly grouped

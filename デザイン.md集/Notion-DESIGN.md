@@ -196,6 +196,18 @@ What makes Notion's visual language distinctive is its border philosophy. Rather
 - **Warm alternation**: White sections alternate with warm white (`#f6f5f4`) sections, creating gentle visual rhythm without harsh color breaks.
 - **Content-first density**: Body text blocks are compact (line-height 1.50) but surrounded by ample margin, creating islands of readable content in a sea of white space.
 
+### Theme Mode Policy
+- **Default mode**: Build the entire page in light mode -- white or warm white surfaces, near-black text, whisper borders, and blue accents.
+- **No casual mixing**: Do not combine light and dark sections in the same page unless the prompt explicitly asks for a dedicated dark feature block or a faithful recreation of a reference that uses one.
+- **Section inheritance**: If a dark block is intentionally introduced, switch the whole local system together -- background, text, border, link, badge, and CTA treatments must all match that block.
+- **Screenshots are exceptions, not chrome**: Product screenshots may contain darker UI, but the surrounding page surfaces should stay in the chosen page mode.
+
+### Four Design Principles (CRAP)
+- **Contrast**: Establish hierarchy with white vs warm white sections, near-black vs warm-gray text, and a restrained pop of Notion Blue. Contrast should explain priority, not add decoration.
+- **Repetition**: Repeat Notion's core decisions -- whisper borders, warm neutrals, the existing type scale, and the 4px / 12px / 16px / 9999px radius language. Reuse proven card and CTA patterns before inventing new variants.
+- **Alignment**: Snap headings, body copy, buttons, screenshots, and cards to the same container columns. Shared left edges, consistent button baselines, and clean vertical lines matter more than centering by eye.
+- **Proximity**: Keep related headline-copy-CTA groups tight, and separate unrelated ideas with generous white space. Labels, helper text, and controls should read as one unit.
+
 ### Border Radius Scale
 - Micro (4px): Buttons, inputs, functional interactive elements
 - Subtle (5px): Links, list items, menu items
@@ -279,6 +291,11 @@ What makes Notion's visual language distinctive is its border philosophy. Rather
 
 ## 9. Agent Prompt Guide
 
+### Theme Decision
+- Default to a single light page using `#ffffff` and `#f6f5f4`.
+- Only introduce dark sections if the brief explicitly asks for them.
+- When a section changes mode, every nested UI token in that section must change with it.
+
 ### Quick Color Reference
 - Primary CTA: Notion Blue (`#0075de`)
 - Background: Pure White (`#ffffff`)
@@ -299,11 +316,13 @@ What makes Notion's visual language distinctive is its border philosophy. Rather
 - "Design an alternating section layout: white sections alternate with warm white (#f6f5f4) sections. Each section has 64-80px vertical padding, max-width 1200px centered. Section heading at 48px weight 700, line-height 1.00, letter-spacing -1.5px."
 
 ### Iteration Guide
-1. Always use warm neutrals -- Notion's grays have yellow-brown undertones (#f6f5f4, #31302e, #615d59, #a39e98), never blue-gray
-2. Letter-spacing scales with font size: -2.125px at 64px, -1.875px at 54px, -0.625px at 26px, normal at 16px
-3. Four weights: 400 (read), 500 (interact), 600 (emphasize), 700 (announce)
-4. Borders are whispers: 1px solid rgba(0,0,0,0.1) -- never heavier
-5. Shadows use 4-5 layers with individual opacity never exceeding 0.05
-6. The warm white (#f6f5f4) section background is essential for visual rhythm
-7. Pill badges (9999px) for status/tags, 4px radius for buttons and inputs
-8. Notion Blue (#0075de) is the only saturated color in core UI -- use it sparingly for CTAs and links
+1. Decide the page mode first: default to a single light page, and do not mix in dark sections unless explicitly requested
+2. Always use warm neutrals -- Notion's grays have yellow-brown undertones (#f6f5f4, #31302e, #615d59, #a39e98), never blue-gray
+3. Letter-spacing scales with font size: -2.125px at 64px, -1.875px at 54px, -0.625px at 26px, normal at 16px
+4. Four weights: 400 (read), 500 (interact), 600 (emphasize), 700 (announce)
+5. Borders are whispers: 1px solid rgba(0,0,0,0.1) -- never heavier
+6. Shadows use 4-5 layers with individual opacity never exceeding 0.05
+7. The warm white (#f6f5f4) section background is essential for visual rhythm
+8. Pill badges (9999px) for status/tags, 4px radius for buttons and inputs
+9. Notion Blue (#0075de) is the only saturated color in core UI -- use it sparingly for CTAs and links
+10. Run a CRAP pass before finishing: strengthen hierarchy with contrast, repeat existing patterns, align every edge to the shared grid, and keep related content closer than unrelated content

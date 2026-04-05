@@ -202,6 +202,18 @@ What makes Claude's design truly distinctive is its warm neutral palette. Every 
 - **Serif-driven rhythm**: The serif headings establish a literary cadence that demands more whitespace than sans-serif designs.
 - **Content island approach**: Sections alternate between light and dark environments, creating distinct "rooms" for each message.
 
+### Theme Mode Policy
+- **Default mode**: For standalone pages and unspecified briefs, use Claude's light parchment mode -- `#f5f4ed` backgrounds with warm dark text.
+- **Dark or alternating chapters are explicit choices**: Use dark sections or light/dark chapter alternation only when the prompt explicitly asks for a faithful Claude landing-page rhythm or a dedicated dark section.
+- **Switch whole sections, not isolated widgets**: If a dark section is intentionally introduced, switch all local surfaces, text, borders, and CTA treatments together instead of dropping dark cards into a light page.
+- **Media can contrast, structure should not drift**: Dark screenshots and illustrations may sit inside a light page, but the surrounding UI chrome should remain in the chosen page mode.
+
+### Four Design Principles (CRAP)
+- **Contrast**: Create hierarchy through parchment vs near-black section shifts, dark text on warm light surfaces, and selective terracotta emphasis. Contrast should guide reading flow while preserving Claude's calm tone.
+- **Repetition**: Repeat the serif/sans division of labor, warm border colors, ring-based shadows, and rounded container language. Consistency is what makes the interface feel authored rather than generated.
+- **Alignment**: Keep editorial columns, cards, buttons, screenshots, and illustration blocks anchored to shared axes. Even organic visuals should sit on a disciplined grid so vertical lines and section starts feel intentional.
+- **Proximity**: Group headings, supporting text, badges, and actions by meaning so each section reads like one chapter. Use larger gaps to signal a true topic change, not to separate related details.
+
 ### Border Radius Scale
 - Sharp (4px): Minimal inline elements
 - Subtly rounded (6–7.5px): Small buttons, secondary interactive elements
@@ -285,6 +297,11 @@ What makes Claude's design truly distinctive is its warm neutral palette. Every 
 
 ## 9. Agent Prompt Guide
 
+### Theme Decision
+- Default to a single parchment-light page using `#f5f4ed` and `#faf9f5`.
+- Use dark sections or light/dark alternation only if the brief explicitly asks for them.
+- When a section changes mode, every nested UI token in that section must change with it.
+
 ### Quick Color Reference
 - Brand CTA: "Terracotta Brand (#c96442)"
 - Page Background: "Parchment (#f5f4ed)"
@@ -303,10 +320,12 @@ What makes Claude's design truly distinctive is its warm neutral palette. Every 
 - "Design a model comparison grid with three cards on Ivory surfaces. Each card gets a Border Warm (#e8e6dc) top border, model name in Anthropic Serif at 25px, and description in Olive Gray at 15px Anthropic Sans."
 
 ### Iteration Guide
-1. Focus on ONE component at a time
-2. Reference specific color names — "use Olive Gray (#5e5d59)" not "make it gray"
-3. Always specify warm-toned variants — no cool grays
-4. Describe serif vs sans usage explicitly — "Anthropic Serif for the heading, Anthropic Sans for the label"
-5. For shadows, use "ring shadow (0px 0px 0px 1px)" or "whisper shadow" — never generic "drop shadow"
-6. Specify the warm background — "on Parchment (#f5f4ed)" or "on Near Black (#141413)"
-7. Keep illustrations organic and conceptual — describe "hand-drawn-feeling" style
+1. Decide the page mode first: default to parchment light, and only introduce dark sections or alternation when explicitly requested
+2. Focus on ONE component at a time
+3. Reference specific color names — "use Olive Gray (#5e5d59)" not "make it gray"
+4. Always specify warm-toned variants — no cool grays
+5. Describe serif vs sans usage explicitly — "Anthropic Serif for the heading, Anthropic Sans for the label"
+6. For shadows, use "ring shadow (0px 0px 0px 1px)" or "whisper shadow" — never generic "drop shadow"
+7. Specify the warm background — "on Parchment (#f5f4ed)" or "on Near Black (#141413)"
+8. Keep illustrations organic and conceptual — describe "hand-drawn-feeling" style
+9. Run a CRAP pass before finishing: use contrast for hierarchy, repeat Claude's core patterns, align every block to a shared grid, and keep related content visibly together
