@@ -1,0 +1,2774 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CommitPreChecker-Admin</title>
+  <style>
+    @layer reset, base, component, utility;
+
+    @layer reset {
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+
+      html, body,
+      h1, h2, h3, p,
+      ul, ol, li,
+      textarea, input, select, button {
+        margin: 0;
+        padding: 0;
+      }
+
+      button, input, select, textarea {
+        font: inherit;
+        color: inherit;
+      }
+    }
+
+    @layer base {
+      :root {
+        --claude-black: oklch(0.205 0.008 92);
+        --claude-dark-surface: oklch(0.306 0.01 92);
+        --claude-parchment: oklch(0.962 0.014 92);
+        --claude-ivory: oklch(0.981 0.01 92);
+        --claude-white: oklch(1 0 0);
+        --claude-brand: oklch(0.62 0.14 45);
+        --claude-brand-soft: oklch(0.69 0.12 45);
+        --claude-text-primary: oklch(0.205 0.008 92);
+        --claude-text-secondary: oklch(0.458 0.01 92);
+        --claude-text-tertiary: oklch(0.63 0.01 92);
+        --claude-warm-silver: oklch(0.76 0.015 92);
+        --claude-border-cream: oklch(0.946 0.012 92);
+        --claude-border-warm: oklch(0.915 0.015 92);
+        --claude-ring: oklch(0.85 0.015 92);
+        --claude-focus: oklch(0.68 0.16 250);
+        --claude-shadow-whisper: oklch(0 0 0 / 0.05) 0px 4px 24px;
+        --font-serif: "Anthropic Serif", Georgia, serif;
+        --font-sans: "Anthropic Sans", Arial, sans-serif;
+        --font-mono: "Anthropic Mono", Menlo, Monaco, Consolas, monospace;
+      }
+
+      html {
+        font-size: 14px;
+      }
+
+      body {
+        min-height: 100dvh;
+        font-family: var(--font-sans), "Hiragino Sans", "Yu Gothic UI", sans-serif;
+        color: var(--claude-text-primary);
+        background: var(--claude-parchment);
+      }
+
+      code, kbd, pre, .u-mono {
+        font-family: var(--font-mono);
+      }
+    }
+
+    @layer component {
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        border-bottom: 1px solid var(--claude-border-cream);
+        backdrop-filter: saturate(140%) blur(10px);
+        background-color: rgba(245, 244, 237, 0.92);
+
+        & .topbar__inner {
+          max-width: 1200px;
+          margin-inline: auto;
+          padding: 0.9rem 1.25rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+        }
+
+        & .brand {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.62rem;
+          color: var(--claude-text-primary);
+          font-family: var(--font-sans);
+          font-size: 1rem;
+          font-weight: 500;
+          line-height: 1;
+        }
+
+        & .brand__dot {
+          inline-size: 0.7rem;
+          block-size: 0.7rem;
+          border-radius: 50%;
+          background: var(--claude-brand);
+        }
+
+        & .topbar__meta {
+          color: var(--claude-text-secondary);
+          font-size: 0.88rem;
+          line-height: 1.43;
+        }
+      }
+
+      .layout {
+        max-width: 1200px;
+        margin-inline: auto;
+        padding: 0 1.25rem 2rem;
+        display: grid;
+        gap: 1.15rem;
+      }
+
+      .card {
+        border: 1px solid var(--claude-border-cream);
+        border-radius: 16px;
+        background-color: var(--claude-ivory);
+      }
+
+      .glass {
+        background-color: var(--claude-ivory);
+      }
+
+      .hero {
+        padding: 3.3rem 1.4rem 2.7rem;
+        background: var(--claude-ivory);
+        border-radius: 16px;
+
+        & h1 {
+          color: var(--claude-text-primary);
+          font-family: var(--font-serif);
+          font-size: clamp(1.4rem, 2.8vw, 1.9rem);
+          font-weight: 500;
+          line-height: 1.1;
+          text-align: center;
+        }
+
+        & p {
+          margin-top: 0.9rem;
+          color: var(--claude-text-secondary);
+          font-family: var(--font-sans);
+          font-size: 1rem;
+          font-weight: 400;
+          line-height: 1.6;
+          text-align: center;
+        }
+      }
+
+      .form-card {
+        padding: 1.2rem;
+
+        & form {
+          display: grid;
+          gap: 1rem;
+        }
+      }
+
+      .section {
+        border: 1px solid var(--claude-border-cream);
+        border-radius: 12px;
+        background: var(--claude-ivory);
+        padding: 1rem;
+        display: grid;
+        gap: 0.85rem;
+        box-shadow: 0 0 0 1px var(--claude-border-cream);
+
+        & .section__title {
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          gap: 0.6rem;
+        }
+
+        & h2 {
+          font-family: var(--font-serif);
+          font-size: 1.35rem;
+          font-weight: 500;
+          line-height: 1.1;
+          color: var(--claude-text-primary);
+        }
+
+        & p {
+          color: var(--claude-text-tertiary);
+          font-family: var(--font-sans);
+          font-size: 0.88rem;
+          line-height: 1.43;
+        }
+      }
+
+      .field-grid {
+        display: grid;
+        gap: 0.75rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        @media (max-width: 768px) {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .field {
+        display: grid;
+        gap: 0.35rem;
+
+        & label {
+          color: var(--claude-text-secondary);
+          font-family: var(--font-sans);
+          font-size: 0.88rem;
+          font-weight: 500;
+          line-height: 1.6;
+        }
+
+        & input,
+        & select,
+        & textarea {
+          inline-size: 100%;
+          border: 1px solid var(--claude-border-warm);
+          border-radius: 12px;
+          background-color: var(--claude-white);
+          padding: 0.55rem 0.75rem;
+          line-height: 1.6;
+          transition: border-color 0.14s ease, box-shadow 0.14s ease;
+        }
+
+        & textarea {
+          min-block-size: 5.8rem;
+          resize: vertical;
+        }
+
+        & input:focus,
+        & select:focus,
+        & textarea:focus {
+          outline: none;
+          border-color: var(--claude-focus);
+          box-shadow: 0 0 0 2px var(--claude-focus);
+        }
+      }
+
+      .field--full {
+        grid-column: 1 / -1;
+      }
+
+      .check-list {
+        display: grid;
+        gap: 0.45rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        @media (max-width: 768px) {
+          grid-template-columns: 1fr;
+        }
+
+        & label {
+          display: flex;
+          align-items: center;
+          gap: 0.42rem;
+          color: var(--claude-text-secondary);
+          font-family: var(--font-sans);
+          font-size: 0.9rem;
+          line-height: 1.6;
+        }
+
+        & input[type="checkbox"] {
+          accent-color: var(--claude-brand);
+          inline-size: 1.05rem;
+          block-size: 1.05rem;
+        }
+      }
+
+      .severity-grid {
+        display: grid;
+        gap: 0.7rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        @media (max-width: 768px) {
+          grid-template-columns: 1fr;
+        }
+
+        & .severity-item {
+          border: 1px solid var(--claude-border-warm);
+          border-radius: 8px;
+          background-color: var(--claude-parchment);
+          padding: 0.75rem;
+          display: grid;
+          gap: 0.46rem;
+
+          & strong {
+            font-family: var(--font-serif);
+            font-size: 1.05rem;
+            font-weight: 500;
+            line-height: 1.2;
+            color: var(--claude-text-primary);
+          }
+
+          & small {
+            color: var(--claude-text-tertiary);
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            line-height: 1.6;
+          }
+
+          & select {
+            border: 1px solid var(--claude-border-warm);
+            border-radius: 12px;
+            padding: 0.4rem 0.62rem;
+            background: var(--claude-white);
+          }
+        }
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.55rem;
+      }
+
+      .btn {
+        border: 1px solid transparent;
+        border-radius: 12px;
+        padding: 0.52rem 0.96rem;
+        font-family: var(--font-sans);
+        font-size: 1rem;
+        font-weight: 500;
+        line-height: 1.25;
+        cursor: pointer;
+        transition: background-color 0.14s ease, color 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+
+        &:disabled {
+          cursor: not-allowed;
+          opacity: 0.5;
+        }
+      }
+
+      .btn--primary {
+        background: var(--claude-brand);
+        color: var(--claude-ivory);
+        border-color: var(--claude-brand);
+        box-shadow: 0 0 0 1px var(--claude-brand);
+      }
+
+      .btn--secondary {
+        border-color: var(--claude-ring);
+        background: var(--claude-border-warm);
+        color: #4d4c48;
+        box-shadow: 0 0 0 1px var(--claude-ring);
+      }
+
+      .btn--ghost {
+        border-color: var(--claude-ring);
+        background: var(--claude-border-warm);
+        color: #4d4c48;
+        box-shadow: 0 0 0 1px var(--claude-ring);
+      }
+
+      .status-card {
+        padding: 1rem 1.05rem;
+        display: grid;
+        gap: 0.7rem;
+        background: var(--claude-ivory);
+        border-color: var(--claude-border-cream);
+        color: var(--claude-text-primary);
+      }
+
+      .status {
+        border: 1px solid var(--claude-border-warm);
+        border-radius: 8px;
+        padding: 0.75rem 0.8rem;
+        font-size: 0.88rem;
+        line-height: 1.6;
+        background-color: var(--claude-parchment);
+
+        &[data-tone="success"] {
+          border-color: rgba(201, 100, 66, 0.45);
+          background-color: rgba(201, 100, 66, 0.14);
+        }
+
+        &[data-tone="warning"] {
+          border-color: rgba(176, 174, 165, 0.52);
+          background-color: rgba(176, 174, 165, 0.12);
+        }
+
+        &[data-tone="error"] {
+          border-color: rgba(181, 51, 51, 0.5);
+          background-color: rgba(181, 51, 51, 0.12);
+        }
+      }
+
+      .meta-list {
+        display: grid;
+        gap: 0.42rem;
+
+        & .meta-list__item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.8rem;
+          border: 1px solid var(--claude-border-warm);
+          border-radius: 8px;
+          background-color: var(--claude-parchment);
+          padding: 0.54rem 0.6rem;
+          font-size: 0.82rem;
+
+          & span:first-child {
+            color: var(--claude-text-secondary);
+          }
+
+          & span:last-child {
+            font-weight: 500;
+            overflow-wrap: anywhere;
+            text-align: right;
+          }
+        }
+      }
+
+      .footer-note {
+        max-width: 1200px;
+        margin-inline: auto;
+        padding: 0 1.25rem 1.8rem;
+        color: var(--claude-text-tertiary);
+        font-family: var(--font-sans);
+        font-size: 0.75rem;
+        line-height: 1.6;
+      }
+
+      button:focus-visible,
+      input:focus-visible,
+      select:focus-visible,
+      textarea:focus-visible {
+        outline: 2px solid var(--claude-focus);
+        outline-offset: 2px;
+      }
+    }
+
+    @layer utility {
+      .u-hidden {
+        display: none !important;
+      }
+
+      .u-mono {
+        font-family: var(--font-mono);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar__inner">
+      <div class="brand">
+        <span class="brand__dot" aria-hidden="true"></span>
+        <span>CommitPreChecker-Admin</span>
+      </div>
+      <div class="topbar__meta" id="profile-summary">共通ルールセット</div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="card glass">
+      <div class="hero">
+        <h1>配布用HTML生成コンソール</h1>
+        <p>共通チェック観点を設定し、利用者向けの配布用HTML（単一ファイル）を生成します。</p>
+      </div>
+
+      <div class="form-card">
+        <form id="admin-form" novalidate>
+          <section class="section">
+            <div class="section__title">
+              <h2>基本情報</h2>
+              <p>配布表示用</p>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="ruleSetName">ルールセット名</label>
+                <input id="ruleSetName" name="ruleSetName" type="text" placeholder="標準共通ルール" required />
+              </div>
+              <div class="field">
+                <label for="profileStatus">ステータス</label>
+                <select id="profileStatus" name="profileStatus">
+                  <option value="draft">下書き</option>
+                  <option value="published">公開中</option>
+                  <option value="deprecated">廃止</option>
+                </select>
+              </div>
+              <div class="field field--full">
+                <label for="ruleSetDescription">説明</label>
+                <textarea id="ruleSetDescription" name="ruleSetDescription" placeholder="このルールセットの説明"></textarea>
+              </div>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="section__title">
+              <h2>共通ルール設定</h2>
+              <p>言語非依存</p>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="indentType">インデント方式</label>
+                <select id="indentType" name="indentType">
+                  <option value="spaces">スペース</option>
+                  <option value="tabs">タブ</option>
+                  <option value="either">どちらも許可</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="indentSize">インデント幅（スペース時）</label>
+                <input id="indentSize" name="indentSize" type="number" min="1" max="8" step="1" />
+              </div>
+              <div class="field">
+                <label for="lineEnding">改行コード</label>
+                <select id="lineEnding" name="lineEnding">
+                  <option value="LF">LF</option>
+                  <option value="CRLF">CRLF</option>
+                  <option value="either">どちらも許可</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="requireFinalNewline">ファイル末尾改行</label>
+                <select id="requireFinalNewline" name="requireFinalNewline">
+                  <option value="required">必須</option>
+                  <option value="optional">任意</option>
+                  <option value="forbidden">禁止</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="allowFullWidthSpace">全角スペース</label>
+                <select id="allowFullWidthSpace" name="allowFullWidthSpace">
+                  <option value="error">エラー</option>
+                  <option value="warning">警告</option>
+                  <option value="allow">許可</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="allowInvisibleChars">不可視文字</label>
+                <select id="allowInvisibleChars" name="allowInvisibleChars">
+                  <option value="error">エラー</option>
+                  <option value="warning">警告</option>
+                  <option value="allow">許可</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="maxBlankLines">連続空行の上限</label>
+                <input id="maxBlankLines" name="maxBlankLines" type="number" min="0" step="1" />
+              </div>
+              <div class="field">
+                <label for="maxLineLength">1行の最大文字数</label>
+                <input id="maxLineLength" name="maxLineLength" type="number" min="1" step="1" />
+              </div>
+            </div>
+            <div class="check-list">
+              <label><input id="trimTrailingWhitespace" name="trimTrailingWhitespace" type="checkbox" />行末空白を禁止する</label>
+              <label><input id="forbidBom" name="forbidBom" type="checkbox" />BOMを禁止する</label>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="section__title">
+              <h2>重大度設定</h2>
+              <p>チェック観点別</p>
+            </div>
+            <div class="severity-grid" id="severity-grid"></div>
+          </section>
+
+          <section class="section">
+            <div class="section__title">
+              <h2>配布オプション</h2>
+              <p>出力設定</p>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="toolName">配布ツール名</label>
+                <input id="toolName" name="toolName" type="text" placeholder="CommitPreChecker" />
+              </div>
+              <div class="field">
+                <label for="theme">テーマ</label>
+                <select id="theme" name="theme">
+                  <option value="light">ライト</option>
+                  <option value="dark">ダーク</option>
+                  <option value="auto">システム連動</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="expireAt">有効期限（任意）</label>
+                <input id="expireAt" name="expireAt" type="datetime-local" />
+              </div>
+            </div>
+            <div class="check-list">
+              <label><input id="showRuleInfo" name="showRuleInfo" type="checkbox" />ルール情報ボタンを表示する</label>
+              <label><input id="enableAutoFix" name="enableAutoFix" type="checkbox" />自動修正機能を有効にする</label>
+            </div>
+          </section>
+
+          <div class="toolbar">
+            <button class="btn btn--primary" id="generateHtmlBtn" type="button">配布用HTMLを生成 (Generate HTML)</button>
+            <button class="btn btn--secondary" id="exportJsonBtn" type="button">設定JSONを保存</button>
+            <button class="btn btn--secondary" id="importJsonBtn" type="button">設定JSONを読込</button>
+            <button class="btn btn--ghost" id="resetBtn" type="button">初期値に戻す</button>
+            <input class="u-hidden" id="profileFileInput" type="file" accept="application/json" />
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="card status-card">
+      <div class="status" id="statusMessage" data-tone="neutral">設定を編集すると下書き保存されます。</div>
+      <div class="meta-list">
+        <div class="meta-list__item"><span>出力ファイル</span><span id="generatedFileName">-</span></div>
+        <div class="meta-list__item"><span>チェックサム</span><span id="checksumPreview">-</span></div>
+      </div>
+      <div class="toolbar">
+        <button class="btn btn--secondary" id="downloadLastBtn" type="button" disabled>直前生成HTMLを再ダウンロード</button>
+      </div>
+    </section>
+  </main>
+
+  <p class="footer-note">配布物は単一HTMLとして出力され、ルールは埋め込み固定です。外部通信は行いません。</p>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const qs = (sel, root = document) => root.querySelector(sel);
+      const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+      const STORAGE_KEY = "commit-prechecker-admin-profile-v2";
+
+      const CHECKPOINTS = [
+        { key: "mixedIndent", label: "インデント方式の混在", description: "行頭でタブとスペースが混在していないか" },
+        { key: "indentWidth", label: "インデント幅の不一致", description: "スペースインデントが指定幅の倍数か" },
+        { key: "trailingWhitespace", label: "行末空白", description: "行末の不要な空白を検出" },
+        { key: "lineEnding", label: "改行コードの不一致", description: "LF / CRLF のルール違反を検出" },
+        { key: "finalNewline", label: "ファイル末尾改行", description: "末尾改行の必須・禁止ルールを検出" },
+        { key: "fullWidthSpace", label: "全角スペース", description: "全角スペースの混入を検出" },
+        { key: "invisibleChars", label: "不可視文字", description: "ゼロ幅文字やNBSPなどを検出" },
+        { key: "blankLines", label: "連続空行の超過", description: "連続空行数が上限を超えていないか" },
+        { key: "bom", label: "BOM混入", description: "UTF-8 BOMの混入を検出" },
+        { key: "lineLength", label: "行長超過", description: "最大行長を超える行を検出" }
+      ];
+
+      const DEFAULT_PROFILE = {
+        meta: {
+          ruleSetName: "標準共通ルール",
+          description: "コミット前の基本整形ルール",
+          status: "draft"
+        },
+        rules: {
+          indentType: "spaces",
+          indentSize: 4,
+          lineEnding: "LF",
+          trimTrailingWhitespace: true,
+          requireFinalNewline: "required",
+          allowFullWidthSpace: "error",
+          allowInvisibleChars: "warning",
+          maxBlankLines: 1,
+          maxLineLength: 120,
+          forbidBom: true
+        },
+        severity: {
+          mixedIndent: "error",
+          indentWidth: "warning",
+          trailingWhitespace: "error",
+          lineEnding: "error",
+          finalNewline: "warning",
+          fullWidthSpace: "error",
+          invisibleChars: "warning",
+          blankLines: "warning",
+          bom: "warning",
+          lineLength: "info"
+        },
+        options: {
+          toolName: "CommitPreChecker",
+          showRuleInfo: true,
+          enableAutoFix: true,
+          theme: "light",
+          expireAt: null
+        }
+      };
+
+      const $form = qs("#admin-form");
+      const $statusMessage = qs("#statusMessage");
+      const $profileSummary = qs("#profile-summary");
+      const $generatedFileName = qs("#generatedFileName");
+      const $checksumPreview = qs("#checksumPreview");
+      const $downloadLastBtn = qs("#downloadLastBtn");
+      const $profileFileInput = qs("#profileFileInput");
+      const $severityGrid = qs("#severity-grid");
+
+      const $generateHtmlBtn = qs("#generateHtmlBtn");
+      const $exportJsonBtn = qs("#exportJsonBtn");
+      const $importJsonBtn = qs("#importJsonBtn");
+      const $resetBtn = qs("#resetBtn");
+      const $theme = qs("#theme");
+
+      let _lastGeneratedHtml = "";
+      let _lastGeneratedFileName = "";
+      let _saveTimer = 0;
+
+      _initialize();
+
+      function _initialize() {
+        _renderSeverityControls();
+
+        const _draft = _loadDraft();
+        _writeStateToForm(_draft || DEFAULT_PROFILE);
+
+        _renderProfileSummary();
+        _refreshSummaryPreview();
+        _bindEvents();
+        _updateAdminColorScheme();
+      }
+
+      function _renderSeverityControls() {
+        $severityGrid.textContent = "";
+
+        for (const _checkpoint of CHECKPOINTS) {
+          const $item = document.createElement("div");
+          $item.className = "severity-item";
+
+          const $title = document.createElement("strong");
+          $title.textContent = _checkpoint.label;
+
+          const $desc = document.createElement("small");
+          $desc.textContent = _checkpoint.description;
+
+          const $select = document.createElement("select");
+          $select.id = `sev-${_checkpoint.key}`;
+
+          const _labels = {
+            error: "エラー",
+            warning: "警告",
+            info: "情報",
+            off: "無効"
+          };
+
+          for (const _level of ["error", "warning", "info", "off"]) {
+            const $option = document.createElement("option");
+            $option.value = _level;
+            $option.textContent = _labels[_level] || _level;
+            $select.appendChild($option);
+          }
+
+          $item.appendChild($title);
+          $item.appendChild($desc);
+          $item.appendChild($select);
+          $severityGrid.appendChild($item);
+        }
+      }
+
+      function _bindEvents() {
+        $form.addEventListener("input", () => {
+          _renderProfileSummary();
+          _refreshSummaryPreview();
+          _scheduleDraftSave();
+        });
+
+        $form.addEventListener("change", () => {
+          _renderProfileSummary();
+          _refreshSummaryPreview();
+          _scheduleDraftSave();
+        });
+
+        $generateHtmlBtn.addEventListener("click", async () => {
+          await _handleGenerateHtml();
+        });
+
+        $exportJsonBtn.addEventListener("click", () => {
+          _handleExportJson();
+        });
+
+        $importJsonBtn.addEventListener("click", () => {
+          $profileFileInput.click();
+        });
+
+        $profileFileInput.addEventListener("change", async (event) => {
+          const $file = event.target.files?.[0];
+          if (!$file) {
+            return;
+          }
+          await _handleImportJson($file);
+          event.target.value = "";
+        });
+
+        $downloadLastBtn.addEventListener("click", () => {
+          if (!_lastGeneratedHtml || !_lastGeneratedFileName) {
+            _setStatus("まだ配布HTMLを生成していません。", "warning");
+            return;
+          }
+          _downloadTextFile(_lastGeneratedFileName, _lastGeneratedHtml);
+          _setStatus("直前に生成した配布HTMLを再ダウンロードしました。", "success");
+        });
+
+        $resetBtn.addEventListener("click", () => {
+          _writeStateToForm(DEFAULT_PROFILE);
+          _persistDraft(DEFAULT_PROFILE);
+          _renderProfileSummary();
+          _refreshSummaryPreview();
+          _updateAdminColorScheme();
+          _setStatus("初期設定に戻しました。", "success");
+        });
+
+        $theme.addEventListener("change", () => {
+          _updateAdminColorScheme();
+        });
+      }
+
+      function _renderProfileSummary() {
+        const _state = _readStateFromForm();
+        $profileSummary.textContent = _state.meta.ruleSetName || "共通ルールセット";
+      }
+
+      function _refreshSummaryPreview() {
+        const _state = _readStateFromForm();
+        const _config = _buildEmbeddedConfig(_state, null, "");
+        const _fileName = _buildOutputFileName(_config);
+        $generatedFileName.textContent = _fileName;
+        $checksumPreview.textContent = _config.meta.checksum || "（生成時に計算）";
+      }
+
+      function _scheduleDraftSave() {
+        window.clearTimeout(_saveTimer);
+        _saveTimer = window.setTimeout(() => {
+          const _state = _readStateFromForm();
+          _persistDraft(_state);
+        }, 140);
+      }
+
+      async function _handleGenerateHtml() {
+        const _state = _readStateFromForm();
+        const _errors = _validateState(_state);
+        if (_errors.length > 0) {
+          _setStatus(_errors.join("\n"), "error");
+          return;
+        }
+
+        const _generatedAt = new Date().toISOString();
+        const _configWithoutChecksum = _buildEmbeddedConfig(_state, _generatedAt, "");
+        const _checksumSource = JSON.stringify(_configWithoutChecksum);
+        const _checksum = await _sha256Hex(_checksumSource);
+        const _config = _buildEmbeddedConfig(_state, _generatedAt, `sha256-${_checksum}`);
+
+        const _html = _buildDistributionHtml(_config);
+        const _fileName = _buildOutputFileName(_config);
+
+        _lastGeneratedHtml = _html;
+        _lastGeneratedFileName = _fileName;
+        $downloadLastBtn.disabled = false;
+
+        $generatedFileName.textContent = _fileName;
+        $checksumPreview.textContent = _config.meta.checksum;
+
+        _downloadTextFile(_fileName, _html);
+        _persistDraft(_state);
+
+        _setStatus("配布用HTMLを生成しました。ダウンロードを開始しました。", "success");
+      }
+
+      function _handleExportJson() {
+        const _state = _readStateFromForm();
+        const _fileName = `commit-prechecker-setting-${_makeDateStamp()}.json`;
+        _downloadTextFile(_fileName, JSON.stringify(_state, null, 2));
+        _setStatus("設定JSONを保存しました。", "success");
+      }
+
+      async function _handleImportJson(_file) {
+        try {
+          const _text = await _file.text();
+          const _json = JSON.parse(_text);
+          _writeStateToForm(_json);
+          _persistDraft(_readStateFromForm());
+          _renderProfileSummary();
+          _refreshSummaryPreview();
+          _updateAdminColorScheme();
+          _setStatus("設定JSONを読み込みました。", "success");
+        } catch (_error) {
+          _setStatus("設定JSONの読込に失敗しました。形式を確認してください。", "error");
+        }
+      }
+
+      function _readStateFromForm() {
+        return {
+          meta: {
+            ruleSetName: qs("#ruleSetName").value.trim(),
+            description: qs("#ruleSetDescription").value.trim(),
+            status: qs("#profileStatus").value
+          },
+          rules: {
+            indentType: qs("#indentType").value,
+            indentSize: _toSafeInteger(qs("#indentSize").value, 4),
+            lineEnding: qs("#lineEnding").value,
+            trimTrailingWhitespace: qs("#trimTrailingWhitespace").checked,
+            requireFinalNewline: qs("#requireFinalNewline").value,
+            allowFullWidthSpace: qs("#allowFullWidthSpace").value,
+            allowInvisibleChars: qs("#allowInvisibleChars").value,
+            maxBlankLines: _toSafeInteger(qs("#maxBlankLines").value, 1),
+            maxLineLength: _toSafeInteger(qs("#maxLineLength").value, 120),
+            forbidBom: qs("#forbidBom").checked
+          },
+          severity: _readSeverityFromForm(),
+          options: {
+            toolName: qs("#toolName").value.trim() || "CommitPreChecker",
+            showRuleInfo: qs("#showRuleInfo").checked,
+            enableAutoFix: qs("#enableAutoFix").checked,
+            theme: qs("#theme").value,
+            expireAt: qs("#expireAt").value.trim() || null
+          }
+        };
+      }
+
+      function _writeStateToForm(_state) {
+        const _source = _mergeWithDefault(_state);
+
+        qs("#ruleSetName").value = _source.meta.ruleSetName;
+        qs("#ruleSetDescription").value = _source.meta.description;
+        qs("#profileStatus").value = _source.meta.status;
+
+        qs("#indentType").value = _source.rules.indentType;
+        qs("#indentSize").value = String(_source.rules.indentSize);
+        qs("#lineEnding").value = _source.rules.lineEnding;
+        qs("#trimTrailingWhitespace").checked = Boolean(_source.rules.trimTrailingWhitespace);
+        qs("#requireFinalNewline").value = _source.rules.requireFinalNewline;
+        qs("#allowFullWidthSpace").value = _source.rules.allowFullWidthSpace;
+        qs("#allowInvisibleChars").value = _source.rules.allowInvisibleChars;
+        qs("#maxBlankLines").value = String(_source.rules.maxBlankLines);
+        qs("#maxLineLength").value = String(_source.rules.maxLineLength);
+        qs("#forbidBom").checked = Boolean(_source.rules.forbidBom);
+
+        for (const _checkpoint of CHECKPOINTS) {
+          const $select = qs(`#sev-${_checkpoint.key}`);
+          if ($select) {
+            $select.value = _source.severity[_checkpoint.key] || "warning";
+          }
+        }
+
+        qs("#toolName").value = _source.options.toolName;
+        qs("#showRuleInfo").checked = Boolean(_source.options.showRuleInfo);
+        qs("#enableAutoFix").checked = Boolean(_source.options.enableAutoFix);
+        qs("#theme").value = _source.options.theme;
+        qs("#expireAt").value = _source.options.expireAt ? _toDatetimeLocal(_source.options.expireAt) : "";
+      }
+
+      function _mergeWithDefault(_state) {
+        const _source = _state || {};
+        return {
+          meta: {
+            ruleSetName: _source.meta?.ruleSetName ?? DEFAULT_PROFILE.meta.ruleSetName,
+            description: _source.meta?.description ?? DEFAULT_PROFILE.meta.description,
+            status: _source.meta?.status ?? DEFAULT_PROFILE.meta.status
+          },
+          rules: {
+            indentType: _source.rules?.indentType ?? DEFAULT_PROFILE.rules.indentType,
+            indentSize: _source.rules?.indentSize ?? DEFAULT_PROFILE.rules.indentSize,
+            lineEnding: _source.rules?.lineEnding ?? DEFAULT_PROFILE.rules.lineEnding,
+            trimTrailingWhitespace: _source.rules?.trimTrailingWhitespace ?? DEFAULT_PROFILE.rules.trimTrailingWhitespace,
+            requireFinalNewline: _source.rules?.requireFinalNewline ?? DEFAULT_PROFILE.rules.requireFinalNewline,
+            allowFullWidthSpace: _source.rules?.allowFullWidthSpace ?? DEFAULT_PROFILE.rules.allowFullWidthSpace,
+            allowInvisibleChars: _source.rules?.allowInvisibleChars ?? DEFAULT_PROFILE.rules.allowInvisibleChars,
+            maxBlankLines: _source.rules?.maxBlankLines ?? DEFAULT_PROFILE.rules.maxBlankLines,
+            maxLineLength: _source.rules?.maxLineLength ?? DEFAULT_PROFILE.rules.maxLineLength,
+            forbidBom: _source.rules?.forbidBom ?? DEFAULT_PROFILE.rules.forbidBom
+          },
+          severity: {
+            ...DEFAULT_PROFILE.severity,
+            ...(_source.severity || {})
+          },
+          options: {
+            toolName: _source.options?.toolName ?? DEFAULT_PROFILE.options.toolName,
+            showRuleInfo: _source.options?.showRuleInfo ?? DEFAULT_PROFILE.options.showRuleInfo,
+            enableAutoFix: _source.options?.enableAutoFix ?? DEFAULT_PROFILE.options.enableAutoFix,
+            theme: _source.options?.theme ?? DEFAULT_PROFILE.options.theme,
+            expireAt: _source.options?.expireAt ?? DEFAULT_PROFILE.options.expireAt
+          }
+        };
+      }
+
+      function _readSeverityFromForm() {
+        const _severity = {};
+        for (const _checkpoint of CHECKPOINTS) {
+          const $select = qs(`#sev-${_checkpoint.key}`);
+          if ($select) {
+            _severity[_checkpoint.key] = $select.value;
+          }
+        }
+        return _severity;
+      }
+
+      function _validateState(_state) {
+        const _errors = [];
+
+        if (!_state.meta.ruleSetName) {
+          _errors.push("・ルールセット名は必須です。");
+        }
+
+        if (_state.rules.indentType === "spaces" && _state.rules.indentSize < 1) {
+          _errors.push("・スペース指定時のインデント幅は1以上にしてください。");
+        }
+
+        if (_state.rules.maxBlankLines < 0) {
+          _errors.push("・連続空行の上限は0以上で入力してください。");
+        }
+
+        if (_state.rules.maxLineLength < 1) {
+          _errors.push("・1行の最大文字数は1以上で入力してください。");
+        }
+
+        if (_state.options.expireAt) {
+          const _time = Date.parse(_state.options.expireAt);
+          if (Number.isNaN(_time)) {
+            _errors.push("・有効期限の日時形式が不正です。");
+          }
+        }
+
+        return _errors;
+      }
+
+      function _buildEmbeddedConfig(_state, _generatedAt, _checksum) {
+        return {
+          meta: {
+            toolName: _state.options.toolName || "CommitPreChecker",
+            ruleSetName: _state.meta.ruleSetName,
+            description: _state.meta.description,
+            status: _state.meta.status,
+            generatedAt: _generatedAt,
+            checksum: _checksum
+          },
+          rules: {
+            ..._state.rules
+          },
+          severity: {
+            ..._state.severity
+          },
+          options: {
+            showRuleInfo: _state.options.showRuleInfo,
+            enableAutoFix: _state.options.enableAutoFix,
+            theme: _state.options.theme,
+            expireAt: _toIsoIfValid(_state.options.expireAt)
+          }
+        };
+      }
+
+      function _buildOutputFileName(_config) {
+        const _name = _sanitizeForFile(_config.meta.ruleSetName || "common-rules");
+        return `commit-prechecker-${_name}-${_makeDateStamp()}.html`;
+      }
+
+      function _buildDistributionHtml(_config) {
+        const _embeddedConfig = _escapeScriptTag(JSON.stringify(_config, null, 2));
+        const _runtimeCode = _escapeScriptTag(`(${_distributionRuntime.toString()})();`);
+        const _style = _distributionCss();
+        const _toolName = _escapeHtml(_config.meta.toolName || "CommitPreChecker");
+
+        return `<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${_toolName}</title>
+  <style>
+${_style}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar__inner">
+      <div class="brand">
+        <span class="brand__dot" aria-hidden="true"></span>
+        <span id="brand-name">CommitPreChecker</span>
+      </div>
+      <div class="topbar__actions">
+        <button class="btn btn--ghost" type="button" data-action="open-rules">ルールを見る</button>
+        <button class="btn btn--ghost" type="button" data-action="open-help">ヘルプ</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="banner banner--warning u-hidden" id="expired-banner"></div>
+
+  <main id="app" class="shell">
+    <section class="hero card glass">
+      <h1 id="tool-title">CommitPreChecker</h1>
+      <p id="hero-message">コミット前の整形・記述ルール確認ツール</p>
+      <div class="meta-row">
+        <span class="chip" id="meta-ruleset"></span>
+      </div>
+    </section>
+
+    <section class="grid-main">
+      <article class="card panel panel--editor">
+        <div class="panel__head">
+          <h2>入力コード</h2>
+          <p>コミット前に対象コードを貼り付けてください。</p>
+        </div>
+        <textarea id="code-input" class="code-area" spellcheck="false" aria-label="コード入力"></textarea>
+      </article>
+
+      <article class="card panel panel--issues">
+        <div class="panel__head">
+          <h2>判定結果</h2>
+          <p id="status-text">コードを貼り付けて「チェックを実行」を押してください。</p>
+        </div>
+
+        <div class="summary">
+          <div class="summary__item"><span>合計</span><strong id="count-total">0</strong></div>
+          <div class="summary__item summary__item--error"><span>エラー</span><strong id="count-error">0</strong></div>
+          <div class="summary__item summary__item--warning"><span>警告</span><strong id="count-warning">0</strong></div>
+          <div class="summary__item summary__item--info"><span>情報</span><strong id="count-info">0</strong></div>
+        </div>
+
+        <div id="issues-list" class="issues-list" aria-live="polite"></div>
+      </article>
+    </section>
+
+    <section class="card panel panel--actions">
+      <div class="panel__head">
+        <h2>操作</h2>
+        <p>この自動修正は安全寄りですが、最終確認は必須です。</p>
+      </div>
+      <div class="action-row">
+        <button class="btn btn--primary" type="button" data-action="run-check" data-requires-active="true">チェックを実行</button>
+        <button class="btn btn--secondary" type="button" data-action="apply-safe-fix" data-requires-active="true">安全な自動修正を適用</button>
+        <button class="btn btn--secondary" type="button" data-action="copy-fixed" data-requires-active="true">修正後コードをコピー</button>
+        <button class="btn btn--ghost" type="button" data-action="clear-input" data-requires-active="true">入力クリア</button>
+      </div>
+      <p class="contact">ローカル実行専用です。機密コードは外部送信されません。</p>
+    </section>
+
+    <section class="card panel panel--after">
+      <div class="panel__head">
+        <h2>自動修正後コード</h2>
+        <p>修正前後を確認してからコピーしてください。</p>
+      </div>
+      <textarea id="fixed-output" class="code-area" spellcheck="false" readonly aria-label="自動修正後コード"></textarea>
+      <ul class="notes">
+        <li>自動修正後は必ず差分を確認してください。</li>
+        <li>意味変更の可能性がある修正は手動で対応してください。</li>
+      </ul>
+    </section>
+  </main>
+
+  <section class="fatal u-hidden" id="fatal">
+    <h2>設定データの読込に失敗しました</h2>
+    <p id="fatal-message">この配布HTMLは破損している可能性があります。</p>
+  </section>
+
+  <div class="modal u-hidden" id="rule-modal" aria-hidden="true">
+    <div class="modal__backdrop" data-action="close-modal" data-modal-id="rule-modal"></div>
+    <section class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="rule-modal-title">
+      <header class="modal__head">
+        <h2 id="rule-modal-title">適用ルール</h2>
+        <button class="btn btn--ghost" type="button" data-action="close-modal" data-modal-id="rule-modal">閉じる</button>
+      </header>
+      <div id="rule-list" class="rule-list"></div>
+    </section>
+  </div>
+
+  <div class="modal u-hidden" id="help-modal" aria-hidden="true">
+    <div class="modal__backdrop" data-action="close-modal" data-modal-id="help-modal"></div>
+    <section class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
+      <header class="modal__head">
+        <h2 id="help-modal-title">使い方</h2>
+        <button class="btn btn--ghost" type="button" data-action="close-modal" data-modal-id="help-modal">閉じる</button>
+      </header>
+      <ol class="help-list">
+        <li>入力欄にコミット予定コードを貼り付けます。</li>
+        <li>「チェックを実行」で違反箇所を確認します。</li>
+        <li>必要に応じて「安全な自動修正を適用」後、修正結果をコピーします。</li>
+      </ol>
+      <p class="help-note">言語に依存しない共通チェック観点のみを対象にしています。</p>
+    </section>
+  </div>
+
+  <script id="embedded-config" type="application/json">
+${_embeddedConfig}
+  <\/script>
+  <script>
+${_runtimeCode}
+  <\/script>
+</body>
+</html>`;
+      }
+
+      function _distributionCss() {
+        return String.raw`
+    @layer reset, base, component, utility;
+
+    @layer reset {
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+
+      html, body,
+      h1, h2, h3, p,
+      ul, ol, li,
+      textarea, button {
+        margin: 0;
+        padding: 0;
+      }
+
+      button, textarea {
+        font: inherit;
+        color: inherit;
+      }
+    }
+
+    @layer base {
+      :root {
+        --surface-page: oklch(0.962 0.014 92);
+        --surface-ivory: oklch(0.981 0.01 92);
+        --surface-sand: oklch(0.93 0.016 92);
+        --surface-dark: oklch(0.306 0.01 92);
+        --surface-deep: oklch(0.205 0.008 92);
+        --surface-deep-muted: oklch(0.255 0.008 92);
+        --text-primary: oklch(0.205 0.008 92);
+        --text-secondary: oklch(0.458 0.01 92);
+        --text-tertiary: oklch(0.63 0.01 92);
+        --text-on-dark: oklch(0.975 0.01 92);
+        --text-on-dark-muted: oklch(0.78 0.015 92);
+        --brand: oklch(0.62 0.14 45);
+        --brand-soft: oklch(0.69 0.12 45);
+        --error: oklch(0.54 0.19 28);
+        --warning: oklch(0.69 0.1 70);
+        --info: oklch(0.58 0.03 94);
+        --border-soft: oklch(0.946 0.012 92);
+        --border-warm: oklch(0.915 0.015 92);
+        --ring: oklch(0.85 0.015 92);
+        --focus: oklch(0.68 0.16 250);
+        --shadow-whisper: oklch(0 0 0 / 0.05) 0px 4px 24px;
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --font-serif: "Anthropic Serif", Georgia, serif;
+        --font-sans: "Anthropic Sans", "Hiragino Sans", "Yu Gothic UI", Arial, sans-serif;
+        --font-mono: "Anthropic Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+      }
+
+      :root[data-theme="dark"] {
+        --surface-page: oklch(0.205 0.008 92);
+        --surface-ivory: oklch(0.255 0.008 92);
+        --surface-sand: oklch(0.306 0.01 92);
+        --surface-dark: oklch(0.176 0.007 92);
+        --surface-deep: oklch(0.155 0.006 92);
+        --surface-deep-muted: oklch(0.23 0.008 92);
+        --text-primary: oklch(0.96 0.01 92);
+        --text-secondary: oklch(0.86 0.012 92);
+        --text-tertiary: oklch(0.74 0.012 92);
+        --text-on-dark: oklch(0.975 0.01 92);
+        --text-on-dark-muted: oklch(0.8 0.015 92);
+        --border-soft: oklch(0.34 0.01 92);
+        --border-warm: oklch(0.39 0.012 92);
+        --ring: oklch(0.43 0.01 92);
+      }
+
+      html {
+        font-size: 14px;
+      }
+
+      body {
+        min-height: 100dvh;
+        font-family: var(--font-sans);
+        color: var(--text-primary);
+        background: var(--surface-page);
+      }
+
+      textarea {
+        font-family: var(--font-mono);
+      }
+    }
+
+    @layer component {
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        border-bottom: 1px solid var(--border-soft);
+        background-color: oklch(0.962 0.014 92 / 0.9);
+        backdrop-filter: saturate(140%) blur(10px);
+
+        & .topbar__inner {
+          width: min(1200px, calc(100% - 2.4rem));
+          margin-inline: auto;
+          padding: 0.88rem 0;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.8rem;
+        }
+
+        & .topbar__actions {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.45rem;
+        }
+      }
+
+      :root[data-theme="dark"] .topbar {
+        background-color: oklch(0.205 0.008 92 / 0.9);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.7rem;
+        color: var(--text-primary);
+        font-family: var(--font-sans);
+        font-size: 1rem;
+        font-weight: 500;
+        line-height: 1.25;
+      }
+
+      .brand__dot {
+        inline-size: 0.65rem;
+        block-size: 0.65rem;
+        border-radius: 50%;
+        background: var(--brand);
+      }
+
+      .shell {
+        width: min(1200px, calc(100% - 2.4rem));
+        margin-inline: auto;
+        padding: 0 0 2rem;
+        display: grid;
+        gap: 1rem;
+      }
+
+      .card {
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-lg);
+        background-color: var(--surface-ivory);
+        box-shadow: none;
+      }
+
+      .glass {
+        background: var(--surface-ivory);
+      }
+
+      .hero {
+        padding: 3.4rem 1.2rem 2.6rem;
+        display: grid;
+        gap: 0.8rem;
+        background: var(--surface-ivory);
+        border-radius: var(--radius-lg);
+
+        & h1 {
+          color: var(--text-primary);
+          font-family: var(--font-serif);
+          font-size: clamp(1.35rem, 2.6vw, 1.8rem);
+          font-weight: 500;
+          line-height: 1.1;
+          text-align: center;
+        }
+
+        & p {
+          color: var(--text-secondary);
+          font-family: var(--font-sans);
+          font-size: 1rem;
+          font-weight: 400;
+          line-height: 1.6;
+          text-align: center;
+        }
+      }
+
+      .meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.42rem;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        border: 1px solid var(--border-warm);
+        background-color: var(--surface-sand);
+        padding: 0.35rem 0.6rem;
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+      }
+
+      .grid-main {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+
+        @media (max-width: 980px) {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .panel {
+        padding: 1rem;
+        display: grid;
+        gap: 0.72rem;
+        border-radius: var(--radius-lg);
+      }
+
+      .panel__head {
+        display: grid;
+        gap: 0.25rem;
+
+        & h2 {
+          font-family: var(--font-serif);
+          font-size: clamp(1.2rem, 2.2vw, 1.5rem);
+          font-weight: 500;
+          line-height: 1.2;
+        }
+
+        & p {
+          color: var(--text-secondary);
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+      }
+
+      .panel--editor,
+      .panel--after {
+        background: var(--surface-page);
+        color: var(--text-primary);
+      }
+
+      .panel--issues,
+      .panel--actions {
+        background: var(--surface-ivory);
+        border-color: var(--border-soft);
+        color: var(--text-primary);
+      }
+
+      .panel--issues .panel__head p,
+      .panel--actions .panel__head p {
+        color: var(--text-secondary);
+      }
+
+      .code-area {
+        inline-size: 100%;
+        min-block-size: 19rem;
+        border: 1px solid var(--border-warm);
+        border-radius: var(--radius-md);
+        background-color: var(--surface-ivory);
+        padding: 0.82rem;
+        line-height: 1.6;
+        resize: vertical;
+
+        &:focus {
+          outline: none;
+          border-color: var(--focus);
+          box-shadow: 0 0 0 2px var(--focus);
+        }
+      }
+
+      .panel--issues .code-area,
+      .panel--actions .code-area {
+        background: var(--surface-ivory);
+        color: var(--text-primary);
+        border-color: var(--border-warm);
+      }
+
+      .summary {
+        display: grid;
+        gap: 0.48rem;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+
+        @media (max-width: 680px) {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      .summary__item {
+        border: 1px solid var(--border-warm);
+        border-radius: var(--radius-sm);
+        background-color: var(--surface-page);
+        padding: 0.54rem 0.58rem;
+        display: grid;
+        gap: 0.2rem;
+
+        & span {
+          color: var(--text-tertiary);
+          font-size: 0.75rem;
+          letter-spacing: 0.12px;
+        }
+
+        & strong {
+          font-size: 1rem;
+        }
+      }
+
+      .summary__item--error strong {
+        color: var(--error);
+      }
+
+      .summary__item--warning strong {
+        color: var(--warning);
+      }
+
+      .summary__item--info strong {
+        color: var(--info);
+      }
+
+      .issues-list {
+        display: grid;
+        gap: 0.52rem;
+        max-block-size: 30rem;
+        overflow: auto;
+      }
+
+      .issue-card {
+        border: 1px solid var(--border-warm);
+        border-left-width: 5px;
+        border-radius: var(--radius-sm);
+        background-color: var(--surface-page);
+        padding: 0.6rem;
+        display: grid;
+        gap: 0.3rem;
+      }
+
+      .issue-card--error {
+        border-left-color: var(--error);
+      }
+
+      .issue-card--warning {
+        border-left-color: var(--warning);
+      }
+
+      .issue-card--info {
+        border-left-color: var(--info);
+      }
+
+      .issue-card__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.6rem;
+
+        & strong {
+          font-size: 0.9rem;
+          letter-spacing: -0.01em;
+        }
+
+        & small {
+          color: var(--text-tertiary);
+          font-size: 0.72rem;
+        }
+      }
+
+      .issue-card__message {
+        font-size: 0.85rem;
+        line-height: 1.45;
+      }
+
+      .issue-card__suggestion,
+      .issue-card__preview {
+        font-size: 0.76rem;
+        color: var(--text-secondary);
+        line-height: 1.42;
+      }
+
+      .issue-empty {
+        border: 1px dashed var(--border-warm);
+        border-radius: var(--radius-sm);
+        padding: 0.9rem;
+        color: var(--text-secondary);
+        text-align: center;
+        font-size: 0.85rem;
+      }
+
+      .action-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.54rem;
+      }
+
+      .btn {
+        border: 1px solid transparent;
+        border-radius: var(--radius-md);
+        padding: 0.52rem 0.92rem;
+        font-family: var(--font-sans);
+        font-size: 1rem;
+        font-weight: 500;
+        line-height: 1.3;
+        cursor: pointer;
+        transition: background-color 0.14s ease, color 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+
+        &:hover {
+          box-shadow: 0 0 0 1px var(--ring);
+        }
+
+        &:active {
+          transform: translateY(0.5px);
+        }
+
+        &:disabled {
+          opacity: 0.45;
+          cursor: not-allowed;
+          box-shadow: none;
+        }
+      }
+
+      .btn--primary {
+        color: var(--text-on-dark);
+        background: var(--brand);
+        border-color: var(--brand);
+        box-shadow: 0 0 0 1px var(--brand);
+      }
+
+      .btn--secondary {
+        border-color: var(--ring);
+        background-color: var(--surface-sand);
+        color: var(--text-primary);
+        box-shadow: 0 0 0 1px var(--ring);
+      }
+
+      .btn--ghost {
+        border-color: var(--ring);
+        background-color: var(--surface-sand);
+        color: var(--text-primary);
+        box-shadow: 0 0 0 1px var(--ring);
+      }
+
+      .topbar .btn--ghost {
+        border-color: var(--ring);
+        background: var(--surface-sand);
+        color: var(--text-primary);
+        font-size: 0.88rem;
+        padding: 0.35rem 0.8rem;
+        box-shadow: 0 0 0 1px var(--ring);
+      }
+
+      :root[data-theme="dark"] .btn--ghost {
+        border-color: var(--surface-dark);
+        background-color: var(--surface-dark);
+        color: var(--text-on-dark);
+        box-shadow: 0 0 0 1px var(--surface-dark);
+      }
+
+      .contact {
+        color: var(--text-secondary);
+        font-size: 0.88rem;
+      }
+
+      .notes {
+        list-style: disc;
+        margin-left: 1.1rem;
+        display: grid;
+        gap: 0.28rem;
+        color: var(--text-secondary);
+        font-size: 0.88rem;
+      }
+
+      .banner {
+        width: min(1200px, calc(100% - 2.4rem));
+        margin: 0.8rem auto 0;
+        border: 1px solid var(--border-warm);
+        border-radius: var(--radius-md);
+        padding: 0.65rem 0.8rem;
+        font-size: 0.84rem;
+        background: var(--surface-ivory);
+      }
+
+      .banner--warning {
+        border-color: oklch(0.69 0.1 70 / 0.5);
+        background-color: oklch(0.9 0.05 90 / 0.55);
+      }
+
+      .fatal {
+        max-width: 900px;
+        margin: 1.6rem auto;
+        border: 1px solid var(--border-warm);
+        border-radius: var(--radius-md);
+        background-color: var(--surface-ivory);
+        padding: 1rem;
+
+        & h2 {
+          font-family: var(--font-serif);
+          font-size: 1.15rem;
+          font-weight: 500;
+          line-height: 1.2;
+          margin-bottom: 0.4rem;
+        }
+
+        & p {
+          color: var(--text-secondary);
+          line-height: 1.6;
+        }
+      }
+
+      .modal {
+        position: fixed;
+        inset: 0;
+        z-index: 70;
+        display: grid;
+        place-items: center;
+      }
+
+      .modal__backdrop {
+        position: absolute;
+        inset: 0;
+        background-color: oklch(0.2 0.01 92 / 0.3);
+      }
+
+      .modal__panel {
+        position: relative;
+        inline-size: min(820px, calc(100% - 1.4rem));
+        max-block-size: min(80dvh, 680px);
+        overflow: auto;
+        border: 1px solid var(--border-warm);
+        border-radius: var(--radius-lg);
+        background-color: var(--surface-ivory);
+        box-shadow: var(--shadow-whisper);
+        padding: 0.9rem;
+        display: grid;
+        gap: 0.72rem;
+      }
+
+      .modal__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.8rem;
+
+        & h2 {
+          font-family: var(--font-serif);
+          font-size: 1.35rem;
+          font-weight: 500;
+          line-height: 1.2;
+        }
+      }
+
+      .rule-list {
+        display: grid;
+        gap: 0.6rem;
+      }
+
+      .rule-list__row {
+        display: grid;
+        grid-template-columns: minmax(9rem, 0.35fr) 1fr;
+        gap: 0.6rem;
+        border: 1px solid var(--border-warm);
+        border-radius: var(--radius-sm);
+        background-color: var(--surface-page);
+        padding: 0.55rem;
+
+        @media (max-width: 640px) {
+          grid-template-columns: 1fr;
+        }
+
+        & strong {
+          font-size: 0.82rem;
+          color: var(--text-secondary);
+        }
+
+        & span {
+          font-size: 0.84rem;
+          overflow-wrap: anywhere;
+        }
+      }
+
+      .help-list {
+        list-style: decimal;
+        margin-left: 1.2rem;
+        display: grid;
+        gap: 0.44rem;
+        line-height: 1.5;
+      }
+
+      .help-note {
+        color: var(--text-secondary);
+        font-size: 0.82rem;
+      }
+
+      button:focus-visible,
+      textarea:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+    }
+
+    @layer utility {
+      .u-hidden {
+        display: none !important;
+      }
+    }
+`;
+      }
+
+      function _distributionRuntime() {
+        "use strict";
+
+        const qs = (sel, root = document) => root.querySelector(sel);
+        const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+        const CHECKPOINTS = {
+          mixedIndent: { label: "インデント方式の混在", message: "行頭でタブとスペースが混在しています。", suggestion: "インデント方式を1つに統一してください。" },
+          indentWidth: { label: "インデント幅の不一致", message: "インデント幅が設定値と一致していません。", suggestion: "インデント幅を規定値の倍数に揃えてください。" },
+          trailingWhitespace: { label: "行末空白", message: "行末に不要な空白があります。", suggestion: "行末の空白を削除してください。" },
+          lineEnding: { label: "改行コードの不一致", message: "改行コードが設定と一致していません。", suggestion: "改行コードを設定値に統一してください。" },
+          finalNewline: { label: "ファイル末尾改行", message: "末尾改行が設定と一致していません。", suggestion: "末尾改行の有無を設定に合わせてください。" },
+          fullWidthSpace: { label: "全角スペース", message: "全角スペースが含まれています。", suggestion: "全角スペースを半角スペースへ置換してください。" },
+          invisibleChars: { label: "不可視文字", message: "不可視文字が含まれています。", suggestion: "不可視文字を削除してください。" },
+          blankLines: { label: "連続空行の超過", message: "連続空行数が上限を超えています。", suggestion: "連続空行を上限以内にしてください。" },
+          bom: { label: "BOM混入", message: "UTF-8 BOMが含まれています。", suggestion: "先頭のBOMを削除してください。" },
+          lineLength: { label: "行長超過", message: "1行の文字数が上限を超えています。", suggestion: "行を分割するか記述を短くしてください。" }
+        };
+
+        const SEVERITY_ORDER = {
+          error: 0,
+          warning: 1,
+          info: 2,
+          off: 3
+        };
+
+        const BOM_CHAR = "\uFEFF";
+        const INVISIBLE_CHAR_PATTERN = /[\u200B\u200C\u200D\u2060\u00A0]/g;
+        const FULL_WIDTH_SPACE_PATTERN = /\u3000/g;
+
+        const $configNode = qs("#embedded-config");
+        const $app = qs("#app");
+        const $fatal = qs("#fatal");
+        const $fatalMessage = qs("#fatal-message");
+        const $codeInput = qs("#code-input");
+        const $fixedOutput = qs("#fixed-output");
+        const $statusText = qs("#status-text");
+        const $issuesList = qs("#issues-list");
+
+        let _config = null;
+        let _isExpired = false;
+
+        _bootstrap();
+
+        function _bootstrap() {
+          try {
+            _config = JSON.parse($configNode?.textContent || "{}");
+          } catch (_error) {
+            _showFatal("設定データの読込に失敗しました。配布HTMLが破損している可能性があります。");
+            return;
+          }
+
+          if (!_config || typeof _config !== "object" || !_config.rules) {
+            _showFatal("設定データの読込に失敗しました。配布HTMLが破損している可能性があります。");
+            return;
+          }
+
+          _applyTheme();
+          _renderHeader();
+          _renderRulesModal();
+          _bindEvents();
+          _evaluateExpireAt();
+          _renderEmptyIssues("コードを貼り付けてチェックを実行してください。");
+        }
+
+        function _bindEvents() {
+          document.addEventListener("click", async (event) => {
+            const $button = event.target.closest("[data-action]");
+            if (!$button) {
+              return;
+            }
+
+            const _action = $button.dataset.action;
+
+            if ($button.dataset.requiresActive === "true" && _isExpired) {
+              _setStatus("この配布HTMLは有効期限を過ぎています。管理者へ最新版を依頼してください。", "warning");
+              return;
+            }
+
+            if (_action === "run-check") {
+              _runCheck($codeInput.value, false);
+              return;
+            }
+
+            if (_action === "apply-safe-fix") {
+              _applySafeFix();
+              return;
+            }
+
+            if (_action === "copy-fixed") {
+              await _copyFixedCode();
+              return;
+            }
+
+            if (_action === "clear-input") {
+              $codeInput.value = "";
+              $fixedOutput.value = "";
+              _resetCounters();
+              _renderEmptyIssues("入力をクリアしました。");
+              _setStatus("入力欄をクリアしました。", "neutral");
+              return;
+            }
+
+            if (_action === "open-rules") {
+              _openModal("#rule-modal");
+              return;
+            }
+
+            if (_action === "open-help") {
+              _openModal("#help-modal");
+              return;
+            }
+
+            if (_action === "close-modal") {
+              const _modalId = $button.dataset.modalId;
+              if (_modalId) {
+                _closeModal(`#${_modalId}`);
+              }
+            }
+          });
+
+          document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+              _closeModal("#rule-modal");
+              _closeModal("#help-modal");
+            }
+          });
+        }
+
+        function _runCheck(_text, _fromFix) {
+          if (!_text) {
+            _resetCounters();
+            _renderEmptyIssues("入力が空です。コードを貼り付けてください。");
+            _setStatus("コードを入力してください。", "warning");
+            return;
+          }
+
+          const _result = _analyzeText(_text);
+          _renderCounters(_result.counts, _result.issues.length);
+          _renderIssues(_result.issues);
+
+          if (_fromFix) {
+            _setStatus("自動修正後の結果を表示しています。最終確認を行ってください。", "success");
+          } else if (_result.issues.length === 0) {
+            _setStatus("問題は検出されませんでした。", "success");
+          } else {
+            _setStatus(`${_result.issues.length}件の問題を検出しました。`, "warning");
+          }
+        }
+
+        function _applySafeFix() {
+          if (!_config.options?.enableAutoFix) {
+            _setStatus("この配布HTMLでは自動修正が無効化されています。", "warning");
+            return;
+          }
+
+          const _source = $codeInput.value;
+          if (!_source) {
+            _setStatus("コードを入力してから自動修正を実行してください。", "warning");
+            return;
+          }
+
+          const _fixed = _autoFixText(_source);
+          $fixedOutput.value = _fixed;
+          _runCheck(_fixed, true);
+        }
+
+        async function _copyFixedCode() {
+          const _text = $fixedOutput.value || $codeInput.value;
+          if (!_text) {
+            _setStatus("コピー対象がありません。", "warning");
+            return;
+          }
+
+          try {
+            if (!navigator.clipboard || !window.isSecureContext) {
+              throw new Error("Clipboard API unavailable");
+            }
+            await navigator.clipboard.writeText(_text);
+            _setStatus("修正後コードをコピーしました。", "success");
+          } catch (_error) {
+            $fixedOutput.removeAttribute("readonly");
+            $fixedOutput.focus();
+            $fixedOutput.select();
+            $fixedOutput.setAttribute("readonly", "readonly");
+            _setStatus("コピーに失敗しました。選択済みテキストを手動でコピーしてください。", "warning");
+          }
+        }
+
+        function _analyzeText(_text) {
+          const _rules = _config.rules || {};
+          const _issues = [];
+          const _lines = _splitLines(_text);
+          const _lineEndingStats = _countLineEndings(_text);
+
+          if (_rules.forbidBom && _text.startsWith(BOM_CHAR)) {
+            _addIssue(_issues, {
+              key: "bom",
+              line: 1,
+              level: _resolveSeverity("bom", "warning"),
+              message: CHECKPOINTS.bom.message,
+              suggestion: CHECKPOINTS.bom.suggestion,
+              preview: "<BOM>"
+            });
+          }
+
+          if (_rules.lineEnding === "LF" && (_lineEndingStats.crlf > 0 || _lineEndingStats.cr > 0)) {
+            _addIssue(_issues, {
+              key: "lineEnding",
+              line: 1,
+              level: _resolveSeverity("lineEnding", "error"),
+              message: CHECKPOINTS.lineEnding.message,
+              suggestion: "改行コードをLFに統一してください。",
+              preview: `CRLF=${_lineEndingStats.crlf}, CR=${_lineEndingStats.cr}, LF=${_lineEndingStats.lf}`
+            });
+          }
+
+          if (_rules.lineEnding === "CRLF" && (_lineEndingStats.lf > 0 || _lineEndingStats.cr > 0)) {
+            _addIssue(_issues, {
+              key: "lineEnding",
+              line: 1,
+              level: _resolveSeverity("lineEnding", "error"),
+              message: CHECKPOINTS.lineEnding.message,
+              suggestion: "改行コードをCRLFに統一してください。",
+              preview: `CRLF=${_lineEndingStats.crlf}, CR=${_lineEndingStats.cr}, LF=${_lineEndingStats.lf}`
+            });
+          }
+
+          let _blankRun = 0;
+          let _previousSignificantLine = "";
+          const _indentUsage = {
+            tabLines: 0,
+            spaceLines: 0,
+            mixedLines: 0
+          };
+
+          for (let _index = 0; _index < _lines.length; _index += 1) {
+            const _lineNumber = _index + 1;
+            const _line = _lines[_index];
+            const _trimmed = _line.trim();
+
+            if (_trimmed === "") {
+              _blankRun += 1;
+              if (_blankRun > Number(_rules.maxBlankLines || 0)) {
+                _addIssue(_issues, {
+                  key: "blankLines",
+                  line: _lineNumber,
+                  level: _resolveSeverity("blankLines", "warning"),
+                  message: CHECKPOINTS.blankLines.message,
+                  suggestion: `連続空行を${_rules.maxBlankLines}行以内にしてください。`,
+                  preview: "(blank line)"
+                });
+              }
+            } else {
+              _blankRun = 0;
+            }
+
+            if (_rules.trimTrailingWhitespace && /[ \t]+$/.test(_line)) {
+              _addIssue(_issues, {
+                key: "trailingWhitespace",
+                line: _lineNumber,
+                level: _resolveSeverity("trailingWhitespace", "error"),
+                message: CHECKPOINTS.trailingWhitespace.message,
+                suggestion: CHECKPOINTS.trailingWhitespace.suggestion,
+                preview: _linePreview(_line)
+              });
+            }
+
+            if (_rules.allowFullWidthSpace !== "allow") {
+              const _matches = _line.match(FULL_WIDTH_SPACE_PATTERN);
+              if (_matches && _matches.length > 0) {
+                const _base = _rules.allowFullWidthSpace === "warning" ? "warning" : "error";
+                _addIssue(_issues, {
+                  key: "fullWidthSpace",
+                  line: _lineNumber,
+                  level: _resolveSeverity("fullWidthSpace", _base),
+                  message: CHECKPOINTS.fullWidthSpace.message,
+                  suggestion: CHECKPOINTS.fullWidthSpace.suggestion,
+                  preview: _linePreview(_line)
+                });
+              }
+            }
+
+            if (_rules.allowInvisibleChars !== "allow") {
+              const _matches = _line.match(INVISIBLE_CHAR_PATTERN);
+              if (_matches && _matches.length > 0) {
+                const _base = _rules.allowInvisibleChars === "warning" ? "warning" : "error";
+                _addIssue(_issues, {
+                  key: "invisibleChars",
+                  line: _lineNumber,
+                  level: _resolveSeverity("invisibleChars", _base),
+                  message: CHECKPOINTS.invisibleChars.message,
+                  suggestion: CHECKPOINTS.invisibleChars.suggestion,
+                  preview: _linePreview(_line)
+                });
+              }
+            }
+
+            if (Number(_rules.maxLineLength) > 0 && _line.length > Number(_rules.maxLineLength)) {
+              _addIssue(_issues, {
+                key: "lineLength",
+                line: _lineNumber,
+                level: _resolveSeverity("lineLength", "info"),
+                message: CHECKPOINTS.lineLength.message,
+                suggestion: `${_rules.maxLineLength}文字以内に収めてください。`,
+                preview: `${_line.length}文字`
+              });
+            }
+
+            const _indentMatch = _line.match(/^[ \t]+/);
+            if (_indentMatch && _trimmed !== "") {
+              const _indent = _indentMatch[0];
+              const _hasSpace = _indent.includes(" ");
+              const _hasTab = _indent.includes("\t");
+              const _size = Math.max(1, Number(_rules.indentSize) || 4);
+              const _indentColumns = _leadingColumns(_indent, _size);
+              const _isContinuation = _isLikelyContinuationLine(_trimmed, _previousSignificantLine);
+
+              if (_hasTab && _hasSpace) {
+                _indentUsage.mixedLines += 1;
+              } else if (_hasTab) {
+                _indentUsage.tabLines += 1;
+              } else if (_hasSpace) {
+                _indentUsage.spaceLines += 1;
+              }
+
+              let _mixedIndentReported = false;
+
+              if (_hasTab && _hasSpace) {
+                const _tabsThenSpaces = /^\t+ +$/.test(_indent);
+                const _tabsModeAlignment = _rules.indentType === "tabs" && _tabsThenSpaces && _isContinuation;
+
+                if (!_tabsModeAlignment) {
+                  _addIssue(_issues, {
+                    key: "mixedIndent",
+                    line: _lineNumber,
+                    level: _resolveSeverity("mixedIndent", "error"),
+                    message: CHECKPOINTS.mixedIndent.message,
+                    suggestion: CHECKPOINTS.mixedIndent.suggestion,
+                    preview: _linePreview(_line)
+                  });
+                  _mixedIndentReported = true;
+                }
+              }
+
+              if (!_mixedIndentReported && _rules.indentType === "spaces" && _hasTab) {
+                _addIssue(_issues, {
+                  key: "mixedIndent",
+                  line: _lineNumber,
+                  level: _resolveSeverity("mixedIndent", "error"),
+                  message: "タブインデントが検出されました。",
+                  suggestion: "タブをスペースへ置換してください。",
+                  preview: _linePreview(_line)
+                });
+                _mixedIndentReported = true;
+              }
+
+              if (!_mixedIndentReported && _rules.indentType === "tabs" && _hasSpace) {
+                const _tabsThenSpaces = /^\t+ +$/.test(_indent);
+                const _tabsModeAlignment = _hasTab && _tabsThenSpaces && _isContinuation;
+                if (!_tabsModeAlignment) {
+                  _addIssue(_issues, {
+                    key: "mixedIndent",
+                    line: _lineNumber,
+                    level: _resolveSeverity("mixedIndent", "error"),
+                    message: "スペースインデントが検出されました。",
+                    suggestion: "先頭スペースをタブへ置換してください。",
+                    preview: _linePreview(_line)
+                  });
+                  _mixedIndentReported = true;
+                }
+              }
+
+              if (!_mixedIndentReported) {
+                const _needWidthCheck = _rules.indentType === "spaces" || _rules.indentType === "either";
+                if (_needWidthCheck && !_isContinuation && _indentColumns % _size !== 0) {
+                  _addIssue(_issues, {
+                    key: "indentWidth",
+                    line: _lineNumber,
+                    level: _resolveSeverity("indentWidth", "warning"),
+                    message: CHECKPOINTS.indentWidth.message,
+                    suggestion: `インデント幅を${_size}の倍数にしてください。`,
+                    preview: _linePreview(_line)
+                  });
+                }
+              }
+            }
+
+            if (_trimmed !== "") {
+              _previousSignificantLine = _trimmed;
+            }
+          }
+
+          if (
+            _rules.indentType === "either" &&
+            _indentUsage.tabLines > 0 &&
+            _indentUsage.spaceLines > 0
+          ) {
+            _addIssue(_issues, {
+              key: "mixedIndent",
+              line: 1,
+              level: _resolveSeverity("mixedIndent", "warning"),
+              message: "タブインデントとスペースインデントがファイル内で混在しています。",
+              suggestion: "インデント方式はファイル内で統一してください。",
+              preview: `タブ行=${_indentUsage.tabLines}, スペース行=${_indentUsage.spaceLines}`
+            });
+          }
+
+          if (_rules.requireFinalNewline === "required" && _text.length > 0 && !/(\r\n|\n|\r)$/.test(_text)) {
+            _addIssue(_issues, {
+              key: "finalNewline",
+              line: _lines.length,
+              level: _resolveSeverity("finalNewline", "warning"),
+              message: CHECKPOINTS.finalNewline.message,
+              suggestion: "ファイル末尾に改行を追加してください。",
+              preview: "ファイル末尾"
+            });
+          }
+
+          if (_rules.requireFinalNewline === "forbidden" && /(\r\n|\n|\r)$/.test(_text)) {
+            _addIssue(_issues, {
+              key: "finalNewline",
+              line: _lines.length,
+              level: _resolveSeverity("finalNewline", "warning"),
+              message: CHECKPOINTS.finalNewline.message,
+              suggestion: "ファイル末尾の改行を削除してください。",
+              preview: "ファイル末尾"
+            });
+          }
+
+          _issues.sort((a, b) => {
+            const _levelDiff = (SEVERITY_ORDER[a.level] ?? 9) - (SEVERITY_ORDER[b.level] ?? 9);
+            if (_levelDiff !== 0) {
+              return _levelDiff;
+            }
+            if (a.line !== b.line) {
+              return a.line - b.line;
+            }
+            return a.key.localeCompare(b.key);
+          });
+
+          const _counts = { error: 0, warning: 0, info: 0 };
+          for (const _issue of _issues) {
+            if (_counts[_issue.level] !== undefined) {
+              _counts[_issue.level] += 1;
+            }
+          }
+
+          return { issues: _issues, counts: _counts };
+        }
+
+        function _autoFixText(_text) {
+          let _fixed = _text;
+          const _rules = _config.rules || {};
+
+          if (_rules.forbidBom && _fixed.startsWith(BOM_CHAR)) {
+            _fixed = _fixed.slice(1);
+          }
+
+          if (_rules.trimTrailingWhitespace) {
+            _fixed = _fixed.replace(/[ \t]+$/gm, "");
+          }
+
+          const _lineEndingStats = _countLineEndings(_fixed);
+          let _newline = "\n";
+          if (_rules.lineEnding === "CRLF") {
+            _newline = "\r\n";
+          } else if (_rules.lineEnding === "LF") {
+            _newline = "\n";
+          } else if (_lineEndingStats.crlf > _lineEndingStats.lf) {
+            _newline = "\r\n";
+          }
+
+          _fixed = _fixed.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+
+          const _size = Math.max(1, Number(_rules.indentSize) || 4);
+          if (_rules.indentType === "spaces") {
+            _fixed = _fixed.replace(/^[ \t]+/gm, (_indent) => {
+              const _columns = _leadingColumns(_indent, _size);
+              return " ".repeat(_columns);
+            });
+          }
+
+          if (_rules.indentType === "tabs") {
+            _fixed = _fixed.replace(/^[ \t]+/gm, (_indent) => {
+              const _columns = _leadingColumns(_indent, _size);
+              return _columnsToTabsAndSpaces(_columns, _size);
+            });
+          }
+
+          const _maxBlankLines = Math.max(0, Number(_rules.maxBlankLines) || 0);
+          _fixed = _clampBlankLines(_fixed, _maxBlankLines);
+
+          if (_rules.requireFinalNewline === "required" && _fixed.length > 0 && !_fixed.endsWith("\n")) {
+            _fixed += "\n";
+          }
+
+          if (_rules.requireFinalNewline === "forbidden") {
+            _fixed = _fixed.replace(/(\r\n|\n|\r)+$/, "");
+          }
+
+          if (_newline === "\r\n") {
+            _fixed = _fixed.replace(/\n/g, "\r\n");
+          }
+
+          return _fixed;
+        }
+
+        function _clampBlankLines(_text, _maxBlankLines) {
+          const _lines = _text.split("\n");
+          const _result = [];
+          let _blankRun = 0;
+
+          for (const _line of _lines) {
+            if (_line.trim() === "") {
+              _blankRun += 1;
+              if (_blankRun > _maxBlankLines) {
+                continue;
+              }
+            } else {
+              _blankRun = 0;
+            }
+            _result.push(_line);
+          }
+
+          return _result.join("\n");
+        }
+
+        function _renderHeader() {
+          const _meta = _config.meta || {};
+          qs("#brand-name").textContent = _meta.toolName || "CommitPreChecker";
+          qs("#tool-title").textContent = _meta.toolName || "CommitPreChecker";
+          qs("#meta-ruleset").textContent = `ルールセット: ${_meta.ruleSetName || "-"}`;
+
+          const _showRuleInfo = _config.options?.showRuleInfo !== false;
+          for (const $button of qsa("[data-action='open-rules']")) {
+            $button.classList.toggle("u-hidden", !_showRuleInfo);
+            $button.disabled = !_showRuleInfo;
+          }
+
+          const _enableAutoFix = _config.options?.enableAutoFix !== false;
+          for (const $button of qsa("[data-action='apply-safe-fix']")) {
+            $button.disabled = !_enableAutoFix;
+          }
+        }
+
+        function _renderRulesModal() {
+          const $ruleList = qs("#rule-list");
+          $ruleList.textContent = "";
+
+          const _addRow = (_label, _value) => {
+            const $row = document.createElement("div");
+            $row.className = "rule-list__row";
+
+            const $key = document.createElement("strong");
+            $key.textContent = _label;
+
+            const $val = document.createElement("span");
+            $val.textContent = _serializeValue(_value);
+
+            $row.appendChild($key);
+            $row.appendChild($val);
+            $ruleList.appendChild($row);
+          };
+
+          _addRow("ルールセット名", _config.meta?.ruleSetName);
+          _addRow("説明", _config.meta?.description || "-");
+          _addRow("チェックサム", _config.meta?.checksum || "-");
+          _addRow("ステータス", _config.meta?.status || "-");
+
+          _addRow("インデント方式", _config.rules?.indentType);
+          _addRow("インデント幅", _config.rules?.indentSize);
+          _addRow("改行コード", _config.rules?.lineEnding);
+          _addRow("行末空白禁止", _config.rules?.trimTrailingWhitespace);
+          _addRow("ファイル末尾改行", _config.rules?.requireFinalNewline);
+          _addRow("全角スペース", _config.rules?.allowFullWidthSpace);
+          _addRow("不可視文字", _config.rules?.allowInvisibleChars);
+          _addRow("連続空行上限", _config.rules?.maxBlankLines);
+          _addRow("最大行長", _config.rules?.maxLineLength);
+          _addRow("BOM禁止", _config.rules?.forbidBom);
+
+          for (const [_key, _level] of Object.entries(_config.severity || {})) {
+            _addRow(`重大度: ${_checkpointLabel(_key)}`, _severityLabel(_level));
+          }
+        }
+
+        function _applyTheme() {
+          const _theme = _config.options?.theme || "light";
+          let _resolvedTheme = "light";
+
+          if (_theme === "dark") {
+            _resolvedTheme = "dark";
+          } else if (_theme === "auto") {
+            _resolvedTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          }
+
+          document.documentElement.dataset.theme = _resolvedTheme;
+          document.documentElement.style.colorScheme = _resolvedTheme;
+        }
+
+        function _evaluateExpireAt() {
+          const _expireAt = _config.options?.expireAt;
+          if (!_expireAt) {
+            return;
+          }
+
+          const _expireTime = Date.parse(_expireAt);
+          if (Number.isNaN(_expireTime)) {
+            return;
+          }
+
+          if (Date.now() > _expireTime) {
+            _isExpired = true;
+            const $expiredBanner = qs("#expired-banner");
+            $expiredBanner.textContent = `この配布HTMLは ${_formatDate(_expireAt)} に有効期限を迎えています。管理者へ最新版を依頼してください。`;
+            $expiredBanner.classList.remove("u-hidden");
+
+            for (const $button of qsa("[data-requires-active='true']")) {
+              $button.disabled = true;
+            }
+          }
+        }
+
+        function _renderCounters(_counts, _total) {
+          qs("#count-total").textContent = String(_total);
+          qs("#count-error").textContent = String(_counts.error || 0);
+          qs("#count-warning").textContent = String(_counts.warning || 0);
+          qs("#count-info").textContent = String(_counts.info || 0);
+        }
+
+        function _resetCounters() {
+          _renderCounters({ error: 0, warning: 0, info: 0 }, 0);
+        }
+
+        function _renderIssues(_issues) {
+          $issuesList.textContent = "";
+
+          if (_issues.length === 0) {
+            _renderEmptyIssues("問題は検出されませんでした。");
+            return;
+          }
+
+          for (const _issue of _issues) {
+            const $item = document.createElement("article");
+            $item.className = `issue-card issue-card--${_issue.level}`;
+
+            const $head = document.createElement("div");
+            $head.className = "issue-card__head";
+
+            const $title = document.createElement("strong");
+            $title.textContent = _checkpointLabel(_issue.key);
+
+            const $meta = document.createElement("small");
+            $meta.textContent = `行 ${_issue.line} / ${_severityLabel(_issue.level)}`;
+
+            $head.appendChild($title);
+            $head.appendChild($meta);
+
+            const $message = document.createElement("p");
+            $message.className = "issue-card__message";
+            $message.textContent = _issue.message;
+
+            const $suggestion = document.createElement("p");
+            $suggestion.className = "issue-card__suggestion";
+            $suggestion.textContent = `修正案: ${_issue.suggestion}`;
+
+            const $preview = document.createElement("p");
+            $preview.className = "issue-card__preview";
+            $preview.textContent = `該当行: ${_issue.preview}`;
+
+            $item.appendChild($head);
+            $item.appendChild($message);
+            $item.appendChild($suggestion);
+            $item.appendChild($preview);
+            $issuesList.appendChild($item);
+          }
+        }
+
+        function _renderEmptyIssues(_text) {
+          $issuesList.textContent = "";
+          const $empty = document.createElement("p");
+          $empty.className = "issue-empty";
+          $empty.textContent = _text;
+          $issuesList.appendChild($empty);
+        }
+
+        function _setStatus(_text, _tone) {
+          $statusText.textContent = _text;
+          $statusText.dataset.tone = _tone;
+        }
+
+        function _openModal(_selector) {
+          const $modal = qs(_selector);
+          if (!$modal) {
+            return;
+          }
+          $modal.classList.remove("u-hidden");
+          $modal.setAttribute("aria-hidden", "false");
+        }
+
+        function _closeModal(_selector) {
+          const $modal = qs(_selector);
+          if (!$modal) {
+            return;
+          }
+          $modal.classList.add("u-hidden");
+          $modal.setAttribute("aria-hidden", "true");
+        }
+
+        function _resolveSeverity(_key, _fallback) {
+          const _configured = (_config.severity || {})[_key];
+          if (!_configured) {
+            return _fallback;
+          }
+
+          const _value = String(_configured).toLowerCase();
+          if (["error", "warning", "info", "off"].includes(_value)) {
+            return _value;
+          }
+          return _fallback;
+        }
+
+        function _addIssue(_issues, _issue) {
+          if (_issue.level === "off") {
+            return;
+          }
+          _issues.push(_issue);
+        }
+
+        function _checkpointLabel(_key) {
+          return CHECKPOINTS[_key]?.label || _key;
+        }
+
+        function _severityLabel(_level) {
+          const _labels = {
+            error: "エラー",
+            warning: "警告",
+            info: "情報",
+            off: "無効"
+          };
+          return _labels[_level] || String(_level || "-");
+        }
+
+        function _countLineEndings(_text) {
+          const _crlf = (_text.match(/\r\n/g) || []).length;
+          const _withoutCrlf = _text.replace(/\r\n/g, "");
+          const _cr = (_withoutCrlf.match(/\r/g) || []).length;
+          const _lf = (_withoutCrlf.match(/\n/g) || []).length;
+          return { crlf: _crlf, cr: _cr, lf: _lf };
+        }
+
+        function _leadingColumns(_indent, _tabSize) {
+          const _size = Math.max(1, Number(_tabSize) || 4);
+          let _columns = 0;
+          for (const _char of _indent) {
+            if (_char === "\t") {
+              const _offset = _columns % _size;
+              _columns += _offset === 0 ? _size : _size - _offset;
+            } else {
+              _columns += 1;
+            }
+          }
+          return _columns;
+        }
+
+        function _columnsToTabsAndSpaces(_columns, _tabSize) {
+          const _size = Math.max(1, Number(_tabSize) || 4);
+          const _safeColumns = Math.max(0, Number(_columns) || 0);
+          const _tabs = Math.floor(_safeColumns / _size);
+          const _spaces = _safeColumns % _size;
+          return "\t".repeat(_tabs) + " ".repeat(_spaces);
+        }
+
+        function _isLikelyContinuationLine(_currentTrimmed, _previousTrimmed) {
+          if (!_currentTrimmed || !_previousTrimmed) {
+            return false;
+          }
+
+          if (_previousTrimmed.endsWith("\\")) {
+            return true;
+          }
+
+          const _tailContinuation = /(?:[([{,?:]|&&|\|\||\+|-|\*|\/|%|=|=>)$/.test(_previousTrimmed);
+          const _headContinuation = /^(?:[)\]},.:?]|&&|\|\||\+|-|\*|\/|%)/.test(_currentTrimmed);
+          return _tailContinuation || _headContinuation;
+        }
+
+        function _splitLines(_text) {
+          if (_text === "") {
+            return [""];
+          }
+          return _text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+        }
+
+        function _linePreview(_line) {
+          const _value = _line.replace(/\t/g, "\\t");
+          if (_value.length <= 140) {
+            return _value;
+          }
+          return `${_value.slice(0, 137)}...`;
+        }
+
+        function _showFatal(_message) {
+          $app.classList.add("u-hidden");
+          $fatal.classList.remove("u-hidden");
+          $fatalMessage.textContent = _message;
+        }
+
+        function _serializeValue(_value) {
+          if (_value === null || _value === undefined || _value === "") {
+            return "-";
+          }
+          if (typeof _value === "boolean") {
+            return _value ? "はい" : "いいえ";
+          }
+
+          const _labelMap = {
+            spaces: "スペース",
+            tabs: "タブ",
+            either: "どちらも許可",
+            required: "必須",
+            optional: "任意",
+            forbidden: "禁止",
+            allow: "許可",
+            error: "エラー",
+            warning: "警告",
+            info: "情報",
+            off: "無効",
+            draft: "下書き",
+            published: "公開中",
+            deprecated: "廃止",
+            light: "ライト",
+            dark: "ダーク",
+            auto: "システム連動",
+            LF: "LF",
+            CRLF: "CRLF"
+          };
+
+          const _mapped = _labelMap[String(_value)];
+          if (_mapped) {
+            return _mapped;
+          }
+          return String(_value);
+        }
+
+        function _formatDate(_value) {
+          if (!_value) {
+            return "-";
+          }
+
+          const _date = new Date(_value);
+          if (Number.isNaN(_date.getTime())) {
+            return String(_value);
+          }
+
+          return _date.toLocaleString("ja-JP", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
+          });
+        }
+      }
+
+      function _toSafeInteger(_value, _fallback) {
+        const _parsed = Number.parseInt(String(_value), 10);
+        if (Number.isNaN(_parsed)) {
+          return _fallback;
+        }
+        return _parsed;
+      }
+
+      function _persistDraft(_state) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(_state));
+        } catch (_error) {
+          _setStatus("下書き保存に失敗しました。ブラウザの保存制限を確認してください。", "warning");
+        }
+      }
+
+      function _loadDraft() {
+        try {
+          const _raw = localStorage.getItem(STORAGE_KEY);
+          if (!_raw) {
+            return null;
+          }
+          return JSON.parse(_raw);
+        } catch (_error) {
+          return null;
+        }
+      }
+
+      function _downloadTextFile(_fileName, _content) {
+        const _blob = new Blob([_content], { type: "text/plain;charset=utf-8" });
+        const _url = URL.createObjectURL(_blob);
+        const $link = document.createElement("a");
+        $link.href = _url;
+        $link.download = _fileName;
+        $link.click();
+        URL.revokeObjectURL(_url);
+      }
+
+      function _sanitizeForFile(_value) {
+        return String(_value)
+          .toLowerCase()
+          .replace(/[^a-z0-9._-]+/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "") || "rules";
+      }
+
+      function _makeDateStamp() {
+        const _now = new Date();
+        const _yy = String(_now.getFullYear());
+        const _mm = String(_now.getMonth() + 1).padStart(2, "0");
+        const _dd = String(_now.getDate()).padStart(2, "0");
+        const _hh = String(_now.getHours()).padStart(2, "0");
+        const _mi = String(_now.getMinutes()).padStart(2, "0");
+        const _ss = String(_now.getSeconds()).padStart(2, "0");
+        return `${_yy}${_mm}${_dd}-${_hh}${_mi}${_ss}`;
+      }
+
+      function _toIsoIfValid(_value) {
+        if (!_value) {
+          return null;
+        }
+        const _date = new Date(_value);
+        if (Number.isNaN(_date.getTime())) {
+          return null;
+        }
+        return _date.toISOString();
+      }
+
+      function _toDatetimeLocal(_value) {
+        const _date = new Date(_value);
+        if (Number.isNaN(_date.getTime())) {
+          return "";
+        }
+
+        const _offset = _date.getTimezoneOffset();
+        const _local = new Date(_date.getTime() - _offset * 60 * 1000);
+        return _local.toISOString().slice(0, 16);
+      }
+
+      function _escapeScriptTag(_text) {
+        return String(_text).replace(/<\/script/gi, "<\\/script");
+      }
+
+      function _escapeHtml(_text) {
+        return String(_text)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      async function _sha256Hex(_text) {
+        if (window.crypto && window.crypto.subtle) {
+          const _buffer = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(_text));
+          return [...new Uint8Array(_buffer)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+        }
+
+        let _hash = 2166136261;
+        for (let _index = 0; _index < _text.length; _index += 1) {
+          _hash ^= _text.charCodeAt(_index);
+          _hash = Math.imul(_hash, 16777619);
+        }
+        return Math.abs(_hash >>> 0).toString(16).padStart(8, "0");
+      }
+
+      function _setStatus(_message, _tone = "neutral") {
+        $statusMessage.textContent = _message;
+        $statusMessage.dataset.tone = _tone;
+      }
+
+      function _updateAdminColorScheme() {
+        const _mode = $theme.value;
+        let _resolved = "light";
+        if (_mode === "dark") {
+          _resolved = "dark";
+        } else if (_mode === "auto") {
+          _resolved = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.style.colorScheme = _resolved;
+      }
+    })();
+  </script>
+</body>
+</html>

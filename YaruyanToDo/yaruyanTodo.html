@@ -73,6 +73,10 @@
       --success-glow: light-dark(oklch(0.64 0.11 154 / 0.24), oklch(0.72 0.09 154 / 0.24));
       --accent-shadow: light-dark(oklch(0.63 0.08 244 / 0.34), oklch(0.66 0.08 220 / 0.32));
       --danger-shadow: light-dark(oklch(0.68 0.13 27 / 0.36), oklch(0.68 0.12 25 / 0.34));
+      --pause: light-dark(oklch(0.72 0.13 84), oklch(0.78 0.10 86));
+      --pause-bg-soft: light-dark(oklch(0.96 0.035 86), oklch(0.38 0.05 86));
+      --pause-border: light-dark(oklch(0.83 0.08 86), oklch(0.69 0.08 86));
+      --pause-glow: light-dark(oklch(0.76 0.10 86 / 0.26), oklch(0.78 0.08 86 / 0.22));
 
       --shadow-soft: light-dark(oklch(0.44 0.02 248 / 0.08), oklch(0 0 0 / 0.30));
       --shadow-strong: light-dark(oklch(0.34 0.03 248 / 0.14), oklch(0 0 0 / 0.48));
@@ -98,117 +102,109 @@
 
       accent-color: var(--primary);
     }
-
     :root[data-theme="ocean"] {
-      --primary: light-dark(oklch(0.61 0.15 244), oklch(0.74 0.13 205));
-      --primary-glow: light-dark(oklch(0.61 0.15 244 / 0.24), oklch(0.74 0.13 205 / 0.22));
-      --primary-bg-faint: light-dark(oklch(0.967 0.018 244), oklch(0.31 0.05 205));
-      --primary-bg-soft: light-dark(oklch(0.946 0.028 244), oklch(0.34 0.06 205));
-      --primary-bg-mid: light-dark(oklch(0.918 0.045 244), oklch(0.38 0.07 205));
-      --primary-border-soft: light-dark(oklch(0.83 0.056 244), oklch(0.58 0.08 205));
-      --primary-border: light-dark(oklch(0.74 0.09 244), oklch(0.67 0.09 205));
-      --primary-border-strong: light-dark(oklch(0.67 0.115 244), oklch(0.72 0.10 205));
-      --primary-text-ink: light-dark(oklch(0.48 0.11 244), oklch(0.85 0.09 205));
-      --accent: light-dark(oklch(0.56 0.10 244), oklch(0.66 0.08 205));
-      --celeb: light-dark(oklch(0.67 0.08 228), oklch(0.72 0.07 220));
+      --primary: light-dark(oklch(0.693 0.13 232.724), oklch(0.773 0.109 232.724));
+      --primary-glow: light-dark(oklch(0.693 0.13 232.724 / 0.25), oklch(0.773 0.109 232.724 / 0.24));
+      --primary-bg-faint: light-dark(oklch(0.968 0.021 232.724), oklch(0.31 0.05 232.724));
+      --primary-bg-soft: light-dark(oklch(0.946 0.031 232.724), oklch(0.34 0.063 232.724));
+      --primary-bg-mid: light-dark(oklch(0.918 0.047 232.724), oklch(0.38 0.078 232.724));
+      --primary-border-soft: light-dark(oklch(0.83 0.058 232.724), oklch(0.58 0.089 232.724));
+      --primary-border: light-dark(oklch(0.74 0.091 232.724), oklch(0.67 0.103 232.724));
+      --primary-border-strong: light-dark(oklch(0.67 0.11 232.724), oklch(0.72 0.111 232.724));
+      --primary-text-ink: light-dark(oklch(0.46 0.101 232.724), oklch(0.85 0.096 232.724));
+      --accent: light-dark(oklch(0.66 0.101 222.724), oklch(0.713 0.085 224.724));
+      --celeb: light-dark(oklch(0.74 0.088 246.724), oklch(0.763 0.07 244.724));
     }
-
     :root[data-theme="emerald"] {
-      --primary: light-dark(oklch(0.60 0.12 166), oklch(0.72 0.10 158));
-      --primary-glow: light-dark(oklch(0.60 0.12 166 / 0.24), oklch(0.72 0.10 158 / 0.24));
-      --primary-bg-faint: light-dark(oklch(0.967 0.016 166), oklch(0.31 0.045 160));
-      --primary-bg-soft: light-dark(oklch(0.944 0.025 166), oklch(0.34 0.055 160));
-      --primary-bg-mid: light-dark(oklch(0.915 0.042 166), oklch(0.38 0.066 160));
-      --primary-border-soft: light-dark(oklch(0.82 0.05 166), oklch(0.58 0.074 160));
-      --primary-border: light-dark(oklch(0.72 0.085 166), oklch(0.66 0.084 160));
-      --primary-border-strong: light-dark(oklch(0.65 0.10 166), oklch(0.70 0.09 160));
-      --primary-text-ink: light-dark(oklch(0.45 0.09 166), oklch(0.84 0.08 160));
-      --accent: light-dark(oklch(0.57 0.10 178), oklch(0.66 0.08 170));
-      --celeb: light-dark(oklch(0.66 0.08 154), oklch(0.73 0.07 150));
+      --primary: light-dark(oklch(0.734 0.111 157.21), oklch(0.79 0.093 157.21));
+      --primary-glow: light-dark(oklch(0.734 0.111 157.21 / 0.25), oklch(0.79 0.093 157.21 / 0.24));
+      --primary-bg-faint: light-dark(oklch(0.968 0.018 157.21), oklch(0.31 0.045 157.21));
+      --primary-bg-soft: light-dark(oklch(0.946 0.027 157.21), oklch(0.34 0.056 157.21));
+      --primary-bg-mid: light-dark(oklch(0.918 0.044 157.21), oklch(0.38 0.07 157.21));
+      --primary-border-soft: light-dark(oklch(0.83 0.055 157.21), oklch(0.58 0.08 157.21));
+      --primary-border: light-dark(oklch(0.74 0.085 157.21), oklch(0.67 0.09 157.21));
+      --primary-border-strong: light-dark(oklch(0.67 0.105 157.21), oklch(0.72 0.098 157.21));
+      --primary-text-ink: light-dark(oklch(0.46 0.086 157.21), oklch(0.85 0.082 157.21));
+      --accent: light-dark(oklch(0.66 0.086 147.21), oklch(0.72 0.073 149.21));
+      --celeb: light-dark(oklch(0.74 0.075 171.21), oklch(0.78 0.06 169.21));
     }
-
     :root[data-theme="amber"] {
-      --primary: light-dark(oklch(0.66 0.14 80), oklch(0.74 0.11 80));
-      --primary-glow: light-dark(oklch(0.66 0.14 80 / 0.24), oklch(0.74 0.11 80 / 0.24));
-      --primary-bg-faint: light-dark(oklch(0.972 0.018 82), oklch(0.34 0.04 80));
-      --primary-bg-soft: light-dark(oklch(0.955 0.026 82), oklch(0.36 0.05 80));
-      --primary-bg-mid: light-dark(oklch(0.93 0.042 82), oklch(0.40 0.06 80));
-      --primary-border-soft: light-dark(oklch(0.85 0.05 82), oklch(0.61 0.07 80));
-      --primary-border: light-dark(oklch(0.77 0.085 82), oklch(0.68 0.08 80));
-      --primary-border-strong: light-dark(oklch(0.70 0.10 82), oklch(0.72 0.09 80));
-      --primary-text-ink: light-dark(oklch(0.50 0.10 82), oklch(0.86 0.08 80));
-      --accent: light-dark(oklch(0.61 0.12 72), oklch(0.69 0.09 72));
-      --celeb: light-dark(oklch(0.69 0.09 92), oklch(0.76 0.08 94));
+      --primary: light-dark(oklch(0.74 0.168 81.656), oklch(0.79 0.14 81.656));
+      --primary-glow: light-dark(oklch(0.74 0.168 81.656 / 0.25), oklch(0.79 0.14 81.656 / 0.24));
+      --primary-bg-faint: light-dark(oklch(0.968 0.026 81.656), oklch(0.31 0.056 81.656));
+      --primary-bg-soft: light-dark(oklch(0.946 0.036 81.656), oklch(0.34 0.067 81.656));
+      --primary-bg-mid: light-dark(oklch(0.918 0.056 81.656), oklch(0.38 0.082 81.656));
+      --primary-border-soft: light-dark(oklch(0.83 0.066 81.656), oklch(0.58 0.094 81.656));
+      --primary-border: light-dark(oklch(0.74 0.102 81.656), oklch(0.67 0.105 81.656));
+      --primary-border-strong: light-dark(oklch(0.67 0.122 81.656), oklch(0.72 0.115 81.656));
+      --primary-text-ink: light-dark(oklch(0.46 0.112 81.656), oklch(0.85 0.102 81.656));
+      --accent: light-dark(oklch(0.66 0.12 71.656), oklch(0.72 0.1 73.656));
+      --celeb: light-dark(oklch(0.74 0.1 95.656), oklch(0.78 0.09 93.656));
     }
-
-    :root[data-theme="rose"] {
-      --primary: light-dark(oklch(0.62 0.14 22), oklch(0.72 0.10 18));
-      --primary-glow: light-dark(oklch(0.62 0.14 22 / 0.24), oklch(0.72 0.10 18 / 0.24));
-      --primary-bg-faint: light-dark(oklch(0.97 0.016 24), oklch(0.33 0.045 20));
-      --primary-bg-soft: light-dark(oklch(0.95 0.026 24), oklch(0.35 0.056 20));
-      --primary-bg-mid: light-dark(oklch(0.92 0.042 24), oklch(0.39 0.066 20));
-      --primary-border-soft: light-dark(oklch(0.84 0.052 24), oklch(0.60 0.07 20));
-      --primary-border: light-dark(oklch(0.75 0.086 24), oklch(0.67 0.08 20));
-      --primary-border-strong: light-dark(oklch(0.68 0.10 24), oklch(0.71 0.09 20));
-      --primary-text-ink: light-dark(oklch(0.49 0.10 24), oklch(0.85 0.08 20));
-      --accent: light-dark(oklch(0.58 0.11 12), oklch(0.67 0.08 12));
-      --celeb: light-dark(oklch(0.67 0.08 30), oklch(0.74 0.07 28));
-    }
-
-    :root[data-theme="indigo"] {
-      --primary: light-dark(oklch(0.56 0.11 286), oklch(0.69 0.08 276));
-      --primary-glow: light-dark(oklch(0.56 0.11 286 / 0.24), oklch(0.69 0.08 276 / 0.24));
-      --primary-bg-faint: light-dark(oklch(0.965 0.015 286), oklch(0.31 0.04 276));
-      --primary-bg-soft: light-dark(oklch(0.944 0.023 286), oklch(0.34 0.05 276));
-      --primary-bg-mid: light-dark(oklch(0.912 0.038 286), oklch(0.38 0.06 276));
-      --primary-border-soft: light-dark(oklch(0.81 0.045 286), oklch(0.58 0.065 276));
-      --primary-border: light-dark(oklch(0.71 0.08 286), oklch(0.65 0.074 276));
-      --primary-border-strong: light-dark(oklch(0.64 0.094 286), oklch(0.69 0.083 276));
-      --primary-text-ink: light-dark(oklch(0.44 0.09 286), oklch(0.83 0.07 276));
-      --accent: light-dark(oklch(0.54 0.10 266), oklch(0.65 0.075 260));
-      --celeb: light-dark(oklch(0.63 0.08 306), oklch(0.71 0.066 300));
-    }
-
-    :root[data-theme="slate"] {
-      --primary: light-dark(oklch(0.54 0.05 252), oklch(0.68 0.04 242));
-      --primary-glow: light-dark(oklch(0.54 0.05 252 / 0.24), oklch(0.68 0.04 242 / 0.24));
-      --primary-bg-faint: light-dark(oklch(0.965 0.008 252), oklch(0.30 0.02 242));
-      --primary-bg-soft: light-dark(oklch(0.948 0.012 252), oklch(0.33 0.026 242));
-      --primary-bg-mid: light-dark(oklch(0.92 0.02 252), oklch(0.36 0.032 242));
-      --primary-border-soft: light-dark(oklch(0.82 0.02 252), oklch(0.57 0.036 242));
-      --primary-border: light-dark(oklch(0.73 0.032 252), oklch(0.64 0.042 242));
-      --primary-border-strong: light-dark(oklch(0.66 0.04 252), oklch(0.68 0.048 242));
-      --primary-text-ink: light-dark(oklch(0.43 0.036 252), oklch(0.82 0.04 242));
-      --accent: light-dark(oklch(0.53 0.04 262), oklch(0.66 0.03 252));
-      --celeb: light-dark(oklch(0.62 0.03 234), oklch(0.71 0.03 232));
-    }
-
-    :root[data-theme="mint"] {
-      --primary: light-dark(oklch(0.62 0.10 198), oklch(0.72 0.08 196));
-      --primary-glow: light-dark(oklch(0.62 0.10 198 / 0.24), oklch(0.72 0.08 196 / 0.24));
-      --primary-bg-faint: light-dark(oklch(0.967 0.015 198), oklch(0.31 0.036 196));
-      --primary-bg-soft: light-dark(oklch(0.948 0.022 198), oklch(0.34 0.046 196));
-      --primary-bg-mid: light-dark(oklch(0.92 0.035 198), oklch(0.38 0.056 196));
-      --primary-border-soft: light-dark(oklch(0.83 0.042 198), oklch(0.58 0.06 196));
-      --primary-border: light-dark(oklch(0.74 0.07 198), oklch(0.66 0.07 196));
-      --primary-border-strong: light-dark(oklch(0.67 0.084 198), oklch(0.70 0.078 196));
-      --primary-text-ink: light-dark(oklch(0.47 0.078 198), oklch(0.84 0.066 196));
-      --accent: light-dark(oklch(0.57 0.08 206), oklch(0.67 0.07 204));
-      --celeb: light-dark(oklch(0.66 0.07 182), oklch(0.74 0.06 180));
-    }
-
     :root[data-theme="sunset"] {
-      --primary: light-dark(oklch(0.61 0.13 46), oklch(0.70 0.10 42));
-      --primary-glow: light-dark(oklch(0.61 0.13 46 / 0.24), oklch(0.70 0.10 42 / 0.24));
-      --primary-bg-faint: light-dark(oklch(0.97 0.016 46), oklch(0.32 0.042 42));
-      --primary-bg-soft: light-dark(oklch(0.95 0.024 46), oklch(0.35 0.052 42));
-      --primary-bg-mid: light-dark(oklch(0.92 0.039 46), oklch(0.39 0.062 42));
-      --primary-border-soft: light-dark(oklch(0.84 0.048 46), oklch(0.59 0.068 42));
-      --primary-border: light-dark(oklch(0.75 0.08 46), oklch(0.66 0.077 42));
-      --primary-border-strong: light-dark(oklch(0.68 0.095 46), oklch(0.70 0.085 42));
-      --primary-text-ink: light-dark(oklch(0.48 0.09 46), oklch(0.84 0.075 42));
-      --accent: light-dark(oklch(0.56 0.10 30), oklch(0.65 0.08 30));
-      --celeb: light-dark(oklch(0.66 0.08 62), oklch(0.73 0.07 62));
+      --primary: light-dark(oklch(0.74 0.116 6.503), oklch(0.79 0.097 6.503));
+      --primary-glow: light-dark(oklch(0.74 0.116 6.503 / 0.25), oklch(0.79 0.097 6.503 / 0.24));
+      --primary-bg-faint: light-dark(oklch(0.968 0.019 6.503), oklch(0.31 0.045 6.503));
+      --primary-bg-soft: light-dark(oklch(0.946 0.028 6.503), oklch(0.34 0.057 6.503));
+      --primary-bg-mid: light-dark(oklch(0.918 0.044 6.503), oklch(0.38 0.07 6.503));
+      --primary-border-soft: light-dark(oklch(0.83 0.055 6.503), oklch(0.58 0.08 6.503));
+      --primary-border: light-dark(oklch(0.74 0.085 6.503), oklch(0.67 0.093 6.503));
+      --primary-border-strong: light-dark(oklch(0.67 0.105 6.503), oklch(0.72 0.099 6.503));
+      --primary-text-ink: light-dark(oklch(0.46 0.091 6.503), oklch(0.85 0.086 6.503));
+      --accent: light-dark(oklch(0.66 0.091 356.503), oklch(0.72 0.076 358.503));
+      --celeb: light-dark(oklch(0.74 0.079 20.503), oklch(0.78 0.062 18.503));
+    }
+    :root[data-theme="rose"] {
+      --primary: light-dark(oklch(0.55 0.17 24.387), oklch(0.68 0.14 24.387));
+      --primary-glow: light-dark(oklch(0.55 0.17 24.387 / 0.25), oklch(0.68 0.14 24.387 / 0.24));
+      --primary-bg-faint: light-dark(oklch(0.968 0.026 24.387), oklch(0.31 0.056 24.387));
+      --primary-bg-soft: light-dark(oklch(0.946 0.036 24.387), oklch(0.34 0.067 24.387));
+      --primary-bg-mid: light-dark(oklch(0.918 0.056 24.387), oklch(0.38 0.082 24.387));
+      --primary-border-soft: light-dark(oklch(0.83 0.066 24.387), oklch(0.58 0.094 24.387));
+      --primary-border: light-dark(oklch(0.74 0.102 24.387), oklch(0.67 0.105 24.387));
+      --primary-border-strong: light-dark(oklch(0.67 0.122 24.387), oklch(0.72 0.115 24.387));
+      --primary-text-ink: light-dark(oklch(0.46 0.112 24.387), oklch(0.85 0.102 24.387));
+      --accent: light-dark(oklch(0.53 0.12 14.387), oklch(0.64 0.1 16.387));
+      --celeb: light-dark(oklch(0.62 0.1 38.387), oklch(0.7 0.09 36.387));
+    }
+    :root[data-theme="indigo"] {
+      --primary: light-dark(oklch(0.74 0.05 283.94), oklch(0.79 0.04 283.94));
+      --primary-glow: light-dark(oklch(0.74 0.05 283.94 / 0.25), oklch(0.79 0.04 283.94 / 0.24));
+      --primary-bg-faint: light-dark(oklch(0.968 0.016 283.94), oklch(0.31 0.045 283.94));
+      --primary-bg-soft: light-dark(oklch(0.946 0.026 283.94), oklch(0.34 0.056 283.94));
+      --primary-bg-mid: light-dark(oklch(0.918 0.044 283.94), oklch(0.38 0.07 283.94));
+      --primary-border-soft: light-dark(oklch(0.83 0.055 283.94), oklch(0.58 0.08 283.94));
+      --primary-border: light-dark(oklch(0.74 0.085 283.94), oklch(0.67 0.09 283.94));
+      --primary-border-strong: light-dark(oklch(0.67 0.105 283.94), oklch(0.72 0.098 283.94));
+      --primary-text-ink: light-dark(oklch(0.46 0.082 283.94), oklch(0.85 0.078 283.94));
+      --accent: light-dark(oklch(0.66 0.07 273.94), oklch(0.72 0.062 275.94));
+      --celeb: light-dark(oklch(0.74 0.06 297.94), oklch(0.78 0.05 295.94));
+    }
+    :root[data-theme="cyan"] {
+      --primary: light-dark(oklch(0.652 0.111 204.062), oklch(0.732 0.093 204.062));
+      --primary-glow: light-dark(oklch(0.652 0.111 204.062 / 0.25), oklch(0.732 0.093 204.062 / 0.24));
+      --primary-bg-faint: light-dark(oklch(0.968 0.018 204.062), oklch(0.31 0.045 204.062));
+      --primary-bg-soft: light-dark(oklch(0.946 0.027 204.062), oklch(0.34 0.056 204.062));
+      --primary-bg-mid: light-dark(oklch(0.918 0.044 204.062), oklch(0.38 0.07 204.062));
+      --primary-border-soft: light-dark(oklch(0.83 0.055 204.062), oklch(0.58 0.08 204.062));
+      --primary-border: light-dark(oklch(0.74 0.085 204.062), oklch(0.67 0.09 204.062));
+      --primary-border-strong: light-dark(oklch(0.67 0.105 204.062), oklch(0.72 0.098 204.062));
+      --primary-text-ink: light-dark(oklch(0.46 0.087 204.062), oklch(0.85 0.082 204.062));
+      --accent: light-dark(oklch(0.622 0.087 194.062), oklch(0.672 0.073 196.062));
+      --celeb: light-dark(oklch(0.712 0.076 218.062), oklch(0.722 0.06 216.062));
+    }
+    :root[data-theme="slate"] {
+      --primary: light-dark(oklch(0.594 0.088 51.88), oklch(0.68 0.074 51.88));
+      --primary-glow: light-dark(oklch(0.594 0.088 51.88 / 0.25), oklch(0.68 0.074 51.88 / 0.24));
+      --primary-bg-faint: light-dark(oklch(0.968 0.016 51.88), oklch(0.31 0.045 51.88));
+      --primary-bg-soft: light-dark(oklch(0.946 0.026 51.88), oklch(0.34 0.056 51.88));
+      --primary-bg-mid: light-dark(oklch(0.918 0.044 51.88), oklch(0.38 0.07 51.88));
+      --primary-border-soft: light-dark(oklch(0.83 0.055 51.88), oklch(0.58 0.08 51.88));
+      --primary-border: light-dark(oklch(0.74 0.085 51.88), oklch(0.67 0.09 51.88));
+      --primary-border-strong: light-dark(oklch(0.67 0.105 51.88), oklch(0.72 0.098 51.88));
+      --primary-text-ink: light-dark(oklch(0.46 0.082 51.88), oklch(0.85 0.078 51.88));
+      --accent: light-dark(oklch(0.564 0.07 41.88), oklch(0.64 0.062 43.88));
+      --celeb: light-dark(oklch(0.654 0.06 65.88), oklch(0.7 0.05 63.88));
     }
 
     *,
@@ -383,7 +379,7 @@
     }
 
     body.sidebar-collapsed .sidebar {
-      padding: 0.5rem 0.45rem 0.9rem;
+      padding: var(--space-xl) 0.45rem 0.9rem;
       gap: var(--space-sm);
     }
 
@@ -421,13 +417,13 @@
 
     body.sidebar-collapsed .sidebar-top {
       flex-direction: row;
-      align-items: flex-start;
-      justify-content: flex-start;
+      align-items: center;
+      justify-content: center;
       gap: 0;
     }
 
     body.sidebar-collapsed .sidebar-collapse-btn {
-      margin: 0;
+      margin: 0 auto;
     }
 
     /* =========================
@@ -1080,7 +1076,7 @@
 
     .theme-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(8, minmax(0, 1fr));
       gap: 0.55rem;
     }
 
@@ -1090,12 +1086,12 @@
       border-radius: var(--radius-md);
       background: var(--surface-2);
       color: var(--text);
-      padding: 0.68rem 0.5rem;
+      padding: 0;
       display: grid;
-      justify-items: center;
-      gap: 0;
+      place-items: center;
       cursor: pointer;
-      min-height: 2.6rem;
+      aspect-ratio: 1 / 1;
+      min-height: 0;
       transition:
         border-color 160ms var(--ease-smooth),
         box-shadow 160ms var(--ease-smooth),
@@ -1116,8 +1112,8 @@
     }
 
     .theme-dot {
-      width: 1.05rem;
-      height: 1.05rem;
+      width: clamp(0.68rem, 84%, 1.45rem);
+      height: clamp(0.68rem, 84%, 1.45rem);
       border-radius: 50%;
       border: 2px solid rgb(255 255 255 / 0.86);
       box-shadow: 0 0 0 1px rgb(0 0 0 / 0.1);
@@ -1641,6 +1637,41 @@
       word-break: break-word;
     }
 
+    .focus-status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.32rem;
+      padding: 0.4rem 0.68rem;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--success-border);
+      background: var(--success-bg-soft);
+      color: var(--success);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      box-shadow: 0 8px 18px var(--success-glow);
+      transition:
+        color 160ms var(--ease-smooth),
+        background 160ms var(--ease-smooth),
+        border-color 160ms var(--ease-smooth),
+        box-shadow 160ms var(--ease-smooth),
+        transform 160ms var(--ease-smooth);
+    }
+
+    .focus-status-chip .material-symbols-outlined {
+      font-size: 15px;
+    }
+
+    .focus-status-chip.is-paused {
+      border-color: var(--pause-border);
+      background: var(--pause-bg-soft);
+      color: var(--pause);
+      box-shadow: 0 10px 24px var(--pause-glow);
+      animation: pauseBadgePulse 1.2s var(--ease-smooth) infinite;
+    }
+
     .focus-body {
       display: grid;
       align-content: center;
@@ -1649,6 +1680,27 @@
       padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 4vw, 3rem);
       position: relative;
       z-index: 1;
+    }
+
+    .focus-body::after {
+      content: "";
+      position: absolute;
+      top: clamp(0.45rem, 1vw, 0.85rem);
+      left: 50%;
+      padding: 0.42rem 0.9rem;
+      border-radius: var(--radius-full);
+      border: 1px solid transparent;
+      color: transparent;
+      background: transparent;
+      opacity: 0;
+      transform: translate(-50%, -8px) scale(0.96);
+      transition: opacity 160ms var(--ease-smooth), transform 160ms var(--ease-smooth);
+      pointer-events: none;
+      font-weight: 800;
+      font-size: 0.82rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
     }
 
     .focus-timer {
@@ -1663,12 +1715,45 @@
       transition: opacity 160ms var(--ease-smooth);
     }
 
+    .focus-overlay.focus-paused .focus-modal {
+      border-color: var(--pause-border);
+      box-shadow:
+        0 26px 72px var(--shadow-strong),
+        0 0 0 1px var(--pause-border),
+        0 0 0 10px var(--pause-glow);
+    }
+
     .focus-overlay.focus-paused .focus-modal::before {
-      opacity: 0.42;
+      opacity: 0.68;
+      background:
+        radial-gradient(circle at 50% 16%, var(--pause-glow), transparent 52%),
+        radial-gradient(circle at 50% 84%, var(--focus-halo-2), transparent 44%),
+        linear-gradient(180deg, rgb(255 255 255 / 0), var(--pause-bg-soft));
     }
 
     .focus-overlay.focus-paused .focus-timer {
-      opacity: 0.78;
+      opacity: 0.92;
+      color: var(--pause);
+      text-shadow:
+        0 0 18px var(--pause-glow),
+        0 0 46px var(--pause-glow);
+    }
+
+    .focus-overlay.focus-paused .focus-timer-caption {
+      color: var(--pause);
+      font-size: 0.9rem;
+      letter-spacing: 0.06em;
+    }
+
+    .focus-overlay.focus-paused .focus-body::after {
+      content: "一時停止中";
+      border-color: var(--pause-border);
+      color: var(--pause);
+      background: var(--pause-bg-soft);
+      box-shadow: 0 12px 30px var(--pause-glow);
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1);
+      animation: pauseBannerPulse 1.2s var(--ease-smooth) infinite;
     }
 
     .focus-timer-caption {
@@ -1724,6 +1809,13 @@
       box-shadow: 0 12px 30px var(--accent-shadow);
     }
 
+    .focus-action-btn.pause.is-resume {
+      background: var(--pause);
+      border-color: transparent;
+      box-shadow: 0 14px 34px var(--pause-glow);
+      animation: pauseBtnPulse 1.1s var(--ease-smooth) infinite;
+    }
+
     .focus-action-btn.abort {
       color: white;
       background: var(--danger);
@@ -1736,6 +1828,33 @@
       cursor: not-allowed;
       filter: grayscale(0.2);
       box-shadow: none;
+    }
+
+    @keyframes pauseBadgePulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.04);
+      }
+    }
+
+    @keyframes pauseBtnPulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.06);
+      }
+    }
+
+    @keyframes pauseBannerPulse {
+      0%, 100% {
+        transform: translate(-50%, 0) scale(1);
+      }
+      50% {
+        transform: translate(-50%, 0) scale(1.035);
+      }
     }
 
     /* =========================
@@ -1819,7 +1938,7 @@
       }
 
       .nav {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
       }
 
       .nav-btn {
@@ -1885,10 +2004,6 @@
         grid-template-columns: 1fr;
       }
 
-      .theme-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
       .todo-main {
         grid-template-columns: auto 1fr auto;
       }
@@ -1936,6 +2051,12 @@
       .page {
         animation: none;
       }
+
+      .focus-status-chip.is-paused,
+      .focus-action-btn.pause.is-resume,
+      .focus-overlay.focus-paused .focus-body::after {
+        animation: none;
+      }
     }
   </style>
 </head>
@@ -1956,6 +2077,10 @@
         <button class="nav-btn" data-route="tasks" title="Todoリスト" aria-label="Todoリスト">
           <span class="nav-icon"><span class="material-symbols-outlined">checklist</span></span>
           <span class="nav-label">Todoリスト</span>
+        </button>
+        <button class="nav-btn" data-route="memo" title="整理メモ" aria-label="整理メモ">
+          <span class="nav-icon"><span class="material-symbols-outlined">edit_note</span></span>
+          <span class="nav-label">整理メモ</span>
         </button>
         <button class="nav-btn" data-route="analysis" title="分析" aria-label="分析">
           <span class="nav-icon"><span class="material-symbols-outlined">insights</span></span>
@@ -2009,6 +2134,23 @@
             <button id="clearAllBtn" class="icon-btn danger" title="すべて削除" aria-label="すべて削除">
               <span class="material-symbols-outlined">delete_sweep</span>
             </button>
+          </div>
+        </section>
+
+        <!-- Memo -->
+        <section class="page" id="page-memo">
+          <div class="hero">
+            <h1>整理メモ</h1>
+          </div>
+
+          <div class="card">
+            <textarea
+              id="organizeMemoInput"
+              class="text-input"
+              placeholder="考えの整理や、あとでやることの下書きに使ってください"
+              rows="16"
+              style="width:100%; min-height: 22rem; resize: vertical; line-height: 1.65;"
+            ></textarea>
           </div>
         </section>
 
@@ -2240,6 +2382,10 @@
           <span class="material-symbols-outlined">center_focus_strong</span>
           <div class="focus-title" id="focusTaskTitle">タスク名</div>
         </div>
+        <div class="focus-status-chip" id="focusStatusChip" role="status" aria-live="polite" aria-atomic="true">
+          <span class="material-symbols-outlined" id="focusStatusIcon">play_circle</span>
+          <span id="focusStatusText">進行中</span>
+        </div>
       </div>
 
       <div class="focus-body">
@@ -2276,18 +2422,20 @@
 
   <script>
     (() => {
-      'use strict';
-
       /* ============================================
          Storage Keys
       ============================================ */
       const TODOS_KEY = 'yatta-spa-todos-v8';
       const SETTINGS_KEY = 'yatta-spa-settings-v8';
       const SIDEBAR_KEY = 'yatta-spa-sidebar-collapsed-v3';
+      const ORGANIZE_MEMO_KEY = 'yatta-spa-organize-memo-v1';
       const STORAGE_WARNING_MESSAGE = 'ブラウザ保存に失敗したため、この端末では変更内容が保持されない場合があります。';
+      const BASE_PAGE_TITLE = document.title || 'やるやん！Todo';
       const MAX_TODO_TEXT_LENGTH = 120;
       const MAX_SUBTASK_TEXT_LENGTH = 120;
       const MAX_MESSAGE_TEXT_LENGTH = 80;
+      const FAVICON_SIZE = 64;
+      const MAX_FAVICON_BADGE_COUNT = 99;
 
       let _storageWarningEl = null;
       let _storageWarningReason = '';
@@ -2451,6 +2599,16 @@
         });
       }
 
+      function _readStoredText(key, fallback = '') {
+        const raw = _safeStorageGet(localStorage, key, (mode, error, meta) => {
+          _reportStorageError(mode, meta?.key || key, error);
+          _storageWarningSticky = true;
+          _setStorageWarning(true);
+        });
+        if (raw == null) return fallback;
+        return String(raw);
+      }
+
       function _saveStoredState(entries) {
         const ok = _writeManyToStorage({
           storage: localStorage,
@@ -2472,23 +2630,25 @@
       ============================================ */
       const defaultMessages = ['やるやん！', 'すごい！', 'えらい！', 'ナイス！', 'かんぺき！', 'さすが！', 'グッジョブ！', 'いいね！', 'てんさい！'];
       const THEME_PRESETS = [
-        { id: 'ocean', label: 'オーシャン', swatch: '#4f73f4' },
-        { id: 'emerald', label: 'エメラルド', swatch: '#2f9f78' },
-        { id: 'amber', label: 'アンバー', swatch: '#d38a2e' },
-        { id: 'rose', label: 'ローズ', swatch: '#c05f69' },
-        { id: 'indigo', label: 'インディゴ', swatch: '#7a63d7' },
-        { id: 'slate', label: 'スレート', swatch: '#667089' },
-        { id: 'mint', label: 'ミント', swatch: '#3f9eb2' },
-        { id: 'sunset', label: 'サンセット', swatch: '#c46b3f' }
+        { id: 'ocean', label: 'オーシャン', swatch: '#2ea9df' },
+        { id: 'emerald', label: 'エメラルド', swatch: '#68be8d' },
+        { id: 'amber', label: 'アンバー', swatch: '#f8b500' },
+        { id: 'sunset', label: 'サンセット', swatch: '#f596aa' },
+        { id: 'rose', label: 'ローズ', swatch: '#b7282e' },
+        { id: 'indigo', label: 'インディゴ', swatch: '#bbbcde' },
+        { id: 'cyan', label: 'シアン', swatch: '#00a3af' },
+        { id: 'slate', label: 'スレート', swatch: '#a86f4c' }
       ];
       const THEME_IDS = new Set(THEME_PRESETS.map(theme => theme.id));
 
       let todos = normalizeTodos(_readStoredJson(TODOS_KEY, [], Array.isArray));
       let settings = loadSettings();
       let audioCtx = null;
+      let _audioPrimed = false;
       let previousAllDoneState = false;
       let wordIndex = 0;
       let isSidebarCollapsed = _readStoredBoolean(SIDEBAR_KEY, false);
+      let organizeMemo = _readStoredText(ORGANIZE_MEMO_KEY, '');
 
       const modalState = {
         parentId: null,
@@ -2523,9 +2683,28 @@
       const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];
       const $ = (selector) => qs(selector);
       const $$ = (selector) => qsa(selector);
+      const _faviconLink = (() => {
+        const existing = qs('link[rel~="icon"]', document.head);
+        if (existing) {
+          existing.setAttribute('type', 'image/png');
+          return existing;
+        }
+        const link = document.createElement('link');
+        link.rel = 'icon';
+        link.type = 'image/png';
+        document.head.appendChild(link);
+        return link;
+      })();
+      const _faviconCanvas = document.createElement('canvas');
+      _faviconCanvas.width = FAVICON_SIZE;
+      _faviconCanvas.height = FAVICON_SIZE;
+      const _faviconCtx = _faviconCanvas.getContext('2d');
+      let _lastFaviconBadgeCount = null;
 
       const todoInput = $('#todoInput');
       const addBtn = $('#addBtn');
+      const clearCompletedBtn = $('#clearCompletedBtn');
+      const clearAllBtn = $('#clearAllBtn');
       const todoList = $('#todoList');
       const emptyState = $('#emptyState');
       const footerActions = $('#footerActions');
@@ -2547,6 +2726,7 @@
       const messageSaveBtn = $('#messageSaveBtn');
       const messageSaveIcon = $('#messageSaveIcon');
       const messageList = $('#messageList');
+      const organizeMemoInput = $('#organizeMemoInput');
 
       const celebrationText = $('#celebrationText');
       const confettiCanvas = $('#confettiCanvas');
@@ -2591,6 +2771,25 @@
       const focusPauseBtn = $('#focusPauseBtn');
       const focusPauseIcon = $('#focusPauseIcon');
       const focusAbortBtn = $('#focusAbortBtn');
+      const focusStatusChip = $('#focusStatusChip');
+      const focusStatusIcon = $('#focusStatusIcon');
+      const focusStatusText = $('#focusStatusText');
+
+      window.addEventListener('pointerdown', _primeAudioContext, {
+        capture: true,
+        passive: true
+      });
+      window.addEventListener('touchstart', _primeAudioContext, {
+        capture: true,
+        passive: true
+      });
+      window.addEventListener('mousedown', _primeAudioContext, {
+        capture: true,
+        passive: true
+      });
+      window.addEventListener('keydown', _primeAudioContext, {
+        capture: true
+      });
 
       /* ============================================
          Utility
@@ -2640,6 +2839,46 @@
 
       function showErrorToast(message) {
         showToast(message, { type: 'error', icon: 'error', durationMs: 2200 });
+      }
+
+      function drawRoundedRect(ctx, x, y, w, h, r) {
+        const radius = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h - radius);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        ctx.lineTo(x + radius, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+      }
+
+      function renderTaskCountFavicon(taskCount) {
+        if (!_faviconCtx || !_faviconLink) return;
+        const count = Number.isFinite(taskCount) ? Math.max(0, Math.floor(taskCount)) : 0;
+        if (_lastFaviconBadgeCount === count) return;
+        _lastFaviconBadgeCount = count;
+
+        const size = FAVICON_SIZE;
+        const ctx = _faviconCtx;
+        ctx.clearRect(0, 0, size, size);
+
+        drawRoundedRect(ctx, 3, 3, size - 6, size - 6, 15);
+        ctx.fillStyle = count > 0 ? '#e5484d' : '#5f6a85';
+        ctx.fill();
+
+        const displayText = count > MAX_FAVICON_BADGE_COUNT ? `${MAX_FAVICON_BADGE_COUNT}+` : String(count);
+        const fontSize = displayText.length >= 3 ? 23 : displayText.length === 2 ? 30 : 40;
+        ctx.fillStyle = '#ffffff';
+        ctx.font = `800 ${fontSize}px "Noto Sans JP", sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(displayText, size / 2, size / 2 + 1);
+
+        _faviconLink.href = _faviconCanvas.toDataURL('image/png');
       }
 
       /* TEXT_NORMALIZATION_START */
@@ -2699,7 +2938,8 @@
         return _saveStoredState([
           [TODOS_KEY, JSON.stringify(todos)],
           [SETTINGS_KEY, JSON.stringify(settings)],
-          [SIDEBAR_KEY, String(isSidebarCollapsed)]
+          [SIDEBAR_KEY, String(isSidebarCollapsed)],
+          [ORGANIZE_MEMO_KEY, organizeMemo]
         ]);
       }
 
@@ -2800,6 +3040,17 @@
         };
       }
 
+      function getPendingTaskCount() {
+        const stats = getProgressStats();
+        return Math.max(0, stats.total - stats.completed);
+      }
+
+      function updateDocumentTaskIndicators() {
+        const pendingCount = getPendingTaskCount();
+        document.title = pendingCount > 0 ? `${BASE_PAGE_TITLE} (${pendingCount})` : BASE_PAGE_TITLE;
+        renderTaskCountFavicon(pendingCount);
+      }
+
       function getAnalysisStats() {
         const parents = todos.length;
         const children = todos.reduce((sum, todo) => sum + todo.subtasks.length, 0);
@@ -2866,13 +3117,12 @@
       function applySidebarState() {
         document.body.classList.toggle('sidebar-collapsed', isSidebarCollapsed);
         sidebarCollapseIcon.textContent = isSidebarCollapsed ? 'left_panel_open' : 'left_panel_close';
-        save();
       }
 
       /* ============================================
          Router (SPA / Hash)
       ============================================ */
-      const VALID_ROUTES = ['tasks', 'analysis', 'settings'];
+      const VALID_ROUTES = ['tasks', 'memo', 'analysis', 'settings'];
 
       function getRouteFromHash() {
         const hash = location.hash.replace(/^#\/?/, '');
@@ -2896,6 +3146,10 @@
         navButtons.forEach(btn => {
           btn.classList.toggle('active', btn.dataset.route === route);
         });
+
+        if (route === 'settings') {
+          renderSettings();
+        }
       }
 
       window.addEventListener('hashchange', () => {
@@ -2914,15 +3168,53 @@
       ============================================ */
       function getAudioCtx() {
         if (!audioCtx) {
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume().catch(() => {});
+          const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+          try {
+            audioCtx = new AudioContextCtor({ latencyHint: 'interactive' });
+          } catch (e) {
+            audioCtx = new AudioContextCtor();
+          }
         }
         return audioCtx;
       }
 
+      function _withRunningAudio(onReady) {
+        try {
+          const ctx = getAudioCtx();
+          const run = () => {
+            if (ctx.state !== 'running') return;
+            try {
+              onReady(ctx);
+            } catch (e) {}
+          };
+
+          if (ctx.state === 'running') {
+            run();
+            return;
+          }
+
+          ctx.resume().then(run).catch(() => {});
+        } catch (e) {}
+      }
+
+      function _primeAudioContext() {
+        _withRunningAudio((ctx) => {
+          if (_audioPrimed) return;
+          const now = ctx.currentTime + 0.0005;
+          try {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.00001, now);
+            osc.connect(gain).connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.008);
+            _audioPrimed = true;
+          } catch (e) {}
+        });
+      }
+
       function playTone({
+        ctx = getAudioCtx(),
         time,
         freq,
         dur = 0.18,
@@ -2934,7 +3226,7 @@
         releaseTail = 0.02,
         detune = 0
       }) {
-        const ctx = getAudioCtx();
+        if (!ctx || ctx.state !== 'running') return;
         const osc = ctx.createOscillator();
         const g = ctx.createGain();
         const filter = ctx.createBiquadFilter();
@@ -2956,8 +3248,9 @@
         osc.stop(time + dur + releaseTail);
       }
 
-      function playLayeredTone({ time, freq, dur = 0.2, gain = 0.08 }) {
+      function playLayeredTone({ ctx, time, freq, dur = 0.2, gain = 0.08 }) {
         playTone({
+          ctx,
           time,
           freq,
           dur,
@@ -2968,6 +3261,7 @@
         });
 
         playTone({
+          ctx,
           time,
           freq: freq * 2,
           dur: dur * 0.75,
@@ -2980,9 +3274,8 @@
 
       function playSubtaskCompleteSound() {
         if (!settings.sound) return;
-        try {
-          const ctx = getAudioCtx();
-          const now = ctx.currentTime + 0.005;
+        _withRunningAudio((ctx) => {
+          const now = ctx.currentTime + 0.002;
 
           const notes = [
             { freq: 523.25, t: 0.00, dur: 0.09, gain: 0.070 },
@@ -2992,6 +3285,7 @@
 
           notes.forEach(n => {
             playLayeredTone({
+              ctx,
               time: now + n.t,
               freq: n.freq,
               dur: n.dur,
@@ -3000,6 +3294,7 @@
           });
 
           playTone({
+            ctx,
             time: now + 0.13,
             freq: 1046.50,
             dur: 0.12,
@@ -3008,16 +3303,16 @@
             filterFreq: 5000,
             q: 0.4
           });
-        } catch (e) {}
+        });
       }
 
       function playParentCompleteSound() {
         if (!settings.sound) return;
-        try {
-          const ctx = getAudioCtx();
-          const now = ctx.currentTime + 0.005;
+        _withRunningAudio((ctx) => {
+          const now = ctx.currentTime + 0.002;
 
           playTone({
+            ctx,
             time: now,
             freq: 196.00,
             dur: 0.20,
@@ -3036,6 +3331,7 @@
 
           notes.forEach(n => {
             playLayeredTone({
+              ctx,
               time: now + n.t,
               freq: n.freq,
               dur: n.dur,
@@ -3044,6 +3340,7 @@
           });
 
           playTone({
+            ctx,
             time: now + 0.20,
             freq: 1174.66,
             dur: 0.22,
@@ -3054,6 +3351,7 @@
           });
 
           playTone({
+            ctx,
             time: now + 0.24,
             freq: 1567.98,
             dur: 0.26,
@@ -3062,16 +3360,16 @@
             filterFreq: 5400,
             q: 0.5
           });
-        } catch (e) {}
+        });
       }
 
       function playAllClearSound() {
         if (!settings.sound) return;
-        try {
-          const ctx = getAudioCtx();
-          const now = ctx.currentTime + 0.01;
+        _withRunningAudio((ctx) => {
+          const now = ctx.currentTime + 0.004;
 
           playTone({
+            ctx,
             time: now,
             freq: 261.63,
             dur: 0.26,
@@ -3090,6 +3388,7 @@
 
           notes.forEach(n => {
             playLayeredTone({
+              ctx,
               time: now + n.t,
               freq: n.freq,
               dur: n.dur,
@@ -3098,6 +3397,7 @@
           });
 
           playTone({
+            ctx,
             time: now + 0.22,
             freq: 1318.51,
             dur: 0.26,
@@ -3108,6 +3408,7 @@
           });
 
           playTone({
+            ctx,
             time: now + 0.28,
             freq: 1567.98,
             dur: 0.32,
@@ -3118,6 +3419,7 @@
           });
 
           playTone({
+            ctx,
             time: now + 0.34,
             freq: 2093.00,
             dur: 0.34,
@@ -3126,15 +3428,15 @@
             filterFreq: 6200,
             q: 0.35
           });
-        } catch (e) {}
+        });
       }
 
       function playFocusStartSound() {
         if (!settings.sound) return;
-        try {
-          const ctx = getAudioCtx();
-          const now = ctx.currentTime;
+        _withRunningAudio((ctx) => {
+          const now = ctx.currentTime + 0.001;
           playTone({
+            ctx,
             time: now,
             freq: 349.23,
             dur: 0.08,
@@ -3144,6 +3446,7 @@
             q: 0.7
           });
           playTone({
+            ctx,
             time: now + 0.05,
             freq: 523.25,
             dur: 0.1,
@@ -3152,17 +3455,17 @@
             filterFreq: 2800,
             q: 0.8
           });
-        } catch (e) {}
+        });
       }
 
       function playFocusShiftSound(mode = 'pause') {
         if (!settings.sound) return;
-        try {
-          const ctx = getAudioCtx();
-          const now = ctx.currentTime;
+        _withRunningAudio((ctx) => {
+          const now = ctx.currentTime + 0.001;
 
           if (mode === 'resume') {
             playTone({
+              ctx,
               time: now,
               freq: 392.0,
               dur: 0.07,
@@ -3171,6 +3474,7 @@
               filterFreq: 2500
             });
             playTone({
+              ctx,
               time: now + 0.05,
               freq: 587.33,
               dur: 0.09,
@@ -3182,6 +3486,7 @@
           }
 
           playTone({
+            ctx,
             time: now,
             freq: 440.0,
             dur: 0.08,
@@ -3190,6 +3495,7 @@
             filterFreq: 2200
           });
           playTone({
+            ctx,
             time: now + 0.05,
             freq: 329.63,
             dur: 0.08,
@@ -3197,16 +3503,16 @@
             type: 'sine',
             filterFreq: 2100
           });
-        } catch (e) {}
+        });
       }
 
       function playFocusAbortSound() {
         if (!settings.sound) return;
-        try {
-          const ctx = getAudioCtx();
-          const now = ctx.currentTime;
+        _withRunningAudio((ctx) => {
+          const now = ctx.currentTime + 0.001;
 
           playTone({
+            ctx,
             time: now,
             freq: 320.0,
             dur: 0.1,
@@ -3215,6 +3521,7 @@
             filterFreq: 1700
           });
           playTone({
+            ctx,
             time: now + 0.06,
             freq: 220.0,
             dur: 0.12,
@@ -3222,16 +3529,16 @@
             type: 'triangle',
             filterFreq: 1500
           });
-        } catch (e) {}
+        });
       }
 
       function playAddSound() {
         if (!settings.sound) return;
-        try {
-          const ctx = getAudioCtx();
-          const now = ctx.currentTime;
+        _withRunningAudio((ctx) => {
+          const now = ctx.currentTime + 0.001;
 
           playTone({
+            ctx,
             time: now,
             freq: 523.25,
             dur: 0.08,
@@ -3241,6 +3548,7 @@
           });
 
           playTone({
+            ctx,
             time: now + 0.04,
             freq: 659.25,
             dur: 0.10,
@@ -3248,14 +3556,13 @@
             type: 'triangle',
             filterFreq: 2800
           });
-        } catch (e) {}
+        });
       }
 
       function playDeleteSound() {
         if (!settings.sound) return;
-        try {
-          const ctx = getAudioCtx();
-          const now = ctx.currentTime;
+        _withRunningAudio((ctx) => {
+          const now = ctx.currentTime + 0.001;
 
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
@@ -3274,7 +3581,7 @@
           osc.connect(filter).connect(gain).connect(ctx.destination);
           osc.start(now);
           osc.stop(now + 0.14);
-        } catch (e) {}
+        });
       }
 
       /* ============================================
@@ -3375,8 +3682,9 @@
         const words = getMessages();
         celebrationText.textContent = customText || words[wordIndex++ % words.length];
         celebrationText.classList.remove('show');
-        void celebrationText.offsetWidth;
-        celebrationText.classList.add('show');
+        requestAnimationFrame(() => {
+          celebrationText.classList.add('show');
+        });
         setTimeout(() => celebrationText.classList.remove('show'), 1050);
       }
 
@@ -3400,17 +3708,19 @@
         }
 
         if (settings.celebration && !skipVisual) {
-          if (centerBurst) {
-            launchConfetti(window.innerWidth / 2, window.innerHeight * 0.46, burstCount);
-          } else {
-            const rect = el?.getBoundingClientRect?.();
-            if (rect) {
-              launchConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2, burstCount);
-            } else {
+          requestAnimationFrame(() => {
+            if (centerBurst) {
               launchConfetti(window.innerWidth / 2, window.innerHeight * 0.46, burstCount);
+            } else {
+              const rect = el?.getBoundingClientRect?.();
+              if (rect) {
+                launchConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2, burstCount);
+              } else {
+                launchConfetti(window.innerWidth / 2, window.innerHeight * 0.46, burstCount);
+              }
             }
-          }
-          showCelebration();
+            showCelebration();
+          });
         }
       }
 
@@ -3433,8 +3743,9 @@
         const ui = actionUiMap[action] || { icon: 'check_circle', label: '実行する' };
         if (confirmActionIcon) confirmActionIcon.textContent = ui.icon;
         if (confirmActionLabel) confirmActionLabel.textContent = ui.label;
-        confirmDeleteBtn.title = ui.label;
+        confirmDeleteBtn.title = `${ui.label} (Enter)`;
         confirmDeleteBtn.setAttribute('aria-label', ui.label);
+        confirmDeleteBtn.setAttribute('aria-keyshortcuts', 'Enter');
 
         confirmModalOverlay.classList.add('show');
         confirmModalOverlay.setAttribute('aria-hidden', 'false');
@@ -3783,7 +4094,9 @@
         focusOverlay.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('focus-open');
         focusOverlay.classList.remove('focus-paused');
+        focusPauseBtn.classList.remove('is-resume');
         if (focusTimerCaption) focusTimerCaption.textContent = '経過時間';
+        syncFocusStatusChip(false);
         if (focusState.tickerId) {
           clearInterval(focusState.tickerId);
           focusState.tickerId = null;
@@ -3804,22 +4117,39 @@
         focusTimer.textContent = formatElapsed(getElapsedMs(target.focus));
       }
 
+      function syncFocusStatusChip(paused) {
+        if (!focusStatusChip || !focusStatusIcon || !focusStatusText) return;
+        if (paused) {
+          focusStatusChip.classList.add('is-paused');
+          focusStatusIcon.textContent = 'pause_circle';
+          focusStatusText.textContent = '一時停止中';
+          return;
+        }
+        focusStatusChip.classList.remove('is-paused');
+        focusStatusIcon.textContent = 'play_circle';
+        focusStatusText.textContent = '進行中';
+      }
+
       function syncFocusPauseButton() {
         const target = getActiveFocusTarget();
         if (!target) return;
 
         if (target.focus.focusState === 'paused') {
           focusPauseIcon.textContent = 'play_circle';
-          focusPauseBtn.title = '再開';
+          focusPauseBtn.title = '再開 (Space)';
           focusPauseBtn.setAttribute('aria-label', '再開');
+          focusPauseBtn.classList.add('is-resume');
           focusOverlay.classList.add('focus-paused');
-          if (focusTimerCaption) focusTimerCaption.textContent = '一時停止中';
+          if (focusTimerCaption) focusTimerCaption.textContent = '経過時間';
+          syncFocusStatusChip(true);
         } else {
           focusPauseIcon.textContent = 'pause_circle';
-          focusPauseBtn.title = '一時停止';
+          focusPauseBtn.title = '一時停止 (Space)';
           focusPauseBtn.setAttribute('aria-label', '一時停止');
+          focusPauseBtn.classList.remove('is-resume');
           focusOverlay.classList.remove('focus-paused');
           if (focusTimerCaption) focusTimerCaption.textContent = '経過時間';
+          syncFocusStatusChip(false);
         }
       }
 
@@ -4021,15 +4351,14 @@
         syncAllParents();
         applyColorMode();
         applyThemeColor();
-        save();
+        const currentRoute = getRouteFromHash();
 
         const currentAllDone = isAllDone();
 
         renderTasks();
         renderAnalysis();
-        renderSettings();
-        renderRoute(getRouteFromHash());
-        applySidebarState();
+        renderRoute(currentRoute);
+        updateDocumentTaskIndicators();
 
         if (modalState.parentId) {
           const parent = getTodo(modalState.parentId);
@@ -4048,13 +4377,13 @@
         }
 
         if (currentAllDone && !previousAllDoneState) {
-          setTimeout(() => {
+          requestAnimationFrame(() => {
             if (settings.celebration) {
               showCelebration();
               launchConfetti(window.innerWidth / 2, window.innerHeight * 0.32, 140);
             }
             playAllClearSound();
-          }, 260);
+          });
         }
 
         previousAllDoneState = currentAllDone;
@@ -4270,6 +4599,7 @@
 
         setTimeout(() => {
           todos = todos.filter(todo => todo.id !== parentId);
+          save();
           render();
         }, li ? 220 : 0);
       }
@@ -4286,6 +4616,7 @@
         setTimeout(() => {
           parent.subtasks = parent.subtasks.filter(sub => sub.id !== subId);
           syncParentStatus(parent);
+          save();
           render();
 
           if (modalState.parentId === parentId) {
@@ -4311,12 +4642,14 @@
         });
 
         todos = nextTodos;
+        save();
         render();
       }
 
       function performClearAll() {
         if (todos.length === 0) return;
         todos = [];
+        save();
         render();
       }
 
@@ -4342,12 +4675,266 @@
         todoInput.value = '';
         todoInput.focus();
         playAddSound();
+        save();
         render();
+      }
+
+      /* ============================================
+         Keyboard Shortcuts
+      ============================================ */
+      const SHORTCUT_HELP_MESSAGE = [
+        'Alt+1 Todo',
+        'Alt+2 整理メモ',
+        'Alt+3 分析',
+        'Alt+4 設定',
+        'Alt+N タスク入力',
+        'Alt+M メッセージ入力',
+        'Alt+S サイドバー',
+        'Alt+L ライト/ダーク',
+        'Alt+Shift+C 完了削除',
+        'Alt+Shift+A 全削除',
+        '? ヘルプ',
+        '集中: Space 一時停止 Enter 完了 X 中断'
+      ].join(' / ');
+
+      function isTypingTarget(target) {
+        if (!(target instanceof HTMLElement)) return false;
+        if (target.isContentEditable) return true;
+
+        const nearestEditable = target.closest('[contenteditable="true"]');
+        if (nearestEditable) return true;
+
+        const tagName = target.tagName;
+        if (tagName === 'TEXTAREA' || tagName === 'SELECT') return true;
+        if (tagName !== 'INPUT') return false;
+
+        const type = (target.getAttribute('type') || 'text').toLowerCase();
+        return !['checkbox', 'radio', 'button', 'submit', 'reset', 'range', 'color', 'file', 'image'].includes(type);
+      }
+
+      function toggleSidebar() {
+        if (focusOverlay.classList.contains('show')) return;
+        isSidebarCollapsed = !isSidebarCollapsed;
+        applySidebarState();
+        save();
+      }
+
+      function openClearCompletedConfirm() {
+        openConfirmModal('完了済みを削除してもよろしいですか？', 'clear-completed');
+      }
+
+      function openClearAllConfirm() {
+        openConfirmModal('すべて削除してもよろしいですか？', 'clear-all');
+      }
+
+      function focusTodoInputWithRoute() {
+        navigate('tasks');
+        setTimeout(() => {
+          todoInput.focus();
+          todoInput.select();
+        }, 0);
+      }
+
+      function focusMemoInputWithRoute() {
+        navigate('memo');
+        setTimeout(() => {
+          organizeMemoInput.focus();
+        }, 0);
+      }
+
+      function focusMessageInputWithRoute() {
+        navigate('settings');
+        setTimeout(() => {
+          messageInput.focus();
+          messageInput.select();
+        }, 0);
+      }
+
+      function toggleColorModeWithShortcut() {
+        settings.colorMode = settings.colorMode === 'dark' ? 'light' : 'dark';
+        save();
+        render();
+      }
+
+      function showShortcutHelpToast() {
+        showToast(SHORTCUT_HELP_MESSAGE, { type: 'success', icon: 'keyboard', durationMs: 5600 });
+      }
+
+      function applyAriaKeyShortcuts() {
+        const navShortcutMap = {
+          tasks: 'Alt+1',
+          memo: 'Alt+2',
+          analysis: 'Alt+3',
+          settings: 'Alt+4'
+        };
+
+        navButtons.forEach((btn) => {
+          const shortcut = navShortcutMap[btn.dataset.route];
+          if (shortcut) btn.setAttribute('aria-keyshortcuts', shortcut);
+        });
+
+        todoInput.setAttribute('aria-keyshortcuts', 'Enter Alt+N');
+        messageInput.setAttribute('aria-keyshortcuts', 'Enter Alt+M');
+        organizeMemoInput.setAttribute('aria-keyshortcuts', 'Alt+2');
+        addBtn.setAttribute('aria-keyshortcuts', 'Enter');
+        clearCompletedBtn.setAttribute('aria-keyshortcuts', 'Alt+Shift+C');
+        clearAllBtn.setAttribute('aria-keyshortcuts', 'Alt+Shift+A');
+        sidebarCollapseBtn.setAttribute('aria-keyshortcuts', 'Alt+S');
+        lightModeToggle.setAttribute('aria-keyshortcuts', 'Alt+L');
+        saveParentEditBtn.setAttribute('aria-keyshortcuts', 'Meta+S Ctrl+S Meta+Enter Ctrl+Enter');
+        saveSubtaskEditBtn.setAttribute('aria-keyshortcuts', 'Meta+S Ctrl+S Meta+Enter Ctrl+Enter');
+        focusPauseBtn.setAttribute('aria-keyshortcuts', 'Space');
+        focusCompleteBtn.setAttribute('aria-keyshortcuts', 'Enter');
+        focusAbortBtn.setAttribute('aria-keyshortcuts', 'X');
+      }
+
+      function handleDocumentShortcuts(e) {
+        if (e.isComposing) return;
+
+        const key = e.key;
+        const lowerKey = key.toLowerCase();
+        const isWithMeta = e.metaKey || e.ctrlKey;
+
+        if (focusOverlay.classList.contains('show')) {
+          if ((key === ' ' || e.code === 'Space') && !e.altKey && !isWithMeta) {
+            e.preventDefault();
+            if (!e.repeat) pauseOrResumeFocus();
+            return;
+          }
+          if (key === 'Enter' && !e.altKey && !isWithMeta) {
+            e.preventDefault();
+            if (!e.repeat) completeFocus();
+            return;
+          }
+          if (lowerKey === 'x' && !e.altKey && !isWithMeta && !e.shiftKey) {
+            e.preventDefault();
+            if (!e.repeat) abortFocus();
+            return;
+          }
+          if (key === 'Escape') {
+            // 集中モード中は Esc で閉じない
+            return;
+          }
+          return;
+        }
+
+        if (key === 'Escape') {
+          if (confirmModalOverlay.classList.contains('show')) {
+            closeConfirmModal();
+            return;
+          }
+          if (parentModalOverlay.classList.contains('show')) {
+            closeParentModal();
+            return;
+          }
+          if (subtaskModalOverlay.classList.contains('show')) {
+            closeSubtaskModal();
+          }
+          return;
+        }
+
+        if (confirmModalOverlay.classList.contains('show')) {
+          if (key === 'Enter' && !e.repeat) {
+            e.preventDefault();
+            executeConfirmedAction();
+          }
+          return;
+        }
+
+        if (parentModalOverlay.classList.contains('show')) {
+          if (isWithMeta && !e.altKey && (lowerKey === 's' || key === 'Enter')) {
+            e.preventDefault();
+            saveParentEdit();
+          }
+          return;
+        }
+
+        if (subtaskModalOverlay.classList.contains('show')) {
+          if (isWithMeta && !e.altKey && (lowerKey === 's' || key === 'Enter')) {
+            e.preventDefault();
+            saveSubtaskEdit();
+          }
+          return;
+        }
+
+        const isHelpKey = key === '?' || (e.code === 'Slash' && e.shiftKey);
+        if (isHelpKey && !e.altKey && !isWithMeta && !isTypingTarget(e.target)) {
+          e.preventDefault();
+          showShortcutHelpToast();
+          return;
+        }
+
+        if (!e.altKey || isWithMeta) return;
+
+        switch (lowerKey) {
+          case '1':
+            if (e.shiftKey) return;
+            e.preventDefault();
+            navigate('tasks');
+            return;
+          case '2':
+            if (e.shiftKey) return;
+            e.preventDefault();
+            focusMemoInputWithRoute();
+            return;
+          case '3':
+            if (e.shiftKey) return;
+            e.preventDefault();
+            navigate('analysis');
+            return;
+          case '4':
+            if (e.shiftKey) return;
+            e.preventDefault();
+            navigate('settings');
+            return;
+          case 'n':
+            if (e.shiftKey) return;
+            e.preventDefault();
+            focusTodoInputWithRoute();
+            return;
+          case 'm':
+            if (e.shiftKey) return;
+            e.preventDefault();
+            focusMessageInputWithRoute();
+            return;
+          case 's':
+            if (e.shiftKey) return;
+            e.preventDefault();
+            toggleSidebar();
+            return;
+          case 'l':
+            if (e.shiftKey) return;
+            e.preventDefault();
+            toggleColorModeWithShortcut();
+            return;
+          case 'c':
+            if (!e.shiftKey) return;
+            e.preventDefault();
+            navigate('tasks');
+            openClearCompletedConfirm();
+            return;
+          case 'a':
+            if (!e.shiftKey) return;
+            e.preventDefault();
+            navigate('tasks');
+            openClearAllConfirm();
+            return;
+          default:
+            return;
+        }
       }
 
       /* ============================================
          Events
       ============================================ */
+      applyAriaKeyShortcuts();
+      organizeMemoInput.value = organizeMemo;
+
+      organizeMemoInput.addEventListener('input', () => {
+        organizeMemo = organizeMemoInput.value;
+        save();
+      });
+
       addBtn.addEventListener('click', addTodo);
 
       [
@@ -4363,15 +4950,12 @@
 
       todoInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.isComposing) {
+          e.preventDefault();
           addTodo();
         }
       });
 
-      sidebarCollapseBtn.addEventListener('click', () => {
-        if (focusOverlay.classList.contains('show')) return;
-        isSidebarCollapsed = !isSidebarCollapsed;
-        applySidebarState();
-      });
+      sidebarCollapseBtn.addEventListener('click', toggleSidebar);
 
       // Message manager
       messageSaveBtn.addEventListener('click', saveMessage);
@@ -4478,6 +5062,7 @@
           reorderSubtasksInModal(modalDragState.parentId, modalDragState.subId, row.dataset.subId, position);
           const parent = getTodo(modalDragState.parentId);
           if (parent) renderParentModalSubtasks(parent);
+          save();
           render();
         }
 
@@ -4666,6 +5251,7 @@
           if (targetParent && targetParent.dataset.id !== dragState.id) {
             const position = getDropPosition(targetParent, e.clientY);
             reorderParents(dragState.id, targetParent.dataset.id, position);
+            save();
             render();
           }
           clearDragState();
@@ -4685,6 +5271,7 @@
               targetSub.dataset.subId,
               position
             );
+            save();
             render();
             clearDragState();
             return;
@@ -4698,6 +5285,7 @@
               null,
               'after'
             );
+            save();
             render();
             clearDragState();
           }
@@ -4711,13 +5299,9 @@
         }
       });
 
-      $('#clearCompletedBtn').addEventListener('click', () => {
-        openConfirmModal('完了済みを削除してもよろしいですか？', 'clear-completed');
-      });
+      clearCompletedBtn.addEventListener('click', openClearCompletedConfirm);
 
-      $('#clearAllBtn').addEventListener('click', () => {
-        openConfirmModal('すべて削除してもよろしいですか？', 'clear-all');
-      });
+      clearAllBtn.addEventListener('click', openClearAllConfirm);
 
       lightModeToggle.addEventListener('change', () => {
         settings.colorMode = lightModeToggle.checked ? 'light' : 'dark';
@@ -4749,26 +5333,7 @@
         save();
       });
 
-      document.addEventListener('keydown', (e) => {
-        if (e.key !== 'Escape') return;
-
-        if (focusOverlay.classList.contains('show')) {
-          // 集中モード中は Esc で閉じない
-          return;
-        }
-
-        if (confirmModalOverlay.classList.contains('show')) {
-          closeConfirmModal();
-          return;
-        }
-        if (parentModalOverlay.classList.contains('show')) {
-          closeParentModal();
-          return;
-        }
-        if (subtaskModalOverlay.classList.contains('show')) {
-          closeSubtaskModal();
-        }
-      });
+      document.addEventListener('keydown', handleDocumentShortcuts);
 
       /* ============================================
          Init

@@ -307,6 +307,20 @@ a {
   display: none;
 }
 
+.collapsed .sidebar-brand {
+  display: none;
+}
+
+.collapsed .sidebar-header {
+  justify-content: center;
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
+}
+
+.collapsed .sidebar-toggle-btn {
+  margin-inline: auto;
+}
+
 .sidebar-toggle-btn {
   width: 28px;
   height: 28px;
@@ -1601,8 +1615,6 @@ a {
    Pure Vanilla JS, Zero Dependencies
    ============================================================ */
 (function() {
-  'use strict';
-
   // ————————————————————————————————————————————
   // State
   // ————————————————————————————————————————————
