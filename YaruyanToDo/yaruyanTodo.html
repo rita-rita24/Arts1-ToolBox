@@ -1348,6 +1348,7 @@
         0 0 0 1px var(--modal-outline);
       overflow: hidden;
       display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
       max-height: min(88vh, 760px);
     }
 
@@ -1401,6 +1402,7 @@
       padding: 1.05rem;
       display: grid;
       gap: 0.95rem;
+      min-height: 0;
       overflow: auto;
     }
 
@@ -1438,7 +1440,7 @@
     .modal-subtask-row {
       position: relative;
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: auto minmax(0, 1fr) auto;
       align-items: center;
       gap: 0.55rem;
       border: 1px solid var(--line);
@@ -3844,7 +3846,7 @@
 
       function editMessage(index) {
         const messages = getMessages();
-        if (messages[index] == null) return;
+        if (!Number.isInteger(index) || index < 0 || index >= messages.length) return;
         messageEditorState.editIndex = index;
         messageInput.value = messages[index];
         updateMessageEditorMode();
@@ -3853,10 +3855,13 @@
 
       function deleteMessage(index) {
         if (settings.messages.length <= 1) return;
+        if (!Number.isInteger(index) || index < 0 || index >= settings.messages.length) return;
         settings.messages.splice(index, 1);
         if (messageEditorState.editIndex === index) {
           messageEditorState.editIndex = null;
           messageInput.value = '';
+        } else if (messageEditorState.editIndex !== null && messageEditorState.editIndex > index) {
+          messageEditorState.editIndex -= 1;
         }
         save();
         renderMessages();
@@ -4303,10 +4308,6 @@
           insertIndex = position === 'before' ? targetIndex : targetIndex + 1;
         }
 
-        if (fromParent === toParent && fromIndex < insertIndex) {
-          insertIndex -= 1;
-        }
-
         toParent.subtasks.splice(insertIndex, 0, movingSubtask);
 
         syncParentStatus(fromParent);
@@ -4318,14 +4319,19 @@
         if (!parent) return;
 
         const fromIndex = parent.subtasks.findIndex(sub => sub.id === dragSubId);
-        const targetIndex = parent.subtasks.findIndex(sub => sub.id === targetSubId);
-        if (fromIndex < 0 || targetIndex < 0 || dragSubId === targetSubId) return;
+        if (fromIndex < 0) return;
 
-        let toIndex = targetIndex;
-        if (position === 'after') {
-          toIndex = targetIndex + (fromIndex < targetIndex ? 0 : 1);
-        } else {
-          toIndex = targetIndex - (fromIndex < targetIndex ? 1 : 0);
+        let toIndex = parent.subtasks.length;
+        if (targetSubId) {
+          const targetIndex = parent.subtasks.findIndex(sub => sub.id === targetSubId);
+          if (targetIndex < 0 || dragSubId === targetSubId) return;
+
+          toIndex = targetIndex;
+          if (position === 'after') {
+            toIndex = targetIndex + (fromIndex < targetIndex ? 0 : 1);
+          } else {
+            toIndex = targetIndex - (fromIndex < targetIndex ? 1 : 0);
+          }
         }
 
         parent.subtasks = moveArrayItem(parent.subtasks, fromIndex, toIndex);
@@ -4631,11 +4637,13 @@
         todos.forEach(todo => {
           if (hasSubtasks(todo)) {
             const remainingSubtasks = todo.subtasks.filter(sub => !sub.done);
-            nextTodos.push({
-              ...todo,
-              subtasks: remainingSubtasks,
-              done: false
-            });
+            if (remainingSubtasks.length > 0) {
+              nextTodos.push({
+                ...todo,
+                subtasks: remainingSubtasks,
+                done: false
+              });
+            }
           } else if (!todo.done) {
             nextTodos.push(todo);
           }
@@ -5057,9 +5065,17 @@
         e.preventDefault();
 
         const row = e.target.closest('.modal-subtask-row');
+        const targetList = e.target.closest('.modal-subtask-list');
+
         if (row && row.dataset.subId !== modalDragState.subId) {
           const position = getDropPosition(row, e.clientY);
           reorderSubtasksInModal(modalDragState.parentId, modalDragState.subId, row.dataset.subId, position);
+          const parent = getTodo(modalDragState.parentId);
+          if (parent) renderParentModalSubtasks(parent);
+          save();
+          render();
+        } else if (targetList) {
+          reorderSubtasksInModal(modalDragState.parentId, modalDragState.subId, null, 'after');
           const parent = getTodo(modalDragState.parentId);
           if (parent) renderParentModalSubtasks(parent);
           save();
