@@ -99,6 +99,12 @@ The border system is particularly distinctive -- Cursor uses `oklab()` color spa
 - **Three typographic voices**: Gothic (display/UI), serif (editorial/body), mono (code/technical). Each serves a distinct communication purpose.
 - **Weight restraint**: CursorGothic uses weight 400 almost exclusively, relying on size and tracking for hierarchy rather than weight. System-ui components use 500-700 for functional emphasis.
 
+### Tool UI Adaptation
+- This file mixes Cursor's expressive marketing typography with its tighter product language. For app shells, editors, dashboards, and utility screens, do not promote the display scale into the default UI text.
+- Prefer the compact system-facing sizes as the baseline: `14px` body text and primary controls, `13px` labels and secondary controls, `12px` metadata and code-adjacent microcopy when density matters.
+- Keep workspace headings, panel titles, and inspector labels mostly in the `18px`-`24px` band. Reserve `26px+` CursorGothic display treatment for hero states, empty-state callouts, or explicit showcase surfaces.
+- In tool UI, borrow Cursor's warmth, border treatment, and font-role split first. The large compressed headings in this document are reference accents, not the starting point for every screen.
+
 ## 4. Component Stylings
 
 ### Buttons

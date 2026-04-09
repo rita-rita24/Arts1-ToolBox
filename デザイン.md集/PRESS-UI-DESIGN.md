@@ -74,6 +74,12 @@ Typography is similarly blunt and functional. System sans-serif is used througho
 - **Minimal scale range**: PRESS UI does not need a large type ramp. It works best when a small set of sizes is repeated consistently.
 - **Typographic controls**: Icon buttons are treated as typographic objects just as much as interactive controls.
 
+### Tool UI Adaptation
+- PRESS UI is already more tool-oriented than the landing-page systems above, but its title and button examples still skew larger than a dense SaaS workspace.
+- For tool-heavy screens, use `14px` as the default for body text, inputs, and primary controls. Drop to `13px` for labels, utility rows, and compact filters, and use `12px` only for tertiary metadata.
+- Keep section titles and modal headings in the `18px`-`22px` range unless the screen is intentionally poster-like. Avoid repeating `17px` button sizing across every compact toolbar or table action.
+- Carry forward the hard shell, contrast, and spacing rhythm first. Treat the louder typography in this file as a stylistic ceiling, not the minimum app baseline.
+
 ## 4. Component Stylings
 
 ### Form Card

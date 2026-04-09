@@ -87,6 +87,12 @@ The color story is starkly binary. Product sections alternate between pure black
 - **Negative tracking at all sizes**: Unlike most systems that only track headlines, Apple applies subtle negative letter-spacing even at body sizes (-0.374px at 17px, -0.224px at 14px, -0.12px at 12px). This creates universally tight, efficient text.
 - **Extreme line-height range**: Headlines compress to 1.07 while body text opens to 1.47, and some button contexts stretch to 2.41. This dramatic range creates clear visual hierarchy through rhythm alone.
 
+### Tool UI Adaptation
+- This document captures Apple's brand language across marketing pages and product storytelling surfaces. Do not copy the hero scale directly into dense SaaS or dashboard screens.
+- For tool UIs, default to SF Pro Text and keep the working scale compact: `14px` body/input/table text, `13px` labels and secondary controls, `12px` metadata, badges, and helper text.
+- Keep panel, modal, and section titles in the `18px`-`24px` range. Reserve `28px+` display sizes for landing-page heroes, major empty states, or explicit showcase moments only.
+- When adapting Apple to a tool, carry over the color discipline, spacing, radii, and calm hierarchy first. Treat the large display sizes in this file as brand-expression references, not default app-shell sizes.
+
 ## 4. Component Stylings
 
 ### Buttons

@@ -1,62 +1,51 @@
-# AGENTS.md
+# Yaruyan! Todo
 
-## Repo overview
-This repository contains multiple single-file HTML business tools.
-Each tool lives in its own subdirectory.
-Prioritize small, safe, high-confidence changes.
+ローカル保存だけで動く、1ファイル完結のTodoツールです。
+日々の「着手→完了→振り返り」を、軽い操作で回すことに特化しています。
 
-## Common rules
-- Keep each tool self-contained in its own folder.
-- Do not move files across tools unless explicitly requested.
-- Do not add a build step unless explicitly requested.
-- Prefer local-first behavior.
-- Do not add telemetry or external network calls unless explicitly requested.
+## 誰向けか
+- 社内PCの制約でアプリ導入しづらい人
+- タスクを「親/子」で分けて進捗を見たい人
+- まずは無料で即運用し、必要なら運用価値を拡張したい人
 
-## Verification
-Before finishing work:
-1. Only modify the target tool directory unless explicitly requested.
-2. Confirm the target tool opens without console errors.
-3. Update that tool's README.md if behavior changed.
+## 3分クイックスタート
+1. `yaruyanTodo.html` をブラウザで開く
+2. Todoリストで親タスクを追加する
+3. 親タスクを編集して子タスクを追加する
+4. 必要に応じて「集中モード」で実績時間を記録する
+5. 設定で言語（日本語/英語）や演出を切り替える
 
-## CSS Rules
-- Use CSS layers in this order: `reset -> base -> component -> utility`.
-- Do not write styles outside declared layers.
-- Use CSS nesting when possible.
-- Use `oklch` for color definitions.
-- Do not import external reset CSS.
+## このツールで得られる価値
+- 1画面で全体像を把握: 親タスクと子タスクを同時に管理
+- 迷わない順序調整: D&Dに加えて「上へ/下へ」ボタンでも並び替え可能
+- 誤操作を減らす: 削除確認に対象名を表示
+- キーボード操作しやすい: モーダルのフォーカストラップ/復帰先管理に対応
+- 継続しやすい: 整理メモをローカル保存（入力ごとの過剰保存を抑制）
 
-## JavaScript Rules
-- Prefer JavaScript-based color scheme control.
-- Control color mode via `document.documentElement.style.colorScheme`.
-- Keep behavior deterministic and easy to maintain.
-- Do not introduce unnecessary dependencies.
-- Write code that works in a single-file HTML environment when possible.
+## 制約環境で使いやすい理由
+- 外部サービス連携なし（ローカル完結）
+- ビルド不要（単一HTML）
+- 通信不要で基本機能を利用可能
 
-## DOM Helper Rules
-- Use the following DOM helper functions for element selection:
-  - `const qs = (sel, root = document) => root.querySelector(sel);`
-  - `const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];`
+## 無料版と有料版を検討する際の目安
+- 無料版（このHTML）:
+  日次のタスク整理、進捗確認、集中時間の記録をすぐ始められる
+- 有料版で拡張しやすい価値（検討軸）:
+  バックアップ/復元、運用テンプレート、長期継続の安心機能
 
-## Naming Rules
-- Prefix DOM element variables with `$`.
-  - Example: `$button`, `$modal`, `$input`
-- Prefix private/internal variables, methods, or fields with `_`.
-  - Example: `_state`, `_render()`
-- Write constants in `UPPER_SNAKE_CASE`.
-  - Example: `MAX_ITEMS`, `DEFAULT_DELAY`
-
-## Event Rules
-- Prefer event delegation over direct event binding.
-- Direct binding is allowed only for:
-  - toolbar buttons
-  - other static controls
-
-## Implementation Notes
-- Keep CSS and JavaScript consistent with the repository rules.
-- Do not introduce alternative naming styles unless already required by existing code.
-- Prefer consistency over personal style.
+## 保存について
+- Todo/設定/整理メモはブラウザの `localStorage` に保存されます
+- ブラウザの保存領域を消すとデータも消えます
+- 共有端末では利用後のデータ取り扱いに注意してください
 
 ## Change Log
+- 2026-04-09: `REPORT.md` 反映。①モーダル（親編集/子編集/確認/集中）にフォーカストラップと閉鎖後フォーカス復帰を追加。②整理メモの保存をデバウンス化し、`blur`/`pagehide`/`visibilitychange(hidden)` で確実保存。③README冒頭を利用者向け構成へ再設計。
+- 2026-04-08: バグ/仕様修正を実施。①D&Dで同一行へドロップした際に末尾へ移動してしまう不具合を修正（同一対象ドロップは無処理化）。②親/子タスク削除確認に対象名（先頭20文字）を表示し、誤操作防止を強化。③スタイルを `@layer` 化し、`reset -> base -> component -> utility` の順序で管理する構成へ変更。
+- 2026-04-07: 整理メモのプレースホルダー表示を廃止。初期表示時および言語切替時にプレースホルダーが再付与されないよう調整。
+- 2026-04-07: 設定の情報設計を調整。見た目に関する設定を先に見られるよう、`テーマカラー` カードを設定セクション最上段へ移動。
+- 2026-04-07: 設定画面のレイアウトを改善。デスクトップ表示で設定項目（効果音/お祝い演出/言語など）を2列グリッド化し、閲覧と切り替え操作の視線移動を短縮。テーマカラー/完了メッセージのカードは可読性維持のため全幅表示を維持し、`900px` 以下は1列へ自動切替するレスポンシブ構成に変更。
+- 2026-04-07: `REPORT.md` の最優先バグ（`uid()` の `crypto` 参照）を修正。`globalThis.crypto?.randomUUID?.()` を使用するよう変更し、`crypto` 未定義環境でも `ReferenceError` で起動失敗しないようにした。
+- 2026-04-07: 多言語対応（日本語/英語）を追加。設定に言語切替セレクタを新設し、ナビゲーション・各ページ見出し・設定項目・モーダル・ボタン/ツールチップ・確認ダイアログ・ショートカットヘルプ・エラートーストなど主要UI文言を切り替え可能にした。あわせて選択言語を `settings` に保存し、初期完了メッセージも言語に応じて扱えるよう改善。
 - 2026-04-07: `REPORT.md` のバグ3件を修正。①`完了済みを削除` 実行時に「子タスク全完了の親」が空状態で残る回帰を修正。②親編集モーダル内の子タスクD&Dで、リスト末尾（行外）へのドロップでも並び替えが反映されるよう修正。③メッセージ編集/削除の index 検証を追加し、不正値（NaN など）で先頭メッセージが誤削除される不具合を防止。
 - 2026-04-06: 全体点検で3件修正。①同一親内の子タスクD&Dで下方向移動時に並び順が1つ手前へずれる不具合を修正。②メッセージ編集中に別メッセージを削除した際の編集インデックスずれを補正。③親タスク編集モーダル内の子タスク行レイアウトを3列（ドラッグ/本文/操作）へ修正し、操作ボタンの崩れを改善。
 - 2026-04-06: 親タスク編集モーダルの子タスクが増えた際に、本文がスクロールせずフッターボタンが隠れる不具合を修正。モーダルを `header / scrollable body / footer` の3行レイアウトにし、本文領域をスクロール可能に調整。

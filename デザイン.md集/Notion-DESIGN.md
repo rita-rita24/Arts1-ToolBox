@@ -88,6 +88,12 @@ What makes Notion's visual language distinctive is its border philosophy. Rather
 - **Warm scaling**: Line height tightens as size increases -- 1.50 at body (16px), 1.23-1.27 at sub-headings, 1.00-1.04 at display. This creates denser, more impactful headlines.
 - **Badge micro-tracking**: The 12px badge text uses positive letter-spacing (0.125px) -- the only positive tracking in the system, creating wider, more legible small text.
 
+### Tool UI Adaptation
+- This document includes Notion's marketing and showcase typography. For actual workspace UI, dense settings screens, document tools, or SaaS dashboards, do not treat the display rows above as the default interface scale.
+- Use a compact product baseline instead: `14px` for body, inputs, tables, and most controls; `13px` for labels, utility text, and compact navigation; `12px` for badges, timestamps, and metadata.
+- Keep page, panel, and modal titles mostly within `18px`-`24px`. Reserve `26px+` type for landing-page sections, major empty states, or deliberately promotional moments.
+- When applying Notion to a tool, preserve the neutral palette, subtle borders, and disciplined spacing first. The hero sizes are for brand expression, not for day-to-day app chrome.
+
 ## 4. Component Stylings
 
 ### Buttons

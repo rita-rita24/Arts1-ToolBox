@@ -91,6 +91,12 @@ What makes Claude's design truly distinctive is its warm neutral palette. Every 
 - **Tight-but-not-compressed headings**: Line-heights of 1.10–1.30 for headings are tight but never claustrophobic. The serif letterforms need breathing room that sans-serif fonts don't.
 - **Micro letter-spacing on labels**: Small sans text (12px and below) uses deliberate letter-spacing (0.12px–0.5px) to maintain readability at tiny sizes.
 
+### Tool UI Adaptation
+- This document includes Claude's editorial and landing-page scale. For SaaS screens, workspaces, settings, and productivity tools, do not use the hero serif sizes as the default interface baseline.
+- In dense tool UI, let Anthropic Sans do most of the work: `14px` for body, inputs, lists, and table content; `13px` for labels, tabs, and compact controls; `12px` for helper text, metadata, and badges.
+- Keep feature, panel, and modal titles around `18px`-`24px`. Reserve serif headings above that range for marketing sections, onboarding splashes, or intentional editorial moments.
+- When translating Claude into a tool, preserve the warm palette, soft borders, and calm spacing first. The large type in this file is a brand reference, not a blanket size prescription.
+
 ## 4. Component Stylings
 
 ### Buttons

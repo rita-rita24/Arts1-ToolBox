@@ -16,6 +16,23 @@
   />
 
   <style>
+    @layer reset, base, component, utility;
+
+    @layer reset {
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+    }
+
+    @layer base {
     :root {
       color-scheme: light;
       interpolate-size: allow-keywords;
@@ -207,18 +224,6 @@
       --celeb: light-dark(oklch(0.654 0.06 65.88), oklch(0.7 0.05 63.88));
     }
 
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-    }
-
     html {
       font-size: 14px;
     }
@@ -260,7 +265,9 @@
       user-select: none;
       pointer-events: none;
     }
+    }
 
+    @layer component {
     .shell {
       min-height: 100vh;
       display: grid;
@@ -1049,7 +1056,12 @@
     ========================= */
     .setting-list {
       display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 0.7rem;
+    }
+
+    .setting-list > .card {
+      grid-column: 1 / -1;
     }
 
     .setting-item {
@@ -1927,6 +1939,10 @@
         grid-template-columns: 1fr;
       }
 
+      .setting-list {
+        grid-template-columns: 1fr;
+      }
+
       .sidebar {
         position: static;
         height: auto;
@@ -2060,6 +2076,11 @@
         animation: none;
       }
     }
+
+    }
+
+    @layer utility {
+    }
   </style>
 </head>
 <body>
@@ -2067,7 +2088,7 @@
     <aside class="sidebar">
       <div class="sidebar-top">
         <div class="brand">
-          <div class="brand-title">やるやん！Todo</div>
+          <div class="brand-title" id="brandTitle">やるやん！Todo</div>
         </div>
 
         <button class="icon-btn sidebar-collapse-btn" id="sidebarCollapseBtn" title="サイドバー折りたたみ" aria-label="サイドバー折りたたみ">
@@ -2075,7 +2096,7 @@
         </button>
       </div>
 
-      <nav class="nav" aria-label="ナビゲーション">
+      <nav class="nav" id="mainNav" aria-label="ナビゲーション">
         <button class="nav-btn" data-route="tasks" title="Todoリスト" aria-label="Todoリスト">
           <span class="nav-icon"><span class="material-symbols-outlined">checklist</span></span>
           <span class="nav-label">Todoリスト</span>
@@ -2100,7 +2121,7 @@
         <!-- Tasks -->
         <section class="page" id="page-tasks">
           <div class="hero">
-            <h1>Todoリスト</h1>
+            <h1 id="pageTitleTasks">Todoリスト</h1>
 
             <div class="progress-mini" id="progressMini">
               <span class="material-symbols-outlined">percent</span>
@@ -2126,7 +2147,7 @@
 
           <div class="card empty" id="emptyState">
             <span class="material-symbols-outlined">task_alt</span>
-            <div style="font-weight: 800;">まだ何もないよ</div>
+            <div id="emptyStateText" style="font-weight: 800;">まだ何もないよ</div>
           </div>
 
           <div class="row" id="footerActions" style="display:none;">
@@ -2142,14 +2163,13 @@
         <!-- Memo -->
         <section class="page" id="page-memo">
           <div class="hero">
-            <h1>整理メモ</h1>
+            <h1 id="pageTitleMemo">整理メモ</h1>
           </div>
 
           <div class="card">
             <textarea
               id="organizeMemoInput"
               class="text-input"
-              placeholder="考えの整理や、あとでやることの下書きに使ってください"
               rows="16"
               style="width:100%; min-height: 22rem; resize: vertical; line-height: 1.65;"
             ></textarea>
@@ -2159,28 +2179,28 @@
         <!-- Analysis -->
         <section class="page" id="page-analysis">
           <div class="hero">
-            <h1>分析</h1>
+            <h1 id="pageTitleAnalysis">分析</h1>
           </div>
 
           <div class="stats">
             <div class="stat">
-              <div class="stat-label">親タスク数</div>
+              <div class="stat-label" id="statLabelParents">親タスク数</div>
               <div class="stat-value" id="statParents">0</div>
             </div>
             <div class="stat">
-              <div class="stat-label">子タスク数</div>
+              <div class="stat-label" id="statLabelChildren">子タスク数</div>
               <div class="stat-value" id="statChildren">0</div>
             </div>
             <div class="stat">
-              <div class="stat-label">完了済み項目</div>
+              <div class="stat-label" id="statLabelCompleted">完了済み項目</div>
               <div class="stat-value" id="statCompleted">0</div>
             </div>
             <div class="stat">
-              <div class="stat-label">未完了項目</div>
+              <div class="stat-label" id="statLabelRemaining">未完了項目</div>
               <div class="stat-value" id="statRemaining">0</div>
             </div>
             <div class="stat" style="grid-column:1 / -1;">
-              <div class="stat-label">完了率</div>
+              <div class="stat-label" id="statLabelRate">完了率</div>
               <div class="stat-value" id="statRate">0%</div>
             </div>
           </div>
@@ -2189,13 +2209,18 @@
         <!-- Settings -->
         <section class="page" id="page-settings">
           <div class="hero">
-            <h1>設定</h1>
+            <h1 id="pageTitleSettings">設定</h1>
           </div>
 
           <div class="setting-list">
+            <div class="card">
+              <h2 id="settingsThemeTitle">テーマカラー</h2>
+              <div class="theme-grid" id="themeColorGrid" role="radiogroup" aria-label="テーマカラー"></div>
+            </div>
+
             <div class="setting-item">
               <div class="setting-meta">
-                <div class="setting-title">ライト/ダークモード切り替え</div>
+                <div class="setting-title" id="settingTitleColorMode">ライト/ダークモード切り替え</div>
               </div>
               <label class="switch" for="lightModeToggle">
                 <input checked id="lightModeToggle" type="checkbox" aria-label="ライト/ダークモード切り替え" />
@@ -2214,27 +2239,29 @@
               </label>
             </div>
 
-            <div class="card">
-              <h2>テーマカラー</h2>
-              <div class="theme-grid" id="themeColorGrid" role="radiogroup" aria-label="テーマカラー"></div>
+            <div class="setting-item">
+              <div class="setting-meta">
+                <div class="setting-title" id="settingTitleLanguage">言語</div>
+              </div>
+              <select id="languageSelect" class="text-input" aria-label="言語" style="width:min(13rem, 100%);"></select>
             </div>
 
             <div class="setting-item">
               <div class="setting-meta">
-                <div class="setting-title">効果音</div>
+                <div class="setting-title" id="settingTitleSound">効果音</div>
               </div>
               <input id="soundToggle" class="toggle" type="checkbox">
             </div>
 
             <div class="setting-item">
               <div class="setting-meta">
-                <div class="setting-title">お祝い演出</div>
+                <div class="setting-title" id="settingTitleCelebration">お祝い演出</div>
               </div>
               <input id="celebrationToggle" class="toggle" type="checkbox">
             </div>
 
             <div class="card">
-              <h2>完了メッセージ</h2>
+              <h2 id="completionMessageTitle">完了メッセージ</h2>
 
               <div class="message-manager">
                 <div class="message-row">
@@ -2270,7 +2297,7 @@
         <div class="modal-section">
           <label class="modal-label" for="parentEditInput">
             <span class="material-symbols-outlined">title</span>
-            親タスク名
+            <span id="parentEditLabelText">親タスク名</span>
           </label>
           <input id="parentEditInput" class="text-input" type="text" placeholder="親タスク名を入力">
         </div>
@@ -2278,7 +2305,7 @@
         <div class="modal-section">
           <label class="modal-label" for="modalSubtaskInput">
             <span class="material-symbols-outlined">subdirectory_arrow_right</span>
-            子タスクを追加
+            <span id="modalSubtaskAddLabelText">子タスクを追加</span>
           </label>
           <div class="row">
             <input id="modalSubtaskInput" class="text-input" type="text" placeholder="子タスクを入力">
@@ -2291,7 +2318,7 @@
         <div class="modal-section">
           <div class="modal-label">
             <span class="material-symbols-outlined">drag_indicator</span>
-            子タスク一覧
+            <span id="modalSubtaskListLabelText">子タスク一覧</span>
           </div>
           <div class="modal-subtask-list" id="modalSubtaskList"></div>
         </div>
@@ -2300,11 +2327,11 @@
       <div class="modal-footer">
         <button class="icon-btn" id="cancelParentEditBtn" title="キャンセル" aria-label="キャンセル">
           <span class="material-symbols-outlined">close</span>
-          <span>キャンセル</span>
+          <span id="cancelParentEditText">キャンセル</span>
         </button>
         <button class="icon-btn" id="saveParentEditBtn" title="保存" aria-label="保存">
           <span class="material-symbols-outlined">save</span>
-          <span>保存</span>
+          <span id="saveParentEditText">保存</span>
         </button>
       </div>
     </div>
@@ -2327,7 +2354,7 @@
         <div class="modal-section">
           <label class="modal-label" for="subtaskEditInput">
             <span class="material-symbols-outlined">title</span>
-            子タスク名
+            <span id="subtaskEditLabelText">子タスク名</span>
           </label>
           <input id="subtaskEditInput" class="text-input" type="text" placeholder="子タスク名を入力">
         </div>
@@ -2336,11 +2363,11 @@
       <div class="modal-footer">
         <button class="icon-btn" id="cancelSubtaskEditBtn" title="キャンセル" aria-label="キャンセル">
           <span class="material-symbols-outlined">close</span>
-          <span>キャンセル</span>
+          <span id="cancelSubtaskEditText">キャンセル</span>
         </button>
         <button class="icon-btn" id="saveSubtaskEditBtn" title="保存" aria-label="保存">
           <span class="material-symbols-outlined">save</span>
-          <span>保存</span>
+          <span id="saveSubtaskEditText">保存</span>
         </button>
       </div>
     </div>
@@ -2366,7 +2393,7 @@
       <div class="modal-footer">
         <button class="icon-btn" id="cancelConfirmBtn" title="キャンセル" aria-label="キャンセル">
           <span class="material-symbols-outlined">close</span>
-          <span>キャンセル</span>
+          <span id="cancelConfirmText">キャンセル</span>
         </button>
         <button class="icon-btn danger confirm-action-btn" id="confirmDeleteBtn" title="実行" aria-label="実行">
           <span class="material-symbols-outlined" id="confirmActionIcon">delete_forever</span>
@@ -2431,13 +2458,24 @@
       const SETTINGS_KEY = 'yatta-spa-settings-v8';
       const SIDEBAR_KEY = 'yatta-spa-sidebar-collapsed-v3';
       const ORGANIZE_MEMO_KEY = 'yatta-spa-organize-memo-v1';
-      const STORAGE_WARNING_MESSAGE = 'ブラウザ保存に失敗したため、この端末では変更内容が保持されない場合があります。';
-      const BASE_PAGE_TITLE = document.title || 'やるやん！Todo';
+      const DEFAULT_LANGUAGE = 'ja';
+      const LANGUAGE_IDS = new Set(['ja', 'en']);
+      const BASE_PAGE_TITLE_FALLBACK = document.title || 'Yaruyan! Todo';
       const MAX_TODO_TEXT_LENGTH = 120;
       const MAX_SUBTASK_TEXT_LENGTH = 120;
       const MAX_MESSAGE_TEXT_LENGTH = 80;
+      const MAX_CONFIRM_TARGET_LABEL_LENGTH = 20;
       const FAVICON_SIZE = 64;
       const MAX_FAVICON_BADGE_COUNT = 99;
+      const ORGANIZE_MEMO_SAVE_DEBOUNCE_MS = 420;
+      const FOCUSABLE_SELECTOR = [
+        'button:not([disabled])',
+        '[href]',
+        'input:not([disabled]):not([type="hidden"])',
+        'select:not([disabled])',
+        'textarea:not([disabled])',
+        '[tabindex]:not([tabindex="-1"])'
+      ].join(', ');
 
       let _storageWarningEl = null;
       let _storageWarningReason = '';
@@ -2570,7 +2608,7 @@
         }
 
         const suffix = _storageWarningReason ? ` (${_storageWarningReason})` : '';
-        warningEl.textContent = `${STORAGE_WARNING_MESSAGE}${suffix}`;
+        warningEl.textContent = `${t('storage.warning')}${suffix}`;
         warningEl.hidden = false;
       }
 
@@ -2630,21 +2668,26 @@
       /* ============================================
          State
       ============================================ */
-      const defaultMessages = ['やるやん！', 'すごい！', 'えらい！', 'ナイス！', 'かんぺき！', 'さすが！', 'グッジョブ！', 'いいね！', 'てんさい！'];
+      const DEFAULT_MESSAGES_BY_LANG = {
+        ja: ['やるやん！', 'すごい！', 'えらい！', 'ナイス！', 'かんぺき！', 'さすが！', 'グッジョブ！', 'いいね！', 'てんさい！'],
+        en: ['Nice!', 'Great!', 'Awesome!', 'Well done!', 'Perfect!', 'Excellent!', 'Good job!', 'Love it!', 'Brilliant!']
+      };
       const THEME_PRESETS = [
-        { id: 'ocean', label: 'オーシャン', swatch: '#2ea9df' },
-        { id: 'emerald', label: 'エメラルド', swatch: '#68be8d' },
-        { id: 'amber', label: 'アンバー', swatch: '#f8b500' },
-        { id: 'sunset', label: 'サンセット', swatch: '#f596aa' },
-        { id: 'rose', label: 'ローズ', swatch: '#b7282e' },
-        { id: 'indigo', label: 'インディゴ', swatch: '#bbbcde' },
-        { id: 'cyan', label: 'シアン', swatch: '#00a3af' },
-        { id: 'slate', label: 'スレート', swatch: '#a86f4c' }
+        { id: 'ocean', swatch: '#2ea9df' },
+        { id: 'emerald', swatch: '#68be8d' },
+        { id: 'amber', swatch: '#f8b500' },
+        { id: 'sunset', swatch: '#f596aa' },
+        { id: 'rose', swatch: '#b7282e' },
+        { id: 'indigo', swatch: '#bbbcde' },
+        { id: 'cyan', swatch: '#00a3af' },
+        { id: 'slate', swatch: '#a86f4c' }
       ];
       const THEME_IDS = new Set(THEME_PRESETS.map(theme => theme.id));
 
+      let currentLanguage = DEFAULT_LANGUAGE;
       let todos = normalizeTodos(_readStoredJson(TODOS_KEY, [], Array.isArray));
       let settings = loadSettings();
+      currentLanguage = settings.language;
       let audioCtx = null;
       let _audioPrimed = false;
       let previousAllDoneState = false;
@@ -2677,6 +2720,211 @@
       let dragState = null;
       let modalDragState = null;
       let toastHideTimerId = null;
+      let organizeMemoSaveTimerId = null;
+      let isOrganizeMemoDirty = false;
+      const modalFocusStateMap = new WeakMap();
+      const openModalStack = [];
+
+      const I18N = {
+        ja: {
+          'app.title': 'やるやん！Todo',
+          'nav.aria': 'ナビゲーション',
+          'nav.tasks': 'Todoリスト',
+          'nav.memo': '整理メモ',
+          'nav.analysis': '分析',
+          'nav.settings': '設定',
+          'sidebar.toggle': 'サイドバー折りたたみ',
+          'tasks.title': 'Todoリスト',
+          'tasks.progress': '達成率 {pct}%',
+          'tasks.count': '{count}件',
+          'tasks.empty': 'まだ何もないよ',
+          'tasks.input.placeholder': 'やることを書いてね',
+          'tasks.addParent': '親タスク追加',
+          'tasks.clearCompleted': '完了済みを削除',
+          'tasks.clearAll': 'すべて削除',
+          'memo.title': '整理メモ',
+          'memo.placeholder': '考えの整理や、あとでやることの下書きに使ってください',
+          'analysis.title': '分析',
+          'analysis.parents': '親タスク数',
+          'analysis.children': '子タスク数',
+          'analysis.completed': '完了済み項目',
+          'analysis.remaining': '未完了項目',
+          'analysis.rate': '完了率',
+          'settings.title': '設定',
+          'settings.colorMode': 'ライト/ダークモード切り替え',
+          'settings.themeColor': 'テーマカラー',
+          'settings.language': '言語',
+          'settings.sound': '効果音',
+          'settings.celebration': 'お祝い演出',
+          'settings.completionMessages': '完了メッセージ',
+          'settings.language.ja': '日本語',
+          'settings.language.en': '英語',
+          'message.add': 'メッセージ追加',
+          'message.save': 'メッセージ保存',
+          'message.inputAdd': 'メッセージを追加',
+          'message.inputEdit': 'メッセージを編集',
+          'message.edit': 'メッセージ編集',
+          'message.delete': 'メッセージ削除',
+          'modal.parent.title': '親タスクを編集',
+          'modal.parentName': '親タスク名',
+          'modal.parentName.placeholder': '親タスク名を入力',
+          'modal.addSubtask': '子タスクを追加',
+          'modal.addSubtask.placeholder': '子タスクを入力',
+          'modal.subtaskList': '子タスク一覧',
+          'modal.subtask.title': '子タスクを編集',
+          'modal.subtaskName': '子タスク名',
+          'modal.subtaskName.placeholder': '子タスク名を入力',
+          'modal.confirm.title': '確認',
+          'modal.close': '閉じる',
+          'modal.cancel': 'キャンセル',
+          'modal.save': '保存',
+          'confirm.message.delete': '削除してもよろしいですか？',
+          'confirm.message.deleteWithTarget': '「{target}」を削除してもよろしいですか？',
+          'confirm.message.clearCompleted': '完了済みを削除してもよろしいですか？',
+          'confirm.message.clearAll': 'すべて削除してもよろしいですか？',
+          'confirm.target.unknown': 'この項目',
+          'confirm.action.delete': '削除する',
+          'confirm.action.clearCompleted': '完了済みを削除',
+          'confirm.action.clearAll': 'すべて削除',
+          'confirm.action.execute': '実行する',
+          'focus.status.running': '進行中',
+          'focus.status.paused': '一時停止中',
+          'focus.timerCaption': '経過時間',
+          'focus.complete': '完了',
+          'focus.pause': '一時停止',
+          'focus.resume': '再開',
+          'focus.abort': '中断',
+          'list.dragSort': 'ドラッグで並べ替え',
+          'list.dragMove': 'ドラッグで移動',
+          'list.edit': '編集',
+          'list.delete': '削除',
+          'list.undo': '完了を取り消す',
+          'list.focus': '集中モード',
+          'list.achievementTime': '実績時間',
+          'toast.error.todoRequired': 'タスク名を入力してください',
+          'toast.error.subtaskRequired': '子タスク名を入力してください',
+          'storage.warning': 'ブラウザ保存に失敗したため、この端末では変更内容が保持されない場合があります。',
+          'shortcut.1': 'Alt+1 Todo',
+          'shortcut.2': 'Alt+2 整理メモ',
+          'shortcut.3': 'Alt+3 分析',
+          'shortcut.4': 'Alt+4 設定',
+          'shortcut.n': 'Alt+N タスク入力',
+          'shortcut.m': 'Alt+M メッセージ入力',
+          'shortcut.s': 'Alt+S サイドバー',
+          'shortcut.l': 'Alt+L ライト/ダーク',
+          'shortcut.c': 'Alt+Shift+C 完了削除',
+          'shortcut.a': 'Alt+Shift+A 全削除',
+          'shortcut.help': '? ヘルプ',
+          'shortcut.focus': '集中: Space 一時停止 Enter 完了 X 中断',
+          'theme.ocean': 'オーシャン',
+          'theme.emerald': 'エメラルド',
+          'theme.amber': 'アンバー',
+          'theme.sunset': 'サンセット',
+          'theme.rose': 'ローズ',
+          'theme.indigo': 'インディゴ',
+          'theme.cyan': 'シアン',
+          'theme.slate': 'スレート'
+        },
+        en: {
+          'app.title': 'Yaruyan! Todo',
+          'nav.aria': 'Navigation',
+          'nav.tasks': 'Todo List',
+          'nav.memo': 'Notes',
+          'nav.analysis': 'Analytics',
+          'nav.settings': 'Settings',
+          'sidebar.toggle': 'Toggle sidebar',
+          'tasks.title': 'Todo List',
+          'tasks.progress': 'Completion {pct}%',
+          'tasks.count': '{count} items',
+          'tasks.empty': 'Nothing here yet',
+          'tasks.input.placeholder': 'Add a parent task',
+          'tasks.addParent': 'Add parent task',
+          'tasks.clearCompleted': 'Clear completed',
+          'tasks.clearAll': 'Clear all',
+          'memo.title': 'Notes',
+          'memo.placeholder': 'Use this space to organize thoughts and draft tasks for later',
+          'analysis.title': 'Analytics',
+          'analysis.parents': 'Parent tasks',
+          'analysis.children': 'Subtasks',
+          'analysis.completed': 'Completed items',
+          'analysis.remaining': 'Remaining items',
+          'analysis.rate': 'Completion rate',
+          'settings.title': 'Settings',
+          'settings.colorMode': 'Light/Dark mode',
+          'settings.themeColor': 'Theme color',
+          'settings.language': 'Language',
+          'settings.sound': 'Sound effects',
+          'settings.celebration': 'Celebration effects',
+          'settings.completionMessages': 'Completion messages',
+          'settings.language.ja': 'Japanese',
+          'settings.language.en': 'English',
+          'message.add': 'Add message',
+          'message.save': 'Save message',
+          'message.inputAdd': 'Add a message',
+          'message.inputEdit': 'Edit the message',
+          'message.edit': 'Edit message',
+          'message.delete': 'Delete message',
+          'modal.parent.title': 'Edit parent task',
+          'modal.parentName': 'Parent task name',
+          'modal.parentName.placeholder': 'Enter parent task name',
+          'modal.addSubtask': 'Add subtask',
+          'modal.addSubtask.placeholder': 'Enter subtask',
+          'modal.subtaskList': 'Subtask list',
+          'modal.subtask.title': 'Edit subtask',
+          'modal.subtaskName': 'Subtask name',
+          'modal.subtaskName.placeholder': 'Enter subtask name',
+          'modal.confirm.title': 'Confirm',
+          'modal.close': 'Close',
+          'modal.cancel': 'Cancel',
+          'modal.save': 'Save',
+          'confirm.message.delete': 'Are you sure you want to delete this?',
+          'confirm.message.deleteWithTarget': 'Are you sure you want to delete "{target}"?',
+          'confirm.message.clearCompleted': 'Are you sure you want to clear completed items?',
+          'confirm.message.clearAll': 'Are you sure you want to clear all items?',
+          'confirm.target.unknown': 'this item',
+          'confirm.action.delete': 'Delete',
+          'confirm.action.clearCompleted': 'Clear completed',
+          'confirm.action.clearAll': 'Clear all',
+          'confirm.action.execute': 'Run',
+          'focus.status.running': 'Running',
+          'focus.status.paused': 'Paused',
+          'focus.timerCaption': 'Elapsed time',
+          'focus.complete': 'Complete',
+          'focus.pause': 'Pause',
+          'focus.resume': 'Resume',
+          'focus.abort': 'Abort',
+          'list.dragSort': 'Drag to reorder',
+          'list.dragMove': 'Drag to move',
+          'list.edit': 'Edit',
+          'list.delete': 'Delete',
+          'list.undo': 'Undo completion',
+          'list.focus': 'Focus mode',
+          'list.achievementTime': 'Tracked time',
+          'toast.error.todoRequired': 'Please enter a task name',
+          'toast.error.subtaskRequired': 'Please enter a subtask name',
+          'storage.warning': 'Failed to save in browser storage. Changes might not persist on this device.',
+          'shortcut.1': 'Alt+1 Todo',
+          'shortcut.2': 'Alt+2 Notes',
+          'shortcut.3': 'Alt+3 Analytics',
+          'shortcut.4': 'Alt+4 Settings',
+          'shortcut.n': 'Alt+N Focus task input',
+          'shortcut.m': 'Alt+M Focus message input',
+          'shortcut.s': 'Alt+S Sidebar',
+          'shortcut.l': 'Alt+L Light/Dark',
+          'shortcut.c': 'Alt+Shift+C Clear completed',
+          'shortcut.a': 'Alt+Shift+A Clear all',
+          'shortcut.help': '? Help',
+          'shortcut.focus': 'Focus: Space Pause Enter Complete X Abort',
+          'theme.ocean': 'Ocean',
+          'theme.emerald': 'Emerald',
+          'theme.amber': 'Amber',
+          'theme.sunset': 'Sunset',
+          'theme.rose': 'Rose',
+          'theme.indigo': 'Indigo',
+          'theme.cyan': 'Cyan',
+          'theme.slate': 'Slate'
+        }
+      };
 
       /* ============================================
          DOM Helpers
@@ -2712,17 +2960,36 @@
       const footerActions = $('#footerActions');
       const progressMiniText = $('#progressMiniText');
       const taskCountLabel = $('#taskCountLabel');
+      const emptyStateText = $('#emptyStateText');
+      const brandTitle = $('#brandTitle');
+      const mainNav = $('#mainNav');
+      const pageTitleTasks = $('#pageTitleTasks');
+      const pageTitleMemo = $('#pageTitleMemo');
+      const pageTitleAnalysis = $('#pageTitleAnalysis');
+      const pageTitleSettings = $('#pageTitleSettings');
 
       const statParents = $('#statParents');
       const statChildren = $('#statChildren');
       const statCompleted = $('#statCompleted');
       const statRemaining = $('#statRemaining');
       const statRate = $('#statRate');
+      const statLabelParents = $('#statLabelParents');
+      const statLabelChildren = $('#statLabelChildren');
+      const statLabelCompleted = $('#statLabelCompleted');
+      const statLabelRemaining = $('#statLabelRemaining');
+      const statLabelRate = $('#statLabelRate');
 
       const lightModeToggle = $('#lightModeToggle');
       const themeColorGrid = $('#themeColorGrid');
+      const languageSelect = $('#languageSelect');
       const soundToggle = $('#soundToggle');
       const celebrationToggle = $('#celebrationToggle');
+      const settingTitleColorMode = $('#settingTitleColorMode');
+      const settingsThemeTitle = $('#settingsThemeTitle');
+      const settingTitleLanguage = $('#settingTitleLanguage');
+      const settingTitleSound = $('#settingTitleSound');
+      const settingTitleCelebration = $('#settingTitleCelebration');
+      const completionMessageTitle = $('#completionMessageTitle');
 
       const messageInput = $('#messageInput');
       const messageSaveBtn = $('#messageSaveBtn');
@@ -2742,27 +3009,39 @@
       const parentModalOverlay = $('#parentModalOverlay');
       const closeParentModalBtn = $('#closeParentModalBtn');
       const cancelParentEditBtn = $('#cancelParentEditBtn');
+      const cancelParentEditText = $('#cancelParentEditText');
       const saveParentEditBtn = $('#saveParentEditBtn');
+      const saveParentEditText = $('#saveParentEditText');
       const parentEditInput = $('#parentEditInput');
+      const parentEditLabelText = $('#parentEditLabelText');
       const modalSubtaskInput = $('#modalSubtaskInput');
+      const modalSubtaskAddLabelText = $('#modalSubtaskAddLabelText');
+      const modalSubtaskListLabelText = $('#modalSubtaskListLabelText');
       const modalAddSubtaskBtn = $('#modalAddSubtaskBtn');
       const modalSubtaskList = $('#modalSubtaskList');
+      const parentModalTitle = $('#parentModalTitle');
 
       // Subtask modal
       const subtaskModalOverlay = $('#subtaskModalOverlay');
       const closeSubtaskModalBtn = $('#closeSubtaskModalBtn');
       const cancelSubtaskEditBtn = $('#cancelSubtaskEditBtn');
+      const cancelSubtaskEditText = $('#cancelSubtaskEditText');
       const saveSubtaskEditBtn = $('#saveSubtaskEditBtn');
+      const saveSubtaskEditText = $('#saveSubtaskEditText');
       const subtaskEditInput = $('#subtaskEditInput');
+      const subtaskEditLabelText = $('#subtaskEditLabelText');
+      const subtaskModalTitle = $('#subtaskModalTitle');
 
       // Confirm modal
       const confirmModalOverlay = $('#confirmModalOverlay');
       const closeConfirmModalBtn = $('#closeConfirmModalBtn');
       const cancelConfirmBtn = $('#cancelConfirmBtn');
+      const cancelConfirmText = $('#cancelConfirmText');
       const confirmDeleteBtn = $('#confirmDeleteBtn');
       const confirmActionIcon = $('#confirmActionIcon');
       const confirmActionLabel = $('#confirmActionLabel');
       const confirmMessage = $('#confirmMessage');
+      const confirmModalTitle = $('#confirmModalTitle');
 
       // Focus modal
       const focusOverlay = $('#focusOverlay');
@@ -2797,13 +3076,74 @@
          Utility
       ============================================ */
       function uid() {
-        return crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        return globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
       }
 
       function escapeHtml(str) {
         const d = document.createElement('div');
         d.textContent = str;
         return d.innerHTML;
+      }
+
+      function getCurrentLanguage() {
+        const candidate = currentLanguage;
+        return LANGUAGE_IDS.has(candidate) ? candidate : DEFAULT_LANGUAGE;
+      }
+
+      function t(key, params = {}) {
+        const lang = getCurrentLanguage();
+        const source = I18N[lang] || I18N[DEFAULT_LANGUAGE];
+        const fallback = I18N[DEFAULT_LANGUAGE];
+        const template = source?.[key] ?? fallback?.[key] ?? key;
+        return String(template).replace(/\{(\w+)\}/g, (match, token) => {
+          if (!Object.prototype.hasOwnProperty.call(params, token)) return match;
+          return String(params[token]);
+        });
+      }
+
+      function getLocalizedDefaultMessages(language = getCurrentLanguage()) {
+        return normalizeMessageList(DEFAULT_MESSAGES_BY_LANG[language] || DEFAULT_MESSAGES_BY_LANG[DEFAULT_LANGUAGE]);
+      }
+
+      function isSameStringArray(left = [], right = []) {
+        if (left.length !== right.length) return false;
+        return left.every((value, index) => value === right[index]);
+      }
+
+      function getThemeLabel(themeId) {
+        return t(`theme.${themeId}`);
+      }
+
+      function getBasePageTitle() {
+        return t('app.title') || BASE_PAGE_TITLE_FALLBACK;
+      }
+
+      function getShortcutHelpMessage() {
+        return [
+          t('shortcut.1'),
+          t('shortcut.2'),
+          t('shortcut.3'),
+          t('shortcut.4'),
+          t('shortcut.n'),
+          t('shortcut.m'),
+          t('shortcut.s'),
+          t('shortcut.l'),
+          t('shortcut.c'),
+          t('shortcut.a'),
+          t('shortcut.help'),
+          t('shortcut.focus')
+        ].join(' / ');
+      }
+
+      function getConfirmTargetLabel(rawText) {
+        const normalized = normalizeInputText(rawText, MAX_TODO_TEXT_LENGTH);
+        if (!normalized) return t('confirm.target.unknown');
+        if (normalized.length <= MAX_CONFIRM_TARGET_LABEL_LENGTH) return normalized;
+        return `${normalized.slice(0, MAX_CONFIRM_TARGET_LABEL_LENGTH)}…`;
+      }
+
+      function getDeleteConfirmMessage(rawText) {
+        return t('confirm.message.deleteWithTarget', { target: getConfirmTargetLabel(rawText) });
       }
 
       function showToast(message, options = {}) {
@@ -2919,8 +3259,11 @@
 
       function loadSettings() {
         const saved = _readStoredJson(SETTINGS_KEY, {}, (value) => typeof value === 'object' && value !== null && !Array.isArray(value));
+        const language = typeof saved.language === 'string' && LANGUAGE_IDS.has(saved.language)
+          ? saved.language
+          : DEFAULT_LANGUAGE;
         const normalizedMessages = normalizeMessageList(saved.messages);
-        const fallbackMessages = normalizeMessageList(defaultMessages);
+        const fallbackMessages = getLocalizedDefaultMessages(language);
         const messages = normalizedMessages.length > 0 ? normalizedMessages : fallbackMessages;
         const colorMode = saved.colorMode === 'dark' ? 'dark' : 'light';
         const themeColor = typeof saved.themeColor === 'string' && THEME_IDS.has(saved.themeColor)
@@ -2928,6 +3271,7 @@
           : 'ocean';
 
         return {
+          language,
           colorMode,
           themeColor,
           sound: typeof saved.sound === 'boolean' ? saved.sound : true,
@@ -3002,7 +3346,7 @@
       }
 
       function getMessages() {
-        return settings.messages.length > 0 ? settings.messages : defaultMessages;
+        return settings.messages.length > 0 ? settings.messages : getLocalizedDefaultMessages();
       }
 
       function getElapsedMs(focusMeta) {
@@ -3049,7 +3393,8 @@
 
       function updateDocumentTaskIndicators() {
         const pendingCount = getPendingTaskCount();
-        document.title = pendingCount > 0 ? `${BASE_PAGE_TITLE} (${pendingCount})` : BASE_PAGE_TITLE;
+        const baseTitle = getBasePageTitle();
+        document.title = pendingCount > 0 ? `${baseTitle} (${pendingCount})` : baseTitle;
         renderTaskCountFavicon(pendingCount);
       }
 
@@ -3094,6 +3439,184 @@
         document.querySelectorAll('.modal-subtask-row.drop-before, .modal-subtask-row.drop-after, .modal-subtask-list.drop-after').forEach(el => {
           el.classList.remove('drop-before', 'drop-after');
         });
+      }
+
+      function clearOrganizeMemoSaveTimer() {
+        if (!organizeMemoSaveTimerId) return;
+        clearTimeout(organizeMemoSaveTimerId);
+        organizeMemoSaveTimerId = null;
+      }
+
+      function flushOrganizeMemoSave() {
+        if (!isOrganizeMemoDirty) return;
+        clearOrganizeMemoSaveTimer();
+        isOrganizeMemoDirty = false;
+        const saved = save();
+        if (!saved) {
+          isOrganizeMemoDirty = true;
+        }
+      }
+
+      function scheduleOrganizeMemoSave() {
+        isOrganizeMemoDirty = true;
+        clearOrganizeMemoSaveTimer();
+        organizeMemoSaveTimerId = window.setTimeout(() => {
+          organizeMemoSaveTimerId = null;
+          flushOrganizeMemoSave();
+        }, ORGANIZE_MEMO_SAVE_DEBOUNCE_MS);
+      }
+
+      function isElementVisible(element) {
+        if (!(element instanceof HTMLElement)) return false;
+        if (!element.isConnected || element.hidden) return false;
+        const style = window.getComputedStyle(element);
+        return style.display !== 'none' && style.visibility !== 'hidden';
+      }
+
+      function getDialogRoot(overlayEl) {
+        return qs('[role="dialog"]', overlayEl) || overlayEl;
+      }
+
+      function getFocusableElements(rootEl) {
+        if (!rootEl) return [];
+        return [...rootEl.querySelectorAll(FOCUSABLE_SELECTOR)].filter((element) => (
+          element instanceof HTMLElement && isElementVisible(element)
+        ));
+      }
+
+      function focusModalContent(overlayEl, preferredEl = null, fallbackToLast = false) {
+        if (!overlayEl?.classList.contains('show')) return;
+        const dialogRoot = getDialogRoot(overlayEl);
+        const focusableElements = getFocusableElements(dialogRoot);
+
+        if (
+          preferredEl instanceof HTMLElement
+          && dialogRoot.contains(preferredEl)
+          && isElementVisible(preferredEl)
+        ) {
+          preferredEl.focus();
+          return;
+        }
+
+        if (focusableElements.length > 0) {
+          const target = fallbackToLast
+            ? focusableElements[focusableElements.length - 1]
+            : focusableElements[0];
+          target.focus();
+          return;
+        }
+
+        if (!dialogRoot.hasAttribute('tabindex')) {
+          dialogRoot.setAttribute('tabindex', '-1');
+        }
+        dialogRoot.focus();
+      }
+
+      function getTopModalOverlay() {
+        for (let i = openModalStack.length - 1; i >= 0; i -= 1) {
+          const overlayEl = openModalStack[i];
+          if (overlayEl?.classList.contains('show')) return overlayEl;
+        }
+        return null;
+      }
+
+      function openOverlayWithFocus(overlayEl, preferredEl = null) {
+        if (!overlayEl) return;
+
+        if (!modalFocusStateMap.has(overlayEl)) {
+          const activeEl = document.activeElement instanceof HTMLElement
+            ? document.activeElement
+            : null;
+          modalFocusStateMap.set(overlayEl, { restoreTarget: activeEl });
+        }
+
+        const existingIndex = openModalStack.indexOf(overlayEl);
+        if (existingIndex >= 0) {
+          openModalStack.splice(existingIndex, 1);
+        }
+        openModalStack.push(overlayEl);
+
+        overlayEl.classList.add('show');
+        overlayEl.setAttribute('aria-hidden', 'false');
+        window.setTimeout(() => {
+          focusModalContent(overlayEl, preferredEl);
+        }, 0);
+      }
+
+      function closeOverlayWithFocus(overlayEl) {
+        if (!overlayEl) return;
+
+        overlayEl.classList.remove('show');
+        overlayEl.setAttribute('aria-hidden', 'true');
+
+        const state = modalFocusStateMap.get(overlayEl);
+        modalFocusStateMap.delete(overlayEl);
+
+        const index = openModalStack.indexOf(overlayEl);
+        if (index >= 0) {
+          openModalStack.splice(index, 1);
+        }
+
+        window.setTimeout(() => {
+          const restoreTarget = state?.restoreTarget;
+          if (
+            restoreTarget instanceof HTMLElement
+            && isElementVisible(restoreTarget)
+            && !overlayEl.contains(restoreTarget)
+          ) {
+            restoreTarget.focus();
+            return;
+          }
+
+          const topOverlay = getTopModalOverlay();
+          if (topOverlay) {
+            focusModalContent(topOverlay);
+            return;
+          }
+
+          if (todoInput && isElementVisible(todoInput)) {
+            todoInput.focus();
+          }
+        }, 0);
+      }
+
+      function trapTabFocusWithinModal(event) {
+        if (event.key !== 'Tab') return false;
+
+        const topOverlay = getTopModalOverlay();
+        if (!topOverlay) return false;
+
+        const dialogRoot = getDialogRoot(topOverlay);
+        const focusableElements = getFocusableElements(dialogRoot);
+        if (focusableElements.length === 0) {
+          event.preventDefault();
+          focusModalContent(topOverlay);
+          return true;
+        }
+
+        const first = focusableElements[0];
+        const last = focusableElements[focusableElements.length - 1];
+        const active = document.activeElement;
+
+        if (!dialogRoot.contains(active)) {
+          event.preventDefault();
+          focusModalContent(topOverlay, null, event.shiftKey);
+          return true;
+        }
+
+        if (!event.shiftKey && active === last) {
+          event.preventDefault();
+          first.focus();
+          return true;
+        }
+
+        if (event.shiftKey && active === first) {
+          event.preventDefault();
+          last.focus();
+          return true;
+        }
+
+        return false;
       }
 
       function moveArrayItem(list, fromIndex, toIndex) {
@@ -3736,28 +4259,26 @@
         confirmMessage.textContent = message;
 
         const actionUiMap = {
-          'delete-parent': { icon: 'delete_forever', label: '削除する' },
-          'delete-subtask': { icon: 'delete_forever', label: '削除する' },
-          'delete-subtask-modal': { icon: 'delete_forever', label: '削除する' },
-          'clear-completed': { icon: 'done_all', label: '完了済みを削除' },
-          'clear-all': { icon: 'delete_sweep', label: 'すべて削除' }
+          'delete-parent': { icon: 'delete_forever', label: t('confirm.action.delete') },
+          'delete-subtask': { icon: 'delete_forever', label: t('confirm.action.delete') },
+          'delete-subtask-modal': { icon: 'delete_forever', label: t('confirm.action.delete') },
+          'clear-completed': { icon: 'done_all', label: t('confirm.action.clearCompleted') },
+          'clear-all': { icon: 'delete_sweep', label: t('confirm.action.clearAll') }
         };
-        const ui = actionUiMap[action] || { icon: 'check_circle', label: '実行する' };
+        const ui = actionUiMap[action] || { icon: 'check_circle', label: t('confirm.action.execute') };
         if (confirmActionIcon) confirmActionIcon.textContent = ui.icon;
         if (confirmActionLabel) confirmActionLabel.textContent = ui.label;
         confirmDeleteBtn.title = `${ui.label} (Enter)`;
         confirmDeleteBtn.setAttribute('aria-label', ui.label);
         confirmDeleteBtn.setAttribute('aria-keyshortcuts', 'Enter');
 
-        confirmModalOverlay.classList.add('show');
-        confirmModalOverlay.setAttribute('aria-hidden', 'false');
+        openOverlayWithFocus(confirmModalOverlay, confirmDeleteBtn);
       }
 
       function closeConfirmModal() {
         confirmState.action = null;
         confirmState.payload = null;
-        confirmModalOverlay.classList.remove('show');
-        confirmModalOverlay.setAttribute('aria-hidden', 'true');
+        closeOverlayWithFocus(confirmModalOverlay);
       }
 
       function executeConfirmedAction() {
@@ -3800,10 +4321,10 @@
           item.innerHTML = `
             <div class="message-text">${escapeHtml(msg)}</div>
             <div class="message-actions">
-              <button class="message-chip-btn edit-message-btn" data-index="${index}" title="メッセージ編集" aria-label="メッセージ編集">
+              <button class="message-chip-btn edit-message-btn" data-index="${index}" title="${t('message.edit')}" aria-label="${t('message.edit')}">
                 <span class="material-symbols-outlined">edit</span>
               </button>
-              <button class="message-chip-btn danger delete-message-btn" data-index="${index}" title="メッセージ削除" aria-label="メッセージ削除">
+              <button class="message-chip-btn danger delete-message-btn" data-index="${index}" title="${t('message.delete')}" aria-label="${t('message.delete')}">
                 <span class="material-symbols-outlined">delete</span>
               </button>
             </div>
@@ -3817,14 +4338,14 @@
       function updateMessageEditorMode() {
         if (messageEditorState.editIndex === null) {
           messageSaveIcon.textContent = 'add_comment';
-          messageSaveBtn.title = 'メッセージ追加';
-          messageSaveBtn.setAttribute('aria-label', 'メッセージ追加');
-          messageInput.placeholder = 'メッセージを追加';
+          messageSaveBtn.title = t('message.add');
+          messageSaveBtn.setAttribute('aria-label', t('message.add'));
+          messageInput.placeholder = t('message.inputAdd');
         } else {
           messageSaveIcon.textContent = 'save';
-          messageSaveBtn.title = 'メッセージ保存';
-          messageSaveBtn.setAttribute('aria-label', 'メッセージ保存');
-          messageInput.placeholder = 'メッセージを編集';
+          messageSaveBtn.title = t('message.save');
+          messageSaveBtn.setAttribute('aria-label', t('message.save'));
+          messageInput.placeholder = t('message.inputEdit');
         }
       }
 
@@ -3879,15 +4400,12 @@
         parentEditInput.value = parent.text;
         modalSubtaskInput.value = '';
         renderParentModalSubtasks(parent);
-        parentModalOverlay.classList.add('show');
-        parentModalOverlay.setAttribute('aria-hidden', 'false');
-        setTimeout(() => parentEditInput.focus(), 0);
+        openOverlayWithFocus(parentModalOverlay, parentEditInput);
       }
 
       function closeParentModal() {
         modalState.parentId = null;
-        parentModalOverlay.classList.remove('show');
-        parentModalOverlay.setAttribute('aria-hidden', 'true');
+        closeOverlayWithFocus(parentModalOverlay);
         removeModalDropClasses();
         modalDragState = null;
       }
@@ -3905,8 +4423,8 @@
             <button
               class="icon-btn drag-handle modal-subtask-drag-handle"
               type="button"
-              title="ドラッグで並べ替え"
-              aria-label="ドラッグで並べ替え"
+              title="${t('list.dragSort')}"
+              aria-label="${t('list.dragSort')}"
               draggable="true"
             >
               <span class="material-symbols-outlined">drag_indicator</span>
@@ -3925,8 +4443,8 @@
                 data-parent-id="${parent.id}"
                 data-sub-id="${sub.id}"
                 type="button"
-                title="編集"
-                aria-label="編集"
+                title="${t('list.edit')}"
+                aria-label="${t('list.edit')}"
               >
                 <span class="material-symbols-outlined">edit</span>
               </button>
@@ -3935,8 +4453,8 @@
                 data-parent-id="${parent.id}"
                 data-sub-id="${sub.id}"
                 type="button"
-                title="削除"
-                aria-label="削除"
+                title="${t('list.delete')}"
+                aria-label="${t('list.delete')}"
               >
                 <span class="material-symbols-outlined">delete</span>
               </button>
@@ -3967,7 +4485,7 @@
 
         const value = normalizeInputText(modalSubtaskInput.value, MAX_SUBTASK_TEXT_LENGTH);
         if (!value) {
-          showErrorToast('子タスク名を入力してください');
+          showErrorToast(t('toast.error.subtaskRequired'));
           modalSubtaskInput.focus();
           return;
         }
@@ -3996,16 +4514,13 @@
         modalState.subtaskParentId = parentId;
         modalState.subtaskId = subId;
         subtaskEditInput.value = sub.text;
-        subtaskModalOverlay.classList.add('show');
-        subtaskModalOverlay.setAttribute('aria-hidden', 'false');
-        setTimeout(() => subtaskEditInput.focus(), 0);
+        openOverlayWithFocus(subtaskModalOverlay, subtaskEditInput);
       }
 
       function closeSubtaskModal() {
         modalState.subtaskParentId = null;
         modalState.subtaskId = null;
-        subtaskModalOverlay.classList.remove('show');
-        subtaskModalOverlay.setAttribute('aria-hidden', 'true');
+        closeOverlayWithFocus(subtaskModalOverlay);
       }
 
       function saveSubtaskEdit() {
@@ -4082,8 +4597,7 @@
         syncFocusPauseButton();
         updateFocusTimer();
 
-        focusOverlay.classList.add('show');
-        focusOverlay.setAttribute('aria-hidden', 'false');
+        openOverlayWithFocus(focusOverlay, focusPauseBtn);
         document.body.classList.add('focus-open');
 
         if (focusState.tickerId) clearInterval(focusState.tickerId);
@@ -4095,12 +4609,11 @@
       }
 
       function closeFocusModal() {
-        focusOverlay.classList.remove('show');
-        focusOverlay.setAttribute('aria-hidden', 'true');
+        closeOverlayWithFocus(focusOverlay);
         document.body.classList.remove('focus-open');
         focusOverlay.classList.remove('focus-paused');
         focusPauseBtn.classList.remove('is-resume');
-        if (focusTimerCaption) focusTimerCaption.textContent = '経過時間';
+        if (focusTimerCaption) focusTimerCaption.textContent = t('focus.timerCaption');
         syncFocusStatusChip(false);
         if (focusState.tickerId) {
           clearInterval(focusState.tickerId);
@@ -4127,12 +4640,12 @@
         if (paused) {
           focusStatusChip.classList.add('is-paused');
           focusStatusIcon.textContent = 'pause_circle';
-          focusStatusText.textContent = '一時停止中';
+          focusStatusText.textContent = t('focus.status.paused');
           return;
         }
         focusStatusChip.classList.remove('is-paused');
         focusStatusIcon.textContent = 'play_circle';
-        focusStatusText.textContent = '進行中';
+        focusStatusText.textContent = t('focus.status.running');
       }
 
       function syncFocusPauseButton() {
@@ -4141,19 +4654,19 @@
 
         if (target.focus.focusState === 'paused') {
           focusPauseIcon.textContent = 'play_circle';
-          focusPauseBtn.title = '再開 (Space)';
-          focusPauseBtn.setAttribute('aria-label', '再開');
+          focusPauseBtn.title = `${t('focus.resume')} (Space)`;
+          focusPauseBtn.setAttribute('aria-label', t('focus.resume'));
           focusPauseBtn.classList.add('is-resume');
           focusOverlay.classList.add('focus-paused');
-          if (focusTimerCaption) focusTimerCaption.textContent = '経過時間';
+          if (focusTimerCaption) focusTimerCaption.textContent = t('focus.timerCaption');
           syncFocusStatusChip(true);
         } else {
           focusPauseIcon.textContent = 'pause_circle';
-          focusPauseBtn.title = '一時停止 (Space)';
-          focusPauseBtn.setAttribute('aria-label', '一時停止');
+          focusPauseBtn.title = `${t('focus.pause')} (Space)`;
+          focusPauseBtn.setAttribute('aria-label', t('focus.pause'));
           focusPauseBtn.classList.remove('is-resume');
           focusOverlay.classList.remove('focus-paused');
-          if (focusTimerCaption) focusTimerCaption.textContent = '経過時間';
+          if (focusTimerCaption) focusTimerCaption.textContent = t('focus.timerCaption');
           syncFocusStatusChip(false);
         }
       }
@@ -4292,6 +4805,7 @@
         const fromParent = getTodo(dragParentId);
         const toParent = getTodo(targetParentId);
         if (!fromParent || !toParent) return;
+        if (dragParentId === targetParentId && targetSubId === dragSubId) return;
 
         const fromIndex = fromParent.subtasks.findIndex(sub => sub.id === dragSubId);
         if (fromIndex < 0) return;
@@ -4357,6 +4871,7 @@
         syncAllParents();
         applyColorMode();
         applyThemeColor();
+        applyLocalizedStaticText();
         const currentRoute = getRouteFromHash();
 
         const currentAllDone = isAllDone();
@@ -4408,8 +4923,8 @@
         const progress = getProgressStats();
         const parentCount = todos.length;
 
-        progressMiniText.textContent = `達成率 ${progress.pct}%`;
-        taskCountLabel.textContent = `${parentCount}件`;
+        progressMiniText.textContent = t('tasks.progress', { pct: progress.pct });
+        taskCountLabel.textContent = t('tasks.count', { count: parentCount });
 
         emptyState.style.display = todos.length === 0 ? '' : 'none';
         footerActions.style.display = todos.length > 0 ? '' : 'none';
@@ -4423,7 +4938,7 @@
           const runnableParent = isRunnableParent(todo);
           const parentAchievement = todo.done && runnableParent
             ? `
-              <div class="achievement-time todo-achievement" title="実績時間">
+              <div class="achievement-time todo-achievement" title="${t('list.achievementTime')}">
                 <span class="material-symbols-outlined">timer</span>
                 <span>${formatElapsed(todo.focus?.elapsedMs || 0)}</span>
               </div>
@@ -4437,8 +4952,8 @@
                 class="focus-btn done undo-parent-btn"
                 data-id="${todo.id}"
                 type="button"
-                title="完了を取り消す"
-                aria-label="完了を取り消す"
+                title="${t('list.undo')}"
+                aria-label="${t('list.undo')}"
               >
                 <span class="material-symbols-outlined">undo</span>
               </button>
@@ -4448,8 +4963,8 @@
                 class="focus-btn playable open-focus-parent-btn"
                 data-id="${todo.id}"
                 type="button"
-                title="集中モード"
-                aria-label="集中モード"
+                title="${t('list.focus')}"
+                aria-label="${t('list.focus')}"
               >
                 <span class="material-symbols-outlined">${getFocusIconForMeta(todo.focus, false)}</span>
               </button>
@@ -4460,8 +4975,8 @@
             <button
               class="icon-btn drag-handle parent-drag-handle"
               type="button"
-              title="ドラッグで並べ替え"
-              aria-label="ドラッグで並べ替え"
+              title="${t('list.dragSort')}"
+              aria-label="${t('list.dragSort')}"
               draggable="true"
             >
               <span class="material-symbols-outlined">drag_indicator</span>
@@ -4477,10 +4992,10 @@
               </div>
 
               <div class="todo-tools">
-                <button class="mini-btn edit-parent-btn" data-id="${todo.id}" type="button" title="編集" aria-label="編集">
+                <button class="mini-btn edit-parent-btn" data-id="${todo.id}" type="button" title="${t('list.edit')}" aria-label="${t('list.edit')}">
                   <span class="material-symbols-outlined">edit_note</span>
                 </button>
-                <button class="mini-btn danger delete-parent-btn" data-id="${todo.id}" type="button" title="削除" aria-label="削除">
+                <button class="mini-btn danger delete-parent-btn" data-id="${todo.id}" type="button" title="${t('list.delete')}" aria-label="${t('list.delete')}">
                   <span class="material-symbols-outlined">delete</span>
                 </button>
               </div>
@@ -4494,8 +5009,8 @@
                       <button
                         class="icon-btn drag-handle subtask-drag-handle"
                         type="button"
-                        title="ドラッグで移動"
-                        aria-label="ドラッグで移動"
+                        title="${t('list.dragMove')}"
+                        aria-label="${t('list.dragMove')}"
                         draggable="true"
                       >
                         <span class="material-symbols-outlined">drag_indicator</span>
@@ -4508,8 +5023,8 @@
                           data-parent-id="${todo.id}"
                           data-sub-id="${sub.id}"
                           type="button"
-                          title="完了を取り消す"
-                          aria-label="完了を取り消す"
+                          title="${t('list.undo')}"
+                          aria-label="${t('list.undo')}"
                         >
                           <span class="material-symbols-outlined">undo</span>
                         </button>
@@ -4520,8 +5035,8 @@
                           data-parent-id="${todo.id}"
                           data-sub-id="${sub.id}"
                           type="button"
-                          title="集中モード"
-                          aria-label="集中モード"
+                          title="${t('list.focus')}"
+                          aria-label="${t('list.focus')}"
                         >
                           <span class="material-symbols-outlined">${getFocusIconForMeta(sub.focus, false)}</span>
                         </button>
@@ -4532,7 +5047,7 @@
                         <div class="text">${escapeHtml(sub.text)}</div>
                         ${sub.done
                           ? `
-                          <div class="achievement-time subtask-achievement" title="実績時間">
+                          <div class="achievement-time subtask-achievement" title="${t('list.achievementTime')}">
                             <span class="material-symbols-outlined">timer</span>
                             <span>${formatElapsed(sub.focus?.elapsedMs || 0)}</span>
                           </div>
@@ -4542,10 +5057,10 @@
                       </div>
 
                       <div class="subtask-actions">
-                        <button class="mini-btn edit-subtask-btn" data-parent-id="${todo.id}" data-sub-id="${sub.id}" type="button" title="編集" aria-label="編集">
+                        <button class="mini-btn edit-subtask-btn" data-parent-id="${todo.id}" data-sub-id="${sub.id}" type="button" title="${t('list.edit')}" aria-label="${t('list.edit')}">
                           <span class="material-symbols-outlined">edit</span>
                         </button>
-                        <button class="mini-btn danger delete-subtask-btn" data-parent-id="${todo.id}" data-sub-id="${sub.id}" type="button" title="削除" aria-label="削除">
+                        <button class="mini-btn danger delete-subtask-btn" data-parent-id="${todo.id}" data-sub-id="${sub.id}" type="button" title="${t('list.delete')}" aria-label="${t('list.delete')}">
                           <span class="material-symbols-outlined">delete</span>
                         </button>
                       </div>
@@ -4578,20 +5093,162 @@
             role="radio"
             aria-checked="${settings.themeColor === theme.id}"
             data-theme-color="${theme.id}"
-            title="${theme.label}"
-            aria-label="${theme.label}"
+            title="${getThemeLabel(theme.id)}"
+            aria-label="${getThemeLabel(theme.id)}"
           >
             <span class="theme-dot" style="background:${theme.swatch};"></span>
           </button>
         `).join('');
       }
 
+      function applyLocalizedStaticText() {
+        document.documentElement.lang = getCurrentLanguage();
+
+        if (brandTitle) brandTitle.textContent = t('app.title');
+        if (mainNav) mainNav.setAttribute('aria-label', t('nav.aria'));
+
+        const navLabelMap = {
+          tasks: t('nav.tasks'),
+          memo: t('nav.memo'),
+          analysis: t('nav.analysis'),
+          settings: t('nav.settings')
+        };
+        navButtons.forEach((btn) => {
+          const label = navLabelMap[btn.dataset.route];
+          if (!label) return;
+          btn.title = label;
+          btn.setAttribute('aria-label', label);
+          const textEl = btn.querySelector('.nav-label');
+          if (textEl) textEl.textContent = label;
+        });
+
+        if (pageTitleTasks) pageTitleTasks.textContent = t('tasks.title');
+        if (pageTitleMemo) pageTitleMemo.textContent = t('memo.title');
+        if (pageTitleAnalysis) pageTitleAnalysis.textContent = t('analysis.title');
+        if (pageTitleSettings) pageTitleSettings.textContent = t('settings.title');
+        if (emptyStateText) emptyStateText.textContent = t('tasks.empty');
+
+        if (todoInput) todoInput.placeholder = t('tasks.input.placeholder');
+        addBtn.title = t('tasks.addParent');
+        addBtn.setAttribute('aria-label', t('tasks.addParent'));
+        clearCompletedBtn.title = t('tasks.clearCompleted');
+        clearCompletedBtn.setAttribute('aria-label', t('tasks.clearCompleted'));
+        clearAllBtn.title = t('tasks.clearAll');
+        clearAllBtn.setAttribute('aria-label', t('tasks.clearAll'));
+
+        if (organizeMemoInput) organizeMemoInput.removeAttribute('placeholder');
+
+        if (statLabelParents) statLabelParents.textContent = t('analysis.parents');
+        if (statLabelChildren) statLabelChildren.textContent = t('analysis.children');
+        if (statLabelCompleted) statLabelCompleted.textContent = t('analysis.completed');
+        if (statLabelRemaining) statLabelRemaining.textContent = t('analysis.remaining');
+        if (statLabelRate) statLabelRate.textContent = t('analysis.rate');
+
+        if (settingTitleColorMode) settingTitleColorMode.textContent = t('settings.colorMode');
+        if (settingsThemeTitle) settingsThemeTitle.textContent = t('settings.themeColor');
+        if (settingTitleLanguage) settingTitleLanguage.textContent = t('settings.language');
+        if (settingTitleSound) settingTitleSound.textContent = t('settings.sound');
+        if (settingTitleCelebration) settingTitleCelebration.textContent = t('settings.celebration');
+        if (completionMessageTitle) completionMessageTitle.textContent = t('settings.completionMessages');
+
+        lightModeToggle.setAttribute('aria-label', t('settings.colorMode'));
+        if (themeColorGrid) themeColorGrid.setAttribute('aria-label', t('settings.themeColor'));
+        if (languageSelect) {
+          languageSelect.setAttribute('aria-label', t('settings.language'));
+          languageSelect.innerHTML = `
+            <option value="ja">${t('settings.language.ja')}</option>
+            <option value="en">${t('settings.language.en')}</option>
+          `;
+          languageSelect.value = getCurrentLanguage();
+        }
+
+        sidebarCollapseBtn.title = t('sidebar.toggle');
+        sidebarCollapseBtn.setAttribute('aria-label', t('sidebar.toggle'));
+
+        if (parentModalTitle) parentModalTitle.textContent = t('modal.parent.title');
+        if (parentEditLabelText) parentEditLabelText.textContent = t('modal.parentName');
+        if (parentEditInput) parentEditInput.placeholder = t('modal.parentName.placeholder');
+        if (modalSubtaskAddLabelText) modalSubtaskAddLabelText.textContent = t('modal.addSubtask');
+        if (modalSubtaskInput) modalSubtaskInput.placeholder = t('modal.addSubtask.placeholder');
+        if (modalSubtaskListLabelText) modalSubtaskListLabelText.textContent = t('modal.subtaskList');
+        modalAddSubtaskBtn.title = t('modal.addSubtask');
+        modalAddSubtaskBtn.setAttribute('aria-label', t('modal.addSubtask'));
+        closeParentModalBtn.title = t('modal.close');
+        closeParentModalBtn.setAttribute('aria-label', t('modal.close'));
+        cancelParentEditBtn.title = t('modal.cancel');
+        cancelParentEditBtn.setAttribute('aria-label', t('modal.cancel'));
+        if (cancelParentEditText) cancelParentEditText.textContent = t('modal.cancel');
+        saveParentEditBtn.title = t('modal.save');
+        saveParentEditBtn.setAttribute('aria-label', t('modal.save'));
+        if (saveParentEditText) saveParentEditText.textContent = t('modal.save');
+
+        if (subtaskModalTitle) subtaskModalTitle.textContent = t('modal.subtask.title');
+        if (subtaskEditLabelText) subtaskEditLabelText.textContent = t('modal.subtaskName');
+        if (subtaskEditInput) subtaskEditInput.placeholder = t('modal.subtaskName.placeholder');
+        closeSubtaskModalBtn.title = t('modal.close');
+        closeSubtaskModalBtn.setAttribute('aria-label', t('modal.close'));
+        cancelSubtaskEditBtn.title = t('modal.cancel');
+        cancelSubtaskEditBtn.setAttribute('aria-label', t('modal.cancel'));
+        if (cancelSubtaskEditText) cancelSubtaskEditText.textContent = t('modal.cancel');
+        saveSubtaskEditBtn.title = t('modal.save');
+        saveSubtaskEditBtn.setAttribute('aria-label', t('modal.save'));
+        if (saveSubtaskEditText) saveSubtaskEditText.textContent = t('modal.save');
+
+        if (confirmModalTitle) confirmModalTitle.textContent = t('modal.confirm.title');
+        closeConfirmModalBtn.title = t('modal.close');
+        closeConfirmModalBtn.setAttribute('aria-label', t('modal.close'));
+        cancelConfirmBtn.title = t('modal.cancel');
+        cancelConfirmBtn.setAttribute('aria-label', t('modal.cancel'));
+        if (cancelConfirmText) cancelConfirmText.textContent = t('modal.cancel');
+        if (!confirmState.action && confirmMessage) {
+          confirmMessage.textContent = t('confirm.message.delete');
+          if (confirmActionLabel) confirmActionLabel.textContent = t('confirm.action.delete');
+          confirmDeleteBtn.title = t('confirm.action.delete');
+          confirmDeleteBtn.setAttribute('aria-label', t('confirm.action.delete'));
+        }
+
+        focusCompleteBtn.title = t('focus.complete');
+        focusCompleteBtn.setAttribute('aria-label', t('focus.complete'));
+        focusPauseBtn.title = `${t('focus.pause')} (Space)`;
+        focusPauseBtn.setAttribute('aria-label', t('focus.pause'));
+        focusAbortBtn.title = t('focus.abort');
+        focusAbortBtn.setAttribute('aria-label', t('focus.abort'));
+        if (focusStatusText) focusStatusText.textContent = t('focus.status.running');
+        if (focusTimerCaption) focusTimerCaption.textContent = t('focus.timerCaption');
+        if (celebrationText && !celebrationText.classList.contains('show')) {
+          celebrationText.textContent = getMessages()[0] || t('app.title');
+        }
+
+        if (_storageWarningEl && !_storageWarningEl.hidden) {
+          _setStorageWarning(true);
+        }
+      }
+
       function renderSettings() {
         lightModeToggle.checked = settings.colorMode !== 'dark';
         soundToggle.checked = !!settings.sound;
         celebrationToggle.checked = !!settings.celebration;
+        if (languageSelect) languageSelect.value = getCurrentLanguage();
         renderThemeOptions();
         renderMessages();
+      }
+
+      function setLanguage(nextLanguage) {
+        if (!LANGUAGE_IDS.has(nextLanguage)) return;
+        if (settings.language === nextLanguage) return;
+
+        const normalizedMessages = normalizeMessageList(settings.messages);
+        const isDefaultJa = isSameStringArray(normalizedMessages, getLocalizedDefaultMessages('ja'));
+        const isDefaultEn = isSameStringArray(normalizedMessages, getLocalizedDefaultMessages('en'));
+
+        settings.language = nextLanguage;
+        currentLanguage = nextLanguage;
+        if (isDefaultJa || isDefaultEn) {
+          settings.messages = getLocalizedDefaultMessages(nextLanguage);
+        }
+
+        save();
+        render();
       }
 
       /* ============================================
@@ -4667,7 +5324,7 @@
       function addTodo() {
         const text = normalizeInputText(todoInput.value, MAX_TODO_TEXT_LENGTH);
         if (!text) {
-          showErrorToast('タスク名を入力してください');
+          showErrorToast(t('toast.error.todoRequired'));
           todoInput.focus();
           return;
         }
@@ -4690,21 +5347,6 @@
       /* ============================================
          Keyboard Shortcuts
       ============================================ */
-      const SHORTCUT_HELP_MESSAGE = [
-        'Alt+1 Todo',
-        'Alt+2 整理メモ',
-        'Alt+3 分析',
-        'Alt+4 設定',
-        'Alt+N タスク入力',
-        'Alt+M メッセージ入力',
-        'Alt+S サイドバー',
-        'Alt+L ライト/ダーク',
-        'Alt+Shift+C 完了削除',
-        'Alt+Shift+A 全削除',
-        '? ヘルプ',
-        '集中: Space 一時停止 Enter 完了 X 中断'
-      ].join(' / ');
-
       function isTypingTarget(target) {
         if (!(target instanceof HTMLElement)) return false;
         if (target.isContentEditable) return true;
@@ -4728,11 +5370,11 @@
       }
 
       function openClearCompletedConfirm() {
-        openConfirmModal('完了済みを削除してもよろしいですか？', 'clear-completed');
+        openConfirmModal(t('confirm.message.clearCompleted'), 'clear-completed');
       }
 
       function openClearAllConfirm() {
-        openConfirmModal('すべて削除してもよろしいですか？', 'clear-all');
+        openConfirmModal(t('confirm.message.clearAll'), 'clear-all');
       }
 
       function focusTodoInputWithRoute() {
@@ -4765,7 +5407,7 @@
       }
 
       function showShortcutHelpToast() {
-        showToast(SHORTCUT_HELP_MESSAGE, { type: 'success', icon: 'keyboard', durationMs: 5600 });
+        showToast(getShortcutHelpMessage(), { type: 'success', icon: 'keyboard', durationMs: 5600 });
       }
 
       function applyAriaKeyShortcuts() {
@@ -4798,6 +5440,7 @@
 
       function handleDocumentShortcuts(e) {
         if (e.isComposing) return;
+        if (trapTabFocusWithinModal(e)) return;
 
         const key = e.key;
         const lowerKey = key.toLowerCase();
@@ -4940,7 +5583,14 @@
 
       organizeMemoInput.addEventListener('input', () => {
         organizeMemo = organizeMemoInput.value;
-        save();
+        scheduleOrganizeMemoSave();
+      });
+      organizeMemoInput.addEventListener('blur', flushOrganizeMemoSave);
+      window.addEventListener('pagehide', flushOrganizeMemoSave);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+          flushOrganizeMemoSave();
+        }
       });
 
       addBtn.addEventListener('click', addTodo);
@@ -5020,7 +5670,8 @@
 
         const deleteBtn = e.target.closest('.modal-delete-subtask-btn');
         if (deleteBtn) {
-          openConfirmModal('削除してもよろしいですか？', 'delete-subtask-modal', {
+          const targetSubtask = getSubtask(deleteBtn.dataset.parentId, deleteBtn.dataset.subId);
+          openConfirmModal(getDeleteConfirmMessage(targetSubtask?.text), 'delete-subtask-modal', {
             parentId: deleteBtn.dataset.parentId,
             subId: deleteBtn.dataset.subId
           });
@@ -5051,7 +5702,8 @@
         removeModalDropClasses();
 
         const row = e.target.closest('.modal-subtask-row');
-        if (row && row.dataset.subId !== modalDragState.subId) {
+        if (row) {
+          if (row.dataset.subId === modalDragState.subId) return;
           const position = getDropPosition(row, e.clientY);
           row.classList.add(position === 'before' ? 'drop-before' : 'drop-after');
           return;
@@ -5067,7 +5719,12 @@
         const row = e.target.closest('.modal-subtask-row');
         const targetList = e.target.closest('.modal-subtask-list');
 
-        if (row && row.dataset.subId !== modalDragState.subId) {
+        if (row) {
+          if (row.dataset.subId === modalDragState.subId) {
+            clearModalDragState();
+            return;
+          }
+
           const position = getDropPosition(row, e.clientY);
           reorderSubtasksInModal(modalDragState.parentId, modalDragState.subId, row.dataset.subId, position);
           const parent = getTodo(modalDragState.parentId);
@@ -5162,7 +5819,8 @@
 
         const delParentBtn = e.target.closest('.delete-parent-btn');
         if (delParentBtn) {
-          openConfirmModal('削除してもよろしいですか？', 'delete-parent', {
+          const targetParent = getTodo(delParentBtn.dataset.id);
+          openConfirmModal(getDeleteConfirmMessage(targetParent?.text), 'delete-parent', {
             parentId: delParentBtn.dataset.id,
             buttonEl: delParentBtn
           });
@@ -5177,7 +5835,8 @@
 
         const delSubBtn = e.target.closest('.delete-subtask-btn');
         if (delSubBtn) {
-          openConfirmModal('削除してもよろしいですか？', 'delete-subtask', {
+          const targetSubtask = getSubtask(delSubBtn.dataset.parentId, delSubBtn.dataset.subId);
+          openConfirmModal(getDeleteConfirmMessage(targetSubtask?.text), 'delete-subtask', {
             parentId: delSubBtn.dataset.parentId,
             subId: delSubBtn.dataset.subId,
             buttonEl: delSubBtn
@@ -5244,7 +5903,8 @@
 
         if (dragState.type === 'subtask') {
           const targetSub = e.target.closest('.subtask-item');
-          if (targetSub && targetSub.dataset.subId !== dragState.subId) {
+          if (targetSub) {
+            if (targetSub.dataset.subId === dragState.subId && targetSub.dataset.parentId === dragState.fromParentId) return;
             const position = getDropPosition(targetSub, e.clientY);
             targetSub.classList.add(position === 'before' ? 'drop-before' : 'drop-after');
             return;
@@ -5279,6 +5939,10 @@
           const targetList = e.target.closest('.subtask-list');
 
           if (targetSub) {
+            if (targetSub.dataset.subId === dragState.subId && targetSub.dataset.parentId === dragState.fromParentId) {
+              clearDragState();
+              return;
+            }
             const position = getDropPosition(targetSub, e.clientY);
             moveSubtask(
               dragState.fromParentId,
@@ -5337,6 +6001,10 @@
         applyThemeColor();
         save();
         render();
+      });
+
+      languageSelect?.addEventListener('change', () => {
+        setLanguage(languageSelect.value);
       });
 
       soundToggle.addEventListener('change', () => {
