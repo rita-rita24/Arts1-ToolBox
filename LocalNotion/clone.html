@@ -1,0 +1,1823 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Local Notion Clone</title>
+  <style>
+    @layer reset, base, component, utility;
+
+    @layer reset {
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+
+      button,
+      input,
+      textarea {
+        font: inherit;
+        color: inherit;
+      }
+    }
+
+    @layer base {
+      :root {
+        --sidebar-width: 16rem;
+        --radius: 0.38rem;
+        --surface: oklch(0.992 0.004 98);
+        --surface-muted: oklch(0.968 0.007 98);
+        --surface-sidebar: oklch(0.965 0.007 98);
+        --surface-hover: oklch(0.932 0.011 98);
+        --surface-active: oklch(0.905 0.015 98);
+        --border: oklch(0.87 0.008 98);
+        --text-primary: oklch(0.29 0.014 96);
+        --text-secondary: oklch(0.47 0.015 96);
+        --text-tertiary: oklch(0.57 0.012 96);
+        --accent: oklch(0.64 0.13 252);
+        --accent-soft: oklch(0.88 0.05 252);
+        --code-bg: oklch(0.945 0.012 99);
+        --callout-bg: oklch(0.96 0.018 82);
+        --shadow: 0 0.45rem 1.6rem oklch(0.18 0.01 260 / 0.13);
+        --overlay: oklch(0.2 0.01 260 / 0.45);
+        --font-ui: "Avenir Next", "Segoe UI Variable", "Hiragino Sans", "Noto Sans JP", sans-serif;
+        --font-mono: "SFMono-Regular", "Menlo", "Monaco", "Consolas", monospace;
+      }
+
+      :root[data-theme="dark"] {
+        --surface: oklch(0.23 0.009 96);
+        --surface-muted: oklch(0.27 0.009 96);
+        --surface-sidebar: oklch(0.25 0.009 96);
+        --surface-hover: oklch(0.32 0.01 96);
+        --surface-active: oklch(0.38 0.012 96);
+        --border: oklch(0.37 0.008 96);
+        --text-primary: oklch(0.94 0.01 96);
+        --text-secondary: oklch(0.8 0.01 96);
+        --text-tertiary: oklch(0.71 0.008 96);
+        --accent: oklch(0.74 0.13 252);
+        --accent-soft: oklch(0.36 0.07 252);
+        --code-bg: oklch(0.3 0.01 96);
+        --callout-bg: oklch(0.31 0.02 82);
+        --shadow: 0 0.45rem 1.6rem oklch(0.02 0.005 260 / 0.35);
+        --overlay: oklch(0.02 0.005 260 / 0.62);
+      }
+
+      html {
+        background: var(--surface);
+      }
+
+      body {
+        font-family: var(--font-ui);
+        background: var(--surface);
+        color: var(--text-primary);
+        line-height: 1.45;
+        overflow: hidden;
+      }
+    }
+
+    @layer component {
+      .app {
+        display: grid;
+        grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+        height: 100vh;
+        background: var(--surface);
+      }
+
+      .sidebar {
+        border-right: 1px solid var(--border);
+        background: var(--surface-sidebar);
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        transition: transform 180ms ease;
+
+        .sidebar-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0.7rem 0.7rem 0.5rem;
+          border-bottom: 1px solid var(--border);
+        }
+
+        .workspace-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.45rem;
+          border: 0;
+          background: transparent;
+          color: var(--text-primary);
+          padding: 0.35rem 0.45rem;
+          border-radius: var(--radius);
+          font-weight: 600;
+          font-size: 0.85rem;
+        }
+
+        .workspace-dot {
+          width: 1.1rem;
+          height: 1.1rem;
+          border-radius: 0.28rem;
+          display: grid;
+          place-items: center;
+          font-size: 0.78rem;
+          background: linear-gradient(130deg, oklch(0.86 0.05 85), oklch(0.78 0.11 45));
+          color: oklch(0.2 0.02 40);
+        }
+
+        .sidebar-search-wrap {
+          padding: 0.65rem 0.7rem 0.3rem;
+        }
+
+        .sidebar-search {
+          width: 100%;
+          border: 1px solid var(--border);
+          background: var(--surface);
+          color: var(--text-primary);
+          border-radius: var(--radius);
+          padding: 0.48rem 0.62rem;
+          font-size: 0.86rem;
+          outline: none;
+          transition: border-color 120ms ease, box-shadow 120ms ease;
+
+          &:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.12rem oklch(from var(--accent) l c h / 0.22);
+          }
+        }
+
+        .sidebar-title {
+          padding: 0.32rem 0.9rem;
+          margin-top: 0.25rem;
+          color: var(--text-tertiary);
+          font-size: 0.7rem;
+          text-transform: uppercase;
+          letter-spacing: 0.03em;
+          font-weight: 600;
+        }
+      }
+
+      .page-list {
+        list-style: none;
+        margin: 0;
+        padding: 0.15rem 0.4rem 0.7rem;
+        overflow: auto;
+        flex: 1;
+      }
+
+      .page-item {
+        display: grid;
+        grid-template-columns: 1.2rem minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0.45rem;
+        min-height: 2rem;
+        border-radius: var(--radius);
+        color: var(--text-secondary);
+        padding: 0.2rem 0.4rem;
+        cursor: pointer;
+        user-select: none;
+
+        &:hover {
+          background: var(--surface-hover);
+          color: var(--text-primary);
+        }
+
+        &[data-active="true"] {
+          background: var(--surface-active);
+          color: var(--text-primary);
+          font-weight: 560;
+        }
+
+        &:hover .page-actions {
+          opacity: 1;
+        }
+      }
+
+      .page-title {
+        font-size: 0.86rem;
+      }
+
+      .page-actions {
+        display: inline-flex;
+        gap: 0.1rem;
+        opacity: 0;
+        transition: opacity 130ms ease;
+      }
+
+      .icon-button {
+        border: 0;
+        background: transparent;
+        color: var(--text-tertiary);
+        border-radius: 0.28rem;
+        width: 1.35rem;
+        height: 1.35rem;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+
+        &:hover {
+          background: var(--surface-active);
+          color: var(--text-primary);
+        }
+      }
+
+      .empty-pages {
+        color: var(--text-tertiary);
+        padding: 0.75rem;
+        font-size: 0.84rem;
+      }
+
+      .new-page-button {
+        border: 1px dashed var(--border);
+        background: transparent;
+        color: var(--text-secondary);
+        margin: 0.45rem 0.7rem 0.7rem;
+        border-radius: var(--radius);
+        min-height: 2rem;
+        cursor: pointer;
+
+        &:hover {
+          background: var(--surface-hover);
+          color: var(--text-primary);
+        }
+      }
+
+      .main {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .topbar {
+        min-height: 2.7rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.55rem 1rem;
+        gap: 0.9rem;
+        background: var(--surface);
+      }
+
+      .topbar-left {
+        min-width: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .breadcrumb {
+        min-width: 0;
+        color: var(--text-secondary);
+        font-size: 0.86rem;
+      }
+
+      .topbar-meta {
+        color: var(--text-tertiary);
+        font-size: 0.78rem;
+      }
+
+      .chip-button {
+        border: 0;
+        background: transparent;
+        color: var(--text-secondary);
+        border-radius: var(--radius);
+        min-height: 1.9rem;
+        padding: 0.32rem 0.55rem;
+        cursor: pointer;
+        font-size: 0.84rem;
+        white-space: nowrap;
+
+        &:hover {
+          background: var(--surface-hover);
+          color: var(--text-primary);
+        }
+      }
+
+      .editor-scroll {
+        min-height: 0;
+        flex: 1;
+        overflow: auto;
+        background: var(--surface);
+      }
+
+      .page-cover {
+        height: 12.8rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .page-body {
+        width: min(56rem, 100%);
+        margin-inline: auto;
+        padding: 1.7rem 2.8rem 6.5rem;
+      }
+
+      .page-tools {
+        display: flex;
+        align-items: center;
+        gap: 0.38rem;
+        margin-bottom: 0.85rem;
+        position: relative;
+      }
+
+      .tool-button {
+        border: 0;
+        background: transparent;
+        color: var(--text-secondary);
+        border-radius: var(--radius);
+        padding: 0.28rem 0.54rem;
+        min-height: 1.9rem;
+        cursor: pointer;
+        font-size: 0.84rem;
+
+        &:hover {
+          background: var(--surface-hover);
+          color: var(--text-primary);
+        }
+      }
+
+      .page-title-input {
+        width: 100%;
+        border: 0;
+        outline: none;
+        background: transparent;
+        color: var(--text-primary);
+        font-size: clamp(2rem, 4vw, 2.4rem);
+        line-height: 1.2;
+        font-weight: 690;
+        margin-bottom: 1.2rem;
+        padding: 0;
+      }
+
+      .cover-picker {
+        position: absolute;
+        top: 2.35rem;
+        left: 3.6rem;
+        width: min(24rem, calc(100vw - 2rem));
+        border-radius: 0.45rem;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+        padding: 0.5rem;
+        z-index: 22;
+      }
+
+      .cover-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.38rem;
+      }
+
+      .cover-swatch {
+        border: 1px solid var(--border);
+        border-radius: 0.32rem;
+        height: 2.1rem;
+        cursor: pointer;
+        transition: transform 100ms ease, border-color 120ms ease;
+
+        &:hover {
+          transform: translateY(-0.06rem);
+          border-color: var(--accent);
+        }
+
+        &[data-selected="true"] {
+          border-color: var(--accent);
+          box-shadow: 0 0 0 0.1rem oklch(from var(--accent) l c h / 0.23);
+        }
+      }
+
+      .cover-caption {
+        margin: 0.42rem 0 0 0.05rem;
+        font-size: 0.76rem;
+        color: var(--text-tertiary);
+      }
+
+      .blocks {
+        display: flex;
+        flex-direction: column;
+        gap: 0.08rem;
+      }
+
+      .block {
+        display: grid;
+        grid-template-columns: 1.45rem minmax(0, 1fr);
+        align-items: start;
+        min-height: 2.05rem;
+      }
+
+      .block-controls {
+        min-height: 2.05rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .control-button {
+        width: 1.15rem;
+        height: 1.15rem;
+        border-radius: 0.25rem;
+        border: 0;
+        background: transparent;
+        color: var(--text-tertiary);
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 110ms ease, background-color 110ms ease;
+
+        &:hover {
+          background: var(--surface-hover);
+          color: var(--text-primary);
+        }
+      }
+
+      .block:hover .control-button {
+        opacity: 1;
+      }
+
+      .block-main {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.52rem;
+        margin-left: calc(var(--depth) * 1.2rem);
+        min-width: 0;
+      }
+
+      .block-edit {
+        flex: 1;
+        min-width: 0;
+        min-height: 2.05rem;
+        padding: 0.32rem 0.08rem;
+        border-radius: 0.28rem;
+        outline: none;
+        white-space: pre-wrap;
+        word-break: break-word;
+
+        &:empty::before {
+          content: attr(data-placeholder);
+          color: var(--text-tertiary);
+          pointer-events: none;
+        }
+
+        &:focus {
+          background: var(--surface-muted);
+        }
+      }
+
+      .marker {
+        width: 1.15rem;
+        text-align: center;
+        color: var(--text-secondary);
+        padding-top: 0.43rem;
+        flex: 0 0 auto;
+      }
+
+      .todo-check {
+        width: 1.06rem;
+        height: 1.06rem;
+        margin-top: 0.46rem;
+        border-radius: 0.22rem;
+        border: 1px solid var(--border);
+        background: transparent;
+        cursor: pointer;
+        position: relative;
+        flex: 0 0 auto;
+
+        &:hover {
+          border-color: var(--accent);
+          background: oklch(from var(--accent) l c h / 0.12);
+        }
+
+        &.is-checked {
+          border-color: var(--accent);
+          background: var(--accent);
+        }
+
+        &.is-checked::after {
+          content: "";
+          position: absolute;
+          inset: 0.1rem 0.22rem 0.26rem 0.22rem;
+          border-right: 2px solid oklch(0.99 0 0);
+          border-bottom: 2px solid oklch(0.99 0 0);
+          transform: rotate(42deg);
+        }
+      }
+
+      .block[data-type="heading1"] .block-edit {
+        font-size: 1.86rem;
+        line-height: 1.26;
+        font-weight: 700;
+      }
+
+      .block[data-type="heading2"] .block-edit {
+        font-size: 1.42rem;
+        line-height: 1.3;
+        font-weight: 680;
+      }
+
+      .block[data-type="heading3"] .block-edit {
+        font-size: 1.1rem;
+        line-height: 1.35;
+        font-weight: 640;
+      }
+
+      .block[data-type="quote"] .block-main {
+        border-left: 3px solid var(--accent-soft);
+        padding-left: 0.66rem;
+      }
+
+      .block[data-type="code"] .block-edit {
+        font-family: var(--font-mono);
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-radius: 0.32rem;
+        padding: 0.55rem 0.72rem;
+      }
+
+      .block[data-type="callout"] .block-main {
+        background: var(--callout-bg);
+        border: 1px solid var(--border);
+        border-radius: 0.36rem;
+        padding: 0.2rem 0.42rem;
+      }
+
+      .callout-icon {
+        width: 1.2rem;
+        text-align: center;
+        padding-top: 0.38rem;
+        color: var(--text-secondary);
+      }
+
+      .block[data-type="todo"] .block-edit {
+        padding-top: 0.26rem;
+      }
+
+      .block[data-type="todo"][data-checked="true"] .block-edit {
+        color: var(--text-tertiary);
+        text-decoration: line-through;
+      }
+
+      .add-end-button {
+        margin-top: 0.85rem;
+        border: 0;
+        background: transparent;
+        color: var(--text-secondary);
+        border-radius: var(--radius);
+        min-height: 2rem;
+        padding: 0.2rem 0.45rem;
+        cursor: pointer;
+        font-size: 0.86rem;
+
+        &:hover {
+          background: var(--surface-hover);
+          color: var(--text-primary);
+        }
+      }
+
+      .empty-hint {
+        color: var(--text-tertiary);
+        font-size: 0.84rem;
+        margin-top: 0.2rem;
+      }
+
+      .slash-menu {
+        position: fixed;
+        width: min(20rem, calc(100vw - 1.2rem));
+        border: 1px solid var(--border);
+        border-radius: 0.42rem;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+        padding: 0.26rem;
+        z-index: 60;
+      }
+
+      .command-button {
+        width: 100%;
+        border: 0;
+        background: transparent;
+        border-radius: 0.28rem;
+        text-align: left;
+        cursor: pointer;
+        display: grid;
+        grid-template-columns: 1.3rem minmax(0, 1fr);
+        gap: 0.46rem;
+        align-items: center;
+        padding: 0.42rem 0.45rem;
+        color: var(--text-secondary);
+
+        &:hover,
+        &[data-selected="true"] {
+          background: var(--surface-hover);
+          color: var(--text-primary);
+        }
+      }
+
+      .command-icon {
+        color: var(--text-tertiary);
+        text-align: center;
+      }
+
+      .command-label {
+        font-size: 0.84rem;
+        color: var(--text-primary);
+      }
+
+      .command-desc {
+        font-size: 0.74rem;
+        color: var(--text-tertiary);
+      }
+
+      .mobile-shade {
+        position: fixed;
+        inset: 0;
+        background: var(--overlay);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 180ms ease;
+        z-index: 26;
+
+        &[data-show="true"] {
+          opacity: 1;
+          pointer-events: auto;
+        }
+      }
+
+      @media (max-width: 900px) {
+        .app {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .sidebar {
+          position: fixed;
+          inset: 0 auto 0 0;
+          width: min(18.5rem, 84vw);
+          z-index: 40;
+          transform: translateX(-100%);
+          box-shadow: var(--shadow);
+        }
+
+        .sidebar[data-open="true"] {
+          transform: translateX(0);
+        }
+
+        .page-cover {
+          height: 8.9rem;
+        }
+
+        .page-body {
+          padding: 1.2rem 1rem 5.2rem;
+        }
+
+        .desktop-only {
+          display: none;
+        }
+      }
+
+      @media (min-width: 901px) {
+        .mobile-only {
+          display: none;
+        }
+
+        .mobile-shade {
+          display: none;
+        }
+      }
+    }
+
+    @layer utility {
+      .is-hidden {
+        display: none !important;
+      }
+
+      .truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app" data-app>
+    <aside class="sidebar" data-sidebar data-open="true">
+      <div class="sidebar-header">
+        <button class="workspace-pill" type="button">
+          <span class="workspace-dot">N</span>
+          <span>Notion Clone</span>
+        </button>
+        <button class="icon-button desktop-only" data-action="toggle-sidebar" type="button" aria-label="サイドバー切替">
+          ⌃
+        </button>
+      </div>
+      <div class="sidebar-search-wrap">
+        <input class="sidebar-search" data-role="sidebar-search" type="text" placeholder="ページを検索">
+      </div>
+      <div class="sidebar-title">Pages</div>
+      <ul class="page-list" data-page-list></ul>
+      <button class="new-page-button" data-action="new-page" type="button">+ 新しいページ</button>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="chip-button mobile-only" data-action="toggle-sidebar" type="button">☰</button>
+          <div class="breadcrumb truncate">
+            <span>Workspace</span>
+            <span>/</span>
+            <span class="truncate" data-role="breadcrumb-title">Untitled</span>
+          </div>
+        </div>
+        <div class="topbar-left">
+          <div class="topbar-meta" data-role="edited-label">編集: たった今</div>
+          <button class="chip-button" data-action="toggle-theme" type="button">ダーク</button>
+        </div>
+      </header>
+
+      <section class="editor-scroll">
+        <div class="page-cover" data-role="page-cover"></div>
+        <div class="page-body">
+          <div class="page-tools">
+            <button class="tool-button" data-action="cycle-icon" data-role="page-icon" type="button">📝</button>
+            <button class="tool-button" data-action="toggle-cover-picker" type="button">カバー</button>
+            <div class="cover-picker is-hidden" data-role="cover-picker"></div>
+          </div>
+          <input class="page-title-input" data-role="page-title" type="text" placeholder="Untitled">
+          <div class="blocks" data-role="blocks"></div>
+          <button class="add-end-button" data-action="add-block-end" type="button">+ ブロックを追加</button>
+          <div class="empty-hint is-hidden" data-role="empty-hint">`/` でブロックタイプを切り替えられます</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="mobile-shade" data-mobile-shade data-show="false" data-action="close-sidebar"></div>
+  <div class="slash-menu is-hidden" data-role="slash-menu"></div>
+
+  <script>
+    (() => {
+      const qs = (sel, root = document) => root.querySelector(sel);
+      const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+      const STORAGE_KEY = "local_notion_clone_state_v1";
+      const MAX_DEPTH = 4;
+      const ICON_CYCLE = ["📝", "📄", "📘", "🧠", "✨", "📌", "✅", "🗂️"];
+      const COMMANDS = [
+        { type: "paragraph", icon: "¶", label: "Text", description: "通常のテキスト", alias: "text paragraph p" },
+        { type: "heading1", icon: "H1", label: "Heading 1", description: "大見出し", alias: "h1 heading title" },
+        { type: "heading2", icon: "H2", label: "Heading 2", description: "中見出し", alias: "h2 heading subtitle" },
+        { type: "heading3", icon: "H3", label: "Heading 3", description: "小見出し", alias: "h3 heading subheading" },
+        { type: "bulleted", icon: "•", label: "Bulleted List", description: "箇条書き", alias: "bullet list" },
+        { type: "numbered", icon: "1.", label: "Numbered List", description: "番号付きリスト", alias: "number list ordered" },
+        { type: "todo", icon: "☑", label: "To-do", description: "チェックリスト", alias: "todo checkbox task" },
+        { type: "quote", icon: "❝", label: "Quote", description: "引用ブロック", alias: "quote" },
+        { type: "callout", icon: "💡", label: "Callout", description: "注意メモ", alias: "callout note" },
+        { type: "code", icon: "</>", label: "Code", description: "コードブロック", alias: "code snippet" }
+      ];
+      const COVER_PRESETS = [
+        { id: "paper", label: "Paper", css: "linear-gradient(130deg, oklch(0.97 0.01 95), oklch(0.9 0.025 80))" },
+        { id: "mint", label: "Mint", css: "linear-gradient(130deg, oklch(0.95 0.05 165), oklch(0.86 0.09 160))" },
+        { id: "sky", label: "Sky", css: "linear-gradient(130deg, oklch(0.93 0.05 245), oklch(0.83 0.11 248))" },
+        { id: "sunset", label: "Sunset", css: "linear-gradient(130deg, oklch(0.9 0.11 55), oklch(0.78 0.14 35))" },
+        { id: "rose", label: "Rose", css: "linear-gradient(130deg, oklch(0.92 0.07 8), oklch(0.83 0.12 352))" },
+        { id: "forest", label: "Forest", css: "linear-gradient(130deg, oklch(0.74 0.1 148), oklch(0.58 0.11 152))" },
+        { id: "slate", label: "Slate", css: "linear-gradient(130deg, oklch(0.7 0.02 260), oklch(0.54 0.02 264))" },
+        { id: "cream", label: "Cream", css: "linear-gradient(130deg, oklch(0.96 0.015 90), oklch(0.9 0.03 74))" }
+      ];
+      const COVER_BY_ID = Object.fromEntries(COVER_PRESETS.map((cover) => [cover.id, cover]));
+
+      const $root = document.documentElement;
+      const $sidebar = qs("[data-sidebar]");
+      const $mobileShade = qs("[data-mobile-shade]");
+      const $searchInput = qs("[data-role='sidebar-search']");
+      const $pageList = qs("[data-page-list]");
+      const $cover = qs("[data-role='page-cover']");
+      const $coverPicker = qs("[data-role='cover-picker']");
+      const $titleInput = qs("[data-role='page-title']");
+      const $iconButton = qs("[data-role='page-icon']");
+      const $blocks = qs("[data-role='blocks']");
+      const $editedLabel = qs("[data-role='edited-label']");
+      const $breadcrumbTitle = qs("[data-role='breadcrumb-title']");
+      const $emptyHint = qs("[data-role='empty-hint']");
+      const $slashMenu = qs("[data-role='slash-menu']");
+      const $themeButton = qs("[data-action='toggle-theme']");
+
+      let _state = _loadState();
+      let _sidebarFilter = "";
+      let _coverPickerOpen = false;
+      let _saveTimer = 0;
+      let _slash = {
+        open: false,
+        blockId: "",
+        query: "",
+        index: 0,
+        x: 0,
+        y: 0,
+        items: []
+      };
+
+      _initialize();
+
+      function _initialize() {
+        _setTheme(_state.theme);
+        _renderCoverPicker();
+        if (window.matchMedia("(max-width: 900px)").matches) {
+          _state.sidebarOpen = false;
+        }
+        _setSidebarOpen(_state.sidebarOpen);
+        _renderAll();
+        _bindEvents();
+      }
+
+      function _bindEvents() {
+        document.addEventListener("click", _handleClick);
+        document.addEventListener("keydown", _handleGlobalKeyDown);
+        $searchInput.addEventListener("input", _handleSearchInput);
+        $titleInput.addEventListener("input", _handleTitleInput);
+        $blocks.addEventListener("input", _handleBlocksInput);
+        $blocks.addEventListener("keydown", _handleBlocksKeyDown);
+      }
+
+      function _handleClick(event) {
+        const $target = event.target;
+
+        if (_slash.open && !$target.closest("[data-role='slash-menu']") && !$target.closest("[data-role='block-edit']")) {
+          _closeSlashMenu();
+        }
+
+        if (_coverPickerOpen && !$target.closest("[data-role='cover-picker']") && !$target.closest("[data-action='toggle-cover-picker']")) {
+          _coverPickerOpen = false;
+          _renderCoverPickerState();
+        }
+
+        const $action = $target.closest("[data-action]");
+        if ($action) {
+          const action = $action.dataset.action;
+          if (action === "toggle-sidebar") {
+            _setSidebarOpen(!_state.sidebarOpen);
+            _saveState();
+            return;
+          }
+          if (action === "close-sidebar") {
+            _setSidebarOpen(false);
+            _saveState();
+            return;
+          }
+          if (action === "toggle-theme") {
+            _setTheme(_state.theme === "light" ? "dark" : "light");
+            _saveState();
+            return;
+          }
+          if (action === "new-page") {
+            _createNewPage();
+            return;
+          }
+          if (action === "duplicate-page") {
+            const pageId = $action.dataset.pageId;
+            _duplicatePage(pageId);
+            return;
+          }
+          if (action === "delete-page") {
+            const pageId = $action.dataset.pageId;
+            _deletePage(pageId);
+            return;
+          }
+          if (action === "cycle-icon") {
+            _cyclePageIcon();
+            return;
+          }
+          if (action === "toggle-cover-picker") {
+            _coverPickerOpen = !_coverPickerOpen;
+            _renderCoverPickerState();
+            return;
+          }
+          if (action === "choose-cover") {
+            const coverId = $action.dataset.coverId;
+            _chooseCover(coverId);
+            return;
+          }
+          if (action === "add-block-end") {
+            _addBlockToEnd();
+            return;
+          }
+          if (action === "insert-block-after") {
+            const blockId = $action.dataset.blockId;
+            _insertBlockAfter(blockId, "paragraph");
+            return;
+          }
+          if (action === "toggle-todo") {
+            const blockId = $action.dataset.blockId;
+            _toggleTodo(blockId);
+            return;
+          }
+          if (action === "choose-command") {
+            const commandType = $action.dataset.commandType;
+            _applySlashCommand(commandType);
+            return;
+          }
+        }
+
+        const $pageItem = $target.closest(".page-item[data-page-id]");
+        if ($pageItem) {
+          _selectPage($pageItem.dataset.pageId);
+        }
+      }
+
+      function _handleGlobalKeyDown(event) {
+        if (event.key === "Escape") {
+          _closeSlashMenu();
+          if (_coverPickerOpen) {
+            _coverPickerOpen = false;
+            _renderCoverPickerState();
+          }
+        }
+
+        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+          event.preventDefault();
+          $searchInput.focus();
+          $searchInput.select();
+        }
+      }
+
+      function _handleSearchInput() {
+        _sidebarFilter = $searchInput.value.trim().toLowerCase();
+        _renderSidebar();
+      }
+
+      function _handleTitleInput() {
+        const page = _activePage();
+        if (!page) {
+          return;
+        }
+        const title = $titleInput.value;
+        page.title = title;
+        _touchPage(page);
+        _renderTopMeta(page);
+        _renderSidebar();
+        _saveState();
+      }
+
+      function _handleBlocksInput(event) {
+        const $editable = event.target.closest("[data-role='block-edit']");
+        if (!$editable) {
+          return;
+        }
+
+        const blockId = $editable.closest("[data-block-id]")?.dataset.blockId;
+        const result = _findBlock(blockId);
+        if (!result) {
+          return;
+        }
+
+        result.block.text = _readEditableText($editable);
+        _touchPage(result.page);
+        _renderTopMeta(result.page);
+        _saveState();
+
+        if (_convertMarkdownShortcut(result.block)) {
+          _touchPage(result.page);
+          _saveState();
+          _renderBlocks();
+          _focusBlock(result.block.id);
+          return;
+        }
+
+        _updateSlashFromEditable(result.block, $editable);
+      }
+
+      function _handleBlocksKeyDown(event) {
+        const $editable = event.target.closest("[data-role='block-edit']");
+        if (!$editable) {
+          return;
+        }
+
+        const blockId = $editable.closest("[data-block-id]")?.dataset.blockId;
+        const result = _findBlock(blockId);
+        if (!result) {
+          return;
+        }
+
+        if (_slash.open && _slash.blockId === result.block.id) {
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            _slash.index = (_slash.index + 1) % _slash.items.length;
+            _highlightSlashSelection();
+            return;
+          }
+          if (event.key === "ArrowUp") {
+            event.preventDefault();
+            _slash.index = (_slash.index - 1 + _slash.items.length) % _slash.items.length;
+            _highlightSlashSelection();
+            return;
+          }
+          if (event.key === "Enter" || event.key === "Tab") {
+            event.preventDefault();
+            const command = _slash.items[_slash.index];
+            if (command) {
+              _applySlashCommand(command.type);
+            }
+            return;
+          }
+        }
+
+        if (event.key === "Enter" && !event.shiftKey) {
+          event.preventDefault();
+          _splitBlock(result);
+          return;
+        }
+
+        if (event.key === "Backspace" && !event.shiftKey) {
+          const text = _readEditableText($editable);
+          if (!text && result.page.blocks.length > 1 && _caretIsAtStart($editable)) {
+            event.preventDefault();
+            const fallbackBlock = result.page.blocks[Math.max(0, result.index - 1)];
+            result.page.blocks.splice(result.index, 1);
+            _touchPage(result.page);
+            _saveState();
+            _renderBlocks();
+            _focusBlock(fallbackBlock.id);
+            return;
+          }
+        }
+
+        if (event.key === "Tab" && _isNestable(result.block.type)) {
+          event.preventDefault();
+          const direction = event.shiftKey ? -1 : 1;
+          result.block.depth = _clamp((result.block.depth || 0) + direction, 0, MAX_DEPTH);
+          _touchPage(result.page);
+          _saveState();
+          _renderBlocks();
+          _focusBlock(result.block.id);
+        }
+      }
+
+      function _renderAll() {
+        _renderSidebar();
+        _renderPageHeader();
+        _renderBlocks();
+        _renderSlashMenu();
+      }
+
+      function _renderSidebar() {
+        const pages = _state.pages.filter((page) => {
+          if (!_sidebarFilter) {
+            return true;
+          }
+          return (page.title || "Untitled").toLowerCase().includes(_sidebarFilter);
+        });
+
+        if (!pages.length) {
+          $pageList.innerHTML = "<li class='empty-pages'>一致するページがありません</li>";
+          return;
+        }
+
+        $pageList.innerHTML = pages.map((page) => {
+          const title = page.title && page.title.trim() ? page.title : "Untitled";
+          const active = page.id === _state.activePageId ? "true" : "false";
+          return `
+            <li class="page-item" data-page-id="${page.id}" data-active="${active}">
+              <span>${_escapeHtml(page.icon || "📄")}</span>
+              <span class="page-title truncate">${_escapeHtml(title)}</span>
+              <span class="page-actions">
+                <button class="icon-button" type="button" data-action="duplicate-page" data-page-id="${page.id}" aria-label="複製">⧉</button>
+                <button class="icon-button" type="button" data-action="delete-page" data-page-id="${page.id}" aria-label="削除">×</button>
+              </span>
+            </li>
+          `;
+        }).join("");
+      }
+
+      function _renderPageHeader() {
+        const page = _activePage();
+        if (!page) {
+          return;
+        }
+
+        const title = page.title && page.title.trim() ? page.title : "Untitled";
+        const cover = COVER_BY_ID[page.cover] || COVER_PRESETS[0];
+        $titleInput.value = page.title || "";
+        $iconButton.textContent = page.icon || "📄";
+        $cover.style.background = cover.css;
+        $breadcrumbTitle.textContent = title;
+        _renderTopMeta(page);
+        _renderCoverPickerState();
+      }
+
+      function _renderTopMeta(page) {
+        $editedLabel.textContent = `編集: ${_formatRelativeTime(page.updatedAt)}`;
+      }
+
+      function _renderBlocks() {
+        const page = _activePage();
+        if (!page) {
+          return;
+        }
+
+        if (!page.blocks.length) {
+          page.blocks.push(_createBlock("paragraph"));
+        }
+
+        const numberedMap = _buildNumberMap(page.blocks);
+        $blocks.innerHTML = page.blocks.map((block) => _renderBlock(block, numberedMap)).join("");
+        $emptyHint.classList.toggle("is-hidden", page.blocks.length !== 1);
+      }
+
+      function _renderBlock(block, numberedMap) {
+        const type = block.type || "paragraph";
+        const depth = _clamp(Number(block.depth) || 0, 0, MAX_DEPTH);
+        const textHtml = _renderText(block.text || "");
+        const placeholder = type === "paragraph" ? "Type '/' for commands" : "";
+        const checked = block.checked ? "true" : "false";
+
+        if (type === "todo") {
+          return `
+            <div class="block" data-block-id="${block.id}" data-type="${type}" data-checked="${checked}" style="--depth:${depth}">
+              <div class="block-controls">
+                <button class="control-button" type="button" data-action="insert-block-after" data-block-id="${block.id}" aria-label="下に追加">+</button>
+              </div>
+              <div class="block-main">
+                <button class="todo-check ${block.checked ? "is-checked" : ""}" type="button" data-action="toggle-todo" data-block-id="${block.id}" aria-label="チェック切替"></button>
+                <div class="block-edit" data-role="block-edit" data-placeholder="${placeholder}" contenteditable="true" spellcheck="true">${textHtml}</div>
+              </div>
+            </div>
+          `;
+        }
+
+        if (type === "bulleted") {
+          return `
+            <div class="block" data-block-id="${block.id}" data-type="${type}" style="--depth:${depth}">
+              <div class="block-controls">
+                <button class="control-button" type="button" data-action="insert-block-after" data-block-id="${block.id}" aria-label="下に追加">+</button>
+              </div>
+              <div class="block-main">
+                <span class="marker">•</span>
+                <div class="block-edit" data-role="block-edit" data-placeholder="${placeholder}" contenteditable="true" spellcheck="true">${textHtml}</div>
+              </div>
+            </div>
+          `;
+        }
+
+        if (type === "numbered") {
+          return `
+            <div class="block" data-block-id="${block.id}" data-type="${type}" style="--depth:${depth}">
+              <div class="block-controls">
+                <button class="control-button" type="button" data-action="insert-block-after" data-block-id="${block.id}" aria-label="下に追加">+</button>
+              </div>
+              <div class="block-main">
+                <span class="marker">${numberedMap[block.id] || 1}.</span>
+                <div class="block-edit" data-role="block-edit" data-placeholder="${placeholder}" contenteditable="true" spellcheck="true">${textHtml}</div>
+              </div>
+            </div>
+          `;
+        }
+
+        if (type === "callout") {
+          return `
+            <div class="block" data-block-id="${block.id}" data-type="${type}" style="--depth:${depth}">
+              <div class="block-controls">
+                <button class="control-button" type="button" data-action="insert-block-after" data-block-id="${block.id}" aria-label="下に追加">+</button>
+              </div>
+              <div class="block-main">
+                <span class="callout-icon">💡</span>
+                <div class="block-edit" data-role="block-edit" data-placeholder="${placeholder}" contenteditable="true" spellcheck="true">${textHtml}</div>
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="block" data-block-id="${block.id}" data-type="${type}" style="--depth:${depth}">
+            <div class="block-controls">
+              <button class="control-button" type="button" data-action="insert-block-after" data-block-id="${block.id}" aria-label="下に追加">+</button>
+            </div>
+            <div class="block-main">
+              <div class="block-edit" data-role="block-edit" data-placeholder="${placeholder}" contenteditable="true" spellcheck="true">${textHtml}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      function _renderCoverPicker() {
+        $coverPicker.innerHTML = `
+          <div class="cover-grid">
+            ${COVER_PRESETS.map((cover) => `
+              <button
+                class="cover-swatch"
+                type="button"
+                data-action="choose-cover"
+                data-cover-id="${cover.id}"
+                title="${cover.label}">
+              </button>
+            `).join("")}
+          </div>
+          <p class="cover-caption">カバーを選択</p>
+        `;
+
+        qsa(".cover-swatch", $coverPicker).forEach(($swatch) => {
+          const cover = COVER_BY_ID[$swatch.dataset.coverId];
+          if (cover) {
+            $swatch.style.background = cover.css;
+          }
+        });
+      }
+
+      function _renderCoverPickerState() {
+        const page = _activePage();
+        if (!page) {
+          return;
+        }
+        $coverPicker.classList.toggle("is-hidden", !_coverPickerOpen);
+        qsa(".cover-swatch", $coverPicker).forEach(($swatch) => {
+          $swatch.dataset.selected = $swatch.dataset.coverId === page.cover ? "true" : "false";
+        });
+      }
+
+      function _renderSlashMenu() {
+        if (!_slash.open) {
+          $slashMenu.classList.add("is-hidden");
+          $slashMenu.innerHTML = "";
+          return;
+        }
+
+        const left = Math.max(10, Math.min(window.innerWidth - 320, _slash.x));
+        const top = Math.max(10, Math.min(window.innerHeight - 230, _slash.y));
+        $slashMenu.style.left = `${left}px`;
+        $slashMenu.style.top = `${top}px`;
+
+        $slashMenu.innerHTML = _slash.items.map((item, index) => `
+          <button
+            class="command-button"
+            type="button"
+            data-action="choose-command"
+            data-command-type="${item.type}"
+            data-command-index="${index}"
+            data-selected="${index === _slash.index ? "true" : "false"}">
+            <span class="command-icon">${_escapeHtml(item.icon)}</span>
+            <span>
+              <div class="command-label">${_escapeHtml(item.label)}</div>
+              <div class="command-desc">${_escapeHtml(item.description)}</div>
+            </span>
+          </button>
+        `).join("");
+
+        $slashMenu.classList.remove("is-hidden");
+      }
+
+      function _highlightSlashSelection() {
+        qsa("[data-command-index]", $slashMenu).forEach(($button) => {
+          const selected = Number($button.dataset.commandIndex) === _slash.index;
+          $button.dataset.selected = selected ? "true" : "false";
+        });
+      }
+
+      function _setTheme(theme) {
+        _state.theme = theme === "dark" ? "dark" : "light";
+        $root.dataset.theme = _state.theme;
+        document.documentElement.style.colorScheme = _state.theme;
+        $themeButton.textContent = _state.theme === "dark" ? "ライト" : "ダーク";
+      }
+
+      function _setSidebarOpen(open) {
+        _state.sidebarOpen = Boolean(open);
+        $sidebar.dataset.open = _state.sidebarOpen ? "true" : "false";
+        $mobileShade.dataset.show = _state.sidebarOpen ? "true" : "false";
+      }
+
+      function _selectPage(pageId) {
+        if (!_state.pages.some((page) => page.id === pageId)) {
+          return;
+        }
+        _state.activePageId = pageId;
+        _closeSlashMenu();
+        _coverPickerOpen = false;
+        _renderAll();
+        if (window.matchMedia("(max-width: 900px)").matches) {
+          _setSidebarOpen(false);
+        }
+        _saveState();
+      }
+
+      function _createNewPage() {
+        const page = _createPage("Untitled");
+        _state.pages.unshift(page);
+        _state.activePageId = page.id;
+        _coverPickerOpen = false;
+        _renderAll();
+        _saveState();
+        requestAnimationFrame(() => {
+          $titleInput.focus();
+          $titleInput.select();
+        });
+      }
+
+      function _duplicatePage(pageId) {
+        const index = _state.pages.findIndex((page) => page.id === pageId);
+        if (index < 0) {
+          return;
+        }
+        const source = _state.pages[index];
+        const clone = {
+          ...source,
+          id: _id(),
+          title: `${source.title || "Untitled"} Copy`,
+          updatedAt: Date.now(),
+          blocks: source.blocks.map((block) => ({
+            ...block,
+            id: _id()
+          }))
+        };
+        _state.pages.splice(index + 1, 0, clone);
+        _state.activePageId = clone.id;
+        _renderAll();
+        _saveState();
+      }
+
+      function _deletePage(pageId) {
+        const index = _state.pages.findIndex((page) => page.id === pageId);
+        if (index < 0) {
+          return;
+        }
+
+        if (_state.pages.length === 1) {
+          _state.pages = [_createPage("Untitled")];
+          _state.activePageId = _state.pages[0].id;
+          _renderAll();
+          _saveState();
+          return;
+        }
+
+        _state.pages.splice(index, 1);
+        if (!_state.pages.some((page) => page.id === _state.activePageId)) {
+          const fallbackIndex = Math.max(0, index - 1);
+          _state.activePageId = _state.pages[fallbackIndex].id;
+        }
+        _renderAll();
+        _saveState();
+      }
+
+      function _chooseCover(coverId) {
+        const page = _activePage();
+        if (!page || !COVER_BY_ID[coverId]) {
+          return;
+        }
+        page.cover = coverId;
+        _touchPage(page);
+        _renderPageHeader();
+        _saveState();
+      }
+
+      function _cyclePageIcon() {
+        const page = _activePage();
+        if (!page) {
+          return;
+        }
+        const currentIndex = ICON_CYCLE.indexOf(page.icon);
+        const nextIndex = currentIndex < 0 ? 0 : (currentIndex + 1) % ICON_CYCLE.length;
+        page.icon = ICON_CYCLE[nextIndex];
+        _touchPage(page);
+        _renderPageHeader();
+        _renderSidebar();
+        _saveState();
+      }
+
+      function _addBlockToEnd() {
+        const page = _activePage();
+        if (!page) {
+          return;
+        }
+        const block = _createBlock("paragraph");
+        page.blocks.push(block);
+        _touchPage(page);
+        _renderBlocks();
+        _saveState();
+        _focusBlock(block.id);
+      }
+
+      function _insertBlockAfter(blockId, type) {
+        const result = _findBlock(blockId);
+        if (!result) {
+          return;
+        }
+        const block = _createBlock(type || "paragraph");
+        result.page.blocks.splice(result.index + 1, 0, block);
+        _touchPage(result.page);
+        _renderBlocks();
+        _saveState();
+        _focusBlock(block.id);
+      }
+
+      function _toggleTodo(blockId) {
+        const result = _findBlock(blockId);
+        if (!result || result.block.type !== "todo") {
+          return;
+        }
+        result.block.checked = !result.block.checked;
+        _touchPage(result.page);
+        _renderBlocks();
+        _saveState();
+        _focusBlock(blockId, false);
+      }
+
+      function _applySlashCommand(type) {
+        if (!_slash.open) {
+          return;
+        }
+        const result = _findBlock(_slash.blockId);
+        if (!result) {
+          _closeSlashMenu();
+          return;
+        }
+
+        result.block.type = type;
+        if (!result.block.text) {
+          result.block.text = "";
+        }
+        if (result.block.text.trimStart().startsWith("/")) {
+          result.block.text = "";
+        }
+        if (type !== "todo") {
+          result.block.checked = false;
+        }
+        if (!_isNestable(type)) {
+          result.block.depth = 0;
+        }
+
+        _touchPage(result.page);
+        _saveState();
+        _closeSlashMenu();
+        _renderBlocks();
+        _focusBlock(result.block.id);
+      }
+
+      function _splitBlock(result) {
+        const page = result.page;
+        const block = result.block;
+        const text = (block.text || "").trim();
+        if (_isNestable(block.type) && !text) {
+          block.type = "paragraph";
+          block.depth = 0;
+          block.checked = false;
+          _touchPage(page);
+          _saveState();
+          _renderBlocks();
+          _focusBlock(block.id);
+          return;
+        }
+
+        const nextType = _isNestable(block.type) ? block.type : "paragraph";
+        const nextDepth = _isNestable(block.type) ? block.depth || 0 : 0;
+        const newBlock = _createBlock(nextType, "", {
+          depth: nextDepth,
+          checked: false
+        });
+        page.blocks.splice(result.index + 1, 0, newBlock);
+        _touchPage(page);
+        _saveState();
+        _renderBlocks();
+        _focusBlock(newBlock.id);
+      }
+
+      function _updateSlashFromEditable(block, $editable) {
+        if (block.type === "code") {
+          _closeSlashMenu();
+          return;
+        }
+
+        const text = block.text || "";
+        const trimmed = text.trimStart();
+        if (!trimmed.startsWith("/") || trimmed.includes("\n")) {
+          if (_slash.blockId === block.id) {
+            _closeSlashMenu();
+          }
+          return;
+        }
+
+        const query = trimmed.slice(1).trim().toLowerCase();
+        const items = COMMANDS.filter((command) => {
+          return (
+            command.label.toLowerCase().includes(query) ||
+            command.description.toLowerCase().includes(query) ||
+            command.alias.includes(query) ||
+            command.type.includes(query)
+          );
+        });
+
+        if (!items.length) {
+          _closeSlashMenu();
+          return;
+        }
+
+        const rect = $editable.getBoundingClientRect();
+        _slash = {
+          open: true,
+          blockId: block.id,
+          query,
+          index: 0,
+          x: rect.left,
+          y: rect.bottom + 8,
+          items
+        };
+        _renderSlashMenu();
+      }
+
+      function _closeSlashMenu() {
+        _slash = {
+          open: false,
+          blockId: "",
+          query: "",
+          index: 0,
+          x: 0,
+          y: 0,
+          items: []
+        };
+        _renderSlashMenu();
+      }
+
+      function _convertMarkdownShortcut(block) {
+        const text = block.text || "";
+        const patterns = [
+          { regex: /^###\s+/, type: "heading3" },
+          { regex: /^##\s+/, type: "heading2" },
+          { regex: /^#\s+/, type: "heading1" },
+          { regex: /^>\s+/, type: "quote" },
+          { regex: /^- \[ \]\s+/i, type: "todo", checked: false },
+          { regex: /^- \[x\]\s+/i, type: "todo", checked: true },
+          { regex: /^\[ \]\s+/i, type: "todo", checked: false },
+          { regex: /^\[x\]\s+/i, type: "todo", checked: true },
+          { regex: /^-+\s+/, type: "bulleted" },
+          { regex: /^1\.\s+/, type: "numbered" }
+        ];
+
+        if (text.trim() === "```") {
+          block.type = "code";
+          block.text = "";
+          block.depth = 0;
+          block.checked = false;
+          return true;
+        }
+
+        for (const pattern of patterns) {
+          if (pattern.regex.test(text)) {
+            block.type = pattern.type;
+            block.text = text.replace(pattern.regex, "");
+            block.checked = Boolean(pattern.checked);
+            if (!_isNestable(pattern.type)) {
+              block.depth = 0;
+            }
+            return true;
+          }
+        }
+
+        return false;
+      }
+
+      function _readEditableText($editable) {
+        return $editable.innerText.replace(/\r/g, "").replace(/\n$/, "");
+      }
+
+      function _findBlock(blockId) {
+        if (!blockId) {
+          return null;
+        }
+        const page = _activePage();
+        if (!page) {
+          return null;
+        }
+        const index = page.blocks.findIndex((block) => block.id === blockId);
+        if (index < 0) {
+          return null;
+        }
+        return {
+          page,
+          index,
+          block: page.blocks[index]
+        };
+      }
+
+      function _focusBlock(blockId, toEnd = true) {
+        requestAnimationFrame(() => {
+          const selector = `[data-block-id="${CSS.escape(blockId)}"] [data-role="block-edit"]`;
+          const $editable = qs(selector, $blocks);
+          if (!$editable) {
+            return;
+          }
+          $editable.focus();
+          if (!toEnd) {
+            return;
+          }
+          const range = document.createRange();
+          range.selectNodeContents($editable);
+          range.collapse(false);
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+        });
+      }
+
+      function _caretIsAtStart($editable) {
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) {
+          return false;
+        }
+        const range = selection.getRangeAt(0);
+        if (!range.collapsed || !$editable.contains(range.endContainer)) {
+          return false;
+        }
+        const clone = range.cloneRange();
+        clone.selectNodeContents($editable);
+        clone.setEnd(range.endContainer, range.endOffset);
+        return clone.toString().length === 0;
+      }
+
+      function _activePage() {
+        const page = _state.pages.find((item) => item.id === _state.activePageId);
+        return page || _state.pages[0] || null;
+      }
+
+      function _touchPage(page) {
+        page.updatedAt = Date.now();
+      }
+
+      function _formatRelativeTime(timestamp) {
+        const diff = Date.now() - Number(timestamp || Date.now());
+        const minute = 60 * 1000;
+        const hour = 60 * minute;
+        const day = 24 * hour;
+
+        if (diff < minute) {
+          return "たった今";
+        }
+        if (diff < hour) {
+          return `${Math.floor(diff / minute)}分前`;
+        }
+        if (diff < day) {
+          return `${Math.floor(diff / hour)}時間前`;
+        }
+        return new Date(timestamp).toLocaleString("ja-JP", {
+          month: "numeric",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+      }
+
+      function _buildNumberMap(blocks) {
+        const counters = Array(MAX_DEPTH + 1).fill(0);
+        const map = {};
+        for (const block of blocks) {
+          if (block.type === "numbered") {
+            const depth = _clamp(Number(block.depth) || 0, 0, MAX_DEPTH);
+            counters[depth] += 1;
+            for (let index = depth + 1; index < counters.length; index += 1) {
+              counters[index] = 0;
+            }
+            map[block.id] = counters[depth];
+          } else {
+            counters.fill(0);
+          }
+        }
+        return map;
+      }
+
+      function _isNestable(type) {
+        return type === "bulleted" || type === "numbered" || type === "todo";
+      }
+
+      function _renderText(text) {
+        return _escapeHtml(text).replace(/\n/g, "<br>");
+      }
+
+      function _escapeHtml(text) {
+        return String(text)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function _clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function _id() {
+        if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+          return crypto.randomUUID();
+        }
+        return `id-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      }
+
+      function _createBlock(type = "paragraph", text = "", extra = {}) {
+        return {
+          id: _id(),
+          type,
+          text,
+          depth: _clamp(Number(extra.depth) || 0, 0, MAX_DEPTH),
+          checked: Boolean(extra.checked)
+        };
+      }
+
+      function _createPage(title = "Untitled") {
+        return {
+          id: _id(),
+          title,
+          icon: ICON_CYCLE[0],
+          cover: COVER_PRESETS[0].id,
+          updatedAt: Date.now(),
+          blocks: [
+            _createBlock("heading1", "Welcome to your page"),
+            _createBlock("paragraph", "Type '/' to open commands.")
+          ]
+        };
+      }
+
+      function _createDefaultState() {
+        const firstPage = _createPage("Quick Notes");
+        firstPage.blocks = [
+          _createBlock("heading1", "Quick Notes"),
+          _createBlock("paragraph", "完璧なメモ体験へようこそ。"),
+          _createBlock("todo", "最初のページを整える", { checked: false }),
+          _createBlock("bulleted", "必要なセクションを追加する", { depth: 0 })
+        ];
+
+        const secondPage = _createPage("Project Draft");
+        secondPage.icon = "📘";
+        secondPage.cover = "sky";
+        secondPage.blocks = [
+          _createBlock("heading2", "Roadmap"),
+          _createBlock("numbered", "MVP scope", { depth: 0 }),
+          _createBlock("numbered", "Feedback collection", { depth: 0 }),
+          _createBlock("callout", "期限より学習速度を優先する")
+        ];
+
+        return {
+          theme: "light",
+          sidebarOpen: true,
+          activePageId: firstPage.id,
+          pages: [firstPage, secondPage]
+        };
+      }
+
+      function _loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) {
+            return _createDefaultState();
+          }
+          const parsed = JSON.parse(raw);
+          return _normalizeState(parsed);
+        } catch (error) {
+          return _createDefaultState();
+        }
+      }
+
+      function _normalizeState(input) {
+        if (!input || typeof input !== "object") {
+          return _createDefaultState();
+        }
+
+        const pages = Array.isArray(input.pages) ? input.pages.map((page) => {
+          const blocks = Array.isArray(page.blocks) ? page.blocks.map((block) => ({
+            id: typeof block.id === "string" ? block.id : _id(),
+            type: typeof block.type === "string" ? block.type : "paragraph",
+            text: typeof block.text === "string" ? block.text : "",
+            depth: _clamp(Number(block.depth) || 0, 0, MAX_DEPTH),
+            checked: Boolean(block.checked)
+          })) : [_createBlock("paragraph")];
+
+          return {
+            id: typeof page.id === "string" ? page.id : _id(),
+            title: typeof page.title === "string" ? page.title : "Untitled",
+            icon: typeof page.icon === "string" && page.icon ? page.icon : ICON_CYCLE[0],
+            cover: COVER_BY_ID[page.cover] ? page.cover : COVER_PRESETS[0].id,
+            updatedAt: Number(page.updatedAt) || Date.now(),
+            blocks
+          };
+        }) : [];
+
+        if (!pages.length) {
+          return _createDefaultState();
+        }
+
+        const activePageId = pages.some((page) => page.id === input.activePageId) ? input.activePageId : pages[0].id;
+        return {
+          theme: input.theme === "dark" ? "dark" : "light",
+          sidebarOpen: Boolean(input.sidebarOpen),
+          activePageId,
+          pages
+        };
+      }
+
+      function _saveState() {
+        window.clearTimeout(_saveTimer);
+        _saveTimer = window.setTimeout(() => {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(_state));
+        }, 130);
+      }
+    })();
+  </script>
+</body>
+</html>

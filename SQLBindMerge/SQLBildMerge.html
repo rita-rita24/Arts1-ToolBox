@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SQL Bind Merge</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f172a'/%3E%3Cpath d='M16 20c0-4.4 7.2-8 16-8s16 3.6 16 8-7.2 8-16 8-16-3.6-16-8Zm0 10c0 4.4 7.2 8 16 8s16-3.6 16-8v8c0 4.4-7.2 8-16 8s-16-3.6-16-8v-8Zm0 18c0 4.4 7.2 8 16 8s16-3.6 16-8v-8c0 4.4-7.2 8-16 8s-16-3.6-16-8v8Z' fill='%235dade2'/%3E%3Cpath d='M6 34h11v-4l7 6-7 6v-4H6v-4Zm52 0H47v-4l-7 6 7 6v-4h11v-4Z' fill='%23f8fafc'/%3E%3C/svg%3E" />
+  <style>
+    @layer reset, base, component, utility;
+
+    @layer reset {
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html,
+      body,
+      h1,
+      h2,
+      p,
+      pre,
+      textarea,
+      button {
+        margin: 0;
+      }
+
+      button,
+      textarea {
+        font: inherit;
+        color: inherit;
+      }
+    }
+
+    @layer base {
+      :root {
+        --bg: oklch(0.98 0.01 250);
+        --surface: oklch(1 0 0);
+        --surface-muted: oklch(0.96 0.01 248);
+        --border: oklch(0.84 0.02 250);
+        --text: oklch(0.23 0.02 250);
+        --text-muted: oklch(0.5 0.02 250);
+        --primary: oklch(0.58 0.18 258);
+        --primary-strong: oklch(0.48 0.19 258);
+        --primary-text: oklch(0.99 0.01 250);
+        --good: oklch(0.66 0.16 150);
+        --warn: oklch(0.71 0.17 40);
+        --focus-ring: oklch(0.66 0.12 258 / 40%);
+        --shadow: 0 18px 44px oklch(0.2 0.02 250 / 10%);
+      }
+
+      :root[data-theme="dark"] {
+        --bg: oklch(0.19 0.02 250);
+        --surface: oklch(0.24 0.02 250);
+        --surface-muted: oklch(0.28 0.02 250);
+        --border: oklch(0.38 0.03 250);
+        --text: oklch(0.95 0.01 250);
+        --text-muted: oklch(0.77 0.02 250);
+        --primary: oklch(0.72 0.16 258);
+        --primary-strong: oklch(0.78 0.18 258);
+        --primary-text: oklch(0.2 0.02 250);
+        --good: oklch(0.78 0.17 150);
+        --warn: oklch(0.8 0.16 45);
+        --focus-ring: oklch(0.72 0.15 258 / 36%);
+        --shadow: 0 22px 48px oklch(0.05 0.02 250 / 45%);
+      }
+
+      html,
+      body {
+        min-height: 100%;
+      }
+
+      body {
+        background:
+          radial-gradient(circle at 10% 10%, oklch(0.86 0.07 250 / 22%), transparent 40%),
+          radial-gradient(circle at 90% 90%, oklch(0.86 0.06 180 / 20%), transparent 42%),
+          var(--bg);
+        color: var(--text);
+        font-family: "Avenir Next", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", sans-serif;
+        line-height: 1.5;
+      }
+    }
+
+    @layer component {
+      .app {
+        min-height: 100vh;
+        padding: clamp(0.9rem, 1.7vw, 1.4rem);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: clamp(0.9rem, 1.4vw, 1.2rem);
+
+        @media (max-width: 980px) {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .panel {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        min-height: min(82vh, 860px);
+
+        &.panel--output {
+          background: linear-gradient(165deg, var(--surface), var(--surface-muted));
+        }
+      }
+
+      .panel__header {
+        padding: 0.95rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.6rem;
+        border-bottom: 1px solid var(--border);
+        background: oklch(from var(--surface-muted) l c h / 65%);
+
+        & .panel__title-wrap {
+          display: grid;
+          gap: 0.15rem;
+        }
+
+        & .panel__eyebrow {
+          font-size: 0.7rem;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: var(--text-muted);
+          font-weight: 700;
+        }
+
+        & .panel__title {
+          font-size: 0.95rem;
+          font-weight: 700;
+        }
+      }
+
+      .panel__body {
+        padding: 0.95rem 1rem 1rem;
+        display: grid;
+        gap: 0.75rem;
+        align-content: stretch;
+        min-height: 0;
+      }
+
+      .form-label {
+        font-size: 0.78rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: var(--text-muted);
+      }
+
+      .field {
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        gap: 0.35rem;
+        min-height: 0;
+      }
+
+      .textarea {
+        width: 100%;
+        min-height: 0;
+        height: 100%;
+        resize: vertical;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.75rem 0.85rem;
+        background: var(--surface);
+        color: var(--text);
+        font-family: "Monaco", "Menlo", "Consolas", monospace;
+        font-size: 0.9rem;
+        line-height: 1.55;
+
+        &:focus-visible {
+          outline: 2px solid var(--focus-ring);
+          outline-offset: 1px;
+        }
+      }
+
+      .output {
+        min-height: 100%;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.9rem;
+        background: var(--surface);
+        font-family: "Monaco", "Menlo", "Consolas", monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        color: var(--text);
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        padding: 0.45rem 0.9rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+
+        &:focus-visible {
+          outline: 2px solid var(--focus-ring);
+          outline-offset: 1px;
+        }
+      }
+
+      .button__icon {
+        width: 1rem;
+        height: 1rem;
+        flex: 0 0 auto;
+        display: inline-block;
+      }
+
+      .button--ghost {
+        background: var(--surface);
+        border-color: var(--border);
+
+        &:hover {
+          background: var(--surface-muted);
+        }
+      }
+
+      .button--primary {
+        background: var(--primary);
+        color: var(--primary-text);
+
+        &:hover {
+          background: var(--primary-strong);
+        }
+      }
+
+      .flash {
+        position: fixed;
+        right: 1rem;
+        bottom: 1rem;
+        max-width: min(92vw, 360px);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.62rem 0.8rem;
+        background: var(--surface);
+        color: var(--text);
+        font-size: 0.82rem;
+        box-shadow: var(--shadow);
+        opacity: 0;
+        transform: translateY(8px);
+        pointer-events: none;
+        transition: opacity 180ms ease, transform 180ms ease;
+
+        &.is-visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+    }
+
+    @layer utility {
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="panel panel--input" aria-label="入力エリア">
+      <header class="panel__header">
+        <div class="panel__title-wrap">
+          <p class="panel__eyebrow">Input</p>
+          <h1 class="panel__title">SQL + バインド変数</h1>
+        </div>
+        <button class="button button--ghost" type="button" data-action="clear">
+          <svg class="button__icon" aria-hidden="true" viewBox="0 -960 960 960" fill="currentColor">
+            <path d="M186.67-126.67q-27.5 0-47.08-19.58Q120-165.84 120-193.33v-153.34h66.67v153.34h586.66v66.66H186.67Zm100-253.34L140-526.67l286.67-286q20-20 47.16-20 27.17 0 47.17 20l292 292.67q20 20 20 47.17 0 27.16-20 47.16L666-279.34q-20 20-47.17 20-27.16 0-47.16-20l-145-144.33-140 143.66Zm140-140 145.66 145.67 94-95-145.67-145.67-93.99 95Z"/>
+          </svg>
+          <span>クリア</span>
+        </button>
+      </header>
+
+      <div class="panel__body">
+        <div class="field">
+          <label class="form-label" for="raw-input">貼り付け欄</label>
+          <textarea
+            id="raw-input"
+            class="textarea"
+            data-role="raw-input"
+            spellcheck="false"
+          ></textarea>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="panel panel--output" aria-label="出力エリア">
+      <header class="panel__header">
+        <div class="panel__title-wrap">
+          <p class="panel__eyebrow">Output</p>
+          <h2 class="panel__title">実行可能 SQL</h2>
+        </div>
+        <button class="button button--primary" type="button" data-action="copy">
+          <svg class="button__icon" aria-hidden="true" viewBox="0 -960 960 960" fill="currentColor">
+            <path d="M320-240q-33 0-56.5-23.5T240-320v-520q0-33 23.5-56.5T320-920h400q33 0 56.5 23.5T800-840v520q0 33-23.5 56.5T720-240H320Zm0-80h400v-520H320v520ZM160-80q-33 0-56.5-23.5T80-160v-560h80v560h440v80H160Zm160-240v-520 520Z"/>
+          </svg>
+          <span>コピー</span>
+        </button>
+      </header>
+
+      <div class="panel__body">
+        <pre class="output" data-role="output">-- ここに変換後SQLが表示されます --</pre>
+      </div>
+    </section>
+  </main>
+
+  <p class="flash" data-role="flash" aria-live="polite"></p>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const qs = (sel, root = document) => root.querySelector(sel);
+
+      const CLAUSE_KEYWORDS = [
+        "UNION ALL",
+        "UNION",
+        "SELECT",
+        "INSERT INTO",
+        "UPDATE",
+        "DELETE FROM",
+        "FROM",
+        "WHERE",
+        "GROUP BY",
+        "HAVING",
+        "ORDER BY",
+        "LIMIT",
+        "OFFSET",
+        "VALUES",
+        "SET",
+        "INNER JOIN",
+        "LEFT JOIN",
+        "RIGHT JOIN",
+        "FULL JOIN",
+        "CROSS JOIN",
+        "JOIN"
+      ];
+      const INLINE_KEYWORDS = ["ON", "AND", "OR"];
+      const PLACEHOLDER_TEXT = "-- ここに変換後SQLが表示されます --";
+      const NAMED_BIND_PATTERN = /^:?(?<name>[A-Za-z_][A-Za-z0-9_$]*)\s*(?:=>|=|:)\s*(?<value>.+)$/;
+      const POSITIONAL_BIND_PATTERN = /^(?:\[(?<indexA>\d+)\]|(?<indexB>\d+))\s*(?:=>|=|:)\s*(?<value>.+)$/;
+      const BIND_HEADER_PATTERN = /^(?:bind(?:\s+variables?)?|params?|parameters?)\s*:?\s*$/i;
+      const SQL_PREFIX_PATTERN = /^\s*sql\s*[:=]\s*(?<sql>.+)$/i;
+      const SQL_ASSIGNMENT_NAMES = new Set([
+        "SELECT",
+        "FROM",
+        "WHERE",
+        "AND",
+        "OR",
+        "ORDER",
+        "GROUP",
+        "HAVING",
+        "JOIN",
+        "LEFT",
+        "RIGHT",
+        "INNER",
+        "FULL",
+        "CROSS",
+        "LIMIT",
+        "OFFSET",
+        "INSERT",
+        "UPDATE",
+        "DELETE",
+        "VALUES",
+        "SET",
+        "WITH",
+        "SQL"
+      ]);
+
+      const $rawInput = qs('[data-role="raw-input"]');
+      const $output = qs('[data-role="output"]');
+      const $flash = qs('[data-role="flash"]');
+
+      const _state = {
+        _lastSql: "",
+        _flashTimer: 0
+      };
+
+      const _escapeRegExp = (_value) => _value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+      const _applyColorScheme = () => {
+        const _scheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.dataset.theme = _scheme;
+        document.documentElement.style.colorScheme = _scheme;
+      };
+
+      const _normalizeBindValue = (_rawValue) => {
+        const _value = _rawValue.trim();
+        if (!_value) {
+          return "";
+        }
+
+        if ((_value.startsWith('"') && _value.endsWith('"')) || (_value.startsWith("“") && _value.endsWith("”"))) {
+          const _inner = _value.slice(1, -1).replace(/\\"/g, '"').replace(/'/g, "''");
+          return `'${_inner}'`;
+        }
+
+        if (/^null$/i.test(_value)) {
+          return "NULL";
+        }
+
+        if (/^(true|false)$/i.test(_value)) {
+          return _value.toUpperCase();
+        }
+
+        return _value;
+      };
+
+      const _isBindDefinitionLine = (_trimmed, _allowBareName = false) => {
+        const _positionalMatch = _trimmed.match(POSITIONAL_BIND_PATTERN);
+        if (_positionalMatch?.groups?.value) {
+          return true;
+        }
+
+        const _namedMatch = _trimmed.match(NAMED_BIND_PATTERN);
+        if (!_namedMatch?.groups?.name) {
+          return false;
+        }
+
+        if (_trimmed.startsWith(":")) {
+          return true;
+        }
+
+        if (!_allowBareName) {
+          return false;
+        }
+
+        return !SQL_ASSIGNMENT_NAMES.has(_namedMatch.groups.name.toUpperCase());
+      };
+
+      const _splitInputText = (_inputText) => {
+        const _sqlLines = [];
+        const _bindLines = [];
+        let _bindSectionStarted = false;
+
+        const _lines = _inputText.split(/\r?\n/);
+        for (const _line of _lines) {
+          const _trimmed = _line.trim();
+          if (!_trimmed) {
+            if (!_bindSectionStarted) {
+              _sqlLines.push("");
+            }
+            continue;
+          }
+
+          if (BIND_HEADER_PATTERN.test(_trimmed)) {
+            _bindSectionStarted = true;
+            continue;
+          }
+
+          const _sqlPrefixMatch = _line.match(SQL_PREFIX_PATTERN);
+          if (_sqlPrefixMatch?.groups?.sql) {
+            _sqlLines.push(_sqlPrefixMatch.groups.sql.trim());
+            continue;
+          }
+
+          if (_isBindDefinitionLine(_trimmed, _bindSectionStarted)) {
+            _bindLines.push(_trimmed);
+            _bindSectionStarted = true;
+            continue;
+          }
+
+          _sqlLines.push(_line);
+        }
+
+        return {
+          _sqlText: _sqlLines.join("\n").trim(),
+          _bindLines
+        };
+      };
+
+      const _parseBindVariables = (_bindLines) => {
+        const _named = new Map();
+        const _positional = [];
+
+        for (const _line of _bindLines) {
+          const _trimmed = _line.trim();
+          if (!_trimmed || _trimmed.startsWith("--") || _trimmed.startsWith("#")) {
+            continue;
+          }
+
+          const _namedMatch = _trimmed.match(NAMED_BIND_PATTERN);
+          if (_namedMatch?.groups) {
+            _named.set(_namedMatch.groups.name, _normalizeBindValue(_namedMatch.groups.value));
+            continue;
+          }
+
+          const _positionalMatch = _trimmed.match(POSITIONAL_BIND_PATTERN);
+          if (_positionalMatch?.groups?.value) {
+            const _index = Number(_positionalMatch.groups.indexA ?? _positionalMatch.groups.indexB ?? "0");
+            if (_index > 0) {
+              _positional.push({ _index, _value: _normalizeBindValue(_positionalMatch.groups.value) });
+            }
+          }
+        }
+
+        _positional.sort((_left, _right) => _left._index - _right._index);
+
+        return {
+          _named,
+          _positional: _positional.map((_entry) => _entry._value)
+        };
+      };
+
+      const _replaceNamedBind = (_sql, _name, _value) => {
+        const _pattern = new RegExp(`(^|[^:]):${_escapeRegExp(_name)}\\b`, "g");
+        let _count = 0;
+        const _nextSql = _sql.replace(_pattern, (_all, _prefix) => {
+          _count += 1;
+          return `${_prefix}${_value}`;
+        });
+        return { _nextSql, _count };
+      };
+
+      const _mergeSqlAndBinds = (_sql, _binds) => {
+        let _workingSql = _sql;
+
+        for (const [_name, _value] of _binds._named.entries()) {
+          const _result = _replaceNamedBind(_workingSql, _name, _value);
+          _workingSql = _result._nextSql;
+        }
+
+        let _cursor = 0;
+        _workingSql = _workingSql.replace(/\?/g, () => {
+          const _value = _binds._positional[_cursor];
+          if (typeof _value === "undefined") {
+            return "?";
+          }
+          _cursor += 1;
+          return _value;
+        });
+
+        return {
+          _sql: _workingSql
+        };
+      };
+
+      const _upperCaseKeywords = (_sql) => {
+        let _result = _sql;
+        const _allKeywords = [...CLAUSE_KEYWORDS, ...INLINE_KEYWORDS].sort((a, b) => b.length - a.length);
+
+        for (const _keyword of _allKeywords) {
+          const _pattern = new RegExp(`\\b${_keyword.replace(/\s+/g, "\\\\s+")}\\b`, "gi");
+          _result = _result.replace(_pattern, _keyword.toUpperCase());
+        }
+
+        return _result;
+      };
+
+      const _breakBeforeKeyword = (_sql, _keyword, _indent = "") => {
+        const _pattern = new RegExp(`\\s+${_keyword.replace(/\s+/g, "\\\\s+")}\\b`, "g");
+        return _sql.replace(_pattern, `\n${_indent}${_keyword}`);
+      };
+
+      const _maskStringLiterals = (_sql) => {
+        const _literals = [];
+        const _masked = _sql.replace(/'(?:''|[^'])*'/g, (_match) => {
+          const _token = `__SQLBINDMERGE_LITERAL_${_literals.length}__`;
+          _literals.push(_match);
+          return _token;
+        });
+        return { _masked, _literals };
+      };
+
+      const _restoreStringLiterals = (_sql, _literals) =>
+        _sql.replace(/__SQLBINDMERGE_LITERAL_(\d+)__/g, (_all, _indexText) => {
+          const _index = Number(_indexText);
+          return _literals[_index] ?? "";
+        });
+
+      const _formatSql = (_sql) => {
+        let _formatted = _sql.replace(/\r\n?/g, "\n").replace(/\s+/g, " ").trim();
+        if (!_formatted) {
+          return "";
+        }
+
+        const _literalStore = _maskStringLiterals(_formatted);
+        _formatted = _upperCaseKeywords(_literalStore._masked);
+
+        for (const _keyword of [
+          "UNION ALL",
+          "UNION",
+          "SELECT",
+          "INSERT INTO",
+          "UPDATE",
+          "DELETE FROM",
+          "FROM",
+          "WHERE",
+          "GROUP BY",
+          "HAVING",
+          "ORDER BY",
+          "LIMIT",
+          "OFFSET",
+          "VALUES",
+          "SET",
+          "INNER JOIN",
+          "LEFT JOIN",
+          "RIGHT JOIN",
+          "FULL JOIN",
+          "CROSS JOIN",
+          "JOIN"
+        ]) {
+          _formatted = _breakBeforeKeyword(_formatted, _keyword);
+        }
+
+        _formatted = _breakBeforeKeyword(_formatted, "ON", "  ");
+        _formatted = _breakBeforeKeyword(_formatted, "AND", "  ");
+        _formatted = _breakBeforeKeyword(_formatted, "OR", "  ");
+
+        _formatted = _formatted.replace(/\n{3,}/g, "\n\n").trim();
+        return _restoreStringLiterals(_formatted, _literalStore._literals);
+      };
+
+      const _showFlash = (_message) => {
+        $flash.textContent = _message;
+        $flash.classList.add("is-visible");
+        window.clearTimeout(_state._flashTimer);
+        _state._flashTimer = window.setTimeout(() => {
+          $flash.classList.remove("is-visible");
+        }, 1500);
+      };
+
+      const _copyWithFallback = (_text) => {
+        const $temporary = document.createElement("textarea");
+        $temporary.value = _text;
+        $temporary.setAttribute("readonly", "true");
+        $temporary.style.position = "fixed";
+        $temporary.style.top = "0";
+        $temporary.style.left = "0";
+        $temporary.style.opacity = "0";
+        document.body.append($temporary);
+        $temporary.select();
+        const _copied = document.execCommand("copy");
+        $temporary.remove();
+        return _copied;
+      };
+
+      const _copyResult = async () => {
+        if (!_state._lastSql) {
+          _showFlash("コピーできるSQLがありません");
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(_state._lastSql);
+          _showFlash("SQL をコピーしました");
+          return;
+        } catch (_error) {
+          const _copied = _copyWithFallback(_state._lastSql);
+          if (_copied) {
+            _showFlash("SQL をコピーしました");
+            return;
+          }
+        }
+
+        _showFlash("コピーに失敗しました");
+      };
+
+      const _render = () => {
+        const _input = _splitInputText($rawInput.value);
+        const _binds = _parseBindVariables(_input._bindLines);
+        const _sqlText = _input._sqlText;
+        const _merged = _mergeSqlAndBinds(_sqlText, _binds);
+        const _formatted = _formatSql(_merged._sql);
+
+        _state._lastSql = _formatted;
+        $output.textContent = _formatted || PLACEHOLDER_TEXT;
+      };
+
+      const _handleInputEvent = (event) => {
+        const $target = event.target;
+        if ($target instanceof HTMLElement && $target.matches('[data-role="raw-input"]')) {
+          _render();
+        }
+      };
+
+      const _handleClickEvent = (event) => {
+        const $action = event.target instanceof HTMLElement ? event.target.closest("[data-action]") : null;
+        if (!$action) {
+          return;
+        }
+
+        const _actionType = $action.getAttribute("data-action");
+        if (_actionType === "clear") {
+          $rawInput.value = "";
+          _render();
+          $rawInput.focus();
+          return;
+        }
+
+        if (_actionType === "copy") {
+          void _copyResult();
+        }
+      };
+
+      const _bindEvents = () => {
+        document.addEventListener("input", _handleInputEvent);
+        document.addEventListener("click", _handleClickEvent);
+
+        const _mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+        if (typeof _mediaQuery.addEventListener === "function") {
+          _mediaQuery.addEventListener("change", _applyColorScheme);
+        } else {
+          _mediaQuery.addListener(_applyColorScheme);
+        }
+      };
+
+      const _init = () => {
+        _applyColorScheme();
+        _bindEvents();
+        _render();
+      };
+
+      _init();
+    })();
+  </script>
+</body>
+</html>

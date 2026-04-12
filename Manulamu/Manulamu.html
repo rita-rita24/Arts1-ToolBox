@@ -1,0 +1,2945 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SES DocForge</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232563eb'/%3E%3Cpath d='M28 26h32a8 8 0 018 8v32a8 8 0 01-8 8H28zm8 8v32h24a2 2 0 002-2V36a2 2 0 00-2-2zm8 8h12v4H44zm0 10h12v4H44zm0 10h8v4h-8z' fill='%23fff'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0" rel="stylesheet">
+<style>
+:root{
+  --bg-0:oklch(98.8% 0 0);--bg-1:oklch(100% 0 0);--bg-2:oklch(98.8% 0 0);--bg-3:oklch(96.8% 0.002 260);--bg-4:oklch(94.2% 0.003 260);
+  --bg-card:var(--bg-1);--bg-card-h:var(--bg-2);
+  --tx-1:oklch(24% 0.01 250);--tx-2:oklch(39% 0.01 250);--tx-3:oklch(56% 0.008 250);--tx-4:oklch(71% 0.006 250);--tx-5:oklch(83% 0.004 250);
+  --bd-1:oklch(88.8% 0.004 250);--bd-2:oklch(93.4% 0.003 250);
+  --ac:oklch(56% 0.16 257);--ac-h:oklch(51% 0.14 257);--ac-s:oklch(96.5% 0.02 257);
+  --ok:oklch(58% 0.14 155);--ok-bg:oklch(95% 0.04 155);--wn:oklch(67% 0.14 85);--wn-bg:oklch(96% 0.05 85);--dn:oklch(57% 0.18 25);--dn-bg:oklch(95% 0.04 25);
+  --sh:0 10px 26px rgba(17,23,35,.08);
+  --r:8px;--r2:12px;
+  --pw:940px;
+  --ff:'Inter','Hiragino Kaku Gothic ProN','Noto Sans JP',system-ui,sans-serif;
+  --fm:'Cascadia Code','Source Code Pro','Consolas',monospace;
+  --ls:-0.31px;
+  --tr:.18s cubic-bezier(.4,0,.2,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease-in-out:cubic-bezier(.65,0,.35,1);
+  --lh-tight:1.3;
+  --lh-body:1.7;
+  --lh-relaxed:1.85;
+}
+[data-theme="dark"]{
+  --bg-0:oklch(20% 0.012 260);--bg-1:oklch(24% 0.012 260);--bg-2:oklch(27% 0.012 260);--bg-3:oklch(30% 0.012 260);--bg-4:oklch(34% 0.012 260);
+  --bg-card:var(--bg-1);--bg-card-h:var(--bg-2);
+  --tx-1:oklch(92% 0.006 260);--tx-2:oklch(79% 0.006 260);--tx-3:oklch(65% 0.006 260);--tx-4:oklch(53% 0.006 260);--tx-5:oklch(40% 0.006 260);
+  --bd-1:oklch(37% 0.006 260);--bd-2:oklch(31% 0.006 260);
+  --ac:oklch(70% 0.13 257);--ac-h:oklch(75% 0.12 257);--ac-s:oklch(33% 0.03 257);
+  --ok:oklch(72% 0.12 155);--ok-bg:oklch(32% 0.06 155);--wn:oklch(79% 0.1 85);--wn-bg:oklch(35% 0.06 85);--dn:oklch(72% 0.12 25);--dn-bg:oklch(34% 0.06 25);
+  --sh:0 10px 30px rgba(0,0,0,.38);
+}
+/* SPLASH SCREEN */
+.splash{position:fixed;inset:0;background:var(--bg-0);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .4s;}
+.splash.hide{opacity:0;pointer-events:none;}
+.splash-logo{width:72px;height:72px;border-radius:16px;background:var(--ac);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(37,99,235,.25);animation:sFloat 2s ease-in-out infinite;}
+.splash-logo .mi{font-size:40px;color:#fff;}
+.splash-name{font-size:18px;font-weight:700;color:var(--tx-1);letter-spacing:-.3px;}
+.splash-tag{font-size:11px;color:var(--tx-3);margin-top:-10px;}
+.splash-spin{width:22px;height:22px;border:2px solid var(--bd-2);border-top-color:var(--ac);border-radius:50%;animation:sSpin .8s linear infinite;margin-top:8px;}
+@keyframes sFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+@keyframes sSpin{to{transform:rotate(360deg);}}
+/* GLOBAL ANIMATIONS */
+@keyframes blockIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+@keyframes blockOut{from{opacity:1;max-height:200px;}to{opacity:0;max-height:0;margin:0;padding:0;}}
+@keyframes menuIn{from{opacity:0;transform:scale(.96) translateY(-4px);}to{opacity:1;transform:scale(1) translateY(0);}}
+@keyframes modalIn{from{opacity:0;transform:scale(.92);}to{opacity:1;transform:scale(1);}}
+@keyframes fadeBg{from{opacity:0;}to{opacity:1;}}
+.block{animation:blockIn .2s var(--ease-out);}
+.block.removing{animation:blockOut .18s var(--ease-in-out) forwards;overflow:hidden;}
+.slash-menu.on,.type-menu.on,.ftb.on{animation:menuIn .15s var(--ease-out);}
+.mbg.on{animation:fadeBg .18s var(--ease-out);}
+.mbg.on .mdl{animation:modalIn .22s var(--ease-out);}
+.toast{transition:all .2s var(--ease-out);}
+/* SKELETON LOADING */
+.skeleton{background:linear-gradient(90deg,var(--bg-2) 25%,var(--bg-3) 50%,var(--bg-2) 75%);background-size:200% 100%;animation:skeleton 1.4s ease-in-out infinite;border-radius:4px;}
+@keyframes skeleton{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+.skel-line{height:16px;margin-bottom:10px;}
+.skel-title{height:32px;width:60%;margin-bottom:20px;}
+.skel-sub{height:14px;width:40%;margin-bottom:24px;}
+.skel-block-1{width:100%;}
+.skel-block-2{width:85%;}
+.skel-block-3{width:92%;}
+.skel-card{height:100px;border-radius:var(--r2);}
+/* ONBOARDING TOUR */
+.tour-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9000;display:none;align-items:center;justify-content:center;padding:20px;}
+.tour-bg.on{display:flex;animation:fadeBg .25s var(--ease-out);}
+.tour-box{background:var(--bg-1);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.4);max-width:520px;width:100%;padding:32px;text-align:center;animation:modalIn .3s var(--ease-out);}
+.tour-icon{width:72px;height:72px;border-radius:18px;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 24px rgba(37,99,235,.3);}
+.tour-icon .mi{font-size:40px;}
+.tour-title{font-size:22px;font-weight:700;color:var(--tx-1);margin-bottom:8px;letter-spacing:-.01em;}
+.tour-desc{font-size:13.5px;color:var(--tx-2);line-height:1.7;margin-bottom:24px;}
+.tour-illust{background:var(--bg-2);border:1px solid var(--bd-2);border-radius:var(--r);padding:16px;margin-bottom:20px;font-family:var(--fm);font-size:12px;text-align:left;color:var(--tx-2);white-space:pre-wrap;}
+.tour-illust .hl{background:var(--ac-s);color:var(--ac);padding:1px 4px;border-radius:3px;font-weight:600;}
+.tour-dots{display:flex;justify-content:center;gap:6px;margin-bottom:20px;}
+.tour-dot{width:7px;height:7px;border-radius:50%;background:var(--bd-1);transition:all .2s;}
+.tour-dot.active{width:20px;border-radius:4px;background:var(--ac);}
+.tour-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.tour-skip{font-size:11.5px;color:var(--tx-4);cursor:pointer;background:none;border:none;}
+.tour-skip:hover{color:var(--tx-2);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--ff);letter-spacing:var(--ls);background:var(--bg-0);color:var(--tx-1);height:100vh;overflow:hidden;transition:background var(--tr),color var(--tr);}
+button,input,textarea,select{font-family:var(--ff);letter-spacing:inherit;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-thumb{background:var(--bd-1);border-radius:3px;}
+.mi{font-family:'Material Symbols Outlined';font-size:18px;vertical-align:middle;line-height:1;font-weight:normal;font-style:normal;}
+.mi-s{font-size:16px;}.mi-xs{font-size:14px;}
+
+/* LAYOUT */
+.app{height:100vh;display:flex;flex-direction:column;background:var(--bg-0);}
+.hdr{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:var(--bg-1);border-bottom:1px solid var(--bd-2);flex-shrink:0;z-index:100;}
+.body{flex:1;overflow:hidden;background:var(--bg-0);}
+.h-l{display:flex;align-items:center;gap:10px;}
+.h-r{display:flex;align-items:center;gap:6px;}
+.logo{font-size:13px;font-weight:700;color:var(--tx-1);display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;letter-spacing:-.18px;}
+.logo .mi{color:var(--ac);}
+.hsep{width:1px;height:16px;background:var(--bd-1);margin:0 4px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:7px 12px;min-height:34px;font-size:12px;font-weight:600;border:1px solid var(--bd-1);border-radius:999px;background:var(--bg-1);color:var(--tx-1);cursor:pointer;transition:background var(--tr),border-color var(--tr),color var(--tr),transform var(--tr);white-space:nowrap;}
+.btn:hover{background:var(--bg-2);border-color:var(--tx-4);}
+.btn:active{transform:translateY(1px);}
+.btn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--bg-1),0 0 0 4px var(--ac-s);}
+.btn-ac{background:var(--ac);color:#fff;border-color:var(--ac);}
+.btn-ac:hover{background:var(--ac-h);border-color:var(--ac-h);}
+.btn-g{border-color:transparent;background:none;color:var(--tx-2);}
+.btn-g:hover{background:var(--bg-3);}
+.btn-s{padding:4px 9px;min-height:30px;font-size:11px;}
+.btn-dn{color:var(--dn);}
+.btn-dn:hover{background:var(--dn-bg);border-color:var(--dn);}
+.ib{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border:1px solid transparent;border-radius:10px;background:none;color:var(--tx-3);cursor:pointer;transition:all var(--tr);}
+.ib:hover{background:var(--bg-2);color:var(--tx-1);}
+.ib:focus-visible{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px var(--ac-s);}
+
+/* HOME */
+.vw{display:none;height:100%;}.vw.on{display:flex;}
+.home{flex-direction:column;overflow-y:auto;padding:28px 24px 42px;align-items:stretch;}
+.home-in{max-width:1180px;width:100%;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,340px);grid-template-areas:"title panel" "subtitle panel" "list list";gap:8px 30px;}
+.home-t{grid-area:title;font-size:35px;font-weight:700;line-height:1.08;letter-spacing:-.8px;margin:6px 0 0;}
+.home-st{grid-area:subtitle;font-size:13px;color:var(--tx-3);max-width:62ch;margin-bottom:18px;}
+.home-bar{grid-area:panel;display:grid;gap:8px;align-content:start;padding:16px;border:1px solid var(--bd-2);border-radius:12px;background:var(--bg-2);}
+.home-bar .btn,.home-bar .sbox,.home-bar .sort{width:100%;}
+.home-bar .btn{justify-content:center;}
+#cg{grid-area:list;}
+.sbox{position:relative;min-width:0;max-width:none;}
+.sbox input{width:100%;padding:8px 10px 8px 32px;font-size:12px;border:1px solid var(--bd-1);border-radius:var(--r);background:var(--bg-1);color:var(--tx-1);}
+.sbox input:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px var(--ac-s);}
+.sbox .mi{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--tx-4);pointer-events:none;font-size:16px;}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px 12px;}
+.card{background:var(--bg-card);border:1px solid var(--bd-2);border-radius:var(--r2);padding:16px 16px 14px;cursor:pointer;transition:border-color var(--tr),background var(--tr),transform var(--tr);position:relative;animation:cIn .25s ease both;}
+.card:hover{border-color:var(--tx-3);background:var(--bg-card-h);transform:translateY(-1px);}
+@keyframes cIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.card-t{font-size:13.5px;font-weight:600;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.card-sn{font-size:11px;color:var(--tx-3);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:8px;min-height:33px;}
+.card-ft{display:flex;justify-content:space-between;font-size:10px;color:var(--tx-4);}
+.card-acts{position:absolute;top:6px;right:6px;display:flex;gap:2px;opacity:0;transition:opacity var(--tr);}
+.card:hover .card-acts{opacity:1;}
+.card-ab{width:22px;height:22px;display:flex;align-items:center;justify-content:center;border:none;border-radius:4px;background:none;color:var(--tx-4);cursor:pointer;}
+.card-ab:hover{background:var(--bg-3);color:var(--tx-2);}
+.card-ab.pin{color:var(--tx-4);}.card-ab.pin.on{color:var(--wn);opacity:1;}
+.card.pinned{border-color:var(--wn);}
+.card.pinned::before{content:'push_pin';font-family:'Material Symbols Outlined';position:absolute;top:10px;left:10px;font-size:14px;color:var(--wn);transform:rotate(45deg);}
+.card.pinned .card-t{padding-left:20px;}
+.home-sec{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--tx-3);margin:22px 0 10px;display:flex;align-items:center;gap:4px;}
+.home-sec:first-child{margin-top:0;}
+.empty-state{text-align:center;padding:60px 20px;color:var(--tx-3);}
+.empty-state .mi{font-size:64px;color:var(--tx-5);margin-bottom:12px;display:block;}
+.empty-state-title{font-size:16px;font-weight:600;color:var(--tx-2);margin-bottom:6px;}
+.empty-state-desc{font-size:12.5px;color:var(--tx-4);margin-bottom:18px;}
+.ncard{border:1px dashed var(--bd-1);background:var(--bg-2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:116px;color:var(--tx-4);font-size:12px;}
+.ncard:hover{border-color:var(--tx-3);color:var(--tx-2);background:var(--bg-1);}
+select.sort{padding:8px 10px;font-size:11.5px;border:1px solid var(--bd-1);border-radius:var(--r);background:var(--bg-1);color:var(--tx-1);cursor:pointer;}
+select.sort:focus-visible{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px var(--ac-s);}
+
+/* EDITOR VIEW */
+.ev{flex-direction:column;height:100%;background:var(--bg-0);}
+.ev-top{display:flex;align-items:center;padding:8px 16px;border-bottom:1px solid var(--bd-2);flex-shrink:0;gap:6px;background:var(--bg-1);}
+.save-ind{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--tx-3);padding:2px 8px;border-radius:4px;transition:all .2s;}
+.save-ind .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);}
+.save-ind.saving{color:var(--wn);}
+.save-ind.saving .dot{background:var(--wn);animation:pulse 1s infinite;}
+.save-ind.error{color:var(--dn);}
+.save-ind.error .dot{background:var(--dn);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.ev-main{flex:1;display:flex;overflow:hidden;gap:18px;padding:0 18px 18px;align-items:flex-start;}
+.ev-body{flex:1;overflow-y:auto;display:flex;justify-content:center;padding:28px 0 84px;}
+.ev-page{max-width:var(--pw);width:100%;min-height:200px;background:var(--bg-1);border:1px solid var(--bd-2);border-radius:14px;padding:40px 44px 52px;}
+/* TOC Sidebar */
+.toc-sb{width:270px;min-width:270px;background:var(--bg-1);border:1px solid var(--bd-2);border-radius:12px;overflow-y:auto;padding:16px 10px;transition:width .2s,min-width .2s,padding .2s,opacity .2s,margin .2s;flex-shrink:0;position:sticky;top:14px;align-self:flex-start;max-height:calc(100vh - 94px);margin-top:28px;}
+.toc-sb.off{width:0;min-width:0;padding:0;margin:0;border:none;overflow:hidden;opacity:0;pointer-events:none;}
+.toc-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--tx-3);margin-bottom:8px;padding:0 8px;}
+.toc-item{display:block;padding:5px 10px;font-size:12px;color:var(--tx-2);border-radius:8px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:all var(--tr);}
+.toc-item:hover{background:var(--bg-3);color:var(--tx-1);}
+.toc-item.toc-h1{font-weight:600;color:var(--tx-1);}
+.toc-item.toc-h2{padding-left:24px;}
+.toc-item.toc-h3{padding-left:36px;font-size:11.5px;color:var(--tx-3);}
+.toc-item.active{background:var(--ac-s);color:var(--ac);font-weight:600;}
+.toc-item:focus-visible{outline:none;box-shadow:0 0 0 2px var(--ac);}
+.toc-empty{padding:12px 6px;font-size:11px;color:var(--tx-4);}
+/* Title */
+.doc-title{font-size:34px;font-weight:700;border:none;background:none;color:var(--tx-1);outline:none;width:100%;margin-bottom:8px;line-height:1.18;letter-spacing:-.04em;}
+.doc-title::placeholder{color:var(--tx-5);}
+.doc-meta{font-size:11.5px;color:var(--tx-3);margin-bottom:30px;display:flex;gap:14px;flex-wrap:wrap;}
+.doc-meta span{display:flex;align-items:center;gap:3px;}
+
+/* BLOCKS */
+.block{position:relative;padding:6px 0 6px 56px;min-height:30px;transition:background .15s,box-shadow .15s;border-radius:10px;}
+.block:hover{background:var(--bg-2);}
+.block:hover .block-handle,.block:hover .block-plus{opacity:1;}
+.block:focus-within{background:var(--bg-1);box-shadow:0 0 0 1px var(--bd-1),0 0 0 4px var(--ac-s);}
+.block-handle{position:absolute;left:28px;top:4px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:grab;color:var(--tx-5);opacity:0;transition:opacity var(--tr);border-radius:4px;}
+.block-handle:hover{color:var(--tx-3);}
+.block-handle:active{cursor:grabbing;}
+.block-plus{position:absolute;left:4px;top:4px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--tx-5);opacity:0;transition:opacity var(--tr);border-radius:4px;}
+.block-plus:hover{color:var(--ac);background:var(--ac-s);}
+.block.drag-over{box-shadow:0 -2px 0 0 var(--ac);}
+.block.dragging{opacity:.3;}
+/* Block content */
+.bc{outline:none;min-height:1.5em;line-height:var(--lh-body);font-size:15px;word-break:break-word;letter-spacing:.01em;}
+.bc:empty::before{content:attr(data-ph);color:var(--tx-5);pointer-events:none;}
+/* Headings */
+.block-h1 .bc{font-size:26px;font-weight:700;line-height:var(--lh-tight);margin:24px 0 10px;letter-spacing:-.015em;}
+.block-h2 .bc{font-size:20px;font-weight:600;line-height:var(--lh-tight);margin:20px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--bd-2);letter-spacing:-.01em;}
+.block-h3 .bc{font-size:16.5px;font-weight:600;line-height:var(--lh-tight);margin:14px 0 6px;letter-spacing:-.005em;}
+/* Lists */
+.block-ul,.block-ol{padding-left:28px;}
+.block-ul .bc,.block-ol .bc{min-height:1.4em;display:list-item;margin-left:20px;}
+.block-ul .bc{list-style:disc;}
+.block-ol .bc{list-style:decimal;}
+/* Todo */
+.block-todo{display:flex;align-items:flex-start;gap:8px;}
+.block-todo .todo-check{flex-shrink:0;width:18px;height:18px;margin-top:5px;cursor:pointer;accent-color:var(--ac);}
+.block-todo .bc{flex:1;min-height:1.4em;}
+.block-todo.checked .bc{color:var(--tx-4);text-decoration:line-through;}
+/* Quote */
+.block-quote{padding-left:28px;}
+.block-quote .bc{color:var(--tx-2);font-style:normal;border:1px solid var(--bd-2);border-radius:10px;background:var(--bg-2);padding:10px 14px;}
+/* Code */
+.block-code{padding-left:28px;margin-top:4px;margin-bottom:4px;position:relative;}
+.block-code .bc{font-family:var(--fm);font-size:13px;line-height:1.6;background:var(--bg-2);border:1px solid var(--bd-2);border-radius:var(--r);padding:12px 14px;white-space:pre-wrap;}
+.code-copy{position:absolute;top:8px;right:8px;display:none;align-items:center;gap:3px;padding:3px 8px;font-size:10px;font-weight:500;background:var(--bg-1);border:1px solid var(--bd-1);border-radius:4px;color:var(--tx-3);cursor:pointer;z-index:5;transition:all var(--tr);}
+.block-code:hover .code-copy{display:flex;}
+.code-copy:hover{background:var(--ac);color:#fff;border-color:var(--ac);}
+.code-copy.ok{background:var(--ok);color:#fff;border-color:var(--ok);}
+/* Divider */
+.block-hr{padding:8px 28px;cursor:default;}
+.block-hr hr{border:none;border-top:1px solid var(--bd-1);}
+/* Alert */
+.block-alert{padding-left:28px;margin-top:4px;margin-bottom:4px;}
+.block-alert .bc-wrap{padding:12px 14px;border-radius:10px;border:1px solid var(--bd-2);}
+.block-alert .ab-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;display:flex;align-items:center;gap:3px;}
+.alert-i .bc-wrap{background:oklch(96.5% 0.02 257);border-color:oklch(89% 0.03 257);}.alert-i .ab-label{color:var(--ac);}
+.alert-w .bc-wrap{background:oklch(96% 0.05 85);border-color:oklch(89% 0.06 85);}.alert-w .ab-label{color:var(--wn);}
+.alert-t .bc-wrap{background:oklch(96% 0.04 155);border-color:oklch(89% 0.05 155);}.alert-t .ab-label{color:var(--ok);}
+.alert-d .bc-wrap{background:oklch(95% 0.04 25);border-color:oklch(88% 0.06 25);}.alert-d .ab-label{color:var(--dn);}
+/* Collapse */
+.block-collapse{padding-left:28px;margin-top:4px;margin-bottom:4px;}
+.block-collapse .collapse-wrap{border:1px solid var(--bd-2);border-radius:var(--r);overflow:hidden;}
+.collapse-sum{padding:8px 12px;background:var(--bg-3);font-weight:600;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none;}
+.collapse-sum:hover{background:var(--bg-4);}
+.collapse-sum .mi{transition:transform .2s;font-size:18px;color:var(--tx-3);}
+.collapse-sum.open .mi{transform:rotate(90deg);}
+.collapse-body{padding:10px 12px;border-top:1px solid var(--bd-2);display:none;}
+.collapse-body.open{display:block;}
+/* Table */
+.block-table{padding-left:28px;margin-top:4px;margin-bottom:4px;overflow-x:auto;}
+.block-table table{width:100%;border-collapse:collapse;font-size:13px;}
+.block-table th,.block-table td{border:1px solid var(--bd-1);padding:6px 10px;text-align:left;outline:none;min-width:60px;}
+.block-table th{background:var(--bg-3);font-weight:600;font-size:12px;color:var(--tx-2);}
+.block-table td:focus,.block-table th:focus{box-shadow:inset 0 0 0 2px var(--ac);}
+.tbl-actions{display:flex;gap:2px;margin-top:4px;}
+.tbl-copy{margin-left:auto;}
+/* Image */
+.block-image{padding-left:28px;text-align:center;margin-top:4px;margin-bottom:4px;}
+.block-image img{max-width:100%;border-radius:var(--r);border:1px solid var(--bd-2);}
+.block-image .img-cap{font-size:11px;color:var(--tx-3);margin-top:4px;outline:none;font-style:italic;}
+.img-upload{padding:24px;border:2px dashed var(--bd-1);border-radius:var(--r);color:var(--tx-4);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;transition:all var(--tr);}
+.img-upload:hover{border-color:var(--ac);color:var(--ac);background:var(--ac-s);}
+
+/* TYPE MENU (reuses slash-menu styles) */
+.type-menu{position:fixed;z-index:250;background:var(--bg-1);border:1px solid var(--bd-1);border-radius:var(--r2);box-shadow:var(--sh);width:220px;max-height:320px;overflow-y:auto;display:none;padding:4px;}
+.type-menu.on{display:block;}
+.type-menu .sm-head{display:flex;align-items:center;gap:6px;padding:6px 10px;border-bottom:1px solid var(--bd-2);margin-bottom:4px;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--tx-3);}
+
+/* SLASH MENU */
+.slash-menu{position:fixed;z-index:200;background:var(--bg-1);border:1px solid var(--bd-1);border-radius:var(--r2);box-shadow:var(--sh);width:240px;max-height:300px;overflow-y:auto;display:none;padding:4px;}
+.slash-menu.on{display:block;}
+.sm-cat{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--tx-4);padding:6px 8px 2px;}
+.sm-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:4px;cursor:pointer;font-size:12.5px;color:var(--tx-1);transition:background var(--tr);}
+.sm-item:hover,.sm-item.active{background:var(--ac-s);color:var(--ac);}
+.sm-item .mi{font-size:18px;color:var(--tx-3);width:24px;text-align:center;}
+.sm-item:hover .mi,.sm-item.active .mi{color:var(--ac);}
+.sm-desc{font-size:10px;color:var(--tx-4);}
+
+/* FLOATING TOOLBAR */
+.ftb{position:fixed;z-index:300;background:var(--bg-1);border:1px solid var(--bd-1);border-radius:var(--r);box-shadow:var(--sh);display:none;padding:2px;gap:1px;align-items:center;}
+.ftb.on{display:flex;}
+.ftb button{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border:none;border-radius:4px;background:none;color:var(--tx-2);cursor:pointer;transition:all var(--tr);}
+.ftb button:hover{background:var(--ac-s);color:var(--ac);}
+.ftb .tsep{width:1px;height:18px;background:var(--bd-2);margin:0 2px;}
+
+/* TOAST */
+.tbox{position:fixed;bottom:16px;right:16px;z-index:1000;display:flex;flex-direction:column;gap:5px;}
+.toast{padding:7px 14px;border-radius:var(--r);font-size:12px;font-weight:500;box-shadow:var(--sh);animation:tI .2s ease,tO .2s ease 2s forwards;display:flex;align-items:center;gap:5px;}
+.toast-ok{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok);}
+.toast-wn{background:var(--wn-bg);color:var(--wn);border:1px solid var(--wn);}
+@keyframes tI{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tO{from{opacity:1}to{opacity:0;transform:translateY(-5px)}}
+
+/* MOBILE */
+@media(max-width:768px){
+  .hdr{padding:0 10px;height:46px;}
+  .logo{font-size:12.5px;}
+  .h-r{gap:2px;}
+  .btn-s{padding:3px 6px;font-size:10.5px;}
+  .home{padding:16px 12px 32px;}
+  .home-in{grid-template-columns:1fr;grid-template-areas:"title" "subtitle" "panel" "list";gap:10px;}
+  .home-t{font-size:28px;}
+  .home-st{margin-bottom:4px;}
+  .home-bar{padding:12px;}
+  .cards{grid-template-columns:1fr;}
+  .ev-main{flex-direction:column;padding:0 8px 12px;gap:10px;}
+  .ev-top{padding:6px 10px;flex-wrap:wrap;gap:4px;}
+  .ev-top .btn-s{padding:3px 6px;font-size:10px;}
+  .ev-top .hsep{display:none;}
+  .ev-body{padding:12px 0 48px;}
+  .ev-page{padding:24px 14px 36px;border-radius:10px;}
+  .toc-sb{width:100%;min-width:100%;max-height:220px;border:1px solid var(--bd-2);border-radius:10px;top:0;margin-top:0;}
+  .toc-sb.off{max-height:0;padding:0;border:none;}
+  .doc-title{font-size:25px;}
+  .block{padding-left:46px;}
+  .block-handle,.block-plus{opacity:1;width:22px;height:22px;}
+  .block-plus{left:2px;}
+  .block-handle{left:24px;}
+  .bc{font-size:14px;}
+  .block-ul,.block-ol{padding-left:46px;}
+  .block-ul .bc,.block-ol .bc{margin-left:16px;}
+  .block-quote,.block-code,.block-alert,.block-collapse,.block-table,.block-image,.block-todo{padding-left:46px;}
+  .mdl{width:94%;max-width:420px;}
+  .slash-menu{width:220px;max-width:calc(100vw - 20px);}
+  .ftb{max-width:calc(100vw - 20px);}
+  .tbl-actions{flex-wrap:wrap;}
+  .tbl-actions .btn-s{font-size:10px;padding:2px 6px;}
+  /* Touch-friendly tap targets */
+  .card-ab{width:28px;height:28px;}
+  .ib{width:32px;height:32px;}
+  /* Hide wc on very small screens */
+  #wc{display:none;}
+}
+@media(max-width:480px){
+  .ev-top .btn-s span:not(.mi){display:none;}
+  .ev-top .btn-s{padding:4px 6px;}
+  .splash-logo{width:60px;height:60px;}
+  .splash-logo .mi{font-size:32px;}
+}
+
+/* SETTINGS MODAL */
+.set-section{margin-bottom:18px;}
+.set-section-title{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--tx-3);margin-bottom:8px;letter-spacing:.06em;}
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd-2);gap:12px;}
+.set-row:last-child{border-bottom:none;}
+.set-label{font-size:12.5px;color:var(--tx-1);}
+.set-desc{font-size:10.5px;color:var(--tx-4);margin-top:2px;}
+.set-input{padding:5px 10px;font-size:12px;border:1px solid var(--bd-1);border-radius:var(--r);background:var(--bg-2);color:var(--tx-1);width:140px;}
+.set-input:focus{outline:none;border-color:var(--ac);}
+.color-grid{display:flex;gap:6px;}
+.color-sw{width:24px;height:24px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all .12s;}
+.color-sw:hover{transform:scale(1.15);}
+.color-sw.on{border-color:var(--tx-1);box-shadow:0 0 0 2px var(--bg-1),0 0 0 4px var(--tx-1);}
+.kbd{display:inline-block;padding:3px 8px;font-family:var(--fm);font-size:11px;background:var(--bg-3);border:1px solid var(--bd-1);border-radius:4px;color:var(--tx-2);box-shadow:0 1px 0 var(--bd-1);}
+
+/* KEBAB MENU */
+.kebab-menu{position:absolute;top:calc(100% + 4px);right:0;background:var(--bg-1);border:1px solid var(--bd-1);border-radius:var(--r2);box-shadow:0 8px 32px rgba(0,0,0,.12);padding:5px;min-width:220px;display:none;z-index:500;}
+.kebab-menu.on{display:block;animation:menuIn .15s var(--ease-out);}
+.kebab-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:4px;cursor:pointer;font-size:12.5px;color:var(--tx-1);user-select:none;}
+.kebab-item:hover{background:var(--ac-s);color:var(--ac);}
+.kebab-item .mi{color:var(--tx-3);width:18px;flex-shrink:0;}
+.kebab-item:hover .mi{color:var(--ac);}
+.kebab-item span:nth-child(2){flex:1;}
+.kebab-kbd{font-size:10px;color:var(--tx-4);font-family:var(--fm);background:var(--bg-3);padding:2px 6px;border-radius:3px;}
+.kebab-item:hover .kebab-kbd{background:var(--bg-1);}
+.kebab-sep{height:1px;background:var(--bd-2);margin:4px 0;}
+
+/* VIRTUAL SCROLL PLACEHOLDER */
+.block-stub{border:none !important;background:transparent;padding:0 !important;margin:0;box-shadow:none !important;pointer-events:none;}
+.block-stub:hover{box-shadow:none !important;}
+.block-stub *{display:none !important;}
+
+/* SEARCH BAR */
+.srch-bar{position:fixed;top:50px;right:20px;z-index:400;background:var(--bg-1);border:1px solid var(--bd-1);border-radius:var(--r);box-shadow:var(--sh);padding:8px;display:none;gap:6px;align-items:center;animation:menuIn .15s ease;}
+.srch-bar.on{display:flex;}
+.srch-bar input{padding:5px 10px;font-size:12px;border:1px solid var(--bd-1);border-radius:4px;background:var(--bg-2);color:var(--tx-1);width:180px;}
+.srch-bar input:focus{outline:none;border-color:var(--ac);}
+.srch-count{font-size:10.5px;color:var(--tx-3);min-width:50px;text-align:center;}
+.srch-hit{background:rgba(255,235,59,.4);}
+.srch-hit.current{background:rgba(255,152,0,.6);outline:2px solid var(--wn);}
+[data-theme="dark"] .srch-hit{background:rgba(255,235,59,.25);}
+[data-theme="dark"] .srch-hit.current{background:rgba(255,152,0,.45);}
+
+/* COMMAND PALETTE */
+.cmd-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:800;display:none;align-items:flex-start;justify-content:center;padding-top:80px;}
+.cmd-bg.on{display:flex;animation:fadeBg .15s ease;}
+.cmd-box{width:520px;max-width:90vw;background:var(--bg-1);border:1px solid var(--bd-1);border-radius:var(--r2);box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden;animation:modalIn .18s ease;}
+.cmd-in{width:100%;padding:14px 18px;font-size:14px;border:none;background:var(--bg-1);color:var(--tx-1);outline:none;border-bottom:1px solid var(--bd-2);}
+.cmd-in::placeholder{color:var(--tx-5);}
+.cmd-list{max-height:380px;overflow-y:auto;padding:4px;}
+.cmd-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:4px;cursor:pointer;font-size:12.5px;color:var(--tx-1);}
+.cmd-item:hover,.cmd-item.active{background:var(--ac-s);color:var(--ac);}
+.cmd-item .mi{font-size:18px;color:var(--tx-3);width:22px;}
+.cmd-item:hover .mi,.cmd-item.active .mi{color:var(--ac);}
+.cmd-item-name{flex:1;}
+.cmd-item-kbd{font-size:10px;color:var(--tx-4);font-family:var(--fm);background:var(--bg-3);padding:2px 6px;border-radius:3px;}
+.cmd-cat{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--tx-4);padding:8px 12px 2px;}
+.cmd-empty{padding:20px;text-align:center;color:var(--tx-4);font-size:12px;}
+
+/* BACKUP & TRASH */
+.bak-item,.trash-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--bd-2);border-radius:var(--r);margin-bottom:6px;background:var(--bg-2);}
+.bak-info,.trash-info{flex:1;min-width:0;}
+.bak-date,.trash-title{font-size:12.5px;font-weight:600;color:var(--tx-1);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bak-meta,.trash-meta{font-size:10.5px;color:var(--tx-4);}
+
+/* TEMPLATES */
+.tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.tpl-card{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--bd-2);border-radius:var(--r);background:var(--bg-2);cursor:pointer;transition:all var(--tr);}
+.tpl-card:hover{border-color:var(--ac);background:var(--ac-s);}
+.tpl-icon{width:36px;height:36px;border-radius:8px;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tpl-info{flex:1;min-width:0;}
+.tpl-name{font-size:13px;font-weight:600;margin-bottom:2px;}
+.tpl-desc{font-size:10.5px;color:var(--tx-4);}
+
+/* SNIPPETS */
+.snip-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--bd-2);border-radius:var(--r);margin-bottom:5px;background:var(--bg-2);}
+.snip-key{font-family:var(--fm);font-size:11px;padding:3px 8px;background:var(--ac-s);color:var(--ac);border-radius:3px;flex-shrink:0;min-width:70px;text-align:center;}
+.snip-val{font-size:12px;color:var(--tx-2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* MODAL */
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:700;display:none;align-items:center;justify-content:center;}.mbg.on{display:flex;}
+.mdl{background:var(--bg-1);border-radius:var(--r2);box-shadow:0 10px 40px rgba(0,0,0,.15);width:420px;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;}
+.mdl-h{padding:14px 18px;border-bottom:1px solid var(--bd-1);display:flex;justify-content:space-between;align-items:center;}.mdl-h h3{font-size:14px;font-weight:600;}
+.mdl-b{padding:16px 18px;overflow-y:auto;}.mdl-f{padding:10px 18px;border-top:1px solid var(--bd-1);display:flex;justify-content:flex-end;gap:6px;}
+.fg{margin-bottom:10px;}.fg label{display:block;font-size:11px;font-weight:600;color:var(--tx-2);margin-bottom:3px;}
+.fg input{width:100%;padding:6px 10px;font-size:12.5px;border:1px solid var(--bd-1);border-radius:var(--r);background:var(--bg-2);color:var(--tx-1);}.fg input:focus{outline:none;border-color:var(--ac);}
+
+/* PRINT */
+@media print{
+  @page{margin:20mm 15mm;}
+  .hdr,.ev-top,.block-handle,.block-plus,.ftb,.slash-menu,.tbox,.tbl-actions,.img-upload,.toc-sb,.type-menu,.mbg{display:none!important;}
+  .ev-body{overflow:visible;padding:0;display:block;}
+  .ev-page{max-width:100%;border:none!important;border-radius:0!important;padding:0!important;}
+  .ev-main{display:block;}
+  .block{padding-left:0;break-inside:avoid;}
+  .block:hover,.block:focus-within{box-shadow:none;}
+  .block-code .bc,.block-alert .bc-wrap,.block-collapse .collapse-wrap,.block-table,.block-image{margin-left:0;}
+  .block-h1,.block-h2{break-after:avoid;}
+  .doc-title{font-size:24pt;margin-bottom:8pt;}
+  .doc-meta{margin-bottom:16pt;}
+  body{background:#fff!important;color:#000!important;}
+  *{print-color-adjust:exact;-webkit-print-color-adjust:exact;}
+  .collapse-body{display:block!important;}
+  img{max-width:100%!important;page-break-inside:avoid;}
+  table{page-break-inside:avoid;}
+}
+</style>
+</head>
+<body>
+<div class="splash" id="splash">
+  <div class="splash-logo"><span class="mi">description</span></div>
+  <div class="splash-name">SES DocForge</div>
+  <div class="splash-tag">Notion風ブロックエディタ</div>
+  <div class="splash-spin"></div>
+</div>
+<div class="app">
+<header class="hdr">
+  <div class="h-l"><div class="logo" onclick="goHome()"><span class="mi">description</span> DocForge</div></div>
+  <div class="h-r">
+    <button class="ib" onclick="openCmd()" title="コマンドパレット (Ctrl+K)"><span class="mi">terminal</span></button>
+    <button class="ib" onclick="toggleDk()" id="dkb" title="テーマ切替"><span class="mi">dark_mode</span></button>
+    <div style="position:relative;display:inline-block">
+      <button class="ib" onclick="toggleMainMenu(event)" id="mainMenuBtn" title="その他"><span class="mi">more_vert</span></button>
+      <div class="kebab-menu" id="mainKebab">
+        <div class="kebab-item" onclick="closeMainMenu();openSettings()"><span class="mi mi-s">settings</span><span>設定</span></div>
+        <div class="kebab-item" onclick="closeMainMenu();openHelp()"><span class="mi mi-s">help_outline</span><span>ヘルプ</span><span class="kebab-kbd">?</span></div>
+        <div class="kebab-sep"></div>
+        <div class="kebab-item" onclick="closeMainMenu();openTemplateModal()"><span class="mi mi-s">dashboard</span><span>テンプレート管理</span></div>
+        <div class="kebab-item" onclick="closeMainMenu();openSnippetModal()"><span class="mi mi-s">text_snippet</span><span>スニペット管理</span></div>
+        <div class="kebab-sep"></div>
+        <div class="kebab-item" onclick="closeMainMenu();openBackupModal()"><span class="mi mi-s">backup</span><span>バックアップ</span></div>
+        <div class="kebab-item" onclick="closeMainMenu();openTrashModal()"><span class="mi mi-s">delete</span><span>ゴミ箱</span></div>
+        <div class="kebab-sep"></div>
+        <div class="kebab-item" onclick="closeMainMenu();expJSON()"><span class="mi mi-s">upload</span><span>JSONエクスポート</span></div>
+        <div class="kebab-item" onclick="closeMainMenu();document.getElementById('impF').click()"><span class="mi mi-s">download</span><span>JSONインポート</span></div>
+        <input type="file" id="impF" accept=".json" style="display:none" onchange="impJSON(event)">
+        <div class="kebab-sep"></div>
+        <div class="kebab-item" onclick="closeMainMenu();startTour()"><span class="mi mi-s">tour</span><span>ツアーを見る</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+<main class="body">
+<!-- HOME -->
+<section class="vw home on" id="vH" aria-label="ドキュメントホーム">
+  <div class="home-in">
+    <h1 class="home-t">ドキュメント</h1>
+    <p class="home-st">SES現場のドキュメントをNotion風に作成・管理</p>
+    <div class="home-bar">
+      <button class="btn btn-ac" onclick="createDoc()"><span class="mi mi-xs">add</span> 新規作成</button>
+      <button class="btn" onclick="openTemplateModal()"><span class="mi mi-xs">dashboard</span> テンプレート</button>
+      <div class="sbox"><span class="mi">search</span><input id="searchIn" placeholder="検索..." oninput="renderCards()"></div>
+      <select class="sort" id="sortSel" onchange="renderCards()"><option value="updated">更新日順</option><option value="name">名前順</option></select>
+    </div>
+    <div id="cg"></div>
+  </div>
+</section>
+<!-- EDITOR -->
+<section class="vw ev" id="vE" aria-label="ドキュメントエディタ">
+  <div class="ev-top">
+    <button class="ib" onclick="goHome()" title="ホーム"><span class="mi">arrow_back</span></button>
+    <div class="hsep"></div>
+    <button class="ib" id="undoBtn" onclick="undo()" title="元に戻す (Ctrl+Z)"><span class="mi">undo</span></button>
+    <button class="ib" id="redoBtn" onclick="redo()" title="やり直す (Ctrl+Shift+Z)"><span class="mi">redo</span></button>
+    <span style="flex:1"></span>
+    <div class="save-ind" id="saveInd"><span class="dot"></span><span id="saveText">保存済</span></div>
+    <span style="font-size:10.5px;color:var(--tx-4)" id="wc">0文字</span>
+    <div class="hsep"></div>
+    <button class="btn btn-s btn-ac" onclick="expHTML()" title="HTML保存"><span class="mi mi-xs">download</span> HTML保存</button>
+    <div style="position:relative;display:inline-block">
+      <button class="ib" onclick="toggleEditorMenu(event)" id="editorMenuBtn" title="その他"><span class="mi">more_vert</span></button>
+      <div class="kebab-menu" id="editorKebab">
+        <div class="kebab-item" onclick="closeEditorMenu();copyHTML()"><span class="mi mi-s">content_paste</span><span>HTMLをコピー</span></div>
+        <div class="kebab-item" onclick="closeEditorMenu();expMD()"><span class="mi mi-s">code</span><span>Markdown保存</span></div>
+        <div class="kebab-item" onclick="closeEditorMenu();printDoc()"><span class="mi mi-s">picture_as_pdf</span><span>印刷 / PDF</span></div>
+        <div class="kebab-sep"></div>
+        <div class="kebab-item" onclick="closeEditorMenu();saveAsTemplate()"><span class="mi mi-s">bookmark_add</span><span>テンプレートとして保存</span></div>
+        <div class="kebab-sep"></div>
+        <div class="kebab-item" onclick="closeEditorMenu();openSearch()"><span class="mi mi-s">search</span><span>検索・置換</span><span class="kebab-kbd">Ctrl+F</span></div>
+        <div class="kebab-item" onclick="closeEditorMenu();openCmd()"><span class="mi mi-s">terminal</span><span>コマンドパレット</span><span class="kebab-kbd">Ctrl+K</span></div>
+      </div>
+    </div>
+    <button class="ib" onclick="toggleTOC()" id="tocBtn" title="目次"><span class="mi">toc</span></button>
+  </div>
+  <div class="ev-main">
+    <div class="ev-body" id="evBody">
+      <div class="ev-page" id="page">
+        <input class="doc-title" id="dti" placeholder="無題のドキュメント" spellcheck="false">
+        <div class="doc-meta" id="dMeta"></div>
+        <div id="blocks"></div>
+      </div>
+    </div>
+    <aside class="toc-sb" id="tocSb">
+      <div class="toc-title">目次</div>
+      <div id="tocList"></div>
+    </aside>
+  </div>
+</section>
+</main></div>
+
+<!-- ONBOARDING TOUR -->
+<div class="tour-bg" id="tourBg">
+  <div class="tour-box">
+    <div id="tourContent"></div>
+    <div class="tour-dots" id="tourDots"></div>
+    <div class="tour-actions">
+      <button class="tour-skip" onclick="skipTour()">スキップ</button>
+      <div style="display:flex;gap:6px">
+        <button class="btn" onclick="prevTour()" id="tourPrev"><span class="mi mi-xs">arrow_back</span> 戻る</button>
+        <button class="btn btn-ac" onclick="nextTour()" id="tourNext">次へ <span class="mi mi-xs">arrow_forward</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- SNIPPET MODAL -->
+<div class="mbg" id="snipM">
+  <div class="mdl" style="width:480px">
+    <div class="mdl-h"><h3><span class="mi mi-s">text_snippet</span> スニペット</h3><div style="display:flex;gap:6px"><button class="btn btn-s btn-ac" onclick="addSnippet()"><span class="mi mi-xs">add</span> 追加</button><button class="ib" onclick="closeSnippetModal()"><span class="mi">close</span></button></div></div>
+    <div class="mdl-b">
+      <div style="font-size:11.5px;color:var(--tx-3);margin-bottom:12px">エディタで <code style="background:var(--bg-3);padding:1px 4px;border-radius:3px">\\キー</code> と入力すると自動展開されます。</div>
+      <div class="set-section-title">プリセット</div>
+      <div id="snipPreset" style="margin-bottom:12px"></div>
+      <div class="set-section-title">カスタム</div>
+      <div id="snipCustom"></div>
+    </div>
+  </div>
+</div>
+<!-- TEMPLATE MODAL -->
+<div class="mbg" id="tplM">
+  <div class="mdl" style="width:560px">
+    <div class="mdl-h"><h3><span class="mi mi-s">dashboard</span> テンプレートから作成</h3><button class="ib" onclick="closeTemplateModal()"><span class="mi">close</span></button></div>
+    <div class="mdl-b">
+      <div class="set-section-title">プリセット</div>
+      <div class="tpl-grid" id="tplPreset" style="margin-bottom:16px"></div>
+      <div class="set-section-title">カスタム</div>
+      <div class="tpl-grid" id="tplCustom"></div>
+    </div>
+  </div>
+</div>
+<!-- TRASH MODAL -->
+<div class="mbg" id="trashM">
+  <div class="mdl" style="width:520px">
+    <div class="mdl-h"><h3><span class="mi mi-s">delete</span> ゴミ箱</h3><div style="display:flex;gap:6px"><button class="btn btn-s btn-dn" onclick="emptyTrash()"><span class="mi mi-xs">delete_forever</span> 空にする</button><button class="ib" onclick="closeTrashModal()"><span class="mi">close</span></button></div></div>
+    <div class="mdl-b">
+      <div style="font-size:11.5px;color:var(--tx-3);margin-bottom:12px">削除されたドキュメントは30日間ゴミ箱に保持されます。</div>
+      <div id="trashList"></div>
+    </div>
+  </div>
+</div>
+<!-- BACKUP MODAL -->
+<div class="mbg" id="bakM">
+  <div class="mdl" style="width:480px">
+    <div class="mdl-h"><h3><span class="mi mi-s">backup</span> 自動バックアップ</h3><button class="ib" onclick="closeBackupModal()"><span class="mi">close</span></button></div>
+    <div class="mdl-b">
+      <div style="font-size:11.5px;color:var(--tx-3);margin-bottom:12px">5分ごとに自動的にバックアップが作成されます。最新5件まで保持されます。</div>
+      <div id="bakList"></div>
+    </div>
+  </div>
+</div>
+<!-- COMMAND PALETTE -->
+<div class="cmd-bg" id="cmdBg">
+  <div class="cmd-box">
+    <input class="cmd-in" id="cmdIn" placeholder="コマンドを検索... (Ctrl+K)" oninput="renderCmdList()">
+    <div class="cmd-list" id="cmdList"></div>
+  </div>
+</div>
+<!-- SEARCH BAR -->
+<div class="srch-bar" id="srchBar">
+  <span class="mi mi-s" style="color:var(--tx-3)">search</span>
+  <input id="srchIn" placeholder="検索..." oninput="doSearch()">
+  <span class="srch-count" id="srchCnt">0 / 0</span>
+  <button class="ib" onclick="searchNav(-1)" title="前へ" style="width:24px;height:24px"><span class="mi mi-s">keyboard_arrow_up</span></button>
+  <button class="ib" onclick="searchNav(1)" title="次へ" style="width:24px;height:24px"><span class="mi mi-s">keyboard_arrow_down</span></button>
+  <div class="hsep"></div>
+  <input id="rplIn" placeholder="置換..." style="width:140px">
+  <button class="btn btn-s" onclick="replaceOne()">置換</button>
+  <button class="btn btn-s" onclick="replaceAll()">全置換</button>
+  <button class="ib" onclick="closeSearch()" title="閉じる" style="width:24px;height:24px"><span class="mi mi-s">close</span></button>
+</div>
+<!-- HELP MODAL -->
+<div class="mbg" id="helpM">
+  <div class="mdl" style="width:480px">
+    <div class="mdl-h"><h3><span class="mi mi-s">help_outline</span> ヘルプ・ショートカット</h3><button class="ib" onclick="closeHelp()"><span class="mi">close</span></button></div>
+    <div class="mdl-b">
+      <div class="set-section">
+        <div class="set-section-title">編集</div>
+        <div class="set-row"><div class="set-label">元に戻す</div><kbd class="kbd">Ctrl + Z</kbd></div>
+        <div class="set-row"><div class="set-label">やり直す</div><kbd class="kbd">Ctrl + Shift + Z</kbd></div>
+        <div class="set-row"><div class="set-label">保存</div><kbd class="kbd">Ctrl + S</kbd></div>
+        <div class="set-row"><div class="set-label">ヘルプを開く</div><kbd class="kbd">?</kbd></div>
+      </div>
+      <div class="set-section">
+        <div class="set-section-title">ブロック操作</div>
+        <div class="set-row"><div class="set-label">ブロックメニューを開く</div><kbd class="kbd">/</kbd></div>
+        <div class="set-row"><div class="set-label">新しい行（ブロック追加）</div><kbd class="kbd">Enter</kbd></div>
+        <div class="set-row"><div class="set-label">空のブロックを削除</div><kbd class="kbd">Backspace</kbd></div>
+        <div class="set-row"><div class="set-label">前後のブロックへ移動</div><kbd class="kbd">↑ / ↓</kbd></div>
+      </div>
+      <div class="set-section">
+        <div class="set-section-title">使い方のヒント</div>
+        <div class="set-row" style="display:block;border:none;padding-top:0">
+          <ul style="font-size:12px;color:var(--tx-2);padding-left:20px;line-height:1.8">
+            <li>ブロック左端の <strong>＋</strong> で新規追加</li>
+            <li>ドラッグハンドル <strong>⠿</strong> をクリックで型変換</li>
+            <li>ドラッグハンドルを掴んで並び替え</li>
+            <li>テキスト選択でフローティングツールバー表示</li>
+            <li>テーブルのセルは直接クリックして編集</li>
+            <li>画像はドラッグ&ドロップでも追加可能</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- SETTINGS MODAL -->
+<div class="mbg" id="setM">
+  <div class="mdl">
+    <div class="mdl-h"><h3><span class="mi mi-s">settings</span> 設定</h3><button class="ib" onclick="closeSettings()"><span class="mi">close</span></button></div>
+    <div class="mdl-b">
+      <div class="set-section">
+        <div class="set-section-title">基本</div>
+        <div class="set-row">
+          <div><div class="set-label">作成者名</div><div class="set-desc">新規ドキュメントの初期値</div></div>
+          <input class="set-input" id="setAuthor" oninput="saveSettings()">
+        </div>
+      </div>
+      <div class="set-section">
+        <div class="set-section-title">表示</div>
+        <div class="set-row">
+          <div><div class="set-label">テーマカラー</div><div class="set-desc">アクセントカラー</div></div>
+          <div class="color-grid" id="setColors"></div>
+        </div>
+        <div class="set-row">
+          <div><div class="set-label">フォントサイズ</div><div class="set-desc">本文の文字サイズ</div></div>
+          <select class="set-input" id="setFontSize" onchange="saveSettings();applyFontSize()"><option value="13">小 (13px)</option><option value="15" selected>標準 (15px)</option><option value="17">大 (17px)</option><option value="19">特大 (19px)</option></select>
+        </div>
+        <div class="set-row">
+          <div><div class="set-label">エディタの幅</div><div class="set-desc">ページの最大幅</div></div>
+          <select class="set-input" id="setPageWidth" onchange="saveSettings();applyPageWidth()"><option value="760px">標準 (760px)</option><option value="900px" selected>広い (900px)</option><option value="1100px">最大 (1100px)</option><option value="100%">全幅</option></select>
+        </div>
+      </div>
+      <div class="set-section">
+        <div class="set-section-title">データ</div>
+        <div class="set-row">
+          <div><div class="set-label">全データを削除</div><div class="set-desc">全ドキュメント・画像を完全削除</div></div>
+          <button class="btn btn-s btn-dn" onclick="resetAllData()"><span class="mi mi-xs">delete_forever</span> リセット</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- TYPE CONVERSION MENU -->
+<div class="type-menu" id="typeM"></div>
+<!-- SLASH MENU -->
+<div class="slash-menu" id="slM"></div>
+<!-- FLOATING TOOLBAR -->
+<div class="ftb" id="ftb">
+  <button onclick="fmt('bold')" title="太字"><span class="mi mi-s">format_bold</span></button>
+  <button onclick="fmt('italic')" title="斜体"><span class="mi mi-s">format_italic</span></button>
+  <button onclick="fmt('strikeThrough')" title="取消線"><span class="mi mi-s">strikethrough_s</span></button>
+  <button onclick="fmt('createLink')" title="リンク"><span class="mi mi-s">link</span></button>
+  <div class="tsep"></div>
+  <button onclick="fmt('code')" title="コード"><span class="mi mi-s">code</span></button>
+</div>
+<div class="tbox" id="tbox"></div>
+<input type="file" id="imgF" accept="image/*" style="display:none">
+
+<script>
+// ===== DATA =====
+let D={docs:[],aid:null},dk=false;
+// ===== UNDO/REDO HISTORY =====
+const HIST_MAX=50;
+let histStack=[];// Array of {docId, blocks, title} snapshots
+let histIdx=-1;
+let histTimer=null;
+const SLASH=[
+  {cat:'基本',items:[
+    {type:'p',name:'テキスト',icon:'notes',desc:'本文'},
+    {type:'h1',name:'見出し1',icon:'title',desc:'大見出し'},
+    {type:'h2',name:'見出し2',icon:'title',desc:'中見出し'},
+    {type:'h3',name:'見出し3',icon:'title',desc:'小見出し'},
+  ]},
+  {cat:'リスト',items:[
+    {type:'ul',name:'箇条書き',icon:'format_list_bulleted',desc:'リスト'},
+    {type:'ol',name:'番号リスト',icon:'format_list_numbered',desc:'順序付き'},
+    {type:'todo',name:'チェックボックス',icon:'check_box',desc:'タスク・作業手順'},
+  ]},
+  {cat:'コンテンツ',items:[
+    {type:'table',name:'テーブル',icon:'table_chart',desc:'表を挿入'},
+    {type:'code',name:'コードブロック',icon:'data_object',desc:'コード'},
+    {type:'quote',name:'引用',icon:'format_quote',desc:'引用文'},
+    {type:'hr',name:'区切り線',icon:'horizontal_rule',desc:'水平線'},
+    {type:'image',name:'画像',icon:'image',desc:'画像挿入'},
+  ]},
+  {cat:'装飾',items:[
+    {type:'alert-i',name:'情報',icon:'info',desc:'青い情報枠'},
+    {type:'alert-w',name:'警告',icon:'warning',desc:'黄色い警告枠'},
+    {type:'alert-t',name:'ヒント',icon:'lightbulb',desc:'緑のヒント枠'},
+    {type:'alert-d',name:'危険',icon:'dangerous',desc:'赤い危険枠'},
+    {type:'collapse',name:'折りたたみ',icon:'expand_circle_down',desc:'開閉セクション'},
+  ]},
+];
+
+function uid(){return Date.now().toString(36)+'_'+Math.random().toString(36).substr(2,5);}
+function es(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function nw(){return new Date().toISOString();}
+function fd(d){try{const o=new Date(d);return`${o.getFullYear()}/${(o.getMonth()+1+'').padStart(2,'0')}/${(o.getDate()+'').padStart(2,'0')}`;}catch{return'';}}
+
+// ===== STORAGE: IndexedDB for images, localStorage for doc metadata =====
+let idb=null;
+function openIDB(){return new Promise((res,rej)=>{
+  const req=indexedDB.open('DocForgeDB',1);
+  req.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains('images'))db.createObjectStore('images');};
+  req.onsuccess=e=>{idb=e.target.result;res(idb);};
+  req.onerror=()=>rej();
+});}
+function idbPut(key,val){return new Promise((res,rej)=>{if(!idb){res();return;}const tx=idb.transaction('images','readwrite');tx.objectStore('images').put(val,key);tx.oncomplete=()=>res();tx.onerror=()=>rej();});}
+function idbGet(key){return new Promise((res,rej)=>{if(!idb){res(null);return;}const tx=idb.transaction('images','readonly');const req=tx.objectStore('images').get(key);req.onsuccess=()=>res(req.result||null);req.onerror=()=>res(null);});}
+function idbDel(key){return new Promise(res=>{if(!idb){res();return;}const tx=idb.transaction('images','readwrite');tx.objectStore('images').delete(key);tx.oncomplete=()=>res();});}
+
+// Save doc metadata to localStorage (images stored separately in IDB)
+function ldDB(){try{const s=localStorage.getItem('df11');if(s)D=JSON.parse(s);}catch{}}
+function svDB(){
+  try{
+    const lite=JSON.parse(JSON.stringify(D));
+    lite.docs.forEach(doc=>{(doc.blocks||[]).forEach(b=>{
+      if(b.type==='image'&&b.meta&&b.meta.src&&b.meta.src.startsWith('data:')){
+        if(b.meta.imgId)b.meta.src='__idb__';
+      }
+    });});
+    if(!safeLocalStorageSave('df11',JSON.stringify(lite))){
+      throw new Error('保存に失敗しました');
+    }
+  }catch(e){console.warn('localStorage save failed',e);throw e;}
+}
+
+// ===== AUTO BACKUP =====
+const BACKUP_MAX=5;
+function createBackup(){
+  try{
+    const lite=JSON.parse(JSON.stringify(D));
+    lite.docs.forEach(doc=>{(doc.blocks||[]).forEach(b=>{
+      if(b.type==='image'&&b.meta&&b.meta.src&&b.meta.src.startsWith('data:')){
+        if(b.meta.imgId)b.meta.src='__idb__';
+      }
+    });});
+    const backups=getBackups();
+    backups.unshift({at:nw(),data:lite,docCount:D.docs.length});
+    while(backups.length>BACKUP_MAX)backups.pop();
+    localStorage.setItem('df11bak',JSON.stringify(backups));
+  }catch(e){console.warn('Backup failed',e);}
+}
+function getBackups(){
+  try{const s=localStorage.getItem('df11bak');return s?JSON.parse(s):[];}catch{return[];}
+}
+function restoreBackup(idx){
+  const backups=getBackups();
+  if(!backups[idx])return;
+  if(!confirm(`${fd(backups[idx].at)} のバックアップを復元しますか？\n現在のデータは上書きされます。`))return;
+  try{
+    D=backups[idx].data;
+    svDB();closeBackupModal();goHome();
+    toast('バックアップを復元しました');
+  }catch(e){toast('復元失敗','wn');}
+}
+function deleteBackup(idx){
+  if(!confirm('このバックアップを削除しますか？'))return;
+  const backups=getBackups();
+  backups.splice(idx,1);
+  localStorage.setItem('df11bak',JSON.stringify(backups));
+  renderBackupList();
+}
+function openBackupModal(){
+  renderBackupList();
+  document.getElementById('bakM').classList.add('on');
+}
+function closeBackupModal(){document.getElementById('bakM').classList.remove('on');}
+function renderBackupList(){
+  const backups=getBackups();
+  const el=document.getElementById('bakList');
+  if(!backups.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--tx-4);font-size:12px">バックアップがありません</div>';return;}
+  el.innerHTML=backups.map((b,i)=>`<div class="bak-item"><div class="bak-info"><div class="bak-date">${fd(b.at)} ${new Date(b.at).toTimeString().slice(0,5)}</div><div class="bak-meta">${b.docCount}件のドキュメント</div></div><div><button class="btn btn-s" onclick="restoreBackup(${i})">復元</button> <button class="btn btn-s btn-dn" onclick="deleteBackup(${i})">削除</button></div></div>`).join('');
+}
+// Auto-backup every 5 minutes
+setInterval(()=>{if(D.docs.length>0)createBackup();},5*60*1000);
+// Initial backup on first load
+setTimeout(()=>{if(D.docs.length>0)createBackup();},10000);
+// Store image in IndexedDB and set imgId reference
+async function storeImage(blockMeta,dataUrl){
+  const imgId=blockMeta.imgId||('img_'+uid());
+  blockMeta.imgId=imgId;
+  blockMeta.src=dataUrl;
+  await idbPut(imgId,dataUrl);
+  cacheImg(imgId,dataUrl);
+}
+// Load images from IndexedDB for a doc
+// ===== IMAGE CACHE =====
+const imgCache=new Map();// imgId -> dataUrl
+const IMG_CACHE_MAX=30;
+function cacheImg(id,data){
+  if(imgCache.has(id))imgCache.delete(id);// refresh position
+  imgCache.set(id,data);
+  // LRU eviction
+  while(imgCache.size>IMG_CACHE_MAX){
+    const firstKey=imgCache.keys().next().value;
+    imgCache.delete(firstKey);
+  }
+}
+async function getImgCached(id){
+  if(imgCache.has(id)){
+    const data=imgCache.get(id);
+    // Refresh LRU
+    imgCache.delete(id);imgCache.set(id,data);
+    return data;
+  }
+  const data=await idbGet(id);
+  if(data)cacheImg(id,data);
+  return data;
+}
+
+async function loadDocImages(doc){
+  // Lazy loading: images are loaded by IntersectionObserver when they become visible.
+  // This function is kept for compatibility but does nothing here.
+  return;
+}
+
+function gD(id){return D.docs.find(d=>d.id===id);}
+function toast(m,t='ok'){const b=document.getElementById('tbox'),d=document.createElement('div');d.className='toast toast-'+t;d.innerHTML=`<span class="mi mi-xs">${t==='ok'?'check_circle':'warning'}</span> ${es(m)}`;b.appendChild(d);setTimeout(()=>d.remove(),2200);}
+
+// ===== GLOBAL ERROR HANDLING =====
+window.addEventListener('error',e=>{
+  console.error('Uncaught error:',e.error||e.message);
+  if(e.error&&e.error.message&&!e.error.__notified){
+    e.error.__notified=true;
+    toast('エラー: '+(e.error.message||'不明なエラー').slice(0,50),'wn');
+  }
+});
+window.addEventListener('unhandledrejection',e=>{
+  console.error('Unhandled promise rejection:',e.reason);
+  if(e.reason&&!e.reason.__notified){
+    e.reason.__notified=true;
+    toast('エラー: '+((e.reason.message||e.reason)+'').slice(0,50),'wn');
+  }
+});
+// Safer localStorage save with quota handling
+function safeLocalStorageSave(key,value){
+  try{
+    localStorage.setItem(key,value);
+    return true;
+  }catch(e){
+    if(e.name==='QuotaExceededError'||e.name==='NS_ERROR_DOM_QUOTA_REACHED'){
+      toast('容量不足：古いバックアップを削除してください','wn');
+      // Try to free space by removing oldest backup
+      try{
+        const backups=getBackups();
+        if(backups.length>0){
+          backups.pop();
+          localStorage.setItem('df11bak',JSON.stringify(backups));
+          // Retry
+          localStorage.setItem(key,value);
+          return true;
+        }
+      }catch{}
+    }
+    console.error('Storage error:',e);
+    return false;
+  }
+}
+
+// ===== PASTE SANITIZATION =====
+function sanitizeHTML(html){
+  // Parse HTML and strip unwanted attributes/styles
+  const tmp=document.createElement('div');tmp.innerHTML=html;
+  const ALLOWED_TAGS=new Set(['B','STRONG','I','EM','U','S','DEL','CODE','A','BR','SPAN','P','DIV','UL','OL','LI','H1','H2','H3']);
+  const ALLOWED_ATTRS={A:['href','target'],SPAN:[],CODE:[]};
+  function walk(node){
+    const children=Array.from(node.childNodes);
+    children.forEach(child=>{
+      if(child.nodeType===Node.TEXT_NODE)return;
+      if(child.nodeType!==Node.ELEMENT_NODE){child.remove();return;}
+      const tag=child.tagName;
+      if(!ALLOWED_TAGS.has(tag)){
+        // Unwrap: keep text content but remove the element
+        while(child.firstChild)child.parentNode.insertBefore(child.firstChild,child);
+        child.remove();return;
+      }
+      // Remove all attributes except allowed ones
+      const allowed=ALLOWED_ATTRS[tag]||[];
+      Array.from(child.attributes).forEach(attr=>{
+        if(!allowed.includes(attr.name.toLowerCase()))child.removeAttribute(attr.name);
+      });
+      // Convert block tags inside inline contexts to line breaks
+      if(tag==='P'||tag==='DIV'){
+        // Leave as-is for now, will be flattened by .bc container
+      }
+      walk(child);
+    });
+  }
+  walk(tmp);
+  return tmp.innerHTML;
+}
+function handlePaste(e){
+  const target=e.target.closest('.bc');if(!target)return;
+  e.preventDefault();
+  const cd=e.clipboardData||window.clipboardData;if(!cd)return;
+  // Prefer plain text for code blocks
+  const isCode=target.closest('.block-code');
+  if(isCode){
+    const text=cd.getData('text/plain');
+    document.execCommand('insertText',false,text);
+    return;
+  }
+  // For other blocks: sanitize HTML or use plain text
+  const html=cd.getData('text/html');
+  const text=cd.getData('text/plain');
+  if(html){
+    const clean=sanitizeHTML(html);
+    // Insert the sanitized HTML at cursor
+    const sel=window.getSelection();if(!sel.rangeCount)return;
+    const range=sel.getRangeAt(0);range.deleteContents();
+    const frag=document.createRange().createContextualFragment(clean);
+    range.insertNode(frag);
+    // Move cursor to end of inserted content
+    range.collapse(false);sel.removeAllRanges();sel.addRange(range);
+  }else if(text){
+    document.execCommand('insertText',false,text);
+  }
+  // Trigger save via input event
+  target.dispatchEvent(new Event('input',{bubbles:true}));
+}
+// Bind paste globally to .bc elements
+document.addEventListener('paste',handlePaste);
+// Global IME composition event handling
+document.addEventListener('compositionstart',e=>{if(e.target.classList&&e.target.classList.contains('bc'))isComposing=true;});
+document.addEventListener('compositionend',e=>{
+  if(e.target.classList&&e.target.classList.contains('bc')){
+    isComposing=false;
+    const block=e.target.closest('.block');
+    if(block){const idx=+block.dataset.idx;if(!isNaN(idx))setTimeout(()=>onBlockInput(idx),10);}
+  }
+});
+// Multi-tab sync via storage event
+let tabId='tab_'+Math.random().toString(36).substr(2,9);
+let lastStorageAt=Date.now();
+window.addEventListener('storage',e=>{
+  if(e.key!=='df11'||!e.newValue)return;
+  // Another tab updated the data
+  const now=Date.now();
+  if(now-lastStorageAt<500)return;// ignore rapid events
+  lastStorageAt=now;
+  // If currently editing, warn
+  if(isUnsaved){
+    if(!confirm('別のタブでデータが更新されました。\n現在のタブの未保存変更を破棄して最新データを読み込みますか？\n\n「キャンセル」を選ぶと、次の保存時に上書きされます。'))return;
+  }
+  // Reload data
+  try{
+    D=JSON.parse(e.newValue);
+    if(D.aid&&gD(D.aid)){
+      const doc=gD(D.aid);
+      loadDocImages(doc).then(()=>{
+        document.getElementById('dti').value=doc.title||'';
+        renderBlocks();renderMeta(doc);
+        toast('別タブの変更を読み込みました');
+      });
+    }else{
+      goHome();toast('データを再読込');
+    }
+  }catch(err){console.error('Storage sync error',err);}
+});
+
+// ===== HISTORY (Undo/Redo) =====
+function snapshotDoc(){
+  const doc=gD(D.aid);if(!doc)return null;
+  // Deep clone without large image data (keep imgId references)
+  const blocks=doc.blocks.map(b=>{
+    const clone={id:b.id,type:b.type,content:b.content,meta:{}};
+    if(b.meta){
+      for(const k in b.meta){
+        if(k==='src'&&b.meta.imgId)continue;// skip inline src when we have IDB ref
+        clone.meta[k]=b.meta.meta&&typeof b.meta[k]==='object'?JSON.parse(JSON.stringify(b.meta[k])):b.meta[k];
+      }
+      // Deep clone cells for tables
+      if(b.meta.cells)clone.meta.cells=b.meta.cells.map(r=>[...r]);
+    }
+    return clone;
+  });
+  return{docId:doc.id,title:doc.title,blocks};
+}
+function pushHistory(){
+  if(!D.aid)return;
+  const snap=snapshotDoc();if(!snap)return;
+  // Truncate forward history if we're not at the end
+  if(histIdx<histStack.length-1)histStack=histStack.slice(0,histIdx+1);
+  // Don't push duplicate of current state
+  const last=histStack[histStack.length-1];
+  if(last&&JSON.stringify(last)===JSON.stringify(snap))return;
+  histStack.push(snap);
+  if(histStack.length>HIST_MAX)histStack.shift();
+  histIdx=histStack.length-1;
+  updateHistButtons();
+}
+function scheduleHistory(){
+  // Debounce: push history 600ms after last change
+  clearTimeout(histTimer);
+  histTimer=setTimeout(pushHistory,600);
+}
+function applySnapshot(snap){
+  if(!snap)return;
+  const doc=gD(snap.docId);if(!doc)return;
+  doc.title=snap.title;
+  doc.blocks=snap.blocks.map(b=>({id:b.id,type:b.type,content:b.content,meta:b.meta?{...b.meta}:{}}));
+  // Reload images from IDB for any image blocks
+  loadDocImages(doc).then(()=>{
+    document.getElementById('dti').value=doc.title;
+    renderBlocks();
+  });
+  svDB();
+}
+function undo(){
+  if(histIdx<=0){toast('これ以上戻せません','wn');return;}
+  // If we're at the end, first snapshot current state so redo works
+  if(histIdx===histStack.length-1){
+    const current=snapshotDoc();
+    const last=histStack[histStack.length-1];
+    if(current&&(!last||JSON.stringify(last)!==JSON.stringify(current))){
+      histStack.push(current);
+    }
+  }
+  histIdx--;
+  applySnapshot(histStack[histIdx]);
+  updateHistButtons();toast('元に戻しました');
+}
+function redo(){
+  if(histIdx>=histStack.length-1){toast('これ以上進めません','wn');return;}
+  histIdx++;
+  applySnapshot(histStack[histIdx]);
+  updateHistButtons();toast('やり直しました');
+}
+function updateHistButtons(){
+  const ub=document.getElementById('undoBtn'),rb=document.getElementById('redoBtn');
+  if(ub)ub.style.opacity=histIdx<=0?'.4':'1';
+  if(rb)rb.style.opacity=histIdx>=histStack.length-1?'.4':'1';
+}
+function resetHistory(){histStack=[];histIdx=-1;setTimeout(pushHistory,100);}
+
+// ===== BLOCKS =====
+function newBlock(type='p',content='',meta={}){return{id:uid(),type,content,meta};}
+function defaultBlocks(){return[newBlock('p','')];}
+
+// ===== VIRTUAL SCROLL =====
+const VS_THRESHOLD=100;// Enable only if more than 100 blocks
+const VS_BUFFER=2;// pages of buffer above/below viewport
+let vsObserver=null;
+let vsStubHeights=new Map();// id -> measured height
+let vsEnabled=false;
+
+function virtualizeBlocks(){
+  const doc=gD(D.aid);
+  if(!doc||doc.blocks.length<=VS_THRESHOLD){vsEnabled=false;return;}
+  vsEnabled=true;
+  // Setup observer
+  if(vsObserver){vsObserver.disconnect();}
+  const body=document.getElementById('evBody');
+  if(!body)return;
+  vsObserver=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      const el=entry.target;
+      if(entry.isIntersecting){
+        // Unstub: restore full block
+        if(el.classList.contains('block-stub')){
+          const id=el.dataset.id;
+          const b=doc.blocks.find(x=>x.id===id);
+          if(!b)return;
+          const idx=+el.dataset.idx;
+          const newEl=renderSingleBlock(b,idx);
+          el.replaceWith(newEl);
+          vsObserver.observe(newEl);
+        }
+      }else{
+        // Stub: replace with lightweight placeholder (unless focused)
+        if(!el.classList.contains('block-stub')&&!el.contains(document.activeElement)){
+          // Measure height before stubbing
+          const height=el.offsetHeight;
+          if(height>0)vsStubHeights.set(el.dataset.id,height);
+          const stub=document.createElement('div');
+          stub.className='block block-stub';
+          stub.dataset.id=el.dataset.id;
+          stub.dataset.idx=el.dataset.idx;
+          stub.style.height=(vsStubHeights.get(el.dataset.id)||80)+'px';
+          el.replaceWith(stub);
+          vsObserver.observe(stub);
+        }
+      }
+    });
+  },{root:body,rootMargin:`${VS_BUFFER*100}% 0px`});
+  // Observe all blocks
+  document.querySelectorAll('#blocks > .block').forEach(el=>vsObserver.observe(el));
+}
+function disableVirtualScroll(){
+  if(vsObserver){vsObserver.disconnect();vsObserver=null;}
+  vsEnabled=false;
+  vsStubHeights.clear();
+}
+
+function renderSingleBlock(b,i){
+  const doc=gD(D.aid);
+  const div=document.createElement('div');
+  div.className='block block-'+b.type;
+  div.dataset.idx=i;div.dataset.id=b.id;
+  div.setAttribute('draggable','true');
+  div.addEventListener('dragstart',onDragStart);
+  div.addEventListener('dragover',onDragOver);
+  div.addEventListener('dragleave',onDragLeave);
+  div.addEventListener('drop',onDrop);
+  div.addEventListener('dragend',onDragEnd);
+  // Plus button
+  const plus=document.createElement('div');
+  plus.className='block-plus';
+  plus.innerHTML='<span class="mi" style="font-size:18px">add</span>';
+  plus.title='下にブロックを追加';
+  plus.addEventListener('click',e=>{e.stopPropagation();insertBlockAt(i+1);});
+  div.appendChild(plus);
+  // Handle
+  const handle=document.createElement('div');
+  handle.className='block-handle';
+  handle.innerHTML='<span class="mi" style="font-size:16px">drag_indicator</span>';
+  handle.title='ドラッグで並び替え / クリックで型変換';
+  handle.addEventListener('click',e=>{e.stopPropagation();openTypeMenu(handle,i);});
+  div.appendChild(handle);
+
+  if(b.type==='hr'){
+    const hr=document.createElement('hr');div.appendChild(hr);
+    div.addEventListener('click',()=>{if(confirm('区切り線を削除しますか？')){doc.blocks.splice(i,1);save();renderBlocks();}});
+    return div;
+  }
+  if(b.type==='table'){renderTableBlock(div,b,i);return div;}
+  if(b.type==='image'){renderImageBlock(div,b,i);return div;}
+  if(b.type.startsWith('alert')){renderAlertBlock(div,b,i);return div;}
+  if(b.type==='collapse'){renderCollapseBlock(div,b,i);return div;}
+  if(b.type==='todo'){
+    if(b.meta&&b.meta.checked)div.classList.add('checked');
+    const cb=document.createElement('input');cb.type='checkbox';cb.className='todo-check';cb.checked=!!(b.meta&&b.meta.checked);
+    cb.addEventListener('change',()=>{if(!b.meta)b.meta={};b.meta.checked=cb.checked;div.classList.toggle('checked',cb.checked);save();});
+    div.appendChild(cb);
+    const bc=document.createElement('div');
+    bc.className='bc';bc.contentEditable='true';bc.innerHTML=b.content;bc.dataset.ph='タスクを入力...';
+    bc.addEventListener('input',()=>onBlockInput(i));
+    bc.addEventListener('keydown',e=>onBlockKey(e,i));
+    div.appendChild(bc);return div;
+  }
+  const bc=document.createElement('div');
+  bc.className='bc';bc.contentEditable='true';bc.innerHTML=b.content;
+  bc.dataset.ph='/ でブロック追加';
+  if(b.type==='code'){
+    bc.dataset.ph='コードを入力...';
+    const copyBtn=document.createElement('button');
+    copyBtn.className='code-copy';
+    copyBtn.innerHTML='<span class="mi mi-xs">content_copy</span> コピー';
+    copyBtn.addEventListener('click',e=>{
+      e.stopPropagation();
+      const text=bc.textContent;
+      navigator.clipboard.writeText(text).then(()=>{
+        copyBtn.innerHTML='<span class="mi mi-xs">check</span> OK';
+        copyBtn.classList.add('ok');
+        setTimeout(()=>{copyBtn.innerHTML='<span class="mi mi-xs">content_copy</span> コピー';copyBtn.classList.remove('ok');},1500);
+      });
+    });
+    div.appendChild(copyBtn);
+  }
+  bc.addEventListener('input',()=>onBlockInput(i));
+  bc.addEventListener('keydown',e=>onBlockKey(e,i));
+  div.appendChild(bc);
+  return div;
+}
+
+function renderBlocks(){
+  const doc=gD(D.aid);if(!doc)return;
+  // Save current focus state
+  const active=document.activeElement;
+  let focusInfo=null;
+  if(active&&active.classList&&active.classList.contains('bc')){
+    const block=active.closest('.block');
+    if(block){
+      const sel=window.getSelection();
+      focusInfo={idx:+block.dataset.idx,offset:sel.anchorOffset||0};
+    }
+  }
+  const el=document.getElementById('blocks');
+  // DIFF RENDERING: compare existing DOM with doc.blocks by id
+  const existing=Array.from(el.children);
+  const existingById={};
+  existing.forEach(div=>{if(div.dataset.id)existingById[div.dataset.id]=div;});
+  const frag=document.createDocumentFragment();
+  doc.blocks.forEach((b,i)=>{
+    const prev=existingById[b.id];
+    if(prev&&prev.className==='block block-'+b.type){
+      // Same block, same type: just update index and content if needed
+      prev.dataset.idx=i;
+      const bc=prev.querySelector(':scope > .bc');
+      // Only update content if different (to avoid cursor jumps)
+      if(bc&&bc.innerHTML!==b.content&&document.activeElement!==bc){
+        bc.innerHTML=b.content;
+      }
+      // Update todo checkbox state
+      if(b.type==='todo'){
+        const cb=prev.querySelector('.todo-check');
+        if(cb&&cb.checked!==!!(b.meta&&b.meta.checked)){
+          cb.checked=!!(b.meta&&b.meta.checked);
+          prev.classList.toggle('checked',cb.checked);
+        }
+      }
+      frag.appendChild(prev);
+      delete existingById[b.id];
+    }else{
+      // New or changed block
+      frag.appendChild(renderSingleBlock(b,i));
+    }
+  });
+  // Clear el and append new order
+  el.innerHTML='';
+  el.appendChild(frag);
+  updateWC();
+  // Virtual scroll setup (only for large docs)
+  if(doc.blocks.length>VS_THRESHOLD){
+    setTimeout(()=>virtualizeBlocks(),50);
+  }else if(vsEnabled){
+    disableVirtualScroll();
+  }
+  // Restore focus
+  if(focusInfo){
+    setTimeout(()=>{
+      const blocks=document.querySelectorAll('.block');
+      const target=blocks[focusInfo.idx];
+      if(target){
+        const bc=target.querySelector('.bc');
+        if(bc){
+          bc.focus();
+          try{
+            const range=document.createRange();const sel=window.getSelection();
+            const textNode=bc.firstChild;
+            if(textNode&&textNode.nodeType===Node.TEXT_NODE){
+              const offset=Math.min(focusInfo.offset,textNode.textContent.length);
+              range.setStart(textNode,offset);
+            }else{
+              range.selectNodeContents(bc);range.collapse(false);
+            }
+            sel.removeAllRanges();sel.addRange(range);
+          }catch{}
+        }
+      }
+    },10);
+  }
+}
+
+function renderTableBlock(div,b,i){
+  const m=b.meta||{cells:[['ヘッダ1','ヘッダ2','ヘッダ3'],[' ',' ',' ']]};
+  if(!b.meta){b.meta=m;}
+  let html='<table>';
+  m.cells.forEach((row,ri)=>{
+    html+='<tr>';
+    row.forEach((cell,ci)=>{
+      const tag=ri===0?'th':'td';
+      html+=`<${tag} contenteditable="true" data-r="${ri}" data-c="${ci}" oninput="onCellEdit(${i},${ri},${ci},this)" onkeydown="onCellKey(event,${i},${ri},${ci})">${cell}</${tag}>`;
+    });
+    html+='</tr>';
+  });
+  html+='</table>';
+  html+=`<div class="tbl-actions"><button class="btn btn-s" onclick="tblAddRow(${i})"><span class="mi mi-xs">add</span> 行</button><button class="btn btn-s" onclick="tblAddCol(${i})"><span class="mi mi-xs">add</span> 列</button><button class="btn btn-s" onclick="tblDelRowCur(${i})"><span class="mi mi-xs">remove</span> 行削除</button><button class="btn btn-s" onclick="tblDelColCur(${i})"><span class="mi mi-xs">remove</span> 列削除</button><button class="btn btn-s tbl-copy" onclick="copyTbl(${i})"><span class="mi mi-xs">content_copy</span> Excel</button><button class="btn btn-s btn-dn" onclick="delBlock(${i})"><span class="mi mi-xs">delete</span></button></div>`;
+  div.insertAdjacentHTML('beforeend',html);
+}
+function onCellKey(e,bi,ri,ci){
+  const doc=gD(D.aid);if(!doc)return;
+  // Ignore during IME composition
+  if(isComposing||e.isComposing||e.keyCode===229)return;
+  const m=doc.blocks[bi].meta;
+  const rows=m.cells.length,cols=m.cells[0].length;
+  if(e.key==='Tab'){
+    e.preventDefault();
+    if(e.shiftKey){
+      // Shift+Tab: previous cell
+      if(ci>0)focusCell(bi,ri,ci-1);
+      else if(ri>0)focusCell(bi,ri-1,cols-1);
+    }else{
+      // Tab: next cell, auto-add row at end
+      if(ci<cols-1)focusCell(bi,ri,ci+1);
+      else if(ri<rows-1)focusCell(bi,ri+1,0);
+      else{
+        // Last cell: add new row
+        m.cells.push(Array(cols).fill(' '));save();renderBlocks();
+        setTimeout(()=>focusCell(bi,rows,0),30);
+      }
+    }
+  }
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(ri<rows-1)focusCell(bi,ri+1,ci);}
+  if(e.key==='ArrowUp'&&ri>0){const sel=window.getSelection();if(sel.anchorOffset===0){e.preventDefault();focusCell(bi,ri-1,ci);}}
+  if(e.key==='ArrowDown'&&ri<rows-1){const sel=window.getSelection();const cell=e.target;if(sel.anchorOffset>=cell.textContent.length){e.preventDefault();focusCell(bi,ri+1,ci);}}
+}
+function focusCell(bi,ri,ci){
+  const blocks=document.querySelectorAll('.block');
+  if(!blocks[bi])return;
+  const cell=blocks[bi].querySelector(`[data-r="${ri}"][data-c="${ci}"]`);
+  if(cell){
+    cell.focus();
+    const range=document.createRange();const sel=window.getSelection();
+    range.selectNodeContents(cell);range.collapse(false);
+    sel.removeAllRanges();sel.addRange(range);
+  }
+}
+function getFocusedCell(bi){
+  const blocks=document.querySelectorAll('.block');
+  if(!blocks[bi])return null;
+  const active=document.activeElement;
+  if(active&&active.hasAttribute('data-r')&&blocks[bi].contains(active)){
+    return{r:+active.dataset.r,c:+active.dataset.c};
+  }
+  return null;
+}
+function onCellEdit(bi,ri,ci,el){const doc=gD(D.aid);if(!doc)return;doc.blocks[bi].meta.cells[ri][ci]=el.innerHTML;save();}
+function tblAddRow(bi){const doc=gD(D.aid);const m=doc.blocks[bi].meta;const cols=m.cells[0].length;m.cells.push(Array(cols).fill(' '));save();renderBlocks();}
+function tblAddCol(bi){const doc=gD(D.aid);const m=doc.blocks[bi].meta;m.cells.forEach(r=>r.push(' '));save();renderBlocks();}
+function tblDelRow(bi){const doc=gD(D.aid);const m=doc.blocks[bi].meta;if(m.cells.length<=1)return;m.cells.pop();save();renderBlocks();}
+function tblDelCol(bi){const doc=gD(D.aid);const m=doc.blocks[bi].meta;if(m.cells[0].length<=1)return;m.cells.forEach(r=>r.pop());save();renderBlocks();}
+function tblDelRowCur(bi){
+  const doc=gD(D.aid);const m=doc.blocks[bi].meta;
+  if(m.cells.length<=1){toast('最後の行は削除できません','wn');return;}
+  const cur=getFocusedCell(bi);
+  const r=cur?cur.r:m.cells.length-1;
+  m.cells.splice(r,1);save();renderBlocks();
+  setTimeout(()=>focusCell(bi,Math.min(r,m.cells.length-1),cur?cur.c:0),30);
+}
+function tblDelColCur(bi){
+  const doc=gD(D.aid);const m=doc.blocks[bi].meta;
+  if(m.cells[0].length<=1){toast('最後の列は削除できません','wn');return;}
+  const cur=getFocusedCell(bi);
+  const c=cur?cur.c:m.cells[0].length-1;
+  m.cells.forEach(r=>r.splice(c,1));save();renderBlocks();
+  setTimeout(()=>focusCell(bi,cur?cur.r:0,Math.min(c,m.cells[0].length-1)),30);
+}
+function delBlock(i){
+  const doc=gD(D.aid);if(!doc||doc.blocks.length<=1)return;
+  const el=document.querySelectorAll('.block')[i];
+  if(el){
+    el.classList.add('removing');
+    setTimeout(()=>{doc.blocks.splice(i,1);save();renderBlocks();},150);
+  }else{doc.blocks.splice(i,1);save();renderBlocks();}
+}
+function insertBlockAt(i){const doc=gD(D.aid);if(!doc)return;doc.blocks.splice(i,0,newBlock('p',''));save();renderBlocks();setTimeout(()=>focusBlock(i),20);}
+
+// ===== TYPE CONVERSION MENU =====
+let typeMenuIdx=-1;
+function openTypeMenu(anchor,idx){
+  typeMenuIdx=idx;
+  const menu=document.getElementById('typeM');
+  const rect=anchor.getBoundingClientRect();
+  menu.style.top=(rect.bottom+4)+'px';menu.style.left=rect.left+'px';
+  let html='<div class="sm-head"><span class="mi mi-xs">swap_horiz</span> ブロック型を変換</div>';
+  let catSeen={};
+  SLASH.forEach(cat=>{
+    html+=`<div class="sm-cat">${cat.cat}</div>`;
+    cat.items.forEach(it=>{
+      html+=`<div class="sm-item" data-type="${it.type}"><span class="mi">${it.icon}</span><div><div>${es(it.name)}</div></div></div>`;
+    });
+  });
+  html+='<div class="sm-cat" style="border-top:1px solid var(--bd-2);margin-top:4px">操作</div>';
+  html+=`<div class="sm-item" data-action="delete" style="color:var(--dn)"><span class="mi" style="color:var(--dn)">delete</span><div><div>削除</div></div></div>`;
+  html+=`<div class="sm-item" data-action="duplicate"><span class="mi">content_copy</span><div><div>複製</div></div></div>`;
+  menu.innerHTML=html;
+  menu.querySelectorAll('.sm-item').forEach(el=>{
+    el.addEventListener('mousedown',e=>{
+      e.preventDefault();e.stopPropagation();
+      if(el.dataset.action==='delete'){delBlock(typeMenuIdx);closeTypeMenu();}
+      else if(el.dataset.action==='duplicate'){duplicateBlock(typeMenuIdx);closeTypeMenu();}
+      else if(el.dataset.type){convertBlock(typeMenuIdx,el.dataset.type);closeTypeMenu();}
+    });
+  });
+  menu.classList.add('on');
+}
+function closeTypeMenu(){document.getElementById('typeM').classList.remove('on');typeMenuIdx=-1;}
+function convertBlock(idx,type){
+  const doc=gD(D.aid);if(!doc)return;
+  const oldBlock=doc.blocks[idx];
+  const TEXT_TYPES=['p','h1','h2','h3','ul','ol','quote','code','todo'];
+  const keepContent=TEXT_TYPES.includes(type)&&TEXT_TYPES.includes(oldBlock.type);
+  let meta={};
+  if(type==='table')meta={cells:[['ヘッダ1','ヘッダ2','ヘッダ3'],[' ',' ',' ']]};
+  if(type==='collapse')meta={title:'セクションタイトル',open:true};
+  if(type==='image')meta={src:'',caption:'',width:100};
+  if(type==='todo')meta={checked:false};
+  doc.blocks[idx]={id:oldBlock.id,type,content:keepContent?oldBlock.content:'',meta};
+  save();renderBlocks();
+  setTimeout(()=>focusBlock(idx),20);
+}
+function duplicateBlock(idx){
+  const doc=gD(D.aid);if(!doc)return;
+  const src=doc.blocks[idx];
+  const clone=JSON.parse(JSON.stringify(src));clone.id=uid();
+  if(clone.meta&&clone.meta.imgId){clone.meta.imgId='img_'+uid();if(clone.meta.src)idbPut(clone.meta.imgId,clone.meta.src);}
+  doc.blocks.splice(idx+1,0,clone);save();renderBlocks();
+}
+// Close type menu on outside click
+document.addEventListener('mousedown',e=>{
+  if(typeMenuIdx<0)return;
+  if(e.target.closest('.type-menu')||e.target.closest('.block-handle'))return;
+  closeTypeMenu();
+});
+function copyTbl(bi){
+  const doc=gD(D.aid);if(!doc)return;const m=doc.blocks[bi].meta;
+  let tsv='';m.cells.forEach(r=>{tsv+=r.map(c=>c.replace(/<[^>]*>/g,'').trim()).join('\t')+'\n';});
+  let htm='<table>';m.cells.forEach((r,ri)=>{htm+='<tr>';r.forEach(c=>{htm+=ri===0?`<th>${c}</th>`:`<td>${c}</td>`;});htm+='</tr>';});htm+='</table>';
+  try{navigator.clipboard.write([new ClipboardItem({'text/plain':new Blob([tsv],{type:'text/plain'}),'text/html':new Blob([htm],{type:'text/html'})})]).then(()=>toast('Excelにコピー'));}
+  catch{navigator.clipboard.writeText(tsv).then(()=>toast('コピー'));}
+}
+
+function renderAlertBlock(div,b,i){
+  const t=b.type.replace('alert-','');
+  const labels={i:'info ℹ 情報',w:'warning ⚠ 警告',t:'lightbulb 💡 ヒント',d:'dangerous 🚫 危険'};
+  const lb=labels[t]||'';const ico=lb.split(' ')[0];const txt=lb.split(' ').slice(1).join(' ');
+  div.classList.add('alert-'+t);
+  const wrap=document.createElement('div');wrap.className='bc-wrap';
+  wrap.innerHTML=`<div class="ab-label"><span class="mi mi-xs">${ico}</span> ${txt}</div>`;
+  const bc=document.createElement('div');bc.className='bc';bc.contentEditable='true';bc.innerHTML=b.content;bc.dataset.ph='内容を入力...';
+  bc.addEventListener('input',()=>onBlockInput(i));bc.addEventListener('keydown',e=>onBlockKey(e,i));
+  wrap.appendChild(bc);div.appendChild(wrap);
+}
+
+function renderCollapseBlock(div,b,i){
+  const isOpen=b.meta.open!==false;
+  const wrap=document.createElement('div');wrap.className='collapse-wrap';
+  const sum=document.createElement('div');sum.className='collapse-sum'+(isOpen?' open':'');
+  sum.innerHTML=`<span class="mi">chevron_right</span><span contenteditable="true" style="flex:1;outline:none" oninput="onCollapseTitle(${i},this)">${b.meta.title||'セクションタイトル'}</span>`;
+  sum.querySelector('.mi').addEventListener('click',()=>{
+    b.meta.open=!b.meta.open;save();renderBlocks();
+  });
+  wrap.appendChild(sum);
+  const body=document.createElement('div');body.className='collapse-body'+(isOpen?' open':'');
+  const bc=document.createElement('div');bc.className='bc';bc.contentEditable='true';bc.innerHTML=b.content;bc.dataset.ph='折りたたまれた内容...';
+  bc.addEventListener('input',()=>onBlockInput(i));bc.addEventListener('keydown',e=>onBlockKey(e,i));
+  body.appendChild(bc);wrap.appendChild(body);div.appendChild(wrap);
+}
+function onCollapseTitle(i,el){const doc=gD(D.aid);doc.blocks[i].meta.title=el.textContent;save();}
+
+function renderImageBlock(div,b,i){
+  if(b.meta.src&&b.meta.src!=='__idb__'){
+    div.insertAdjacentHTML('beforeend',`<img src="${b.meta.src}" alt="" loading="lazy" style="max-width:${b.meta.width||100}%"><div class="img-cap" contenteditable="true" data-ph="キャプション..." oninput="onImgCap(${i},this)">${b.meta.caption||''}</div><div style="margin-top:4px"><button class="btn btn-s btn-dn" onclick="delBlock(${i})"><span class="mi mi-xs">delete</span> 削除</button></div>`);
+  }else if(b.meta.imgId){
+    // Placeholder with skeleton + lazy load via IntersectionObserver
+    div.insertAdjacentHTML('beforeend',`<div class="img-lazy skeleton" data-img-id="${b.meta.imgId}" data-block-idx="${i}" style="height:200px;border-radius:var(--r)"></div><div class="img-cap" contenteditable="true" data-ph="キャプション..." oninput="onImgCap(${i},this)">${b.meta.caption||''}</div><div style="margin-top:4px"><button class="btn btn-s btn-dn" onclick="delBlock(${i})"><span class="mi mi-xs">delete</span> 削除</button></div>`);
+    // Observe for lazy load
+    setTimeout(()=>{
+      const placeholder=div.querySelector('.img-lazy');
+      if(placeholder&&window.__imgObserver){window.__imgObserver.observe(placeholder);}
+    },10);
+  }else{
+    const upload=document.createElement('div');upload.className='img-upload';
+    upload.innerHTML='<span class="mi" style="font-size:28px">add_photo_alternate</span>クリックまたはドラッグで画像追加';
+    upload.addEventListener('click',()=>pickImg(i));
+    upload.addEventListener('dragover',e=>{e.preventDefault();e.stopPropagation();upload.style.borderColor='var(--ac)';upload.style.background='var(--ac-s)';});
+    upload.addEventListener('dragleave',e=>{e.preventDefault();upload.style.borderColor='';upload.style.background='';});
+    upload.addEventListener('drop',e=>{e.preventDefault();e.stopPropagation();upload.style.borderColor='';upload.style.background='';
+      const file=e.dataTransfer.files[0];if(file&&file.type.startsWith('image/'))loadImgFile(file,i);});
+    div.appendChild(upload);
+  }
+}
+// IntersectionObserver for lazy image loading
+if('IntersectionObserver' in window){
+  window.__imgObserver=new IntersectionObserver(async entries=>{
+    for(const entry of entries){
+      if(!entry.isIntersecting)continue;
+      const placeholder=entry.target;
+      const imgId=placeholder.dataset.imgId;
+      const blockIdx=+placeholder.dataset.blockIdx;
+      if(!imgId)continue;
+      window.__imgObserver.unobserve(placeholder);
+      try{
+        const data=await getImgCached(imgId);
+        if(!data){placeholder.classList.remove('skeleton');placeholder.innerHTML='<div style="padding:40px;text-align:center;color:var(--tx-4);font-size:11px">画像が見つかりません</div>';continue;}
+        // Replace placeholder with actual img
+        const doc=gD(D.aid);
+        if(doc&&doc.blocks[blockIdx]&&doc.blocks[blockIdx].type==='image'){
+          doc.blocks[blockIdx].meta.src=data;
+          const img=document.createElement('img');
+          img.src=data;img.alt='';img.loading='lazy';
+          img.style.maxWidth=(doc.blocks[blockIdx].meta.width||100)+'%';
+          placeholder.replaceWith(img);
+        }
+      }catch(e){console.warn('Lazy load failed',e);}
+    }
+  },{rootMargin:'200px'});
+}
+function loadImgFile(file,blockIdx){
+  const r=new FileReader();r.onload=ev=>{
+    compressAndStore(ev.target.result,file.name,blockIdx);
+  };r.readAsDataURL(file);
+}
+function compressAndStore(dataUrl,name,blockIdx){
+  const img=new Image();img.onload=async function(){
+    const MAX=1200;let w=img.width,h=img.height;
+    if(w>MAX){h=Math.round(h*(MAX/w));w=MAX;}
+    const cv=document.createElement('canvas');cv.width=w;cv.height=h;
+    cv.getContext('2d').drawImage(img,0,0,w,h);
+    const compressed=cv.toDataURL('image/jpeg',0.75);
+    const doc=gD(D.aid);if(!doc)return;
+    doc.blocks[blockIdx].meta.caption=name?name.replace(/\.[^.]+$/,''):'';
+    await storeImage(doc.blocks[blockIdx].meta,compressed);
+    save();renderBlocks();toast('画像を挿入');
+  };img.src=dataUrl;
+}
+function onImgCap(i,el){const doc=gD(D.aid);doc.blocks[i].meta.caption=el.textContent;save();}
+function pickImg(i){const f=document.getElementById('imgF');f.onchange=e=>{const file=e.target.files[0];if(!file)return;loadImgFile(file,i);f.value='';};f.click();}
+
+// ===== BLOCK INPUT =====
+// ===== IME STATE =====
+let isComposing=false;
+const NOTION_LIKE_INPUT_MODE=true;
+const _BLOCK_TYPES_EXIT_TO_PARAGRAPH=new Set(['h1','h2','h3','quote']);
+const _BLOCK_TYPES_LIST_LIKE=new Set(['ul','ol','todo']);
+
+function _getSelectionInBlock(bc){
+  const sel=window.getSelection();
+  if(!sel||!sel.rangeCount)return null;
+  const range=sel.getRangeAt(0);
+  if(!bc.contains(range.startContainer)||!bc.contains(range.endContainer))return null;
+  return{sel,range};
+}
+function _rangeToHTML(range){
+  const tmp=document.createElement('div');
+  tmp.appendChild(range.cloneContents());
+  return tmp.innerHTML;
+}
+function _normalizeBlockHTML(html){
+  const tmp=document.createElement('div');
+  tmp.innerHTML=html;
+  if((tmp.textContent||'').replace(/\u200B/g,'').trim()===''&&!tmp.querySelector('img,a,code,strong,em,del'))return'';
+  if(tmp.innerHTML==='<br>')return'';
+  return tmp.innerHTML;
+}
+function _blockTextLength(bc){return(bc.textContent||'').replace(/\u200B/g,'').length;}
+function _isBlockEmpty(bc){return _blockTextLength(bc)===0;}
+function _getCaretOffset(bc){
+  const ctx=_getSelectionInBlock(bc);if(!ctx)return 0;
+  const pre=ctx.range.cloneRange();
+  pre.selectNodeContents(bc);
+  pre.setEnd(ctx.range.startContainer,ctx.range.startOffset);
+  return pre.toString().replace(/\u200B/g,'').length;
+}
+function _isCaretAtStart(bc){return _getCaretOffset(bc)===0;}
+function _isCaretAtEnd(bc){return _getCaretOffset(bc)>=_blockTextLength(bc);}
+function _setCaretByOffset(bc,offset){
+  const sel=window.getSelection();
+  const range=document.createRange();
+  const safeOffset=Math.max(0,offset);
+  const walker=document.createTreeWalker(bc,NodeFilter.SHOW_TEXT);
+  let remaining=safeOffset;
+  let node=walker.nextNode();
+  while(node){
+    const len=node.textContent.length;
+    if(remaining<=len){
+      range.setStart(node,remaining);
+      range.collapse(true);
+      sel.removeAllRanges();sel.addRange(range);
+      return;
+    }
+    remaining-=len;
+    node=walker.nextNode();
+  }
+  range.selectNodeContents(bc);
+  range.collapse(safeOffset===0);
+  sel.removeAllRanges();sel.addRange(range);
+}
+function _caretIsOnFirstVisualLine(bc){
+  const ctx=_getSelectionInBlock(bc);if(!ctx||!ctx.sel.isCollapsed)return false;
+  const caret=ctx.range.cloneRange();caret.collapse(true);
+  const caretRect=caret.getClientRects()[0];
+  if(!caretRect)return _isCaretAtStart(bc);
+  const first=document.createRange();first.selectNodeContents(bc);first.collapse(true);
+  const firstRect=first.getClientRects()[0];
+  if(!firstRect)return _isCaretAtStart(bc);
+  return Math.abs(caretRect.top-firstRect.top)<2;
+}
+function _caretIsOnLastVisualLine(bc){
+  const ctx=_getSelectionInBlock(bc);if(!ctx||!ctx.sel.isCollapsed)return false;
+  const caret=ctx.range.cloneRange();caret.collapse(true);
+  const caretRect=caret.getClientRects()[0];
+  if(!caretRect)return _isCaretAtEnd(bc);
+  const last=document.createRange();last.selectNodeContents(bc);last.collapse(false);
+  const lastRect=last.getClientRects()[0];
+  if(!lastRect)return _isCaretAtEnd(bc);
+  return Math.abs(caretRect.top-lastRect.top)<2;
+}
+function _blurActiveEditingBlock(){
+  const active=document.activeElement;
+  if(active&&active.classList&&active.classList.contains('bc'))active.blur();
+}
+function _splitBlockAtCaret(i,bc,nextType){
+  const doc=gD(D.aid);if(!doc)return;
+  const ctx=_getSelectionInBlock(bc);if(!ctx)return;
+  const start=document.createRange();
+  start.setStart(bc,0);
+  start.setEnd(ctx.range.startContainer,ctx.range.startOffset);
+  const end=document.createRange();
+  end.setStart(ctx.range.endContainer,ctx.range.endOffset);
+  end.setEnd(bc,bc.childNodes.length);
+  const leftHTML=_normalizeBlockHTML(_rangeToHTML(start));
+  const rightHTML=_normalizeBlockHTML(_rangeToHTML(end));
+  doc.blocks[i].content=leftHTML;
+  const meta=nextType==='todo'?{checked:false}:{};
+  doc.blocks.splice(i+1,0,newBlock(nextType,rightHTML,meta));
+  _blurActiveEditingBlock();
+  save();renderBlocks();
+  setTimeout(()=>focusBlock(i+1,{at:'start'}),20);
+}
+function _convertBlockType(i,type,preserveContent=true){
+  const doc=gD(D.aid);if(!doc||!doc.blocks[i])return;
+  const current=doc.blocks[i];
+  current.type=type;
+  current.meta=type==='todo'?{checked:false}:{};
+  if(!preserveContent)current.content='';
+  _blurActiveEditingBlock();
+  save();renderBlocks();
+}
+function _mergeWithPrevious(i){
+  const doc=gD(D.aid);if(!doc||i<=0)return;
+  const prev=doc.blocks[i-1];
+  const current=doc.blocks[i];
+  const prevTextLen=(()=>{
+    const tmp=document.createElement('div');tmp.innerHTML=prev.content||'';
+    return(tmp.textContent||'').length;
+  })();
+  prev.content=_normalizeBlockHTML((prev.content||'')+(current.content||''));
+  doc.blocks.splice(i,1);
+  _blurActiveEditingBlock();
+  save();renderBlocks();
+  setTimeout(()=>focusBlock(i-1,{at:'offset',offset:prevTextLen}),20);
+}
+function onBlockInput(i){
+  const doc=gD(D.aid);if(!doc)return;
+  const el=document.querySelectorAll('.block')[i];if(!el)return;
+  const bc=el.querySelector('.bc');if(!bc)return;
+  doc.blocks[i].content=bc.innerHTML;
+  save();updateWC();
+  if(isComposing)return;
+  const text=bc.textContent||'';
+  if(/^\/[^\n]*$/.test(text)){
+    const newFilter=text.slice(1);
+    if(newFilter!==slashFilter){slashFilter=newFilter;slashActiveItem=0;}
+    showSlash(bc,i);
+  }else{hideSlash();}
+  if(doc.blocks[i].type==='p'){
+    const ctx=_getSelectionInBlock(bc);
+    if(ctx&&ctx.sel.isCollapsed&&_isCaretAtEnd(bc)){
+      const mdMap=[
+        {re:/^# $/,type:'h1'},
+        {re:/^## $/,type:'h2'},
+        {re:/^### $/,type:'h3'},
+        {re:/^- $/,type:'ul'},
+        {re:/^\* $/,type:'ul'},
+        {re:/^1\. $/,type:'ol'},
+        {re:/^> $/,type:'quote'},
+        {re:/^\[\] $/,type:'todo'},
+        {re:/^\[ \] $/,type:'todo'},
+        {re:/^```$/,type:'code'},
+        {re:/^--- $/,type:'hr'},
+      ];
+      for(const m of mdMap){
+        if(!m.re.test(text))continue;
+        let meta={};
+        if(m.type==='todo')meta={checked:false};
+        if(m.type==='hr'){
+          doc.blocks[i]={...doc.blocks[i],type:'hr',content:'',meta:{}};
+          doc.blocks.splice(i+1,0,newBlock('p',''));
+          save();renderBlocks();
+          setTimeout(()=>focusBlock(i+1,{at:'start'}),20);
+          return;
+        }
+        doc.blocks[i]={...doc.blocks[i],type:m.type,content:'',meta};
+        save();renderBlocks();
+        setTimeout(()=>focusBlock(i,{at:'start'}),20);
+        return;
+      }
+    }
+  }
+  // Notion-like mode: disable \\snippet auto-expansion and keep slash + markdown first.
+  if(NOTION_LIKE_INPUT_MODE)return;
+  if(checkSnippet(bc,i))return;
+}
+function onBlockKey(e,i){
+  const doc=gD(D.aid);if(!doc)return;
+  if(isComposing||e.isComposing||e.keyCode===229)return;
+  const bc=e.currentTarget;
+  if(!(bc&&bc.classList&&bc.classList.contains('bc')))return;
+  const block=doc.blocks[i];if(!block)return;
+  const type=block.type;
+  const ctx=_getSelectionInBlock(bc);
+  const collapsed=!!(ctx&&ctx.sel.isCollapsed);
+  if(slashIdx>=0&&(e.key==='Enter'||e.key==='ArrowDown'||e.key==='ArrowUp')){e.preventDefault();return;}
+  if(e.altKey&&e.key==='ArrowUp'&&i>0){
+    e.preventDefault();
+    [doc.blocks[i-1],doc.blocks[i]]=[doc.blocks[i],doc.blocks[i-1]];
+    save();renderBlocks();setTimeout(()=>focusBlock(i-1),20);
+    return;
+  }
+  if(e.altKey&&e.key==='ArrowDown'&&i<doc.blocks.length-1){
+    e.preventDefault();
+    [doc.blocks[i+1],doc.blocks[i]]=[doc.blocks[i],doc.blocks[i+1]];
+    save();renderBlocks();setTimeout(()=>focusBlock(i+1),20);
+    return;
+  }
+  if(e.key==='Enter'&&!e.shiftKey){
+    if(type==='code')return;
+    e.preventDefault();
+    if(!ctx)return;
+    if(!collapsed){ctx.range.deleteContents();ctx.range.collapse(true);ctx.sel.removeAllRanges();ctx.sel.addRange(ctx.range);}
+    const empty=_isBlockEmpty(bc);
+    const atEnd=_isCaretAtEnd(bc);
+    if(_BLOCK_TYPES_EXIT_TO_PARAGRAPH.has(type)&&empty){
+      _convertBlockType(i,'p',false);
+      setTimeout(()=>focusBlock(i,{at:'start'}),20);
+      return;
+    }
+    if(_BLOCK_TYPES_LIST_LIKE.has(type)&&empty){
+      _convertBlockType(i,'p',false);
+      setTimeout(()=>focusBlock(i,{at:'start'}),20);
+      return;
+    }
+    if(_BLOCK_TYPES_EXIT_TO_PARAGRAPH.has(type)){
+      _splitBlockAtCaret(i,bc,atEnd?'p':type);
+      return;
+    }
+    if(_BLOCK_TYPES_LIST_LIKE.has(type)){
+      _splitBlockAtCaret(i,bc,type);
+      return;
+    }
+    _splitBlockAtCaret(i,bc,'p');
+    return;
+  }
+  if(e.key==='Backspace'&&collapsed&&_isCaretAtStart(bc)){
+    const empty=_isBlockEmpty(bc);
+    if(_BLOCK_TYPES_EXIT_TO_PARAGRAPH.has(type)){
+      e.preventDefault();
+      _convertBlockType(i,'p',true);
+      setTimeout(()=>focusBlock(i,{at:'start'}),20);
+      return;
+    }
+    if(_BLOCK_TYPES_LIST_LIKE.has(type)&&empty){
+      e.preventDefault();
+      _convertBlockType(i,'p',false);
+      setTimeout(()=>focusBlock(i,{at:'start'}),20);
+      return;
+    }
+    if(type==='p'&&empty&&doc.blocks.length>1){
+      e.preventDefault();
+      doc.blocks.splice(i,1);save();renderBlocks();
+      setTimeout(()=>focusBlock(Math.max(0,i-1)),20);
+      return;
+    }
+    if(type==='p'&&i>0&&doc.blocks[i-1].type==='p'){
+      e.preventDefault();
+      _mergeWithPrevious(i);
+      return;
+    }
+  }
+  if(e.key==='Delete'&&collapsed&&_isCaretAtEnd(bc)&&i<doc.blocks.length-1&&type==='p'&&doc.blocks[i+1].type==='p'){
+    e.preventDefault();
+    const currentTextLen=_blockTextLength(bc);
+    block.content=_normalizeBlockHTML((block.content||'')+(doc.blocks[i+1].content||''));
+    doc.blocks.splice(i+1,1);
+    _blurActiveEditingBlock();
+    save();renderBlocks();
+    setTimeout(()=>focusBlock(i,{at:'offset',offset:currentTextLen}),20);
+    return;
+  }
+  if(e.key==='ArrowUp'&&i>0&&collapsed&&_caretIsOnFirstVisualLine(bc)&&_isCaretAtStart(bc)){
+    e.preventDefault();
+    focusBlock(i-1,{at:'end'});
+    return;
+  }
+  if(e.key==='ArrowDown'&&i<doc.blocks.length-1&&collapsed&&_caretIsOnLastVisualLine(bc)&&_isCaretAtEnd(bc)){
+    e.preventDefault();
+    focusBlock(i+1,{at:'start'});
+  }
+}
+function focusBlock(i,opt={}){
+  const blocks=document.querySelectorAll('.block');
+  if(!blocks[i])return;
+  const bc=blocks[i].querySelector('.bc');
+  if(!bc)return;
+  bc.focus();
+  if(opt.at==='start'){_setCaretByOffset(bc,0);return;}
+  if(opt.at==='offset'){_setCaretByOffset(bc,opt.offset||0);return;}
+  _setCaretByOffset(bc,_blockTextLength(bc));
+}
+
+// ===== SLASH MENU =====
+let slashIdx=-1,slashFilter='',slashActiveItem=0;
+function getSlashItems(){
+  const q=slashFilter.toLowerCase();
+  return SLASH.flatMap(c=>c.items.filter(it=>!q||it.name.toLowerCase().includes(q)||it.desc.toLowerCase().includes(q)||it.type.toLowerCase().includes(q)));
+}
+function showSlash(bc,idx){
+  slashIdx=idx;slashActiveItem=0;
+  const menu=document.getElementById('slM');
+  const rect=bc.getBoundingClientRect();
+  menu.style.top=(rect.bottom+4)+'px';menu.style.left=rect.left+'px';
+  renderSlashMenu();menu.classList.add('on');
+}
+function hideSlash(){document.getElementById('slM').classList.remove('on');slashIdx=-1;}
+function renderSlashMenu(){
+  const menu=document.getElementById('slM');
+  const filtered=getSlashItems();
+  let html='';let catSeen={};
+  filtered.forEach((it,itemIdx)=>{
+    // Find category name
+    const cat=SLASH.find(c=>c.items.includes(it));
+    if(cat&&!catSeen[cat.cat]){html+=`<div class="sm-cat">${cat.cat}</div>`;catSeen[cat.cat]=true;}
+    html+=`<div class="sm-item${itemIdx===slashActiveItem?' active':''}" data-type="${it.type}" onmouseenter="slashActiveItem=${itemIdx};renderSlashMenu()"><span class="mi">${it.icon}</span><div><div>${es(it.name)}</div><div class="sm-desc">${es(it.desc)}</div></div></div>`;
+  });
+  menu.innerHTML=html||'<div style="padding:12px;color:var(--tx-4);font-size:12px">見つかりません</div>';
+  menu.querySelectorAll('.sm-item').forEach(el=>{
+    el.addEventListener('mousedown',e=>{
+      e.preventDefault();e.stopPropagation();
+      insertBlockType(el.dataset.type);
+    });
+  });
+}
+function insertBlockType(type){
+  const idx=slashIdx;// Save before hide resets it
+  hideSlash();
+  const doc=gD(D.aid);if(!doc||idx<0)return;
+  let meta={};
+  if(type==='table')meta={cells:[['ヘッダ1','ヘッダ2','ヘッダ3'],[' ',' ',' ']]};
+  if(type==='collapse')meta={title:'セクションタイトル',open:true};
+  if(type==='image')meta={src:'',caption:'',width:100};
+  if(type==='todo')meta={checked:false};
+  doc.blocks[idx]={...doc.blocks[idx],type,content:'',meta};
+  save();renderBlocks();
+  setTimeout(()=>focusBlock(idx),30);
+}
+
+// ===== DRAG & DROP =====
+let dragIdx=-1;
+function onDragStart(e){dragIdx=+e.currentTarget.dataset.idx;e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
+function onDragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
+function onDragLeave(e){e.currentTarget.classList.remove('drag-over');}
+function onDrop(e){e.preventDefault();e.currentTarget.classList.remove('drag-over');const dropIdx=+e.currentTarget.dataset.idx;if(dragIdx<0||dragIdx===dropIdx)return;const doc=gD(D.aid);const item=doc.blocks.splice(dragIdx,1)[0];doc.blocks.splice(dropIdx,0,item);save();renderBlocks();}
+function onDragEnd(e){e.currentTarget.classList.remove('dragging');dragIdx=-1;}
+
+// ===== FLOATING TOOLBAR =====
+document.addEventListener('selectionchange',()=>{
+  const sel=window.getSelection();
+  if(!sel.rangeCount||sel.isCollapsed){document.getElementById('ftb').classList.remove('on');return;}
+  const range=sel.getRangeAt(0);const bc=range.commonAncestorContainer;
+  const block=bc.closest?bc.closest('.bc'):bc.parentElement?.closest('.bc');
+  if(!block||!document.getElementById('vE').classList.contains('on')){document.getElementById('ftb').classList.remove('on');return;}
+  const rect=range.getBoundingClientRect();const ftb=document.getElementById('ftb');
+  ftb.style.top=(rect.top-40)+'px';ftb.style.left=(rect.left+rect.width/2-80)+'px';
+  ftb.classList.add('on');
+});
+function fmt(cmd){
+  const sel=window.getSelection();if(!sel.rangeCount||sel.isCollapsed)return;
+  const range=sel.getRangeAt(0);
+  if(cmd==='createLink'){
+    const url=prompt('URLを入力:','https://');if(!url)return;
+    const a=document.createElement('a');a.href=url;a.target='_blank';a.style.color='var(--ac)';
+    try{range.surroundContents(a);}catch{a.textContent=range.toString();range.deleteContents();range.insertNode(a);}
+  }else if(cmd==='code'){
+    const code=document.createElement('code');
+    code.style.cssText='font-family:var(--fm);font-size:13px;background:var(--bg-3);padding:1px 5px;border-radius:3px';
+    try{range.surroundContents(code);}catch{code.textContent=range.toString();range.deleteContents();range.insertNode(code);}
+  }else if(cmd==='bold'){
+    wrapSelection('strong');
+  }else if(cmd==='italic'){
+    wrapSelection('em');
+  }else if(cmd==='strikeThrough'){
+    wrapSelection('del');
+  }
+  save();
+}
+function wrapSelection(tag){
+  const sel=window.getSelection();if(!sel.rangeCount)return;
+  const range=sel.getRangeAt(0);
+  // Check if already wrapped - toggle off
+  const parent=range.commonAncestorContainer.parentElement;
+  if(parent&&parent.tagName.toLowerCase()===tag){
+    const text=document.createTextNode(parent.textContent);
+    parent.replaceWith(text);
+    return;
+  }
+  const el=document.createElement(tag);
+  try{range.surroundContents(el);}
+  catch{el.textContent=range.toString();range.deleteContents();range.insertNode(el);}
+}
+
+// ===== SAVE =====
+let svT=null;
+let isUnsaved=false;
+let saveMaxT=null;
+let saveLastRequested=0;
+function save(){
+  const doc=gD(D.aid);if(doc)doc.updatedAt=nw();
+  setSaveInd('saving');
+  isUnsaved=true;
+  const now=Date.now();
+  if(!saveLastRequested)saveLastRequested=now;
+  clearTimeout(svT);
+  svT=setTimeout(()=>{
+    try{svDB();setSaveInd('saved');isUnsaved=false;saveLastRequested=0;
+      if(saveMaxT){clearTimeout(saveMaxT);saveMaxT=null;}
+    }catch(e){setSaveInd('error');console.error(e);}
+  },600);
+  // Max-wait: force save within 3 seconds even if typing continues
+  if(!saveMaxT){
+    saveMaxT=setTimeout(()=>{
+      clearTimeout(svT);
+      try{svDB();setSaveInd('saved');isUnsaved=false;saveLastRequested=0;}
+      catch(e){setSaveInd('error');console.error(e);}
+      saveMaxT=null;
+    },3000);
+  }
+  scheduleHistory();
+}
+window.addEventListener('beforeunload',e=>{
+  if(isUnsaved){
+    // Attempt sync save before unload
+    try{svDB();}catch{}
+    e.preventDefault();e.returnValue='未保存の変更があります。本当に離れますか？';return e.returnValue;
+  }
+});
+function setSaveInd(state){
+  const el=document.getElementById('saveInd');if(!el)return;
+  el.classList.remove('saving','error');
+  const txt=document.getElementById('saveText');
+  if(state==='saving'){el.classList.add('saving');if(txt)txt.textContent='保存中...';}
+  else if(state==='error'){el.classList.add('error');if(txt)txt.textContent='保存エラー';}
+  else{if(txt)txt.textContent='保存済';}
+}
+function updateWC(){const el=document.getElementById('blocks');const t=el.textContent||'';document.getElementById('wc').textContent=t.length.toLocaleString()+'文字';renderTOC();}
+function renderTOC(){
+  const doc=gD(D.aid);if(!doc){document.getElementById('tocList').innerHTML='';return;}
+  const headings=[];
+  doc.blocks.forEach((b,i)=>{if(['h1','h2','h3'].includes(b.type)){const txt=(b.content||'').replace(/<[^>]*>/g,'').trim();if(txt)headings.push({lv:b.type,text:txt,idx:i,id:b.id});}});
+  const el=document.getElementById('tocList');
+  if(!headings.length){el.innerHTML='<div class="toc-empty">見出しを追加すると表示</div>';return;}
+  el.innerHTML=headings.map(h=>`<div class="toc-item toc-${h.lv}" data-tid="${h.id}" onclick="scrollToBlock('${h.id}')">${es(h.text)}</div>`).join('');
+  updateTOCActive();
+}
+function scrollToBlock(id){const el=document.querySelector(`.block[data-id="${id}"]`);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function updateTOCActive(){
+  const body=document.getElementById('evBody');if(!body)return;
+  const headings=document.querySelectorAll('.block-h1,.block-h2,.block-h3');
+  let active=null;
+  headings.forEach(h=>{const rect=h.getBoundingClientRect();if(rect.top<120)active=h.dataset.id;});
+  document.querySelectorAll('.toc-item').forEach(el=>el.classList.remove('active'));
+  if(active){const el=document.querySelector(`.toc-item[data-tid="${active}"]`);if(el)el.classList.add('active');}
+}
+let tocVisible=true;
+function toggleTOC(){tocVisible=!tocVisible;document.getElementById('tocSb').classList.toggle('off',!tocVisible);try{localStorage.setItem('df11toc',tocVisible?'1':'0');}catch{}}
+// Scroll listener for TOC highlighting
+document.addEventListener('DOMContentLoaded',()=>{
+  const body=document.getElementById('evBody');
+  if(body)body.addEventListener('scroll',()=>{clearTimeout(window.__tocT);window.__tocT=setTimeout(updateTOCActive,80);});
+});
+
+// ===== VIEWS =====
+function goHome(){D.aid=null;svDB();document.getElementById('vH').classList.add('on');document.getElementById('vE').classList.remove('on');renderCards();}
+async function openDoc(id){
+  D.aid=id;svDB();
+  const doc=gD(id);if(!doc)return;
+  document.getElementById('vH').classList.remove('on');
+  document.getElementById('vE').classList.add('on');
+  document.getElementById('dti').value=doc.title;
+  if(!doc.blocks||!doc.blocks.length)doc.blocks=defaultBlocks();
+  // Check if has images that need loading
+  const hasImages=doc.blocks.some(b=>b.type==='image'&&b.meta&&b.meta.imgId&&(!b.meta.src||b.meta.src==='__idb__'));
+  if(hasImages){
+    // Show skeleton while loading
+    document.getElementById('blocks').innerHTML='<div class="skel-title skeleton"></div><div class="skel-sub skeleton"></div><div class="skel-line skel-block-1 skeleton"></div><div class="skel-line skel-block-2 skeleton"></div><div class="skel-line skel-block-3 skeleton"></div><div class="skel-line skel-block-1 skeleton"></div>';
+  }
+  await loadDocImages(doc);
+  renderBlocks();renderMeta(doc);resetHistory();
+}
+function renderMeta(doc){const el=document.getElementById('dMeta');const parts=[];if(doc.author)parts.push(`<span><span class="mi mi-xs">person</span>${es(doc.author)}</span>`);parts.push(`<span><span class="mi mi-xs">calendar_today</span>${fd(doc.updatedAt)}</span>`);el.innerHTML=parts.join('');}
+function createDoc(){const d={id:uid(),title:'',blocks:defaultBlocks(),author:settings.author||'',createdAt:nw(),updatedAt:nw()};D.docs.unshift(d);svDB();openDoc(d.id);}
+function dupeDoc(id,ev){if(ev){ev.stopPropagation();ev.preventDefault();}const s=gD(id);if(!s)return;const d={id:uid(),title:s.title+' (コピー)',blocks:JSON.parse(JSON.stringify(s.blocks)),author:s.author,createdAt:nw(),updatedAt:nw()};D.docs.unshift(d);svDB();renderCards();toast('複製しました');}
+function delDoc(id,ev){
+  if(ev){ev.stopPropagation();ev.preventDefault();}
+  if(!confirm('ゴミ箱に移動しますか？\n（30日後に自動削除されます）'))return;
+  const idx=D.docs.findIndex(d=>d.id===id);
+  if(idx<0)return;
+  const doc=D.docs[idx];
+  // Move to trash
+  const trash=getTrash();
+  trash.unshift({...doc,deletedAt:nw()});
+  saveTrash(trash);
+  D.docs.splice(idx,1);
+  if(D.aid===id)D.aid=null;
+  svDB();
+  if(!D.aid)goHome();
+  else renderCards();
+  toast('ゴミ箱に移動しました');
+}
+
+// ===== TRASH =====
+const TRASH_DAYS=30;
+function getTrash(){
+  try{
+    const s=localStorage.getItem('df11trash');
+    if(!s)return[];
+    const trash=JSON.parse(s);
+    // Auto-purge old items
+    const cutoff=Date.now()-TRASH_DAYS*86400000;
+    return trash.filter(t=>new Date(t.deletedAt).getTime()>cutoff);
+  }catch{return[];}
+}
+function saveTrash(trash){
+  try{localStorage.setItem('df11trash',JSON.stringify(trash));}catch{}
+}
+function restoreFromTrash(id){
+  const trash=getTrash();
+  const idx=trash.findIndex(t=>t.id===id);
+  if(idx<0)return;
+  const doc=trash[idx];delete doc.deletedAt;
+  // Avoid ID collision
+  if(D.docs.find(d=>d.id===doc.id))doc.id=uid();
+  D.docs.unshift(doc);
+  trash.splice(idx,1);saveTrash(trash);svDB();
+  renderTrashList();renderCards();
+  toast('復元しました');
+}
+function permaDelTrash(id){
+  if(!confirm('完全に削除しますか？元に戻せません。'))return;
+  const trash=getTrash();
+  const idx=trash.findIndex(t=>t.id===id);
+  if(idx<0)return;
+  const doc=trash[idx];
+  // Delete associated images from IDB
+  if(doc.blocks){
+    doc.blocks.forEach(b=>{if(b.type==='image'&&b.meta&&b.meta.imgId)idbDel(b.meta.imgId);});
+  }
+  trash.splice(idx,1);saveTrash(trash);
+  renderTrashList();
+  toast('完全削除しました');
+}
+function emptyTrash(){
+  if(!confirm('ゴミ箱を空にしますか？すべて完全削除されます。'))return;
+  const trash=getTrash();
+  trash.forEach(doc=>{
+    if(doc.blocks){doc.blocks.forEach(b=>{if(b.type==='image'&&b.meta&&b.meta.imgId)idbDel(b.meta.imgId);});}
+  });
+  saveTrash([]);
+  renderTrashList();
+  toast('ゴミ箱を空にしました');
+}
+function openTrashModal(){
+  renderTrashList();
+  document.getElementById('trashM').classList.add('on');
+}
+function closeTrashModal(){document.getElementById('trashM').classList.remove('on');}
+function renderTrashList(){
+  const trash=getTrash();
+  const el=document.getElementById('trashList');
+  if(!trash.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--tx-4);font-size:12px">ゴミ箱は空です</div>';return;}
+  el.innerHTML=trash.map(t=>{
+    const daysLeft=TRASH_DAYS-Math.floor((Date.now()-new Date(t.deletedAt).getTime())/86400000);
+    return`<div class="trash-item"><div class="trash-info"><div class="trash-title">${es(t.title||'無題')}</div><div class="trash-meta">削除: ${fd(t.deletedAt)} ・ あと${daysLeft}日</div></div><div><button class="btn btn-s" onclick="restoreFromTrash('${t.id}')">復元</button> <button class="btn btn-s btn-dn" onclick="permaDelTrash('${t.id}')">完全削除</button></div></div>`;
+  }).join('');
+}
+document.getElementById('dti').addEventListener('input',()=>{const doc=gD(D.aid);if(doc){doc.title=document.getElementById('dti').value;save();}});
+
+// ===== HOME CARDS =====
+function renderCards(){
+  const g=document.getElementById('cg');const q=(document.getElementById('searchIn').value||'').toLowerCase();const sort=document.getElementById('sortSel').value;
+  // Empty state: no docs at all
+  if(!D.docs.length){
+    g.innerHTML=`<div class="empty-state"><span class="mi">edit_note</span><div class="empty-state-title">ドキュメントがありません</div><div class="empty-state-desc">「新規作成」をクリックして<br>最初のドキュメントを作りましょう</div><button class="btn btn-ac" onclick="createDoc()"><span class="mi mi-xs">add</span> 新規作成</button></div>`;
+    return;
+  }
+  let docs=D.docs.filter(d=>{if(!q)return true;const t=(d.title||'').toLowerCase();const body=(d.blocks||[]).map(b=>(b.content||'').replace(/<[^>]*>/g,'')).join(' ').toLowerCase();return t.includes(q)||body.includes(q);});
+  // Empty state: search no results
+  if(q&&!docs.length){
+    g.innerHTML=`<div class="empty-state"><span class="mi">search_off</span><div class="empty-state-title">見つかりません</div><div class="empty-state-desc">「${es(q)}」に一致するドキュメントはありません</div></div>`;
+    return;
+  }
+  docs=[...docs].sort((a,b)=>sort==='name'?a.title.localeCompare(b.title,'ja'):new Date(b.updatedAt)-new Date(a.updatedAt));
+  const pinned=docs.filter(d=>d.pinned);
+  const others=docs.filter(d=>!d.pinned);
+  let h='';
+  if(!q&&pinned.length){
+    h+='<div class="home-sec"><span class="mi mi-xs">push_pin</span> ピン留め</div>';
+    h+='<div class="cards">';
+    pinned.forEach((d,i)=>h+=cardHTML(d,i));
+    h+='</div>';
+    h+='<div class="home-sec"><span class="mi mi-xs">description</span> すべて</div>';
+    h+='<div class="cards">';
+    h+=`<div class="card ncard" onclick="createDoc()"><span class="mi" style="font-size:24px;opacity:.4">add</span>新規ドキュメント</div>`;
+    others.forEach((d,i)=>h+=cardHTML(d,i));
+    h+='</div>';
+  }else{
+    h+='<div class="cards">';
+    h+=`<div class="card ncard" onclick="createDoc()"><span class="mi" style="font-size:24px;opacity:.4">add</span>新規ドキュメント</div>`;
+    docs.forEach((d,i)=>h+=cardHTML(d,i));
+    h+='</div>';
+  }
+  g.innerHTML=h;
+}
+function cardHTML(d,i){
+  const sn=(d.blocks||[]).map(b=>(b.content||'').replace(/<[^>]*>/g,'')).join(' ').slice(0,100);
+  return`<div class="card${d.pinned?' pinned':''}" onclick="openDoc('${d.id}')" style="animation-delay:${i*.03}s"><div class="card-acts"><button class="card-ab pin${d.pinned?' on':''}" onclick="togglePin('${d.id}',event)" title="ピン留め"><span class="mi" style="font-size:14px">push_pin</span></button><button class="card-ab" onclick="dupeDoc('${d.id}',event)" title="複製"><span class="mi" style="font-size:14px">content_copy</span></button><button class="card-ab del" onclick="delDoc('${d.id}',event)" title="削除"><span class="mi" style="font-size:14px">delete</span></button></div><div class="card-t">${es(d.title||'無題')}</div><div class="card-sn">${es(sn)||'（内容なし）'}</div><div class="card-ft"><span>${fd(d.updatedAt)}</span></div></div>`;
+}
+function togglePin(id,ev){if(ev){ev.stopPropagation();ev.preventDefault();}const d=gD(id);if(!d)return;d.pinned=!d.pinned;svDB();renderCards();}
+
+// ===== EXPORT =====
+function getDocHTML(){
+  const doc=gD(D.aid);if(!doc)return'';
+  let h='';if(doc.title)h+=`<h1>${es(doc.title)}</h1>`;
+  doc.blocks.forEach(b=>{
+    const c=b.content;
+    if(b.type==='p')h+=`<p>${c}</p>`;
+    else if(b.type==='h1')h+=`<h1>${c}</h1>`;
+    else if(b.type==='h2')h+=`<h2>${c}</h2>`;
+    else if(b.type==='h3')h+=`<h3>${c}</h3>`;
+    else if(b.type==='ul')h+=`<ul><li>${c}</li></ul>`;
+    else if(b.type==='ol')h+=`<ol><li>${c}</li></ol>`;
+    else if(b.type==='todo'){const checked=b.meta&&b.meta.checked;h+=`<div style="display:flex;gap:8px;align-items:flex-start;margin:4px 0"><input type="checkbox" ${checked?'checked':''} disabled style="margin-top:4px"><div${checked?' style="text-decoration:line-through;color:#888"':''}>${c}</div></div>`;}
+    else if(b.type==='quote')h+=`<blockquote>${c}</blockquote>`;
+    else if(b.type==='code')h+=`<pre><code>${c}</code></pre>`;
+    else if(b.type==='hr')h+=`<hr>`;
+    else if(b.type==='table'){let t='<table>';b.meta.cells.forEach((r,ri)=>{t+='<tr>';r.forEach(cell=>{const tg=ri===0?'th':'td';t+=`<${tg}>${cell}</${tg}>`;});t+='</tr>';});t+='</table>';h+=t;}
+    else if(b.type.startsWith('alert')){const t=b.type.replace('alert-','');const labels={i:'ℹ 情報',w:'⚠ 警告',t:'💡 ヒント',d:'🚫 危険'};h+=`<div class="ab ab-${t}"><div class="ab-label">${labels[t]||''}</div>${c}</div>`;}
+    else if(b.type==='collapse')h+=`<details><summary>${es(b.meta.title||'')}</summary><div>${c}</div></details>`;
+    else if(b.type==='image'&&b.meta.src)h+=`<div style="text-align:center;margin:12px 0"><img src="${b.meta.src}" style="max-width:${b.meta.width||100}%;border-radius:6px">${b.meta.caption?`<div style="font-size:11px;color:#888;margin-top:4px">${es(b.meta.caption)}</div>`:''}</div>`;
+  });
+  return h;
+}
+function expHTML(){const doc=gD(D.aid);if(!doc)return;const body=getDocHTML();
+  const css='body{font-family:Inter,\"Hiragino Kaku Gothic ProN\",\"Noto Sans JP\",system-ui,sans-serif;max-width:820px;margin:36px auto;padding:0 20px;color:#1f2328;line-height:1.78;font-size:15px;letter-spacing:-0.31px;background:#fff}h1{font-size:26px;font-weight:700;margin:28px 0 14px;border-bottom:1px solid #d8dce3;padding-bottom:8px}h1:first-child{margin-top:0}h2{font-size:20px;font-weight:650;margin:24px 0 10px;border-bottom:1px solid #eceef2;padding-bottom:6px}h3{font-size:17px;font-weight:600;margin:18px 0 8px}p{margin:0 0 12px}table{width:100%;border-collapse:collapse;margin:14px 0}th,td{border:1px solid #d9dde4;padding:8px 11px;text-align:left}th{background:#fcfcfc;font-weight:600;font-size:12px}code{font-family:ui-monospace,monospace;background:#f3f4f6;padding:1px 4px;border-radius:4px;font-size:13px}pre{background:#fcfcfc;border:1px solid #d9dde4;border-radius:10px;padding:14px;overflow-x:auto}pre code{background:none;padding:0}blockquote{border:1px solid #d9dde4;padding:10px 14px;margin:12px 0;color:#4a4f58;background:#fcfcfc;border-radius:10px}hr{border:none;border-top:1px solid #d9dde4;margin:22px 0}ul,ol{margin:6px 0 12px;padding-left:22px}li{margin:3px 0}.ab{margin:12px 0;padding:12px 14px;border-radius:10px;border:1px solid #d9dde4;font-size:13px}.ab-label{font-weight:700;font-size:11px;margin-bottom:4px;letter-spacing:.03em;text-transform:uppercase}.ab-i{background:#f5f8ff;border-color:#cad7f2}.ab-i .ab-label{color:#3456c2}.ab-w{background:#fff9ef;border-color:#f0d7aa}.ab-w .ab-label{color:#9b5d13}.ab-t{background:#f3fbf7;border-color:#b8e4cd}.ab-t .ab-label{color:#226b4c}.ab-d{background:#fff2f2;border-color:#f0c2c2}.ab-d .ab-label{color:#9a3333}details{margin:12px 0;border:1px solid #e6e8ee;border-radius:10px}details summary{padding:9px 12px;font-weight:600;cursor:pointer;background:#fcfcfc}details>div{padding:11px 12px;border-top:1px solid #e6e8ee}';
+  const full=`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>${es(doc.title||'ドキュメント')}</title><style>${css}</style></head><body>${body}</body></html>`;
+  const blob=new Blob([full],{type:'text/html;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`${(doc.title||'document').replace(/[^\w\u3000-\u9fff]/g,'_')}.html`;a.click();URL.revokeObjectURL(url);toast('HTML保存');}
+function copyHTML(){const html=getDocHTML();if(!html){toast('内容なし','wn');return;}try{navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([html],{type:'text/html'})})]).then(()=>toast('HTMLコピー'));}catch{toast('コピー失敗','wn');}}
+
+// ===== MARKDOWN EXPORT =====
+function htmlToMd(html){
+  // Convert inline HTML to Markdown
+  return html
+    .replace(/<strong[^>]*>(.*?)<\/strong>/gi,'**$1**')
+    .replace(/<b[^>]*>(.*?)<\/b>/gi,'**$1**')
+    .replace(/<em[^>]*>(.*?)<\/em>/gi,'*$1*')
+    .replace(/<i[^>]*>(.*?)<\/i>/gi,'*$1*')
+    .replace(/<del[^>]*>(.*?)<\/del>/gi,'~~$1~~')
+    .replace(/<s[^>]*>(.*?)<\/s>/gi,'~~$1~~')
+    .replace(/<code[^>]*>(.*?)<\/code>/gi,'`$1`')
+    .replace(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi,'[$2]($1)')
+    .replace(/<br\s*\/?>/gi,'\n')
+    .replace(/<[^>]+>/g,'')
+    .replace(/&nbsp;/g,' ').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&quot;/g,'"');
+}
+function getDocMD(){
+  const doc=gD(D.aid);if(!doc)return'';
+  let md='';if(doc.title)md+=`# ${doc.title}\n\n`;
+  doc.blocks.forEach(b=>{
+    const c=htmlToMd(b.content||'');
+    if(b.type==='p')md+=c+'\n\n';
+    else if(b.type==='h1')md+=`# ${c}\n\n`;
+    else if(b.type==='h2')md+=`## ${c}\n\n`;
+    else if(b.type==='h3')md+=`### ${c}\n\n`;
+    else if(b.type==='ul')md+=`- ${c}\n`;
+    else if(b.type==='ol')md+=`1. ${c}\n`;
+    else if(b.type==='todo')md+=`- [${b.meta&&b.meta.checked?'x':' '}] ${c}\n`;
+    else if(b.type==='quote')md+=`> ${c}\n\n`;
+    else if(b.type==='code')md+='```\n'+c+'\n```\n\n';
+    else if(b.type==='hr')md+='---\n\n';
+    else if(b.type==='table'&&b.meta&&b.meta.cells){
+      const cells=b.meta.cells;
+      cells.forEach((row,ri)=>{md+='| '+row.map(cell=>htmlToMd(cell)).join(' | ')+' |\n';if(ri===0)md+='| '+row.map(()=>'---').join(' | ')+' |\n';});
+      md+='\n';
+    }
+    else if(b.type.startsWith('alert')){const t=b.type.replace('alert-','');const labels={i:'ℹ 情報',w:'⚠ 警告',t:'💡 ヒント',d:'🚫 危険'};md+=`> **${labels[t]||''}**\n> ${c}\n\n`;}
+    else if(b.type==='collapse')md+=`<details><summary>${b.meta.title||''}</summary>\n\n${c}\n\n</details>\n\n`;
+    else if(b.type==='image'&&b.meta.src)md+=`![${b.meta.caption||''}](${b.meta.src.startsWith('data:')?'(画像)':b.meta.src})\n\n`;
+  });
+  return md;
+}
+function expMD(){
+  const doc=gD(D.aid);if(!doc){toast('ドキュメントなし','wn');return;}
+  const md=getDocMD();
+  const blob=new Blob([md],{type:'text/markdown;charset=utf-8'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download=`${(doc.title||'document').replace(/[^\w\u3000-\u9fff]/g,'_')}.md`;a.click();
+  URL.revokeObjectURL(url);toast('Markdown保存');
+}
+function copyMD(){const md=getDocMD();if(!md){toast('内容なし','wn');return;}navigator.clipboard.writeText(md).then(()=>toast('Markdownコピー'));}
+function printDoc(){toast('印刷ダイアログから「PDFとして保存」を選択');setTimeout(()=>window.print(),300);}
+async function expJSON(){
+  try{
+    // Collect all image data from IDB
+    const images={};
+    for(const doc of D.docs){
+      for(const b of (doc.blocks||[])){
+        if(b.type==='image'&&b.meta&&b.meta.imgId){
+          const data=await idbGet(b.meta.imgId);
+          if(data)images[b.meta.imgId]=data;
+        }
+      }
+    }
+    const exportData={v:15,at:nw(),docs:D.docs,settings,images};
+    const b=new Blob([JSON.stringify(exportData,null,2)],{type:'application/json'});
+    const u=URL.createObjectURL(b);const a=document.createElement('a');
+    a.href=u;a.download=`docforge_${new Date().toISOString().slice(0,10)}.json`;a.click();
+    URL.revokeObjectURL(u);
+    const imgCount=Object.keys(images).length;
+    toast(`${D.docs.length}件 (画像${imgCount}枚) 保存`);
+  }catch(e){console.error(e);toast('エクスポート失敗','wn');}
+}
+async function impJSON(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=async e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(!d.docs||!Array.isArray(d.docs)){toast('無効なファイル','wn');return;}
+      const imgCount=d.images?Object.keys(d.images).length:0;
+      if(!confirm(`${d.docs.length}件のドキュメント${imgCount?` (画像${imgCount}枚)`:''}をインポートしますか？`))return;
+      // Restore images to IDB
+      if(d.images){
+        for(const imgId in d.images){
+          await idbPut(imgId,d.images[imgId]);
+        }
+      }
+      const ids=new Set(D.docs.map(x=>x.id));let n=0;
+      d.docs.forEach(x=>{if(!ids.has(x.id)){D.docs.push(x);n++;}});
+      // Optionally restore settings
+      if(d.settings&&confirm('設定もインポートしますか？（作成者名、テーマカラーなど）')){
+        settings={...settings,...d.settings};saveSettings();applySettings();
+      }
+      svDB();renderCards();toast(`${n}件追加`);
+    }catch(err){console.error(err);toast('読込失敗','wn');}
+  };
+  r.readAsText(f);ev.target.value='';
+}
+function applyColorScheme(){document.documentElement.style.colorScheme=dk?'dark':'light';}
+function toggleDk(){dk=!dk;document.documentElement.setAttribute('data-theme',dk?'dark':'');applyColorScheme();try{localStorage.setItem('df11d',dk?'1':'0');}catch{}document.getElementById('dkb').innerHTML=`<span class="mi">${dk?'light_mode':'dark_mode'}</span>`;}
+
+// ===== SETTINGS =====
+const THEME_COLORS=[{n:'Blue',v:'#2563eb'},{n:'Emerald',v:'#059669'},{n:'Violet',v:'#7c3aed'},{n:'Rose',v:'#e11d48'},{n:'Amber',v:'#d97706'},{n:'Cyan',v:'#0891b2'},{n:'Slate',v:'#475569'},{n:'Orange',v:'#ea580c'}];
+let settings={author:'',themeColor:'#2563eb',fontSize:'15',pageWidth:'900px'};
+function loadSettings(){
+  try{const s=localStorage.getItem('df11set');if(s)settings={...settings,...JSON.parse(s)};}catch{}
+  applySettings();
+}
+function saveSettings(){
+  settings.author=document.getElementById('setAuthor').value;
+  settings.fontSize=document.getElementById('setFontSize').value;
+  const pw=document.getElementById('setPageWidth');if(pw)settings.pageWidth=pw.value;
+  try{localStorage.setItem('df11set',JSON.stringify(settings));}catch{}
+}
+function applySettings(){
+  document.documentElement.style.setProperty('--ac',settings.themeColor);
+  applyFontSize();applyPageWidth();
+}
+function applyPageWidth(){
+  document.documentElement.style.setProperty('--pw',settings.pageWidth||'900px');
+}
+function applyFontSize(){
+  const size=settings.fontSize||'15';
+  document.documentElement.style.setProperty('--bc-fs',size+'px');
+  document.querySelectorAll('.bc').forEach(el=>{if(!el.closest('.block-h1,.block-h2,.block-h3,.block-code'))el.style.fontSize=size+'px';});
+}
+function openSettings(){
+  document.getElementById('setAuthor').value=settings.author||'';
+  document.getElementById('setFontSize').value=settings.fontSize||'15';
+  document.getElementById('setPageWidth').value=settings.pageWidth||'900px';
+  renderColorGrid();
+  document.getElementById('setM').classList.add('on');
+}
+function closeSettings(){document.getElementById('setM').classList.remove('on');}
+function renderColorGrid(){
+  document.getElementById('setColors').innerHTML=THEME_COLORS.map(c=>`<div class="color-sw${c.v===settings.themeColor?' on':''}" style="background:${c.v}" onclick="setThemeColor('${c.v}')" title="${c.n}"></div>`).join('');
+}
+function setThemeColor(c){
+  settings.themeColor=c;
+  document.documentElement.style.setProperty('--ac',c);
+  saveSettings();renderColorGrid();
+}
+async function resetAllData(){
+  if(!confirm('全てのドキュメント・画像・設定を削除します。元に戻せません。続行しますか？'))return;
+  if(!confirm('本当によろしいですか？'))return;
+  try{
+    localStorage.removeItem('df11');localStorage.removeItem('df11set');localStorage.removeItem('df11ob');
+    if(idb){const tx=idb.transaction('images','readwrite');tx.objectStore('images').clear();}
+    D={docs:[],aid:null};
+    closeSettings();goHome();toast('全データをリセットしました');
+  }catch(e){toast('エラー','wn');}
+}
+
+// ===== ONBOARDING =====
+function createSampleDoc(){
+  const sample={
+    id:uid(),title:'👋 ようこそ！DocForgeの使い方',
+    blocks:[
+      {id:uid(),type:'p',content:'<strong>DocForge</strong> はSES現場で使うNotion風のブロック型エディタです。このサンプルで主要機能を確認してください。',meta:{}},
+      {id:uid(),type:'h2',content:'🚀 基本操作',meta:{}},
+      {id:uid(),type:'p',content:'空のブロックで <code>/</code> （スラッシュ）を入力するとブロックメニューが開きます。',meta:{}},
+      {id:uid(),type:'p',content:'各ブロックの左端にカーソルを合わせると <strong>＋ボタン</strong>と<strong>ドラッグハンドル</strong>が表示されます。ハンドルをクリックすると型変換できます。',meta:{}},
+      {id:uid(),type:'h2',content:'✅ 作業手順チェックリスト',meta:{}},
+      {id:uid(),type:'todo',content:'環境にSSH接続する',meta:{checked:true}},
+      {id:uid(),type:'todo',content:'バックアップを取得する',meta:{checked:true}},
+      {id:uid(),type:'todo',content:'デプロイコマンドを実行する',meta:{checked:false}},
+      {id:uid(),type:'todo',content:'動作確認をする',meta:{checked:false}},
+      {id:uid(),type:'h2',content:'📊 サーバー一覧',meta:{}},
+      {id:uid(),type:'table',content:'',meta:{cells:[['ホスト名','IP','用途'],['web-01','10.0.1.10','Webサーバー'],['db-01','10.0.2.10','DBサーバー']]}},
+      {id:uid(),type:'h2',content:'⚠️ 注意ブロック',meta:{}},
+      {id:uid(),type:'alert-w',content:'本番環境での作業前は必ずバックアップを取得してください。',meta:{}},
+      {id:uid(),type:'alert-i',content:'ヒント: テキストを選択すると、太字・斜体・リンクなどのフローティングツールバーが表示されます。',meta:{}},
+      {id:uid(),type:'h2',content:'💻 コードブロック',meta:{}},
+      {id:uid(),type:'code',content:'$ ssh user@web-01\n$ sudo systemctl restart nginx\n$ sudo systemctl status nginx',meta:{}},
+      {id:uid(),type:'h2',content:'⌨️ ショートカット',meta:{}},
+      {id:uid(),type:'ul',content:'<strong>Ctrl+Z</strong> 元に戻す',meta:{}},
+      {id:uid(),type:'ul',content:'<strong>Ctrl+Shift+Z</strong> やり直す',meta:{}},
+      {id:uid(),type:'ul',content:'<strong>Ctrl+S</strong> 保存',meta:{}},
+      {id:uid(),type:'p',content:'このサンプルは削除しても構いません。「新規作成」から自分のドキュメントを作ってみましょう！',meta:{}},
+    ],
+    author:settings.author||'',pinned:true,createdAt:nw(),updatedAt:nw()
+  };
+  D.docs.unshift(sample);svDB();
+}
+function checkOnboarding(){
+  try{
+    if(localStorage.getItem('df11ob')==='1')return;
+    if(D.docs.length===0){
+      createSampleDoc();
+    }
+    // Start tour on first launch
+    setTimeout(()=>startTour(),1200);
+  }catch{}
+}
+
+// ===== ONBOARDING TOUR =====
+const TOUR_STEPS=[
+  {
+    icon:'waving_hand',
+    title:'ようこそ、DocForge へ！',
+    desc:'SES現場のドキュメントを効率的に作成・管理できる、Notion風ブロックエディタです。このツアーで主要機能を3ステップで紹介します。',
+    illust:null,
+  },
+  {
+    icon:'keyboard',
+    title:'スラッシュコマンドで高速入力',
+    desc:'空のブロックで「/」と入力すると、ブロック型の選択メニューが開きます。キーボードから手を離さずに操作できます。',
+    illust:'<span class="hl">/</span>  ← このように入力\n\n→ 17種類のブロックから選択\n→ 見出し、リスト、テーブル、画像など',
+  },
+  {
+    icon:'bolt',
+    title:'Markdownショートカット',
+    desc:'慣れた記法でも書けます。「# 」「- 」「> 」などを入力すると、自動でブロック型が変換されます。',
+    illust:'<span class="hl"># </span>  → 見出し1\n<span class="hl">## </span>  → 見出し2\n<span class="hl">- </span>  → 箇条書き\n<span class="hl">> </span>  → 引用\n<span class="hl">[] </span>  → チェックボックス',
+  },
+  {
+    icon:'touch_app',
+    title:'ブロックの操作',
+    desc:'各ブロックの左端にカーソルを合わせると「＋ボタン」と「ドラッグハンドル」が表示されます。ハンドルをクリックで型変換、ドラッグで並び替えができます。',
+    illust:'<span class="hl">＋</span>  ← クリックで下に新規ブロック追加\n<span class="hl">⠿</span>  ← クリックで型変換メニュー\n      ← ドラッグで並び替え\n\nAlt+↑↓ でもブロック移動可能',
+  },
+  {
+    icon:'backup',
+    title:'データは安全に守られます',
+    desc:'入力は自動保存。5分ごとにバックアップが作成され、削除したドキュメントは30日間ゴミ箱に保持されます。Ctrl+Zで元に戻すこともできます。',
+    illust:'・ <span class="hl">自動保存</span>  入力中に即保存\n・ <span class="hl">バックアップ</span>  5分ごと・最新5件\n・ <span class="hl">ゴミ箱</span>  30日間保持\n・ <span class="hl">Undo/Redo</span>  Ctrl+Z / Ctrl+Shift+Z',
+  },
+  {
+    icon:'celebration',
+    title:'準備完了！',
+    desc:'さっそく使ってみましょう。困ったら <kbd class="kbd">?</kbd> キーでヘルプ、<kbd class="kbd">Ctrl+K</kbd> でコマンドパレットが開きます。',
+    illust:null,
+  },
+];
+let tourStep=0;
+function startTour(){
+  tourStep=0;
+  document.getElementById('tourBg').classList.add('on');
+  renderTourStep();
+}
+function renderTourStep(){
+  const step=TOUR_STEPS[tourStep];
+  let html=`<div class="tour-icon"><span class="mi">${step.icon}</span></div>`;
+  html+=`<div class="tour-title">${es(step.title)}</div>`;
+  html+=`<div class="tour-desc">${es(step.desc)}</div>`;
+  if(step.illust)html+=`<div class="tour-illust">${step.illust}</div>`;
+  document.getElementById('tourContent').innerHTML=html;
+  // Dots
+  document.getElementById('tourDots').innerHTML=TOUR_STEPS.map((_,i)=>`<div class="tour-dot${i===tourStep?' active':''}"></div>`).join('');
+  // Buttons
+  document.getElementById('tourPrev').style.visibility=tourStep===0?'hidden':'visible';
+  document.getElementById('tourNext').innerHTML=tourStep===TOUR_STEPS.length-1?'<span class="mi mi-xs">check</span> はじめる':'次へ <span class="mi mi-xs">arrow_forward</span>';
+}
+function nextTour(){
+  if(tourStep<TOUR_STEPS.length-1){tourStep++;renderTourStep();}
+  else{finishTour();}
+}
+function prevTour(){
+  if(tourStep>0){tourStep--;renderTourStep();}
+}
+function skipTour(){finishTour();}
+function finishTour(){
+  document.getElementById('tourBg').classList.remove('on');
+  try{localStorage.setItem('df11ob','1');}catch{}
+}
+
+// ===== KEBAB MENUS =====
+function toggleMainMenu(e){
+  if(e)e.stopPropagation();
+  const m=document.getElementById('mainKebab');
+  const on=m.classList.contains('on');
+  closeAllKebabs();
+  if(!on)m.classList.add('on');
+}
+function closeMainMenu(){document.getElementById('mainKebab').classList.remove('on');}
+function toggleEditorMenu(e){
+  if(e)e.stopPropagation();
+  const m=document.getElementById('editorKebab');
+  const on=m.classList.contains('on');
+  closeAllKebabs();
+  if(!on)m.classList.add('on');
+}
+function closeEditorMenu(){document.getElementById('editorKebab').classList.remove('on');}
+function closeAllKebabs(){
+  document.querySelectorAll('.kebab-menu.on').forEach(m=>m.classList.remove('on'));
+}
+// Close kebab on outside click
+document.addEventListener('mousedown',e=>{
+  if(e.target.closest('.kebab-menu'))return;
+  if(e.target.closest('#mainMenuBtn,#editorMenuBtn'))return;
+  closeAllKebabs();
+});
+
+// ===== HELP =====
+function openHelp(){document.getElementById('helpM').classList.add('on');}
+function closeHelp(){document.getElementById('helpM').classList.remove('on');}
+
+// ===== TEMPLATES =====
+const PRESET_TEMPLATES=[
+  {id:'tpl_proc',name:'作業手順書',desc:'手順番号・確認欄付き',icon:'checklist',blocks:()=>[
+    {id:uid(),type:'h1',content:'作業手順書',meta:{}},
+    {id:uid(),type:'h2',content:'基本情報',meta:{}},
+    {id:uid(),type:'table',content:'',meta:{cells:[['項目','内容'],['作業名',''],['作業日','yyyy/mm/dd'],['作業者',''],['承認者',''],['対象環境','本番 / 検証 / 開発']]}},
+    {id:uid(),type:'h2',content:'事前確認',meta:{}},
+    {id:uid(),type:'todo',content:'バックアップ取得済み',meta:{checked:false}},
+    {id:uid(),type:'todo',content:'関係者への連絡済み',meta:{checked:false}},
+    {id:uid(),type:'todo',content:'切り戻し手順を確認済み',meta:{checked:false}},
+    {id:uid(),type:'h2',content:'作業手順',meta:{}},
+    {id:uid(),type:'table',content:'',meta:{cells:[['No.','作業内容','コマンド','確認'],['1','サーバーログイン','ssh user@host','□'],['2','現状確認','systemctl status svc','□'],['3','作業実施','','□']]}},
+    {id:uid(),type:'h2',content:'切り戻し手順',meta:{}},
+    {id:uid(),type:'p',content:'',meta:{}},
+  ]},
+  {id:'tpl_design',name:'設計書',desc:'基本設計・詳細設計',icon:'architecture',blocks:()=>[
+    {id:uid(),type:'h1',content:'設計書',meta:{}},
+    {id:uid(),type:'h2',content:'1. 概要',meta:{}},
+    {id:uid(),type:'h3',content:'1.1 目的',meta:{}},
+    {id:uid(),type:'p',content:'',meta:{}},
+    {id:uid(),type:'h3',content:'1.2 スコープ',meta:{}},
+    {id:uid(),type:'table',content:'',meta:{cells:[['区分','内容'],['対象',''],['対象外','']]}},
+    {id:uid(),type:'h2',content:'2. システム構成',meta:{}},
+    {id:uid(),type:'table',content:'',meta:{cells:[['コンポーネント','役割','技術'],['Web','リクエスト受付','Nginx'],['AP','ロジック','Java/Spring'],['DB','データ永続化','PostgreSQL']]}},
+    {id:uid(),type:'h2',content:'3. 機能一覧',meta:{}},
+    {id:uid(),type:'table',content:'',meta:{cells:[['No.','機能名','概要','優先度'],['F-001','','','高']]}},
+  ]},
+  {id:'tpl_incident',name:'障害報告書',desc:'インシデント報告',icon:'report',blocks:()=>[
+    {id:uid(),type:'h1',content:'障害報告書',meta:{}},
+    {id:uid(),type:'alert-d',content:'重要度: Critical / High / Medium / Low',meta:{}},
+    {id:uid(),type:'h2',content:'障害概要',meta:{}},
+    {id:uid(),type:'table',content:'',meta:{cells:[['項目','内容'],['障害ID','INC-XXXX'],['発生日時','yyyy/mm/dd hh:mm'],['復旧日時','yyyy/mm/dd hh:mm'],['影響範囲','']]}},
+    {id:uid(),type:'h2',content:'タイムライン',meta:{}},
+    {id:uid(),type:'table',content:'',meta:{cells:[['時刻','イベント','対応者'],['hh:mm','アラート検知','運用'],['hh:mm','一次切り分け',''],['hh:mm','原因特定',''],['hh:mm','復旧完了','']]}},
+    {id:uid(),type:'h2',content:'原因分析',meta:{}},
+    {id:uid(),type:'h3',content:'直接原因',meta:{}},
+    {id:uid(),type:'p',content:'',meta:{}},
+    {id:uid(),type:'h3',content:'根本原因',meta:{}},
+    {id:uid(),type:'p',content:'',meta:{}},
+    {id:uid(),type:'h2',content:'再発防止策',meta:{}},
+    {id:uid(),type:'table',content:'',meta:{cells:[['No.','対策','担当','期限','状態'],['1','','','','未着手']]}},
+  ]},
+  {id:'tpl_handover',name:'引継ぎ資料',desc:'現場離脱時の引継ぎ用',icon:'swap_horiz',blocks:()=>[
+    {id:uid(),type:'h1',content:'引継ぎ資料',meta:{}},
+    {id:uid(),type:'h2',content:'1. プロジェクト概要',meta:{}},
+    {id:uid(),type:'table',content:'',meta:{cells:[['項目','内容'],['PJ名',''],['期間',''],['役割',''],['連絡先','']]}},
+    {id:uid(),type:'h2',content:'2. 環境情報',meta:{}},
+    {id:uid(),type:'table',content:'',meta:{cells:[['環境','ホスト','IP','用途'],['本番','','',''],['検証','','','']]}},
+    {id:uid(),type:'h2',content:'3. 定常作業',meta:{}},
+    {id:uid(),type:'table',content:'',meta:{cells:[['作業名','頻度','手順書'],['','日次',''],['','週次','']]}},
+    {id:uid(),type:'h2',content:'4. ナレッジ',meta:{}},
+    {id:uid(),type:'ul',content:'',meta:{}},
+  ]},
+  {id:'tpl_meeting',name:'議事録',desc:'打ち合わせ議事録',icon:'groups',blocks:()=>[
+    {id:uid(),type:'h1',content:'議事録',meta:{}},
+    {id:uid(),type:'table',content:'',meta:{cells:[['項目','内容'],['日時','yyyy/mm/dd hh:mm'],['場所',''],['参加者',''],['議事録作成者','']]}},
+    {id:uid(),type:'h2',content:'議題',meta:{}},
+    {id:uid(),type:'ol',content:'',meta:{}},
+    {id:uid(),type:'h2',content:'議事内容',meta:{}},
+    {id:uid(),type:'p',content:'',meta:{}},
+    {id:uid(),type:'h2',content:'決定事項',meta:{}},
+    {id:uid(),type:'ul',content:'',meta:{}},
+    {id:uid(),type:'h2',content:'TODO',meta:{}},
+    {id:uid(),type:'todo',content:'',meta:{checked:false}},
+  ]},
+];
+function getCustomTemplates(){
+  try{const s=localStorage.getItem('df11tpl');return s?JSON.parse(s):[];}catch{return[];}
+}
+function saveCustomTemplates(tpls){try{localStorage.setItem('df11tpl',JSON.stringify(tpls));}catch{}}
+function openTemplateModal(){
+  renderTemplateList();
+  document.getElementById('tplM').classList.add('on');
+}
+function closeTemplateModal(){document.getElementById('tplM').classList.remove('on');}
+function renderTemplateList(){
+  const presetEl=document.getElementById('tplPreset');
+  presetEl.innerHTML=PRESET_TEMPLATES.map(t=>`<div class="tpl-card" onclick="useTemplate('preset','${t.id}')"><div class="tpl-icon"><span class="mi">${t.icon}</span></div><div class="tpl-info"><div class="tpl-name">${es(t.name)}</div><div class="tpl-desc">${es(t.desc)}</div></div></div>`).join('');
+  const custom=getCustomTemplates();
+  const customEl=document.getElementById('tplCustom');
+  if(!custom.length){customEl.innerHTML='<div style="font-size:11px;color:var(--tx-4);padding:8px">カスタムテンプレートはまだありません。エディタの「テンプレ保存」ボタンから作成できます。</div>';return;}
+  customEl.innerHTML=custom.map((t,i)=>`<div class="tpl-card"><div class="tpl-icon"><span class="mi">bookmark</span></div><div class="tpl-info" onclick="useTemplate('custom',${i})"><div class="tpl-name">${es(t.name)}</div><div class="tpl-desc">${es(t.desc||'')}</div></div><button class="ib" onclick="event.stopPropagation();delCustomTpl(${i})" style="width:24px;height:24px"><span class="mi mi-s">close</span></button></div>`).join('');
+}
+function useTemplate(type,id){
+  let blocks;let title='';
+  if(type==='preset'){
+    const t=PRESET_TEMPLATES.find(x=>x.id===id);if(!t)return;
+    blocks=t.blocks();title=t.name;
+  }else{
+    const custom=getCustomTemplates();const t=custom[id];if(!t)return;
+    blocks=JSON.parse(JSON.stringify(t.blocks));blocks.forEach(b=>b.id=uid());title=t.name;
+  }
+  closeTemplateModal();
+  const d={id:uid(),title:'',blocks,author:settings.author||'',createdAt:nw(),updatedAt:nw()};
+  D.docs.unshift(d);svDB();openDoc(d.id);
+  toast(`「${title}」テンプレートから作成`);
+}
+function saveAsTemplate(){
+  const doc=gD(D.aid);if(!doc)return;
+  const name=prompt('テンプレート名:',doc.title||'新しいテンプレート');if(!name)return;
+  const desc=prompt('説明（任意）:','')||'';
+  const custom=getCustomTemplates();
+  custom.unshift({name,desc,blocks:JSON.parse(JSON.stringify(doc.blocks)),createdAt:nw()});
+  saveCustomTemplates(custom);
+  toast(`「${name}」を保存`);
+}
+function delCustomTpl(idx){
+  if(!confirm('このテンプレートを削除しますか？'))return;
+  const custom=getCustomTemplates();
+  custom.splice(idx,1);
+  saveCustomTemplates(custom);
+  renderTemplateList();
+}
+
+// ===== SNIPPETS =====
+const DEFAULT_SNIPPETS=[
+  {key:'ssh',text:'ssh -i ~/.ssh/key user@host'},
+  {key:'date',text:()=>{const d=new Date();return`${d.getFullYear()}/${(d.getMonth()+1+'').padStart(2,'0')}/${(d.getDate()+'').padStart(2,'0')}`;}},
+  {key:'time',text:()=>{const d=new Date();return`${(d.getHours()+'').padStart(2,'0')}:${(d.getMinutes()+'').padStart(2,'0')}`;}},
+  {key:'now',text:()=>{const d=new Date();return`${d.getFullYear()}/${(d.getMonth()+1+'').padStart(2,'0')}/${(d.getDate()+'').padStart(2,'0')} ${(d.getHours()+'').padStart(2,'0')}:${(d.getMinutes()+'').padStart(2,'0')}`;}},
+  {key:'me',text:()=>settings.author||'（作成者未設定）'},
+  {key:'todo',text:'- [ ] '},
+  {key:'hr',text:'---'},
+  {key:'check',text:'✅'},
+  {key:'warn',text:'⚠️'},
+  {key:'ng',text:'❌'},
+];
+function getSnippets(){
+  try{
+    const s=localStorage.getItem('df11snip');
+    const custom=s?JSON.parse(s):[];
+    return[...DEFAULT_SNIPPETS,...custom];
+  }catch{return DEFAULT_SNIPPETS;}
+}
+function getCustomSnippets(){
+  try{const s=localStorage.getItem('df11snip');return s?JSON.parse(s):[];}catch{return[];}
+}
+function saveCustomSnippets(s){try{localStorage.setItem('df11snip',JSON.stringify(s));}catch{}}
+// Detect \\key pattern in block input and expand
+function checkSnippet(bc,i){
+  const text=bc.textContent;
+  const match=text.match(/\\\\(\w+)$/);
+  if(!match)return false;
+  const key=match[1];
+  const snip=getSnippets().find(s=>s.key===key);
+  if(!snip)return false;
+  const value=typeof snip.text==='function'?snip.text():snip.text;
+  // Replace \\key with value
+  const newText=text.slice(0,match.index)+value;
+  bc.textContent=newText;
+  // Move cursor to end
+  const range=document.createRange();const sel=window.getSelection();
+  range.selectNodeContents(bc);range.collapse(false);
+  sel.removeAllRanges();sel.addRange(range);
+  const doc=gD(D.aid);if(doc)doc.blocks[i].content=bc.innerHTML;
+  save();
+  toast(`\\\\${key} を展開`);
+  return true;
+}
+function openSnippetModal(){
+  renderSnippetList();
+  document.getElementById('snipM').classList.add('on');
+}
+function closeSnippetModal(){document.getElementById('snipM').classList.remove('on');}
+function renderSnippetList(){
+  const presetEl=document.getElementById('snipPreset');
+  presetEl.innerHTML=DEFAULT_SNIPPETS.map(s=>{
+    const val=typeof s.text==='function'?s.text():s.text;
+    return`<div class="snip-item"><code class="snip-key">\\\\${s.key}</code><div class="snip-val">${es(val)}</div></div>`;
+  }).join('');
+  const custom=getCustomSnippets();
+  const customEl=document.getElementById('snipCustom');
+  if(!custom.length){customEl.innerHTML='<div style="font-size:11px;color:var(--tx-4);padding:8px">カスタムスニペットはまだありません</div>';}
+  else{
+    customEl.innerHTML=custom.map((s,i)=>`<div class="snip-item"><code class="snip-key">\\\\${es(s.key)}</code><div class="snip-val">${es(s.text)}</div><button class="ib" onclick="delSnippet(${i})" style="width:24px;height:24px"><span class="mi mi-s">close</span></button></div>`).join('');
+  }
+}
+function addSnippet(){
+  const key=prompt('スニペットキー (例: ssh):');if(!key)return;
+  if(!/^\w+$/.test(key)){toast('英数字のみ','wn');return;}
+  const text=prompt('展開される文字列:');if(!text)return;
+  const custom=getCustomSnippets();
+  custom.push({key,text});
+  saveCustomSnippets(custom);
+  renderSnippetList();
+  toast('スニペット追加');
+}
+function delSnippet(idx){
+  if(!confirm('削除しますか？'))return;
+  const custom=getCustomSnippets();
+  custom.splice(idx,1);
+  saveCustomSnippets(custom);
+  renderSnippetList();
+}
+
+// ===== COMMAND PALETTE =====
+const COMMANDS=[
+  {cat:'ファイル',name:'新規ドキュメント',icon:'add',kbd:'',action:()=>{closeCmd();createDoc();}},
+  {cat:'ファイル',name:'テンプレートから作成',icon:'dashboard',kbd:'',action:()=>{closeCmd();openTemplateModal();}},
+  {cat:'ファイル',name:'現在をテンプレ保存',icon:'bookmark_add',kbd:'',action:()=>{closeCmd();saveAsTemplate();}},
+  {cat:'ファイル',name:'ホームに戻る',icon:'home',kbd:'',action:()=>{closeCmd();goHome();}},
+  {cat:'ファイル',name:'JSON保存',icon:'upload',kbd:'',action:()=>{closeCmd();expJSON();}},
+  {cat:'ファイル',name:'JSON読込',icon:'download',kbd:'',action:()=>{closeCmd();document.getElementById('impF').click();}},
+  {cat:'編集',name:'元に戻す',icon:'undo',kbd:'Ctrl+Z',action:()=>{closeCmd();undo();}},
+  {cat:'編集',name:'やり直す',icon:'redo',kbd:'Ctrl+Shift+Z',action:()=>{closeCmd();redo();}},
+  {cat:'編集',name:'保存',icon:'save',kbd:'Ctrl+S',action:()=>{closeCmd();svDB();toast('保存');}},
+  {cat:'編集',name:'検索・置換',icon:'search',kbd:'Ctrl+F',action:()=>{closeCmd();setTimeout(openSearch,50);}},
+  {cat:'表示',name:'目次の表示切替',icon:'toc',kbd:'',action:()=>{closeCmd();toggleTOC();}},
+  {cat:'表示',name:'ダーク/ライトモード切替',icon:'dark_mode',kbd:'',action:()=>{closeCmd();toggleDk();}},
+  {cat:'エクスポート',name:'HTML保存',icon:'download',kbd:'',action:()=>{closeCmd();expHTML();}},
+  {cat:'エクスポート',name:'HTMLコピー',icon:'content_paste',kbd:'',action:()=>{closeCmd();copyHTML();}},
+  {cat:'エクスポート',name:'Markdown保存',icon:'code',kbd:'',action:()=>{closeCmd();expMD();}},
+  {cat:'エクスポート',name:'印刷 / PDF',icon:'picture_as_pdf',kbd:'',action:()=>{closeCmd();printDoc();}},
+  {cat:'システム',name:'設定を開く',icon:'settings',kbd:'',action:()=>{closeCmd();openSettings();}},
+  {cat:'システム',name:'バックアップを開く',icon:'backup',kbd:'',action:()=>{closeCmd();openBackupModal();}},
+  {cat:'システム',name:'ゴミ箱を開く',icon:'delete',kbd:'',action:()=>{closeCmd();openTrashModal();}},
+  {cat:'システム',name:'スニペット管理',icon:'text_snippet',kbd:'',action:()=>{closeCmd();openSnippetModal();}},
+  {cat:'システム',name:'ツアーを再表示',icon:'tour',kbd:'',action:()=>{closeCmd();startTour();}},
+  {cat:'システム',name:'ヘルプを開く',icon:'help_outline',kbd:'?',action:()=>{closeCmd();openHelp();}},
+];
+let cmdActiveIdx=0,cmdFilter='';
+function openCmd(){
+  cmdFilter='';cmdActiveIdx=0;
+  document.getElementById('cmdIn').value='';
+  renderCmdList();
+  document.getElementById('cmdBg').classList.add('on');
+  setTimeout(()=>document.getElementById('cmdIn').focus(),50);
+}
+function closeCmd(){document.getElementById('cmdBg').classList.remove('on');}
+function getCmdItems(){
+  const q=(document.getElementById('cmdIn')?.value||'').toLowerCase();
+  return COMMANDS.filter(c=>!q||c.name.toLowerCase().includes(q)||c.cat.toLowerCase().includes(q));
+}
+function renderCmdList(){
+  const items=getCmdItems();
+  const list=document.getElementById('cmdList');
+  if(!items.length){list.innerHTML='<div class="cmd-empty">コマンドが見つかりません</div>';return;}
+  let html='',catSeen={},idx=0;
+  items.forEach(c=>{
+    if(!catSeen[c.cat]){html+=`<div class="cmd-cat">${es(c.cat)}</div>`;catSeen[c.cat]=true;}
+    html+=`<div class="cmd-item${idx===cmdActiveIdx?' active':''}" data-idx="${idx}"><span class="mi">${c.icon}</span><div class="cmd-item-name">${es(c.name)}</div>${c.kbd?`<span class="cmd-item-kbd">${c.kbd}</span>`:''}</div>`;
+    idx++;
+  });
+  list.innerHTML=html;
+  list.querySelectorAll('.cmd-item').forEach(el=>{
+    el.addEventListener('mousedown',e=>{
+      e.preventDefault();e.stopPropagation();
+      const items=getCmdItems();
+      const i=+el.dataset.idx;
+      if(items[i])items[i].action();
+    });
+    el.addEventListener('mouseenter',()=>{
+      cmdActiveIdx=+el.dataset.idx;
+      document.querySelectorAll('.cmd-item').forEach(x=>x.classList.remove('active'));
+      el.classList.add('active');
+    });
+  });
+}
+
+// ===== SEARCH & REPLACE =====
+let searchHits=[],searchCurrent=-1;
+function openSearch(){
+  document.getElementById('srchBar').classList.add('on');
+  const inp=document.getElementById('srchIn');inp.focus();inp.select();
+  if(inp.value)doSearch();
+}
+function closeSearch(){
+  document.getElementById('srchBar').classList.remove('on');
+  clearSearchHighlights();
+  searchHits=[];searchCurrent=-1;
+}
+function clearSearchHighlights(){
+  document.querySelectorAll('.srch-hit').forEach(el=>{
+    const parent=el.parentNode;
+    while(el.firstChild)parent.insertBefore(el.firstChild,el);
+    parent.removeChild(el);
+    parent.normalize();
+  });
+}
+function doSearch(){
+  clearSearchHighlights();
+  const q=document.getElementById('srchIn').value;
+  if(!q){document.getElementById('srchCnt').textContent='0 / 0';searchHits=[];searchCurrent=-1;return;}
+  const blocksEl=document.getElementById('blocks');
+  if(!blocksEl)return;
+  // Walk text nodes and wrap matches
+  const walker=document.createTreeWalker(blocksEl,NodeFilter.SHOW_TEXT,{
+    acceptNode(node){
+      if(node.parentElement.closest('.tbl-actions,.code-copy,.block-handle,.block-plus'))return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  const nodes=[];let n;while(n=walker.nextNode())nodes.push(n);
+  const lowerQ=q.toLowerCase();
+  nodes.forEach(node=>{
+    const text=node.nodeValue;const lowerT=text.toLowerCase();
+    if(!lowerT.includes(lowerQ))return;
+    const frag=document.createDocumentFragment();
+    let lastIdx=0,idx;
+    while((idx=lowerT.indexOf(lowerQ,lastIdx))!==-1){
+      if(idx>lastIdx)frag.appendChild(document.createTextNode(text.slice(lastIdx,idx)));
+      const span=document.createElement('span');span.className='srch-hit';
+      span.textContent=text.slice(idx,idx+q.length);
+      frag.appendChild(span);
+      lastIdx=idx+q.length;
+    }
+    if(lastIdx<text.length)frag.appendChild(document.createTextNode(text.slice(lastIdx)));
+    node.parentNode.replaceChild(frag,node);
+  });
+  searchHits=Array.from(document.querySelectorAll('.srch-hit'));
+  searchCurrent=searchHits.length?0:-1;
+  updateSearchCurrent();
+}
+function updateSearchCurrent(){
+  document.querySelectorAll('.srch-hit.current').forEach(el=>el.classList.remove('current'));
+  document.getElementById('srchCnt').textContent=`${searchHits.length?searchCurrent+1:0} / ${searchHits.length}`;
+  if(searchCurrent>=0&&searchHits[searchCurrent]){
+    searchHits[searchCurrent].classList.add('current');
+    searchHits[searchCurrent].scrollIntoView({behavior:'smooth',block:'center'});
+  }
+}
+function searchNav(dir){
+  if(!searchHits.length)return;
+  searchCurrent=(searchCurrent+dir+searchHits.length)%searchHits.length;
+  updateSearchCurrent();
+}
+function replaceOne(){
+  const q=document.getElementById('srchIn').value;
+  const r=document.getElementById('rplIn').value;
+  if(!q||searchCurrent<0||!searchHits[searchCurrent])return;
+  const doc=gD(D.aid);if(!doc)return;
+  // Find which block contains the current hit and replace in its content
+  const hit=searchHits[searchCurrent];
+  const blockEl=hit.closest('.block');
+  if(!blockEl)return;
+  const idx=+blockEl.dataset.idx;
+  const bc=blockEl.querySelector('.bc');
+  if(!bc)return;
+  // Clear highlights from this block, then do text replacement via DOM
+  const text=bc.textContent;
+  const lowerT=text.toLowerCase();
+  const lowerQ=q.toLowerCase();
+  // Count how many hits are before the current one IN THE SAME BLOCK
+  let hitsBeforeInBlock=0;
+  for(let i=0;i<searchCurrent;i++){if(searchHits[i].closest('.block')===blockEl)hitsBeforeInBlock++;}
+  // Replace the (hitsBeforeInBlock)-th occurrence
+  let cnt=0,pos=0,newText='';
+  while(pos<text.length){
+    const found=lowerT.indexOf(lowerQ,pos);
+    if(found===-1){newText+=text.slice(pos);break;}
+    newText+=text.slice(pos,found);
+    if(cnt===hitsBeforeInBlock)newText+=r;
+    else newText+=text.slice(found,found+q.length);
+    pos=found+q.length;
+    cnt++;
+  }
+  // Set new content - this loses formatting but for replace it's acceptable
+  bc.textContent=newText;
+  doc.blocks[idx].content=bc.innerHTML;
+  save();
+  // Re-run search
+  setTimeout(()=>doSearch(),50);
+  toast('1件置換');
+}
+function replaceAll(){
+  const q=document.getElementById('srchIn').value;
+  const r=document.getElementById('rplIn').value;
+  if(!q)return;
+  const doc=gD(D.aid);if(!doc)return;
+  let count=0;
+  const lowerQ=q.toLowerCase();
+  doc.blocks.forEach(b=>{
+    // Use DOMParser to avoid breaking HTML tags
+    const tmp=document.createElement('div');tmp.innerHTML=b.content||'';
+    const walker=document.createTreeWalker(tmp,NodeFilter.SHOW_TEXT);
+    const nodes=[];let n;while(n=walker.nextNode())nodes.push(n);
+    nodes.forEach(node=>{
+      const text=node.nodeValue;const lowerT=text.toLowerCase();
+      if(!lowerT.includes(lowerQ))return;
+      let newText='',pos=0;
+      while(pos<text.length){
+        const found=lowerT.indexOf(lowerQ,pos);
+        if(found===-1){newText+=text.slice(pos);break;}
+        newText+=text.slice(pos,found)+r;
+        pos=found+q.length;count++;
+      }
+      node.nodeValue=newText;
+    });
+    b.content=tmp.innerHTML;
+    // Also replace in table cells
+    if(b.type==='table'&&b.meta&&b.meta.cells){
+      b.meta.cells.forEach((row,ri)=>{
+        row.forEach((cell,ci)=>{
+          const lowerCell=cell.toLowerCase();
+          if(!lowerCell.includes(lowerQ))return;
+          let newCell='',pos=0;
+          while(pos<cell.length){
+            const found=lowerCell.indexOf(lowerQ,pos);
+            if(found===-1){newCell+=cell.slice(pos);break;}
+            newCell+=cell.slice(pos,found)+r;
+            pos=found+q.length;count++;
+          }
+          b.meta.cells[ri][ci]=newCell;
+        });
+      });
+    }
+  });
+  save();renderBlocks();
+  setTimeout(()=>doSearch(),50);
+  toast(`${count}件置換`);
+}
+
+// ===== KEYBOARD =====
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey){
+    if(e.key==='s'){e.preventDefault();svDB();toast('保存');}
+    if(e.key==='z'&&!e.shiftKey){e.preventDefault();undo();}
+    if((e.key==='z'&&e.shiftKey)||e.key==='y'){e.preventDefault();redo();}
+    if(e.key==='f'){e.preventDefault();if(document.getElementById('vE').classList.contains('on'))openSearch();}
+    if(e.key==='k'){e.preventDefault();openCmd();}
+    if(e.key==='d'){
+      // Duplicate current block
+      const bc=document.activeElement;
+      if(bc&&bc.classList.contains('bc')){
+        const block=bc.closest('.block');
+        if(block){e.preventDefault();duplicateBlock(+block.dataset.idx);}
+      }
+    }
+  }
+  // Command palette keyboard nav
+  if(document.getElementById('cmdBg').classList.contains('on')){
+    const items=getCmdItems();
+    if(e.key==='ArrowDown'){e.preventDefault();cmdActiveIdx=Math.min(cmdActiveIdx+1,items.length-1);renderCmdList();}
+    if(e.key==='ArrowUp'){e.preventDefault();cmdActiveIdx=Math.max(cmdActiveIdx-1,0);renderCmdList();}
+    if(e.key==='Enter'&&items[cmdActiveIdx]){e.preventDefault();items[cmdActiveIdx].action();}
+  }
+  if(e.key==='?'&&!e.target.closest('.bc')&&!e.target.matches('input,textarea')){e.preventDefault();openHelp();}
+  if(e.key==='Escape'){hideSlash();closeTypeMenu();closeSettings();closeHelp();closeSearch();closeCmd();closeBackupModal();closeTrashModal();closeTemplateModal();closeSnippetModal();closeAllKebabs();}
+});
+// Slash menu keyboard nav
+document.addEventListener('keydown',e=>{
+  if(slashIdx<0)return;
+  const allItems=getSlashItems();
+  if(e.key==='ArrowDown'){e.preventDefault();slashActiveItem=Math.min(slashActiveItem+1,allItems.length-1);renderSlashMenu();}
+  if(e.key==='ArrowUp'){e.preventDefault();slashActiveItem=Math.max(slashActiveItem-1,0);renderSlashMenu();}
+  if(e.key==='Enter'&&allItems[slashActiveItem]){e.preventDefault();insertBlockType(allItems[slashActiveItem].type);}
+});
+// Click outside slash menu to close
+document.addEventListener('mousedown',e=>{
+  if(slashIdx<0)return;
+  if(e.target.closest('.slash-menu'))return;// clicking inside menu
+  hideSlash();
+});
+
+// ===== INIT =====
+(async function(){
+  try{await openIDB();}catch{console.warn('IndexedDB not available');}
+  applyColorScheme();
+  loadSettings();
+  try{if(localStorage.getItem('df11d')==='1'){dk=false;toggleDk();}}catch{}
+  try{if(localStorage.getItem('df11toc')==='0'){tocVisible=true;toggleTOC();}}catch{}
+  ldDB();checkOnboarding();renderCards();
+  if(D.aid&&gD(D.aid))await openDoc(D.aid);
+  // Hide splash screen
+  setTimeout(()=>{const sp=document.getElementById('splash');if(sp){sp.classList.add('hide');setTimeout(()=>sp.remove(),500);}},600);
+})();
+</script>
+</body>
+</html>
