@@ -13,6 +13,22 @@ Eclipse などのデバッグ表示で分離される「SQL」と「バインド
 - 名前付きバインド: `:id = 4529`
 - 名前付きバインド（クォート文字列）: `:status = "ACTIVE"`
 - 位置バインド（`?` 用）: `[1] = 100` または `1 = 100`
+- 1行ログ形式: `sql=[SELECT ... WHERE id = ?] parameters=[1=4529]`
+
+## 変換例
+入力:
+```text
+sql=[SELECT userId FROM User WHERE 1 = 1 AND TO_CHAR(YUKOFROM_YMD, 'YYYYMMDD') <= ? AND TO_CHAR(YUKOTO_YMD, 'YYYYMMDD') >= ?] parameters=[1=2025-12-12,2=2025-12-12]
+```
+
+出力:
+```sql
+SELECT userId
+FROM User
+WHERE 1 = 1
+  AND TO_CHAR(YUKOFROM_YMD, 'YYYYMMDD') <= '2025-12-12'
+  AND TO_CHAR(YUKOTO_YMD, 'YYYYMMDD') >= '2025-12-12'
+```
 
 ## 変換仕様
 - SQL とバインド変数をリアルタイムでマージ
@@ -26,4 +42,4 @@ Eclipse などのデバッグ表示で分離される「SQL」と「バインド
 - ツールは単一 HTML で動作します。
 - 画面は入力欄・結果欄・コピー操作に絞ったシンプル表示です。
 - 入力テキストエリアは初期表示で縦いっぱいに広がるレイアウトです。
-- ボタンアイコンは Material Symbols（Google Fonts）を利用します。
+- ボタンアイコンは CDN から Material Symbols（Google Fonts）を利用し、ファビコンは同じデータベースモチーフのオレンジSVGです。

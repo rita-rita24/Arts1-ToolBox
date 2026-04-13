@@ -1443,6 +1443,10 @@
     }
 
     .confirm-action-btn {
+      min-width: 2.75rem;
+    }
+
+    .confirm-action-btn.show-label {
       min-width: 7rem;
     }
 
@@ -2305,11 +2309,21 @@
       border-color: var(--line);
     }
 
+    .icon-btn:not(#clearCompletedBtn):not(#clearAllBtn):not(.show-label) > span:not(.material-symbols-outlined),
+    .mini-btn > span:not(.material-symbols-outlined),
+    .message-chip-btn > span:not(.material-symbols-outlined),
+    .focus-btn > span:not(.material-symbols-outlined),
+    .focus-action-btn > span:not(.material-symbols-outlined) {
+      display: none;
+    }
+
     .add-btn {
       background: var(--surface);
       color: var(--text);
       border-color: var(--primary-border-strong);
-      min-width: 6.2rem;
+      width: 44px;
+      min-width: 44px;
+      padding-inline: 0;
       justify-content: center;
     }
 
@@ -2629,13 +2643,13 @@
     }
 
     .focus-action-btn {
-      width: auto;
-      height: auto;
-      min-width: clamp(7.8rem, 20vw, 9.4rem);
-      min-height: 62px;
+      width: clamp(3rem, 8vw, 3.5rem);
+      height: clamp(3rem, 8vw, 3.5rem);
+      min-width: clamp(3rem, 8vw, 3.5rem);
+      min-height: clamp(3rem, 8vw, 3.5rem);
       border-radius: var(--radius-md);
-      padding: 0.72rem 1.08rem;
-      gap: 0.48rem;
+      padding: 0;
+      gap: 0;
       font-size: 0.98rem;
       font-weight: 700;
       border-width: 2px;
@@ -2643,7 +2657,7 @@
     }
 
     .focus-action-btn .material-symbols-outlined {
-      font-size: 26px;
+      font-size: 24px;
     }
 
     .focus-action-btn.complete {
@@ -2736,9 +2750,12 @@
         flex-direction: column;
       }
 
-      .task-composer .row .text-input,
-      .task-composer .row .add-btn {
+      .task-composer .row .text-input {
         width: 100%;
+      }
+
+      .task-composer .row .add-btn {
+        align-self: flex-end;
       }
 
       .subtask-wrap {
@@ -2792,18 +2809,17 @@
           <div class="hero task-hero">
             <div class="hero-copy">
               <h1>Todoリスト</h1>
-              <p class="hero-description">親タスクを追加し、必要に応じて子タスクへ分解して進めます。</p>
             </div>
           </div>
 
           <div class="tasks-layout">
             <div class="tasks-primary">
               <div class="card task-composer">
-                <label class="field-label" for="todoInput">親タスクを追加</label>
+                <label class="field-label" for="todoInput">タスクを追加</label>
                 <p class="field-helper" id="todoInputHint">最大120文字。Enterでも追加できます。</p>
                 <div class="row">
                   <input id="todoInput" class="text-input" type="text" placeholder="例: 見積もりを作る" autocomplete="off" aria-describedby="todoInputHint">
-                  <button id="addBtn" class="icon-btn add-btn" title="親タスク追加" aria-label="親タスク追加">
+                  <button id="addBtn" class="icon-btn add-btn" title="タスク追加" aria-label="親タスク追加">
                     <span class="material-symbols-outlined">add_task</span>
                     <span>追加</span>
                   </button>
@@ -2820,7 +2836,7 @@
               <div class="card empty" id="emptyState">
                 <span class="material-symbols-outlined">task_alt</span>
                 <div class="empty-title">まだタスクがありません</div>
-                <p class="empty-description">上の入力欄から、最初の親タスクを追加してください。</p>
+                <p class="empty-description">上の入力欄から、最初のタスクを追加してください。</p>
               </div>
             </div>
 
@@ -2872,7 +2888,7 @@
 
           <div class="stats">
             <div class="stat">
-              <div class="stat-label">親タスク数</div>
+              <div class="stat-label">タスク数</div>
               <div class="stat-value" id="statParents">0</div>
             </div>
             <div class="stat">
@@ -2968,7 +2984,7 @@
       <div class="modal-header">
         <div class="modal-title-wrap">
           <span class="material-symbols-outlined">edit_note</span>
-          <div class="modal-title" id="parentModalTitle">親タスクを編集</div>
+          <div class="modal-title" id="parentModalTitle">タスクを編集</div>
         </div>
         <button class="icon-btn modal-close-btn" id="closeParentModalBtn" title="閉じる" aria-label="閉じる">
           <span class="material-symbols-outlined">close</span>
@@ -2979,7 +2995,7 @@
         <div class="modal-section">
           <label class="modal-label" for="parentEditInput">
             <span class="material-symbols-outlined">title</span>
-            親タスク名
+            タスク名
           </label>
           <input id="parentEditInput" class="text-input" type="text" placeholder="親タスク名を入力">
         </div>
@@ -4492,6 +4508,8 @@
           'clear-all': { icon: 'delete_sweep', label: 'すべて削除' }
         };
         const ui = actionUiMap[action] || { icon: 'check_circle', label: '実行する' };
+        const shouldShowConfirmLabel = action === 'clear-completed' || action === 'clear-all';
+        confirmDeleteBtn.classList.toggle('show-label', shouldShowConfirmLabel);
         if (confirmActionIcon) confirmActionIcon.textContent = ui.icon;
         if (confirmActionLabel) confirmActionLabel.textContent = ui.label;
         confirmDeleteBtn.title = `${ui.label} (Enter)`;
@@ -4505,6 +4523,7 @@
       function closeConfirmModal() {
         confirmState.action = null;
         confirmState.payload = null;
+        confirmDeleteBtn.classList.remove('show-label');
         confirmModalOverlay.classList.remove('show');
         confirmModalOverlay.setAttribute('aria-hidden', 'true');
       }

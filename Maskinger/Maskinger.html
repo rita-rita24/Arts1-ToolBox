@@ -1,162 +1,247 @@
-<!DOCTYPE html>
+<!doctype html>
 
-<html class="light" lang="ja"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>プライバシーガード | Human-Made UI</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<style>
-        body {
-            font-family: 'Inter', "Helvetica Neue", "Arial", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", sans-serif;
-            letter-spacing: -0.31px;
-            -webkit-font-smoothing: antialiased;
-        }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
-        }
-        ::selection {
-            background: #008735;
-            color: white;
-        }
+<html class="light" lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>プライバシーガード | Human-Made UI</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family:
+          "Inter", "Helvetica Neue", "Arial", "Hiragino Kaku Gothic ProN",
+          "Hiragino Sans", "Meiryo", sans-serif;
+        letter-spacing: -0.31px;
+        -webkit-font-smoothing: antialiased;
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 300,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      ::selection {
+        background: #008735;
+        color: white;
+      }
     </style>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "on-tertiary-container": "#ffffff",
-                        "tertiary-fixed-dim": "#00531e",
-                        "on-primary": "#e5e2e1",
-                        "tertiary": "#004618",
-                        "on-surface": "#1a1c1c",
-                        "inverse-primary": "#c8c6c5",
-                        "secondary-container": "#d5d4d4",
-                        "inverse-surface": "#2f3131",
-                        "surface-container-highest": "#e2e2e2",
-                        "surface-container-low": "#f3f3f3",
-                        "on-tertiary-fixed": "#ffffff",
-                        "on-secondary-container": "#1b1c1c",
-                        "tertiary-fixed": "#006e2a",
-                        "on-primary-fixed-variant": "#e5e2e1",
-                        "background": "#f9f9f9",
-                        "primary-container": "#3c3b3b",
-                        "on-background": "#1a1c1c",
-                        "secondary-fixed": "#c7c6c6",
-                        "surface-container-high": "#e8e8e8",
-                        "on-primary-fixed": "#ffffff",
-                        "surface-container-lowest": "#ffffff",
-                        "on-error-container": "#410002",
-                        "primary-fixed-dim": "#474746",
-                        "surface": "#f9f9f9",
-                        "on-secondary-fixed": "#1b1c1c",
-                        "secondary": "#5e5e5e",
-                        "error-container": "#ffdad6",
-                        "primary": "#000000",
-                        "on-secondary": "#ffffff",
-                        "primary-fixed": "#5f5e5e",
-                        "on-primary-container": "#ffffff",
-                        "outline": "#777777",
-                        "surface-container": "#eeeeee",
-                        "surface-bright": "#f9f9f9",
-                        "error": "#ba1a1a",
-                        "surface-tint": "#5f5e5e",
-                        "on-error": "#ffffff",
-                        "on-tertiary-fixed-variant": "#69ff87",
-                        "inverse-on-surface": "#f0f1f1",
-                        "on-secondary-fixed-variant": "#3b3b3c",
-                        "on-tertiary": "#69ff87",
-                        "tertiary-container": "#008735",
-                        "secondary-fixed-dim": "#acabab",
-                        "surface-variant": "#e2e2e2",
-                        "on-surface-variant": "#474747",
-                        "surface-dim": "#dadada",
-                        "outline-variant": "#c6c6c6"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.125rem",
-                        "lg": "0.25rem",
-                        "xl": "0.5rem",
-                        "full": "0.75rem"
-                    }
-                }
-            }
-        }
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary-container": "#ffffff",
+              "tertiary-fixed-dim": "#00531e",
+              "on-primary": "#e5e2e1",
+              tertiary: "#004618",
+              "on-surface": "#1a1c1c",
+              "inverse-primary": "#c8c6c5",
+              "secondary-container": "#d5d4d4",
+              "inverse-surface": "#2f3131",
+              "surface-container-highest": "#e2e2e2",
+              "surface-container-low": "#f3f3f3",
+              "on-tertiary-fixed": "#ffffff",
+              "on-secondary-container": "#1b1c1c",
+              "tertiary-fixed": "#006e2a",
+              "on-primary-fixed-variant": "#e5e2e1",
+              background: "#f9f9f9",
+              "primary-container": "#3c3b3b",
+              "on-background": "#1a1c1c",
+              "secondary-fixed": "#c7c6c6",
+              "surface-container-high": "#e8e8e8",
+              "on-primary-fixed": "#ffffff",
+              "surface-container-lowest": "#ffffff",
+              "on-error-container": "#410002",
+              "primary-fixed-dim": "#474746",
+              surface: "#f9f9f9",
+              "on-secondary-fixed": "#1b1c1c",
+              secondary: "#5e5e5e",
+              "error-container": "#ffdad6",
+              primary: "#000000",
+              "on-secondary": "#ffffff",
+              "primary-fixed": "#5f5e5e",
+              "on-primary-container": "#ffffff",
+              outline: "#777777",
+              "surface-container": "#eeeeee",
+              "surface-bright": "#f9f9f9",
+              error: "#ba1a1a",
+              "surface-tint": "#5f5e5e",
+              "on-error": "#ffffff",
+              "on-tertiary-fixed-variant": "#69ff87",
+              "inverse-on-surface": "#f0f1f1",
+              "on-secondary-fixed-variant": "#3b3b3c",
+              "on-tertiary": "#69ff87",
+              "tertiary-container": "#008735",
+              "secondary-fixed-dim": "#acabab",
+              "surface-variant": "#e2e2e2",
+              "on-surface-variant": "#474747",
+              "surface-dim": "#dadada",
+              "outline-variant": "#c6c6c6",
+            },
+            borderRadius: {
+              DEFAULT: "0.125rem",
+              lg: "0.25rem",
+              xl: "0.5rem",
+              full: "0.75rem",
+            },
+          },
+        },
+      };
     </script>
-</head>
-<body class="bg-background text-on-surface min-h-screen flex flex-col overflow-hidden">
-<!-- Header -->
-<header class="w-full flex flex-col items-center pt-12 pb-6">
-<h1 class="text-lg font-bold tracking-[0.1em] text-zinc-900">プライバシーガード</h1>
-<div class="flex items-center gap-2 mt-2 px-3 py-1 bg-tertiary-container/10 rounded-full">
-<span class="w-1.5 h-1.5 bg-tertiary-container rounded-full animate-pulse"></span>
-<span class="text-[0.625rem] uppercase tracking-widest font-bold text-tertiary">保護機能 有効</span>
-</div>
-</header>
-<!-- Main Workspace -->
-<main class="flex-1 max-w-[1400px] w-full mx-auto px-12 py-8 flex flex-col">
-<div class="flex-1 grid grid-cols-2 gap-12">
-<!-- Input Canvas -->
-<div class="flex flex-col gap-4">
-<div class="flex justify-between items-end">
-<h3 class="text-[0.6875rem] font-bold uppercase tracking-widest text-on-surface-variant">入力キャンバス</h3>
-<button class="text-[0.75rem] text-zinc-400 hover:text-zinc-900 transition-colors flex items-center gap-1">
-<span class="material-symbols-outlined text-[16px]">delete</span>
-                    クリア
-                </button>
-</div>
-<div class="flex-1 bg-surface-container-lowest rounded-lg border border-outline-variant/10 p-8 shadow-sm">
-<textarea class="w-full h-full bg-transparent border-none focus:ring-0 resize-none text-[0.875rem] leading-relaxed text-on-surface-variant placeholder-zinc-300" placeholder="ここに機密文書を貼り付けると、自動的にマスキングが開始されます..."></textarea>
-</div>
-</div>
-<!-- Protected Output -->
-<div class="flex flex-col gap-4">
-<div class="flex justify-between items-end">
-<h3 class="text-[0.6875rem] font-bold uppercase tracking-widest text-tertiary">保護済み出力</h3>
-<button class="text-[0.75rem] font-bold text-primary flex items-center gap-1 hover:underline">
-<span class="material-symbols-outlined text-[16px]">content_copy</span>
-                    コピー
-                </button>
-</div>
-<div class="flex-1 bg-surface-container-lowest rounded-lg border-l-2 border-tertiary p-8 shadow-sm overflow-y-auto">
-<div class="text-[0.875rem] leading-[2.25rem] text-on-surface">
-<span class="bg-surface-container-high px-2 py-0.5 rounded text-[0.625rem] font-bold text-on-surface-variant mx-1 inline-flex items-center gap-1 border border-outline-variant/20">[氏名]</span> 様、
-                    <br/><br/>
-<span class="bg-surface-container-high px-2 py-0.5 rounded text-[0.625rem] font-bold text-on-surface-variant mx-1 inline-flex items-center gap-1 border border-outline-variant/20">[企業名]</span> との契約についてご連絡いたします。
-                    <br/>
-                    本プロジェクトの予算 <span class="bg-surface-container-high px-2 py-0.5 rounded text-[0.625rem] font-bold text-on-surface-variant mx-1 inline-flex items-center gap-1 border border-outline-variant/20">[金額]</span> は
-                    <span class="bg-surface-container-high px-2 py-0.5 rounded text-[0.625rem] font-bold text-on-surface-variant mx-1 inline-flex items-center gap-1 border border-outline-variant/20">[拠点名]</span> オフィスにて承認されました。
-                    <br/><br/>
-                    詳細については <span class="bg-surface-container-high px-2 py-0.5 rounded text-[0.625rem] font-bold text-on-surface-variant mx-1 inline-flex items-center gap-1 border border-outline-variant/20">[メールアドレス]</span> までお問い合わせください。
-                    <br/><br/>
-                    宜しくお願い申し上げます。
-                    <br/>
-<span class="bg-surface-container-high px-2 py-0.5 rounded text-[0.625rem] font-bold text-on-surface-variant mx-1 inline-flex items-center gap-1 border border-outline-variant/20">[氏名]</span>
-</div>
-</div>
-</div>
-</div>
-</main>
-<!-- Quiet Footer -->
-<footer class="w-full flex justify-center gap-12 py-8 bg-background border-t border-outline-variant/5">
-<div class="flex items-center gap-2">
-<span class="text-[0.625rem] font-bold text-on-surface-variant/60 uppercase tracking-widest">マスキング精度:</span>
-<span class="text-[0.75rem] font-medium text-on-surface-variant">99.8%</span>
-</div>
-<div class="flex items-center gap-2">
-<span class="text-[0.625rem] font-bold text-on-surface-variant/60 uppercase tracking-widest">ローカル処理中:</span>
-<span class="text-[0.75rem] font-medium text-tertiary">暗号化済み</span>
-</div>
-</footer>
-<!-- Subtle Texture Overlay -->
-<div class="fixed inset-0 pointer-events-none opacity-[0.02] mix-blend-multiply">
-<svg viewbox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-<filter id="noiseFilter">
-<feturbulence basefrequency="0.65" numoctaves="3" stitchtiles="stitch" type="fractalNoise"></feturbulence>
-</filter>
-<rect filter="url(#noiseFilter)" height="100%" width="100%"></rect>
-</svg>
-</div>
-</body></html>
+  </head>
+  <body
+    class="bg-background text-on-surface min-h-screen flex flex-col overflow-hidden"
+  >
+    <!-- Header -->
+    <header class="w-full flex flex-col items-center pt-12 pb-6">
+      <h1 class="text-lg font-bold tracking-[0.1em] text-zinc-900">
+        プライバシーガード
+      </h1>
+      <div
+        class="flex items-center gap-2 mt-2 px-3 py-1 bg-tertiary-container/10 rounded-full"
+      >
+        <span
+          class="w-1.5 h-1.5 bg-tertiary-container rounded-full animate-pulse"
+        ></span>
+        <span
+          class="text-[0.625rem] uppercase tracking-widest font-bold text-tertiary"
+          >保護機能 有効</span
+        >
+      </div>
+    </header>
+    <!-- Main Workspace -->
+    <main class="flex-1 max-w-[1400px] w-full mx-auto px-12 py-8 flex flex-col">
+      <div class="flex-1 grid grid-cols-2 gap-12">
+        <!-- Input Canvas -->
+        <div class="flex flex-col gap-4">
+          <div class="flex justify-between items-end">
+            <h3
+              class="text-[0.6875rem] font-bold uppercase tracking-widest text-on-surface-variant"
+            >
+              入力キャンバス
+            </h3>
+            <button
+              class="text-[0.75rem] text-zinc-400 hover:text-zinc-900 transition-colors flex items-center gap-1"
+            >
+              <span class="material-symbols-outlined text-[16px]">delete</span>
+              クリア
+            </button>
+          </div>
+          <div
+            class="flex-1 bg-surface-container-lowest rounded-lg border border-outline-variant/10 p-8 shadow-sm"
+          >
+            <textarea
+              class="w-full h-full bg-transparent border-none focus:ring-0 resize-none text-[0.875rem] leading-relaxed text-on-surface-variant placeholder-zinc-300"
+              placeholder="ここに機密文書を貼り付けると、自動的にマスキングが開始されます..."
+            ></textarea>
+          </div>
+        </div>
+        <!-- Protected Output -->
+        <div class="flex flex-col gap-4">
+          <div class="flex justify-between items-end">
+            <h3
+              class="text-[0.6875rem] font-bold uppercase tracking-widest text-tertiary"
+            >
+              保護済み出力
+            </h3>
+            <button
+              class="text-[0.75rem] font-bold text-primary flex items-center gap-1 hover:underline"
+            >
+              <span class="material-symbols-outlined text-[16px]"
+                >content_copy</span
+              >
+              コピー
+            </button>
+          </div>
+          <div
+            class="flex-1 bg-surface-container-lowest rounded-lg border-l-2 border-tertiary p-8 shadow-sm overflow-y-auto"
+          >
+            <div class="text-[0.875rem] leading-[2.25rem] text-on-surface">
+              <span
+                class="bg-surface-container-high px-2 py-0.5 rounded text-[0.625rem] font-bold text-on-surface-variant mx-1 inline-flex items-center gap-1 border border-outline-variant/20"
+                >[氏名]</span
+              >
+              様、 <br /><br />
+              <span
+                class="bg-surface-container-high px-2 py-0.5 rounded text-[0.625rem] font-bold text-on-surface-variant mx-1 inline-flex items-center gap-1 border border-outline-variant/20"
+                >[企業名]</span
+              >
+              との契約についてご連絡いたします。
+              <br />
+              本プロジェクトの予算
+              <span
+                class="bg-surface-container-high px-2 py-0.5 rounded text-[0.625rem] font-bold text-on-surface-variant mx-1 inline-flex items-center gap-1 border border-outline-variant/20"
+                >[金額]</span
+              >
+              は
+              <span
+                class="bg-surface-container-high px-2 py-0.5 rounded text-[0.625rem] font-bold text-on-surface-variant mx-1 inline-flex items-center gap-1 border border-outline-variant/20"
+                >[拠点名]</span
+              >
+              オフィスにて承認されました。 <br /><br />
+              詳細については
+              <span
+                class="bg-surface-container-high px-2 py-0.5 rounded text-[0.625rem] font-bold text-on-surface-variant mx-1 inline-flex items-center gap-1 border border-outline-variant/20"
+                >[メールアドレス]</span
+              >
+              までお問い合わせください。 <br /><br />
+              宜しくお願い申し上げます。
+              <br />
+              <span
+                class="bg-surface-container-high px-2 py-0.5 rounded text-[0.625rem] font-bold text-on-surface-variant mx-1 inline-flex items-center gap-1 border border-outline-variant/20"
+                >[氏名]</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- Quiet Footer -->
+    <footer
+      class="w-full flex justify-center gap-12 py-8 bg-background border-t border-outline-variant/5"
+    >
+      <div class="flex items-center gap-2">
+        <span
+          class="text-[0.625rem] font-bold text-on-surface-variant/60 uppercase tracking-widest"
+          >マスキング精度:</span
+        >
+        <span class="text-[0.75rem] font-medium text-on-surface-variant"
+          >99.8%</span
+        >
+      </div>
+      <div class="flex items-center gap-2">
+        <span
+          class="text-[0.625rem] font-bold text-on-surface-variant/60 uppercase tracking-widest"
+          >ローカル処理中:</span
+        >
+        <span class="text-[0.75rem] font-medium text-tertiary">暗号化済み</span>
+      </div>
+    </footer>
+    <!-- Subtle Texture Overlay -->
+    <div
+      class="fixed inset-0 pointer-events-none opacity-[0.02] mix-blend-multiply"
+    >
+      <svg viewbox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <filter id="noiseFilter">
+          <feturbulence
+            basefrequency="0.65"
+            numoctaves="3"
+            stitchtiles="stitch"
+            type="fractalNoise"
+          ></feturbulence>
+        </filter>
+        <rect filter="url(#noiseFilter)" height="100%" width="100%"></rect>
+      </svg>
+    </div>
+  </body>
+</html>

@@ -69,27 +69,6 @@ a, a:hover, a:visited, a:link, a:active {
     overflow: hidden;
 }
 
-#wew_ButtonMenu {
-    height: 3.5rem;
-    font-size: 1rem;
-    text-shadow: 1px 1px grey;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    border-radius: 0;
-    border-top-left-radius: 0.5rem; 
-    border-bottom-left-radius: 0.5rem; 
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 1000;
-}
-#wew_ButtonHideMenu {
-    height: 3rem;
-    text-shadow: 1px 1px grey;
-    font-size: 1rem;
-    padding-left: 0.2rem;
-    padding-right: 0.2rem;
-}
 #wew_Menu, #wew_Keys {
     display: block;
     text-align: center;
@@ -3585,17 +3564,6 @@ li.CodeMirror-hint-active {
     box-shadow: none !important;
   }
 
-  #wew_ButtonMenu,
-  #wew_ButtonHideMenu {
-    background: var(--wew-surface) !important;
-    color: var(--wew-text) !important;
-    border-color: var(--wew-border-strong) !important;
-    height: 2.25rem !important;
-    min-height: 2.25rem !important;
-    padding: 0.4rem !important;
-    text-shadow: none !important;
-  }
-
   #wew_ButtonRun {
     background: var(--wew-accent) !important;
     color: var(--wew-surface) !important;
@@ -3825,13 +3793,6 @@ li.CodeMirror-hint-active {
     box-shadow: none !important;
   }
 
-  html[data-wew-mode='dark'] #wew_ButtonMenu,
-  html[data-wew-mode='dark'] #wew_ButtonHideMenu {
-    background: oklch(0.3 0 0) !important;
-    border-color: var(--wew-dark-border) !important;
-    color: var(--wew-dark-text) !important;
-  }
-
   html[data-wew-mode='dark'] #wew_ButtonRun {
     background: var(--wew-accent) !important;
     border-color: var(--wew-accent) !important;
@@ -3904,10 +3865,6 @@ li.CodeMirror-hint-active {
     </head>
     <body>
         <div id="wew">
-            <!-- Button Menu -->
-            <button id="wew_ButtonMenu" onclick="wew.showMenu();" title="メニューを表示 (F10)">
-                <span class="material-icons wew_ImgMenu" aria-hidden="true">chevron_right</span>
-            </button>
             <!-- Menu -->
             <div id="wew_Menu" onclick="wew.editor.focus();">
                 <table width="100%" cellspacing="0" cellpadding="0">
@@ -3944,10 +3901,6 @@ li.CodeMirror-hint-active {
                             </button>
                             <button onclick="wew.openAboutDialog();" title="このアプリについて">
                                 <span class="material-icons wew_ImgMenu" aria-hidden="true">info</span>
-                            </button>
-                            &nbsp;
-                            <button id="wew_ButtonHideMenu" onclick="wew.hideMenu();" title="メニューを非表示 (F10)">
-                                <span class="material-icons wew_ImgMenu" aria-hidden="true">chevron_left</span>
                             </button>
                         </td>
                     </tr>
@@ -21278,14 +21231,7 @@ wew.init = () => {
         "F1": () => wew.openHelpDialog(),
         "F2": () => wew.openRenameDialog(),
         "F9": () => wew.runHTML(),
-        "F8": () => wew.openConfigDialog(),
-        "F10": () => {
-            if (wew.viewMenu) {
-                wew.hideMenu();
-            } else {
-                wew.showMenu();
-            }
-        }
+        "F8": () => wew.openConfigDialog()
     });
 
     //Editor config
@@ -21431,7 +21377,6 @@ wew.setTheme = (theme) => {
  * @returns {void}
  */
 wew.showMenu = () => {
-    document.querySelector("#wew_ButtonMenu").style.display = "none";
     wew.panels[wew.menu.id] = wew.editor.addPanel(wew.menu, {position: "top", stable: true});
     wew.viewMenu = true;
     wew.setCurFile(wew.curFile);
@@ -21443,7 +21388,6 @@ wew.showMenu = () => {
  */
 wew.hideMenu = () => {
     if (wew.panels[wew.menu.id] !== undefined) {
-        document.querySelector("#wew_ButtonMenu").style.display = "initial";
         wew.panels[wew.menu.id].clear();
         wew.viewMenu = false;
     }
@@ -21823,7 +21767,6 @@ wew.openHelpDialog = () => {
     message += "<tr><td align='right'><b>F3</b><td align='left'>検索";
     message += "<tr><td align='right'><b>F9</b><td align='left'>現在のHTMLを実行";
     message += "<tr><td align='right'><b>F8</b><td align='left'>設定";
-    message += "<tr><td align='right'><b>F10</b><td align='left'>メニュー表示 / 非表示";
     message += "<tr><td align='right'><td align='left'>";
     message += "<tr><td align='right'><b>Ctrl + F</b><td align='left'>ドキュメント内検索";
     message += "<tr><td align='right'><b>Ctrl + Shift + F</b><td align='left'>ドキュメント内の検索と置換";

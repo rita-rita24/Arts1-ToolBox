@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SQL Bind Merge</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f172a'/%3E%3Cpath d='M16 20c0-4.4 7.2-8 16-8s16 3.6 16 8-7.2 8-16 8-16-3.6-16-8Zm0 10c0 4.4 7.2 8 16 8s16-3.6 16-8v8c0 4.4-7.2 8-16 8s-16-3.6-16-8v-8Zm0 18c0 4.4 7.2 8 16 8s16-3.6 16-8v-8c0 4.4-7.2 8-16 8s-16-3.6-16-8v8Z' fill='%235dade2'/%3E%3Cpath d='M6 34h11v-4l7 6-7 6v-4H6v-4Zm52 0H47v-4l-7 6 7 6v-4h11v-4Z' fill='%23f8fafc'/%3E%3C/svg%3E" />
+  <title>BindSQLforSQLBuilder</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f97316'/%3E%3Cpath d='M16 20c0-4.4 7.2-8 16-8s16 3.6 16 8-7.2 8-16 8-16-3.6-16-8Zm0 10c0 4.4 7.2 8 16 8s16-3.6 16-8v8c0 4.4-7.2 8-16 8s-16-3.6-16-8v-8Zm0 18c0 4.4 7.2 8 16 8s16-3.6 16-8v-8c0 4.4-7.2 8-16 8s-16-3.6-16-8v8Z' fill='%23fff7ed'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,500,0,0" />
   <style>
     @layer reset, base, component, utility;
 
@@ -218,7 +219,19 @@
         width: 1rem;
         height: 1rem;
         flex: 0 0 auto;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Material Symbols Rounded";
+        font-style: normal;
+        font-weight: 500;
+        font-size: 1rem;
+        line-height: 1;
+        font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 20;
+        font-feature-settings: "liga";
+        text-transform: none;
+        vertical-align: middle;
+        -webkit-font-smoothing: antialiased;
       }
 
       .button--ghost {
@@ -288,9 +301,7 @@
           <h1 class="panel__title">SQL + バインド変数</h1>
         </div>
         <button class="button button--ghost" type="button" data-action="clear">
-          <svg class="button__icon" aria-hidden="true" viewBox="0 -960 960 960" fill="currentColor">
-            <path d="M186.67-126.67q-27.5 0-47.08-19.58Q120-165.84 120-193.33v-153.34h66.67v153.34h586.66v66.66H186.67Zm100-253.34L140-526.67l286.67-286q20-20 47.16-20 27.17 0 47.17 20l292 292.67q20 20 20 47.17 0 27.16-20 47.16L666-279.34q-20 20-47.17 20-27.16 0-47.16-20l-145-144.33-140 143.66Zm140-140 145.66 145.67 94-95-145.67-145.67-93.99 95Z"/>
-          </svg>
+          <span class="button__icon" aria-hidden="true">backspace</span>
           <span>クリア</span>
         </button>
       </header>
@@ -316,9 +327,7 @@
           <h2 class="panel__title">実行可能 SQL</h2>
         </div>
         <button class="button button--primary" type="button" data-action="copy">
-          <svg class="button__icon" aria-hidden="true" viewBox="0 -960 960 960" fill="currentColor">
-            <path d="M320-240q-33 0-56.5-23.5T240-320v-520q0-33 23.5-56.5T320-920h400q33 0 56.5 23.5T800-840v520q0 33-23.5 56.5T720-240H320Zm0-80h400v-520H320v520ZM160-80q-33 0-56.5-23.5T80-160v-560h80v560h440v80H160Zm160-240v-520 520Z"/>
-          </svg>
+          <span class="button__icon" aria-hidden="true">content_copy</span>
           <span>コピー</span>
         </button>
       </header>
@@ -333,7 +342,6 @@
 
   <script>
     (() => {
-      "use strict";
 
       const qs = (sel, root = document) => root.querySelector(sel);
 
@@ -364,6 +372,8 @@
       const PLACEHOLDER_TEXT = "-- ここに変換後SQLが表示されます --";
       const NAMED_BIND_PATTERN = /^:?(?<name>[A-Za-z_][A-Za-z0-9_$]*)\s*(?:=>|=|:)\s*(?<value>.+)$/;
       const POSITIONAL_BIND_PATTERN = /^(?:\[(?<indexA>\d+)\]|(?<indexB>\d+))\s*(?:=>|=|:)\s*(?<value>.+)$/;
+      const PARAMETER_ENTRY_PATTERN = /^(?<key>:?[A-Za-z_][A-Za-z0-9_$]*|\[\d+\]|\d+)\s*(?:=>|=|:)\s*(?<value>.+)$/;
+      const SQL_PARAMETER_BLOCK_PATTERN = /^\s*sql\s*=\s*\[(?<sql>[\s\S]*?)\]\s*(?:parameters?|params?)\s*=\s*\[(?<parameters>[\s\S]*?)\]\s*$/i;
       const BIND_HEADER_PATTERN = /^(?:bind(?:\s+variables?)?|params?|parameters?)\s*:?\s*$/i;
       const SQL_PREFIX_PATTERN = /^\s*sql\s*[:=]\s*(?<sql>.+)$/i;
       const SQL_ASSIGNMENT_NAMES = new Set([
@@ -402,6 +412,167 @@
       };
 
       const _escapeRegExp = (_value) => _value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+      const _isQuotedValue = (_value) =>
+        (_value.startsWith("'") && _value.endsWith("'")) ||
+        (_value.startsWith('"') && _value.endsWith('"')) ||
+        (_value.startsWith("“") && _value.endsWith("”"));
+
+      const _isSqlLiteralValue = (_value) =>
+        /^null$/i.test(_value) ||
+        /^(true|false)$/i.test(_value) ||
+        /^[+-]?(?:\d+\.?\d*|\.\d+)$/.test(_value) ||
+        _isQuotedValue(_value);
+
+      const _quoteParameterValue = (_value) => {
+        const _trimmed = _value.trim();
+        if (!_trimmed || _isSqlLiteralValue(_trimmed)) {
+          return _trimmed;
+        }
+
+        return `"${_trimmed.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+      };
+
+      const _splitParameterEntries = (_parametersText) => {
+        const _entries = [];
+        let _current = "";
+        let _quote = "";
+        let _isEscaped = false;
+
+        for (const _character of _parametersText) {
+          if (_quote) {
+            _current += _character;
+            if (_character === "\\" && !_isEscaped) {
+              _isEscaped = true;
+              continue;
+            }
+            if (_character === _quote && !_isEscaped) {
+              _quote = "";
+            }
+            _isEscaped = false;
+            continue;
+          }
+
+          if (_character === "'" || _character === '"') {
+            _quote = _character;
+            _current += _character;
+            continue;
+          }
+
+          if (_character === ",") {
+            const _entry = _current.trim();
+            if (_entry) {
+              _entries.push(_entry);
+            }
+            _current = "";
+            continue;
+          }
+
+          _current += _character;
+        }
+
+        const _entry = _current.trim();
+        if (_entry) {
+          _entries.push(_entry);
+        }
+
+        return _entries;
+      };
+
+      const _normalizeParameterEntry = (_entry) => {
+        const _match = _entry.match(PARAMETER_ENTRY_PATTERN);
+        if (!_match?.groups) {
+          return _entry;
+        }
+
+        return `${_match.groups.key} = ${_quoteParameterValue(_match.groups.value)}`;
+      };
+
+      const _readSqlProtectedSegment = (_sql, _startIndex) => {
+        const _startCharacter = _sql[_startIndex];
+
+        if (_startCharacter === "'") {
+          let _index = _startIndex + 1;
+          while (_index < _sql.length) {
+            const _character = _sql[_index];
+            if (_character === "'" && _sql[_index + 1] === "'") {
+              _index += 2;
+              continue;
+            }
+            if (_character === "\\") {
+              _index += 2;
+              continue;
+            }
+            if (_character === "'") {
+              _index += 1;
+              break;
+            }
+            _index += 1;
+          }
+          return _sql.slice(_startIndex, _index);
+        }
+
+        if (_startCharacter === '"') {
+          let _index = _startIndex + 1;
+          while (_index < _sql.length) {
+            const _character = _sql[_index];
+            if (_character === '"' && _sql[_index + 1] === '"') {
+              _index += 2;
+              continue;
+            }
+            if (_character === "\\") {
+              _index += 2;
+              continue;
+            }
+            if (_character === '"') {
+              _index += 1;
+              break;
+            }
+            _index += 1;
+          }
+          return _sql.slice(_startIndex, _index);
+        }
+
+        if (_startCharacter === "-" && _sql[_startIndex + 1] === "-") {
+          const _endIndex = _sql.indexOf("\n", _startIndex);
+          return _sql.slice(_startIndex, _endIndex === -1 ? _sql.length : _endIndex);
+        }
+
+        if (_startCharacter === "/" && _sql[_startIndex + 1] === "*") {
+          const _endIndex = _sql.indexOf("*/", _startIndex + 2);
+          return _sql.slice(_startIndex, _endIndex === -1 ? _sql.length : _endIndex + 2);
+        }
+
+        return "";
+      };
+
+      const _maskSqlProtectedSegments = (_sql) => {
+        const _segments = [];
+        let _masked = "";
+        let _index = 0;
+
+        while (_index < _sql.length) {
+          const _segment = _readSqlProtectedSegment(_sql, _index);
+          if (_segment) {
+            const _token = `__SQLBINDMERGE_SEGMENT_${_segments.length}__`;
+            _segments.push(_segment);
+            _masked += _token;
+            _index += _segment.length;
+            continue;
+          }
+
+          _masked += _sql[_index];
+          _index += 1;
+        }
+
+        return { _masked, _segments };
+      };
+
+      const _restoreSqlProtectedSegments = (_sql, _segments) =>
+        _sql.replace(/__SQLBINDMERGE_SEGMENT_(\d+)__/g, (_all, _indexText) => {
+          const _index = Number(_indexText);
+          return _segments[_index] ?? "";
+        });
 
       const _applyColorScheme = () => {
         const _scheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -454,6 +625,14 @@
       };
 
       const _splitInputText = (_inputText) => {
+        const _parameterBlockMatch = _inputText.match(SQL_PARAMETER_BLOCK_PATTERN);
+        if (_parameterBlockMatch?.groups) {
+          return {
+            _sqlText: _parameterBlockMatch.groups.sql.trim(),
+            _bindLines: _splitParameterEntries(_parameterBlockMatch.groups.parameters).map(_normalizeParameterEntry)
+          };
+        }
+
         const _sqlLines = [];
         const _bindLines = [];
         let _bindSectionStarted = false;
@@ -538,7 +717,8 @@
       };
 
       const _mergeSqlAndBinds = (_sql, _binds) => {
-        let _workingSql = _sql;
+        const _protectedStore = _maskSqlProtectedSegments(_sql);
+        let _workingSql = _protectedStore._masked;
 
         for (const [_name, _value] of _binds._named.entries()) {
           const _result = _replaceNamedBind(_workingSql, _name, _value);
@@ -556,7 +736,7 @@
         });
 
         return {
-          _sql: _workingSql
+          _sql: _restoreSqlProtectedSegments(_workingSql, _protectedStore._segments)
         };
       };
 
@@ -577,30 +757,14 @@
         return _sql.replace(_pattern, `\n${_indent}${_keyword}`);
       };
 
-      const _maskStringLiterals = (_sql) => {
-        const _literals = [];
-        const _masked = _sql.replace(/'(?:''|[^'])*'/g, (_match) => {
-          const _token = `__SQLBINDMERGE_LITERAL_${_literals.length}__`;
-          _literals.push(_match);
-          return _token;
-        });
-        return { _masked, _literals };
-      };
-
-      const _restoreStringLiterals = (_sql, _literals) =>
-        _sql.replace(/__SQLBINDMERGE_LITERAL_(\d+)__/g, (_all, _indexText) => {
-          const _index = Number(_indexText);
-          return _literals[_index] ?? "";
-        });
-
       const _formatSql = (_sql) => {
-        let _formatted = _sql.replace(/\r\n?/g, "\n").replace(/\s+/g, " ").trim();
+        const _protectedStore = _maskSqlProtectedSegments(_sql.replace(/\r\n?/g, "\n"));
+        let _formatted = _protectedStore._masked.replace(/\s+/g, " ").trim();
         if (!_formatted) {
           return "";
         }
 
-        const _literalStore = _maskStringLiterals(_formatted);
-        _formatted = _upperCaseKeywords(_literalStore._masked);
+        _formatted = _upperCaseKeywords(_formatted);
 
         for (const _keyword of [
           "UNION ALL",
@@ -633,7 +797,7 @@
         _formatted = _breakBeforeKeyword(_formatted, "OR", "  ");
 
         _formatted = _formatted.replace(/\n{3,}/g, "\n\n").trim();
-        return _restoreStringLiterals(_formatted, _literalStore._literals);
+        return _restoreSqlProtectedSegments(_formatted, _protectedStore._segments);
       };
 
       const _showFlash = (_message) => {
