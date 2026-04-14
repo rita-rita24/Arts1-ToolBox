@@ -18,22 +18,37 @@ Eclipse などのデバッグ表示で分離される「SQL」と「バインド
 ## 変換例
 入力:
 ```text
-sql=[SELECT userId FROM User WHERE 1 = 1 AND TO_CHAR(YUKOFROM_YMD, 'YYYYMMDD') <= ? AND TO_CHAR(YUKOTO_YMD, 'YYYYMMDD') >= ?] parameters=[1=2025-12-12,2=2025-12-12]
+sql=[select u . id,u.name,case when u.status = ? then '有効' else '無効' end as status_name from users u inner join orders o on u.id=o.user_id where u.id=? and (o.status=? or o.status=?)] parameters=[1=1,2=100,3="OPEN",4="HOLD"]
 ```
 
 出力:
 ```sql
-SELECT userId
-FROM User
-WHERE 1 = 1
-  AND TO_CHAR(YUKOFROM_YMD, 'YYYYMMDD') <= '2025-12-12'
-  AND TO_CHAR(YUKOTO_YMD, 'YYYYMMDD') >= '2025-12-12'
+SELECT
+  u.id
+  , u.name
+  , CASE
+    WHEN u.status = 1
+    THEN '有効'
+    ELSE '無効'
+    END AS status_name
+FROM
+  users u
+  INNER JOIN orders o
+    ON u.id = o.user_id
+WHERE
+  u.id = 100
+  AND (o.status = 'OPEN'
+    OR o.status = 'HOLD')
 ```
 
 ## 変換仕様
 - SQL とバインド変数をリアルタイムでマージ
-- `SELECT` / `FROM` / `WHERE` / `JOIN` / `ORDER BY` など主要キーワードで自動改行
-- `AND` / `OR` / `ON` はインデント付きで改行
+- A5:SQL Mk-2 風の整形ルールで、句ごとに改行して見やすく配置
+- `SELECT` / `GROUP BY` / `ORDER BY` / `SET` のカンマ区切り項目を改行し、2項目目以降は前置カンマで表示
+- `JOIN` / `ON` / `AND` / `OR` は階層に応じてインデント付きで改行
+- `CASE` / `WHEN` / `THEN` / `ELSE` / `END` を段付きで整形
+- 括弧の深さに応じて追加インデント
+- 演算子（`=` / `<>` / `<=` / `+` / `*` / `/` / `||` など）とドット記法（`u . id` -> `u.id`）の空白を整形
 - バインド値がダブルクォートの場合はシングルクォートへ自動変換
   - 例: `"ACTIVE"` -> `'ACTIVE'`
 - `NULL` / `TRUE` / `FALSE` は SQL リテラルとして保持

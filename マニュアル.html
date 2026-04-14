@@ -5,6 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>manural - マニュアル作成ツール</title>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0">
   <style>
     @layer reset, base, component, utility;
 
@@ -89,6 +91,35 @@
         flex-direction: column;
         overflow: hidden;
         font-size: 14px
+      }
+
+      .mi {
+        font-family: 'Material Symbols Rounded';
+        font-style: normal;
+        font-weight: 400;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        direction: ltr;
+        vertical-align: middle;
+        -webkit-font-smoothing: antialiased;
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+      }
+
+      .mi-sm {
+        font-size: 16px
+      }
+
+      .mi-xs {
+        font-size: 13px
       }
     }
 
@@ -269,6 +300,10 @@
       padding: 11px 0;
       border: none;
       background: transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
       font-size: 12px;
       font-weight: 600;
       color: var(--gray-400);
@@ -361,9 +396,11 @@
       position: absolute;
       left: 9px;
       top: 50%;
+      display: inline-flex;
+      align-items: center;
       transform: translateY(-50%);
       color: var(--gray-400);
-      font-size: 13px;
+      font-size: 16px;
       pointer-events: none
     }
 
@@ -392,7 +429,9 @@
     }
 
     .cat-icon {
-      font-size: 14px
+      display: inline-flex;
+      align-items: center;
+      font-size: 16px
     }
 
     .cat-name {
@@ -414,7 +453,7 @@
     }
 
     .cat-arrow {
-      font-size: 10px;
+      font-size: 14px;
       color: var(--primary);
       opacity: .7;
       transition: transform .2s
@@ -518,7 +557,7 @@
     }
 
     .edit-empty-icon {
-      font-size: 36px;
+      font-size: 40px;
       margin-bottom: 10px
     }
 
@@ -587,6 +626,9 @@
     }
 
     .reset-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
       font-size: 10px;
       color: var(--gray-400);
       cursor: pointer;
@@ -683,6 +725,9 @@
     }
 
     .ss-upload-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
       font-size: 10px;
       padding: 3px 8px;
       border-radius: 4px;
@@ -701,8 +746,11 @@
     }
 
     .ss-clear-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       font-size: 10px;
-      padding: 3px 6px;
+      padding: 3px;
       border-radius: 4px;
       border: none;
       background: transparent;
@@ -786,6 +834,7 @@
     .rte-btn {
       display: inline-flex;
       align-items: center;
+      gap: 4px;
       padding: 3px 7px;
       border: 1px solid transparent;
       border-radius: 4px;
@@ -889,6 +938,11 @@
       background: var(--gray-50);
       user-select: none;
       cursor: default
+    }
+
+    .rte-body .ss-box .mi {
+      font-size: 16px;
+      color: var(--gray-500)
     }
 
     .rte-body .ss-box .ss-box-num {
@@ -1170,6 +1224,9 @@
     }
 
     .modal-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       font-size: 15px;
       font-weight: 700;
       color: var(--gray-900);
@@ -1239,6 +1296,10 @@
     }
 
     .view-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
       padding: 4px 10px;
       border: none;
       background: transparent;
@@ -1306,6 +1367,9 @@
       transform: translateX(-50%);
       background: var(--gray-900);
       color: var(--white);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       padding: 9px 18px;
       border-radius: 20px;
       font-size: 13px;
@@ -1318,6 +1382,15 @@
 
     .toast.show {
       opacity: 1
+    }
+
+    .icon-caret {
+      font-size: 16px;
+      opacity: .7
+    }
+
+    .toast .mi {
+      font-size: 18px
     }
 
     .header-actions-full {
@@ -1735,7 +1808,7 @@
     .comp-drag-handle {
       cursor: grab;
       color: var(--gray-300);
-      font-size: 15px;
+      font-size: 18px;
       flex-shrink: 0;
       user-select: none;
       line-height: 1;
@@ -1798,7 +1871,7 @@
     .comp-del-btn {
       width: 20px;
       height: 20px;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
       border-radius: 50%;
@@ -1806,7 +1879,7 @@
       background: transparent;
       cursor: pointer;
       color: var(--gray-400);
-      font-size: 12px;
+      font-size: 16px;
       flex-shrink: 0;
       transition: all .1s
     }
@@ -1861,16 +1934,18 @@
     }
 
     .comp-heading-icon {
-      font-size: 9px;
-      font-weight: 800;
+      font-size: 14px;
+      font-weight: 400;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
       color: var(--heading-chip-text);
       background: var(--heading-chip-bg);
       border: 1px solid var(--heading-accent);
       border-radius: 3px;
-      padding: 2px 5px;
-      line-height: 1.4;
-      letter-spacing: .04em
+      padding: 3px 4px;
+      line-height: 1
     }
 
     .comp-heading-input {
@@ -2067,7 +2142,7 @@
   <!-- HEADER -->
   <div class="app-header">
     <div class="header-brand">
-      <span class="logo">📖</span>
+      <span class="logo mi">menu_book</span>
       <h1>manural</h1>
     </div>
     <div class="header-center">
@@ -2077,34 +2152,34 @@
     <div class="header-actions">
       <!-- 通常幅：全ボタン表示 -->
       <div class="header-actions-full">
-        <button class="btn btn-ghost" onclick="loadProject()">📂 プロジェクトの読込</button>
-        <button class="btn btn-ghost" onclick="saveProject()">💾 プロジェクトの保存</button>
+        <button class="btn btn-ghost" onclick="loadProject()"><span class="mi">folder_open</span> プロジェクトの読込</button>
+        <button class="btn btn-ghost" onclick="saveProject()"><span class="mi">save</span> プロジェクトの保存</button>
         <div class="divider"></div>
-        <button class="btn btn-ghost" onclick="copyMarkdown()">📋 マークダウンで出力</button>
-        <button class="btn btn-ghost" onclick="printManual()">🖨️ PDF出力</button>
-        <button class="btn btn-primary" onclick="exportHTML()">▶ HTML出力</button>
+        <button class="btn btn-ghost" onclick="copyMarkdown()"><span class="mi">markdown</span> マークダウンで出力</button>
+        <button class="btn btn-ghost" onclick="printManual()"><span class="mi">print</span> PDF出力</button>
+        <button class="btn btn-primary" onclick="exportHTML()"><span class="mi">download</span> HTML出力</button>
       </div>
       <!-- 狭い幅（≤1180px）：折りたたみドロップダウン -->
       <div class="header-actions-compact">
         <div class="dropdown-wrap">
           <button class="btn btn-ghost" id="dd-btn-project" onclick="toggleDropdown('dd-project')">
-            📁 プロジェクト <span style="font-size:9px;opacity:.7">▾</span>
+            <span class="mi">folder</span> プロジェクト <span class="mi icon-caret">expand_more</span>
           </button>
           <div class="dropdown-menu" id="dd-project">
-            <button class="dropdown-item" onclick="loadProject();closeDropdowns()">📂 プロジェクトの読込</button>
-            <button class="dropdown-item" onclick="saveProject();closeDropdowns()">💾 プロジェクトの保存</button>
+            <button class="dropdown-item" onclick="loadProject();closeDropdowns()"><span class="mi">folder_open</span> プロジェクトの読込</button>
+            <button class="dropdown-item" onclick="saveProject();closeDropdowns()"><span class="mi">save</span> プロジェクトの保存</button>
           </div>
         </div>
         <div class="dropdown-wrap">
           <button class="btn btn-primary" id="dd-btn-export" onclick="toggleDropdown('dd-export')">
-            ▶ マニュアル出力 <span style="font-size:9px;opacity:.7">▾</span>
+            <span class="mi">download</span> マニュアル出力 <span class="mi icon-caret">expand_more</span>
           </button>
           <div class="dropdown-menu" id="dd-export">
-            <button class="dropdown-item" onclick="copyMarkdown();closeDropdowns()">📋 マークダウンで出力</button>
-            <button class="dropdown-item" onclick="printManual();closeDropdowns()">🖨️ PDF出力</button>
+            <button class="dropdown-item" onclick="copyMarkdown();closeDropdowns()"><span class="mi">markdown</span> マークダウンで出力</button>
+            <button class="dropdown-item" onclick="printManual();closeDropdowns()"><span class="mi">print</span> PDF出力</button>
             <div class="dropdown-sep"></div>
             <button class="dropdown-item" style="color:var(--primary);font-weight:600"
-              onclick="exportHTML();closeDropdowns()">▶ HTML出力</button>
+              onclick="exportHTML();closeDropdowns()"><span class="mi">download</span> HTML出力</button>
           </div>
         </div>
       </div>
@@ -2115,9 +2190,9 @@
     <!-- LEFT: SIDEBAR -->
     <div class="sidebar">
       <div class="sidebar-tabs">
-        <button class="sidebar-tab" id="tab-btn-modules" onclick="switchTab('modules')">☑ 項目</button>
-        <button class="sidebar-tab" id="tab-btn-settings" onclick="switchTab('settings')">⚙ 設定</button>
-        <button class="sidebar-tab" id="tab-btn-preview" onclick="switchTab('preview')">👁 プレビュー</button>
+        <button class="sidebar-tab" id="tab-btn-modules" onclick="switchTab('modules')"><span class="mi">checklist</span> 項目</button>
+        <button class="sidebar-tab" id="tab-btn-settings" onclick="switchTab('settings')"><span class="mi">settings</span> 設定</button>
+        <button class="sidebar-tab" id="tab-btn-preview" onclick="switchTab('preview')"><span class="mi">visibility</span> プレビュー</button>
       </div>
       <div class="sidebar-body" id="sidebar-body"></div>
     </div>
@@ -2130,8 +2205,8 @@
         </div>
         <div class="preview-toolbar-right">
           <div class="view-toggle">
-            <button class="view-btn active" id="vbtn-pc" onclick="setViewMode('pc')">💻 PC</button>
-            <button class="view-btn" id="vbtn-mobile" onclick="setViewMode('mobile')">📱 Mobile</button>
+            <button class="view-btn active" id="vbtn-pc" onclick="setViewMode('pc')"><span class="mi">desktop_windows</span> PC</button>
+            <button class="view-btn" id="vbtn-mobile" onclick="setViewMode('mobile')"><span class="mi">smartphone</span> Mobile</button>
           </div>
         </div>
       </div>
@@ -2148,7 +2223,7 @@
         <div class="edit-drawer-name" id="edit-drawer-name">項目を編集</div>
         <div class="edit-drawer-cat" id="edit-drawer-cat"></div>
       </div>
-      <button class="edit-drawer-close" onclick="closeEditDrawer()" title="閉じる">✕</button>
+      <button class="edit-drawer-close" onclick="closeEditDrawer()" title="閉じる"><span class="mi">close</span></button>
     </div>
     <div class="edit-drawer-body" id="edit-drawer-body"></div>
   </div>
@@ -2159,18 +2234,86 @@
   <div class="toast" id="toast"></div>
   <!-- Sortable.js for drag-and-drop composition reordering -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
-  <!-- Platform data (add new platform .js files here) -->
-  <script src="data/wordpress.js" onerror="console.warn('data/wordpress.js not found')"></script>
-  <script src="data/studio.js" onerror="console.warn('data/studio.js not found')"></script>
-  <script src="data/troubleshooting.js" onerror="console.warn('data/troubleshooting.js not found')"></script>
-  <script src="data/analytics.js" onerror="console.warn('data/analytics.js not found')"></script>
-  <script src="data/line.js" onerror="console.warn('data/line.js not found')"></script>
   <script>
     // ================================================================
     // CONSTANTS
     // ================================================================
     const LS_KEY = 'mb-pro-v1';
     const ACCENT_COLORS = ['#0EA5E9', '#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#64748B'];
+    const MATERIAL_ICON_BY_EMOJI = Object.freeze({
+      '✨': 'auto_awesome',
+      '📄': 'description',
+      '📁': 'folder',
+      '📂': 'folder_open',
+      '📋': 'checklist',
+      '💾': 'save',
+      '🖨': 'print',
+      '🖨️': 'print',
+      '☑': 'checklist',
+      '⚙': 'settings',
+      '👁': 'visibility',
+      '💻': 'desktop_windows',
+      '📱': 'smartphone',
+      '🔍': 'search',
+      '✏️': 'edit',
+      '📝': 'note_alt',
+      '🔗': 'link',
+      '📸': 'add_photo_alternate',
+      '💡': 'lightbulb',
+      '⚠': 'warning',
+      '⚠️': 'warning',
+      '🔄': 'restart_alt',
+      '▶': 'play_arrow',
+      '▾': 'expand_more'
+    });
+    const qs = (sel, root = document) => root.querySelector(sel);
+    const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+    function normalizeIconName(iconValue, fallback = 'category') {
+      const raw = String(iconValue || '').trim();
+      if (!raw) return fallback;
+      if (raw.startsWith('mi:')) return raw.slice(3);
+      if (/^[a-z][a-z0-9_]*$/i.test(raw)) return raw;
+      return MATERIAL_ICON_BY_EMOJI[raw] || fallback;
+    }
+
+    function iconSpan(iconName, className = '') {
+      return `<span class="${className ? `mi ${className}` : 'mi'}" aria-hidden="true">${e(iconName)}</span>`;
+    }
+
+    function iconFromValue(iconValue, fallback = 'category', className = '') {
+      return iconSpan(normalizeIconName(iconValue, fallback), className);
+    }
+
+    const PLATFORM_SCRIPT_PATHS = Array.isArray(window.MB_PLATFORM_SCRIPT_PATHS)
+      ? window.MB_PLATFORM_SCRIPT_PATHS
+      : [];
+
+    async function loadPlatformDataScripts() {
+      await Promise.all(PLATFORM_SCRIPT_PATHS.map(loadOnePlatformScript));
+    }
+
+    async function loadOnePlatformScript(src) {
+      await new Promise(resolve => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', src, true);
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState !== 4) return;
+          if (xhr.status >= 200 && xhr.status < 300) {
+            const $script = document.createElement('script');
+            $script.textContent = `${xhr.responseText}\n//# sourceURL=${src}`;
+            document.head.appendChild($script);
+          }
+          resolve();
+        };
+        xhr.onerror = () => resolve();
+        try {
+          xhr.send();
+        } catch (_) {
+          resolve();
+        }
+      });
+    }
 
     // ================================================================
     // FREE PLATFORM — カテゴリなしの自由構成モード
@@ -2179,7 +2322,7 @@
     window.MB_PLATFORMS.free = {
       id: 'free',
       name: 'フリー（自由構成）',
-      icon: '✨',
+      icon: 'auto_awesome',
       categories: []
     };
 
@@ -2230,7 +2373,7 @@
       }
       // カスタムモジュールを検索
       const cm = S.customModules.find(m => m.id === moduleId);
-      if (cm) return { m: cm, c: { name: 'カスタム項目', icon: '📄' } };
+      if (cm) return { m: cm, c: { name: 'カスタム項目', icon: 'description' } };
       return null;
     }
 
@@ -2411,7 +2554,7 @@
   </div>
   <div class="form-section" style="margin-top:8px">
     <div class="form-section-title">データ管理</div>
-    <button class="btn btn-danger-ghost" style="width:100%;justify-content:center" onclick="resetAll()">🔄 すべてをリセット</button>
+    <button class="btn btn-danger-ghost" style="width:100%;justify-content:center" onclick="resetAll()">${iconSpan('restart_alt')} すべてをリセット</button>
   </div>`;
     }
 
@@ -2450,16 +2593,16 @@
 
       // 通常モード用アクションバー（4ボタン：見出し・独自項目・全選択・全削除）
       const mkActionBar = (extraCls = '') => `<div class="mod-action-bar${extraCls}">
-    <button class="btn btn-ghost btn-sm" onclick="addHeading()">＋ 見出し</button>
-    <button class="btn btn-ghost btn-sm" onclick="showAddCustomModal()">＋ 独自項目</button>
+    <button class="btn btn-ghost btn-sm" onclick="addHeading()">${iconSpan('add')} 見出し</button>
+    <button class="btn btn-ghost btn-sm" onclick="showAddCustomModal()">${iconSpan('add')} 独自項目</button>
     <button class="btn btn-ghost btn-sm" onclick="selAll(true)">全選択</button>
     <button class="btn btn-danger-ghost btn-sm" onclick="deleteAllCustomItems()">全削除</button>
   </div>`;
 
       // フリーモード用アクションバー（3ボタン：見出し・独自項目・全削除）
       const mkActionBarFree = () => `<div class="mod-action-bar" style="grid-template-columns:1fr 1fr 1fr">
-    <button class="btn btn-ghost btn-sm" onclick="addHeading()">＋ 見出し</button>
-    <button class="btn btn-ghost btn-sm" onclick="showAddCustomModal()">＋ 独自項目</button>
+    <button class="btn btn-ghost btn-sm" onclick="addHeading()">${iconSpan('add')} 見出し</button>
+    <button class="btn btn-ghost btn-sm" onclick="showAddCustomModal()">${iconSpan('add')} 独自項目</button>
     <button class="btn btn-danger-ghost btn-sm" onclick="deleteAllCustomItems()">全削除</button>
   </div>`;
 
@@ -2477,9 +2620,9 @@
   <div class="comp-module-divider">コンテンツを追加</div>
   ${mkActionBarFree()}
   <div class="free-mode-hint">
-    <div class="free-mode-icon">✨</div>
+    <div class="free-mode-icon">${iconSpan('auto_awesome')}</div>
     <p class="free-mode-text">フリーモードです。<br>
-      <strong>「＋ 見出し」</strong>や<strong>「＋ 独自項目」</strong>を使って、<br>
+      <strong>「見出し追加」</strong>や<strong>「独自項目追加」</strong>を使って、<br>
       ゼロから自由にマニュアルを構成してください。<br>
       <span style="font-size:11px;opacity:.75;display:block;margin-top:6px">作成後は「プロジェクトの保存」で再利用可能なテンプレートとして保存できます。</span>
     </p>
@@ -2492,7 +2635,7 @@
   <div class="comp-module-divider">モジュールを選択</div>
   ${mkActionBar()}
   <div class="module-search">
-    <span class="module-search-icon">🔍</span>
+    <span class="module-search-icon mi">search</span>
     <input class="form-input" style="padding-left:28px" placeholder="項目を検索..." oninput="filterMods(this.value)">
   </div>`;
 
@@ -2503,10 +2646,10 @@
         html += `
     <div class="cat-group">
       <div class="cat-header" onclick="toggleCat('${cId}')">
-        <span class="cat-icon">${cat.icon}</span>
+        <span class="cat-icon">${iconFromValue(cat.icon, 'folder')}</span>
         <span class="cat-name">${cat.name}</span>
         <span class="cat-cnt" id="catcnt-${ci}">${cnt}</span>
-        <span class="cat-arrow${isOpen ? ' open' : ''}" id="catarr-${cId}">▶</span>
+        <span class="cat-arrow${isOpen ? ' open' : ''} mi" id="catarr-${cId}">chevron_right</span>
       </div>
       <div class="cat-items" id="${cId}" style="display:${isOpen ? 'flex' : 'none'};flex-direction:column;gap:4px">`;
         cat.modules.forEach(m => {
@@ -2546,19 +2689,19 @@
     function tmplCompInner() {
       const items = compositionItems();
       if (items.length === 0) {
-        return `<div class="comp-empty">モジュールにチェックを入れるか、<br>「＋ 見出しを追加」「＋ 独自項目を追加」を使ってください</div>`;
+        return `<div class="comp-empty">モジュールにチェックを入れるか、<br>「見出しを追加」「独自項目を追加」を使ってください</div>`;
       }
       let _secNum = 0;
       const rows = items.map(item => {
         if (item._type === 'heading') {
           return `<div class="comp-item is-heading" data-id="${item.id}">
-        <span class="comp-drag-handle">⠿</span>
-        <span class="comp-heading-icon">H</span>
+        <span class="comp-drag-handle mi">drag_indicator</span>
+        <span class="comp-heading-icon mi">title</span>
         <input class="comp-heading-input" value="${e(item.title)}" placeholder="見出しテキストを入力"
                onchange="updateHeadingTitle('${item.id}',this.value)"
                onblur="updateHeadingTitle('${item.id}',this.value)"
                onkeydown="if(event.key==='Enter')this.blur()">
-        <button class="comp-del-btn" onclick="deleteCompItem('${item.id}')" title="削除">✕</button>
+        <button class="comp-del-btn" onclick="deleteCompItem('${item.id}')" title="削除">${iconSpan('close')}</button>
       </div>`;
         }
         _secNum++;
@@ -2569,14 +2712,14 @@
              onkeydown="if(event.key==='Enter')this.blur()">`
           : `<span class="comp-item-title">${e(item.title)}</span>`;
         return `<div class="comp-item" data-id="${item.id}">
-      <span class="comp-drag-handle">⠿</span>
+      <span class="comp-drag-handle mi">drag_indicator</span>
       <span class="comp-item-num">${_secNum}</span>
       <div class="comp-item-info">
         ${titleContent}
         <span class="comp-item-cat">${e(item.catName)}</span>
       </div>
       <button class="comp-act-btn" onclick="openEditMod('${item.id}')">編集</button>
-      <button class="comp-del-btn" onclick="deleteCompItem('${item.id}')" title="削除">✕</button>
+      <button class="comp-del-btn" onclick="deleteCompItem('${item.id}')" title="削除">${iconSpan('close')}</button>
     </div>`;
       }).join('');
       return `<div id="comp-list">${rows}</div>`;
@@ -2688,7 +2831,7 @@
       const mid = S.activeModuleId;
       if (!mid) return `
     <div class="edit-empty">
-      <div class="edit-empty-icon">✏️</div>
+      <div class="edit-empty-icon">${iconSpan('edit_note')}</div>
       <div class="edit-empty-text">「項目」タブでモジュールの<br>「編集」ボタンをクリックすると<br>ここで本文・画像・メモを編集できます</div>
     </div>`;
 
@@ -2721,17 +2864,17 @@
               oninput="onSSSize('${mid}',${i},this.value+'%')">
             <span class="ss-size-unit">%</span>
           </span>
-          <button class="ss-clear-btn" onclick="clearSS('${mid}',${i})" title="画像を削除">✕</button>`
-            : `<button class="ss-upload-btn" onclick="triggerSSUpload('${mid}',${i})">📁 追加</button>`
+          <button class="ss-clear-btn" onclick="clearSS('${mid}',${i})" title="画像を削除">${iconSpan('close')}</button>`
+            : `<button class="ss-upload-btn" onclick="triggerSSUpload('${mid}',${i})">${iconSpan('upload_file')} 追加</button>`
           }
     </div>`;
       });
 
       return `
-  <div class="edit-section">
+    <div class="edit-section">
     <div class="edit-section-label">
       本文
-      ${isEdited ? `<span class="reset-link" onclick="resetContent('${mid}')">↩ デフォルトに戻す</span>` : ''}
+      ${isEdited ? `<span class="reset-link" onclick="resetContent('${mid}')">${iconSpan('undo')} デフォルトに戻す</span>` : ''}
     </div>
     <div class="rte-wrap">
       <div class="rte-toolbar">
@@ -2744,7 +2887,7 @@
         <button class="rte-btn" onmousedown="rteCmd(event,'insertUnorderedList')">• リスト</button>
         <button class="rte-btn" onmousedown="rteCmd(event,'insertOrderedList')">1. リスト</button>
         <span class="rte-sep"></span>
-        <button class="rte-btn" onmousedown="rteLink(event)">🔗 リンク</button>
+        <button class="rte-btn" onmousedown="rteLink(event)">${iconSpan('link')} リンク</button>
         <span class="rte-sep"></span>
         <select class="rte-fs-select" title="文字サイズ（テキストを選択してから選択）"
           onmousedown="saveRteSelection()"
@@ -2774,24 +2917,24 @@
             oninput="syncColorSwatch(this.value)"
             onkeydown="if(event.key==='Enter'){event.preventDefault();setTimeout(()=>rteApplyHexColor(this.value),0);}">
         </span>
-        <button class="rte-btn" onmousedown="rteColor(event,'#0F172A')" title="文字色をリセット" style="font-size:10px">A↩</button>
+        <button class="rte-btn" onmousedown="rteColor(event,'#0F172A')" title="文字色をリセット">${iconSpan('format_color_reset')} 色リセット</button>
         <span class="rte-sep"></span>
-        <button class="rte-btn" onmousedown="rteInsert(event,'ss')">📸 画像枠</button>
-        <button class="rte-btn" onmousedown="rteInsert(event,'tip')">💡 ヒント</button>
-        <button class="rte-btn" onmousedown="rteInsert(event,'warn')">⚠️ 警告</button>
+        <button class="rte-btn" onmousedown="rteInsert(event,'ss')">${iconSpan('add_photo_alternate')} 画像枠</button>
+        <button class="rte-btn" onmousedown="rteInsert(event,'tip')">${iconSpan('lightbulb')} ヒント</button>
+        <button class="rte-btn" onmousedown="rteInsert(event,'warn')">${iconSpan('warning')} 警告</button>
         <span class="rte-sep"></span>
-        <button class="rte-btn" onmousedown="rteInsert(event,'bq')">❝ 引用</button>
-        <button class="rte-btn" onmousedown="rteInsert(event,'tbl')">⊞ 表</button>
+        <button class="rte-btn" onmousedown="rteInsert(event,'bq')">${iconSpan('format_quote')} 引用</button>
+        <button class="rte-btn" onmousedown="rteInsert(event,'tbl')">${iconSpan('table_chart')} 表</button>
       </div>
       <div class="tbl-ctrl" id="tbl-ctrl" style="display:none">
         <span class="tbl-ctrl-label">表の操作：</span>
-        <button class="rte-btn" onmousedown="tblCtrl(event,'addRow')">＋ 行</button>
-        <button class="rte-btn" onmousedown="tblCtrl(event,'delRow')">－ 行</button>
+        <button class="rte-btn" onmousedown="tblCtrl(event,'addRow')">${iconSpan('add')} 行</button>
+        <button class="rte-btn" onmousedown="tblCtrl(event,'delRow')">${iconSpan('remove')} 行</button>
         <span class="rte-sep"></span>
-        <button class="rte-btn" onmousedown="tblCtrl(event,'addCol')">＋ 列</button>
-        <button class="rte-btn" onmousedown="tblCtrl(event,'delCol')">－ 列</button>
+        <button class="rte-btn" onmousedown="tblCtrl(event,'addCol')">${iconSpan('add')} 列</button>
+        <button class="rte-btn" onmousedown="tblCtrl(event,'delCol')">${iconSpan('remove')} 列</button>
         <span class="rte-sep"></span>
-        <button class="rte-btn" id="tbl-equal-btn" onmousedown="tblToggleEqual(event)">＝ 均等幅</button>
+        <button class="rte-btn" id="tbl-equal-btn" onmousedown="tblToggleEqual(event)">${iconSpan('view_week')} 均等幅</button>
       </div>
       <div class="rte-body" id="rte-body" contenteditable="true"
            data-placeholder="ここに本文を入力してください..."
@@ -2826,7 +2969,7 @@
       body.querySelectorAll('.ss-box').forEach((box, i) => {
         box.contentEditable = 'false'; // テキスト編集を禁止（選択・削除は可能）
         const numBadge = `<span class="ss-box-num">${i + 1}</span>`;
-        const delBtn = `<button class="ss-box-del" onclick="removeSSBox(this)" title="画像枠を削除">×</button>`;
+        const delBtn = `<button class="ss-box-del" onclick="removeSSBox(this)" title="画像枠を削除">${iconSpan('close')}</button>`;
         const ss = screenshots[i];
         if (ss && (ss.data || ss.url)) {
           // 画像あり：番号バッジ + サムネイル + キャプション + ×ボタン
@@ -2834,7 +2977,7 @@
           box.innerHTML = `${numBadge}<img class="ss-box-thumb" src="${ss.data || ss.url}" alt="画像${i + 1}"><span class="ss-box-caption">${cap}</span>${delBtn}`;
         } else {
           // 画像なし：番号バッジ + プレースホルダー + ×ボタン
-          box.innerHTML = `${numBadge}<span>画像（未設定）</span>${delBtn}`;
+          box.innerHTML = `${numBadge}${iconSpan('add_photo_alternate')}<span>画像（未設定）</span>${delBtn}`;
         }
       });
     }
@@ -2989,7 +3132,11 @@
       const d = document.createElement('div'); d.innerHTML = content;
       return Array.from(d.querySelectorAll('.ss-box')).map((box, i) => ({
         index: i,
-        label: box.textContent.replace('📸', '').replace(/スクリーンショット[：:]/, '').trim()
+        label: box.textContent
+          .replace('add_photo_alternate', '')
+          .replace(/画像（未設定）/, '')
+          .replace(/スクリーンショット[：:]/, '')
+          .trim()
       }));
     }
 
@@ -3019,9 +3166,9 @@
     function rteInsert(ev, type) {
       ev.preventDefault();
       const templates = {
-        ss: '<div class="ss-box">📸 画像（未設定）</div><p><br></p>',
-        tip: '<div class="tip">💡 ヒント：補足情報をここに記入してください。</div>',
-        warn: '<div class="tip warn">⚠️ 注意：注意事項をここに記入してください。</div>',
+        ss: `<div class="ss-box"><span class="mi">add_photo_alternate</span> 画像（未設定）</div><p><br></p>`,
+        tip: `<div class="tip">${iconSpan('lightbulb')} ヒント：補足情報をここに記入してください。</div>`,
+        warn: `<div class="tip warn">${iconSpan('warning')} 注意：注意事項をここに記入してください。</div>`,
         bq: '<blockquote>引用テキストをここに入力してください。</blockquote><p><br></p>',
         tbl: '<div class="tbl-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td></td><td></td></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr></tbody></table></div><p><br></p>'
       };
@@ -3236,8 +3383,8 @@
             ? `<input class="ss-label-input" type="text" value="${curLabel}" placeholder="キャプション" oninput="onSSLabelEdit('${mid}',${i},this.value)">`
             : `<span class="ss-slot-label">画像${i + 1}</span>`}
       ${hasImg
-            ? `<button class="ss-clear-btn" onclick="clearSS('${mid}',${i})" title="画像を削除">✕</button>`
-            : `<button class="ss-upload-btn" onclick="triggerSSUpload('${mid}',${i})">📁 追加</button>`}
+            ? `<button class="ss-clear-btn" onclick="clearSS('${mid}',${i})" title="画像を削除">${iconSpan('close')}</button>`
+            : `<button class="ss-upload-btn" onclick="triggerSSUpload('${mid}',${i})">${iconSpan('upload_file')} 追加</button>`}
     </div>`;
       });
       wrap.innerHTML = html;
@@ -3305,7 +3452,7 @@
 
     // ファイル→Base64変換（canvas でリサイズ圧縮後に保存）
     function loadImageFile(file, mid, idx) {
-      if (!file || !file.type.startsWith('image/')) { showToast('⚠️ 画像ファイルを指定してください'); return; }
+      if (!file || !file.type.startsWith('image/')) { showToast('画像ファイルを指定してください', 'warning'); return; }
       const MAX_W = 1280;
       const img = new Image();
       const objectUrl = URL.createObjectURL(file);
@@ -3322,9 +3469,9 @@
         const label = existingLabel || ('画像' + (idx + 1));
         mutate(() => { const m = ms(mid); if (!m.screenshots) m.screenshots = []; m.screenshots[idx] = { data, label }; });
         if (S.activeModuleId === mid) renderEditDrawer();
-        showToast('✅ 画像を追加しました');
+        showToast('画像を追加しました', 'check_circle');
       };
-      img.onerror = () => { URL.revokeObjectURL(objectUrl); showToast('⚠️ 画像の読み込みに失敗しました'); };
+      img.onerror = () => { URL.revokeObjectURL(objectUrl); showToast('画像の読み込みに失敗しました', 'warning'); };
       img.src = objectUrl;
     }
 
@@ -3346,8 +3493,8 @@
     // ================================================================
     const CUSTOM_TEMPLATES = {
       blank: '<p>ここに内容を入力してください。</p>',
-      steps: '<h3>手順</h3><ol><li>手順1を入力してください</li><li>手順2を入力してください</li><li>手順3を入力してください</li></ol><div class="tip">💡 補足情報があればここに記入します。</div>',
-      rules: '<h3>ルール・注意事項</h3><ul><li>ルール1を入力してください</li><li>ルール2を入力してください</li></ul><div class="tip warn">⚠️ 注意事項があればここに記入します。</div>',
+      steps: `<h3>手順</h3><ol><li>手順1を入力してください</li><li>手順2を入力してください</li><li>手順3を入力してください</li></ol><div class="tip">${iconSpan('lightbulb')} 補足情報があればここに記入します。</div>`,
+      rules: `<h3>ルール・注意事項</h3><ul><li>ルール1を入力してください</li><li>ルール2を入力してください</li></ul><div class="tip warn">${iconSpan('warning')} 注意事項があればここに記入します。</div>`,
       table: '<h3>一覧表</h3><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>項目1</td><td>内容1</td></tr><tr><td>項目2</td><td>内容2</td></tr></tbody></table>'
     };
 
@@ -3356,7 +3503,7 @@
       overlay.className = 'modal-overlay'; overlay.id = 'custom-modal';
       overlay.innerHTML = `
     <div class="modal-box" onclick="event.stopPropagation()">
-      <div class="modal-title">📄 独自項目を追加</div>
+      <div class="modal-title">${iconSpan('description')} 独自項目を追加</div>
       <div class="form-field">
         <label class="form-label">項目名 <span style="color:var(--danger)">*</span></label>
         <input class="form-input" id="cm-title" placeholder="例: 社内運用ルール・緊急時対応手順">
@@ -3405,7 +3552,7 @@
         if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       });
       openEditDrawer();
-      showToast('✅ 新規項目を追加しました');
+      showToast('新規項目を追加しました', 'check_circle');
     }
 
     function deleteCustomMod(id) {
@@ -3441,7 +3588,7 @@
       saveLS(); schedPrev();
       switchTab('settings');
       updateSelCount();
-      showToast('🔄 すべてをリセットしました');
+      showToast('すべてをリセットしました', 'restart_alt');
     }
 
     function deleteAllCustomItems() {
@@ -3450,7 +3597,7 @@
       saveLS(); schedPrev();
       renderTab('modules');
       updateSelCount();
-      showToast('🔄 すべてをリセットしました');
+      showToast('すべてをリセットしました', 'restart_alt');
     }
 
     function clearAllItems() {
@@ -3459,7 +3606,7 @@
       saveLS(); schedPrev();
       renderTab('modules');
       updateSelCount();
-      showToast('🔄 すべての選択をリセットしました');
+      showToast('すべての選択をリセットしました', 'restart_alt');
     }
 
     function clearCompositionAndCustomItems({ expandCategories = false } = {}) {
@@ -3498,7 +3645,7 @@
       const iframe = document.getElementById('preview');
       if (!iframe) return;
       if (items.length === 0) {
-        iframe.srcdoc = "<html><body style='display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:oklch(0.704 0.04 256.788);text-align:center'><div><div style='font-size:36px;margin-bottom:12px'>📋</div><p style='font-size:14px'>「項目」タブで表示する<br>マニュアル項目を選択してください</p></div></body></html>";
+        iframe.srcdoc = "<html><head><link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0'><style>.mi{font-family:'Material Symbols Rounded';font-style:normal;font-weight:400;display:inline-flex;align-items:center;justify-content:center;line-height:1;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;}</style></head><body style='display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:oklch(0.704 0.04 256.788);text-align:center'><div><div style='font-size:36px;margin-bottom:12px'><span class=\"mi\">checklist</span></div><p style='font-size:14px'>「項目」タブで表示する<br>マニュアル項目を選択してください</p></div></body></html>";
         _pendingScroll = null;
         return;
       }
@@ -3532,7 +3679,7 @@
     function printManual() {
       const iframe = document.getElementById('preview');
       if (iframe && iframe.contentWindow) { iframe.contentWindow.focus(); iframe.contentWindow.print(); }
-      else showToast('先にプレビューを表示してください');
+      else showToast('先にプレビューを表示してください', 'info');
     }
 
     // ================================================================
@@ -3601,8 +3748,8 @@
       const secs = modules.map(m => {
         if (m._isHeading) return `<div class="manual-divider" id="s-${m.id}"><span>${e(m.title)}</span></div>`;
         secIdx++;
-        const noteHtml = m.note ? `<div class="custom-note"><div class="cn-title">📝 担当者からのメモ</div><div class="cn-body">${nl2brEscaped(m.note)}</div></div>` : '';
-        const editBtn = isPreview ? `<button class="preview-edit-btn" onclick="notifyEdit('${m.id}')" title="この項目を編集">✏️ 編集</button>` : '';
+        const noteHtml = m.note ? `<div class="custom-note"><div class="cn-title">${iconSpan('note_alt')} 担当者からのメモ</div><div class="cn-body">${nl2brEscaped(m.note)}</div></div>` : '';
+        const editBtn = isPreview ? `<button class="preview-edit-btn" onclick="notifyEdit('${m.id}')" title="この項目を編集">${iconSpan('edit')} 編集</button>` : '';
         return `<section id="s-${m.id}" class="section">
       <div class="sec-inner">
         ${editBtn}
@@ -3639,6 +3786,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>【${safeSiteName}】操作マニュアル</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0">
 <style>${css}</style>
 </head>
 <body>
@@ -3651,7 +3799,7 @@ ${showCover !== false ? coverHtml : ''}
       <div class="man-meta">作成日: ${safeDate}${metaHtml}</div>
     </div>
     <div class="man-header-right">
-      <div class="search-wrap"><input type="text" id="search" placeholder="🔍 検索..." oninput="doSearch(this.value)" autocomplete="off"></div>
+      <div class="search-wrap"><span class="mi search-icon">search</span><input type="text" id="search" placeholder="検索..." oninput="doSearch(this.value)" autocomplete="off"></div>
     </div>
   </div>
 </header>
@@ -3663,7 +3811,7 @@ ${showCover !== false ? coverHtml : ''}
   <main class="man-main">
     ${introHtml}
     ${secs}
-    <div id="no-result" style="display:none;text-align:center;padding:60px;color:var(--gray-400)">🔍 一致する項目が見つかりませんでした</div>
+    <div id="no-result" style="display:none;text-align:center;padding:60px;color:var(--gray-400)">${iconSpan('search')} 一致する項目が見つかりませんでした</div>
   </main>
 </div>
 ${platformId ? `<footer class="man-footer"><p class="man-footer-disclaimer">本マニュアルは非公式のサードパーティ製マニュアルです。掲載の各ツールの公式サービスおよびその運営会社とは一切関係ありません。</p></footer>` : ''}
@@ -3731,6 +3879,7 @@ document.querySelectorAll('.section').forEach(function(s){obs.observe(s);});
 --note-body:oklch(0.448 0.101 147.018)
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',sans-serif;background:var(--gray-50);color:var(--ink-strong);line-height:1.7}
+.mi{font-family:'Material Symbols Rounded';font-style:normal;font-weight:400;line-height:1;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
 }
 @layer component{
 #app{display:flex;flex-direction:column;min-height:100vh}
@@ -3742,7 +3891,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 .man-meta{font-size:11px;opacity:.75;margin-top:2px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .man-meta-sub{display:flex;gap:10px}
 .man-header-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.search-wrap input{padding:7px 14px;border-radius:20px;border:none;outline:none;font-size:13px;width:200px;background:var(--white-a20);color:var(--white)}
+.search-wrap{position:relative}
+.search-wrap .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--white-a65);pointer-events:none}
+.search-wrap input{padding:7px 14px 7px 34px;border-radius:20px;border:none;outline:none;font-size:13px;width:200px;background:var(--white-a20);color:var(--white)}
 .search-wrap input::placeholder{color:var(--white-a65)}
 .search-wrap input:focus{background:var(--white-a30)}
 .man-body{display:flex;flex:1;max-width:1200px;width:100%;margin:0 auto;padding:24px 16px;gap:24px;align-items:flex-start}
@@ -3847,7 +3998,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
         mdSecIdx++;
         md += `### ${mdSecIdx}. ${m.title}\n> ${m.category}\n\n`;
         md += html2md(m.content);
-        if (m.note) md += `\n> 📝 **担当者メモ:** ${m.note.replace(/\n/g, ' ')}\n`;
+        if (m.note) md += `\n> [メモ] **担当者メモ:** ${m.note.replace(/\n/g, ' ')}\n`;
         md += '\n---\n\n';
       });
       return md;
@@ -3884,9 +4035,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
             }); r += '\n'; break;
           }
           case 'div':
-            if (cls.includes('ss-box')) r += `\n> 📸 ${n.textContent.trim()}\n\n`;
-            else if (cls.includes('warn')) r += `\n> ⚠️ ${n.textContent.trim()}\n\n`;
-            else if (cls.includes('tip')) r += `\n> 💡 ${n.textContent.trim()}\n\n`;
+            if (cls.includes('ss-box')) r += `\n> [画像] ${n.textContent.replace('add_photo_alternate', '').trim()}\n\n`;
+            else if (cls.includes('warn')) r += `\n> [注意] ${n.textContent.replace('warning', '').trim()}\n\n`;
+            else if (cls.includes('tip')) r += `\n> [ヒント] ${n.textContent.replace('lightbulb', '').trim()}\n\n`;
             else r += node2md(n);
             break;
           default: r += node2md(n);
@@ -3898,7 +4049,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
     // ================================================================
     // PERSISTENCE
     // ================================================================
-    function saveLS() { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (er) { showToast('⚠️ 容量上限のため保存できませんでした。画像を減らしてください。'); } }
+    function saveLS() { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (er) { showToast('容量上限のため保存できませんでした。画像を減らしてください。', 'warning'); } }
 
     function loadLS() {
       try {
@@ -3925,7 +4076,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
       const name = (S.settings.siteName || 'project').replace(/[\\/:"*?<>|]/g, '-');
       a.download = 'manual-project-' + name + '.json';
       document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-      showToast('💾 プロジェクトを保存しました');
+      showToast('プロジェクトを保存しました', 'save');
     }
 
     function loadProject() { document.getElementById('file-project').click(); }
@@ -3951,7 +4102,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
           if (ps && S.platformId) ps.value = S.platformId;
           switchTab(S.activeTab || 'settings');
           schedPrev();
-          showToast('📂 プロジェクトを読み込みました');
+          showToast('プロジェクトを読み込みました', 'folder_open');
         } catch (er) { alert('プロジェクトファイルの読み込みに失敗しました。'); }
       };
       r.readAsText(file); input.value = '';
@@ -3962,19 +4113,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
     // ================================================================
     function exportHTML() {
       const opts = getOpts();
-      if (!opts.modules.some(m => !m._isHeading)) { showToast('⚠️ 項目を選択してください'); return; }
+      if (!opts.modules.some(m => !m._isHeading)) { showToast('項目を選択してください', 'warning'); return; }
       const html = genManualHTML(opts);
       const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a'); a.href = url;
       a.download = 'manual-' + (opts.siteName || 'manual').replace(/[\\/:"*?<>|]/g, '-') + '.html';
       document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-      showToast('✅ HTMLを出力しました');
+      showToast('HTMLを出力しました', 'check_circle');
     }
 
     async function copyMarkdown() {
       const opts = getOpts();
-      if (!opts.modules.some(m => !m._isHeading)) { showToast('⚠️ 項目を選択してください'); return; }
+      if (!opts.modules.some(m => !m._isHeading)) { showToast('項目を選択してください', 'warning'); return; }
       const md = buildMD();
       try {
         await navigator.clipboard.writeText(md);
@@ -3982,7 +4133,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
         const ta = document.createElement('textarea'); ta.value = md;
         document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
       }
-      showToast('📋 Markdownをクリップボードにコピーしました');
+      showToast('Markdownをクリップボードにコピーしました', 'content_copy');
     }
 
     // ================================================================
@@ -4104,12 +4255,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
       return tpl.innerHTML;
     }
 
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      if (!t) return;
-      t.textContent = msg;
-      t.classList.add('show');
-      clearTimeout(t._tid); t._tid = setTimeout(() => t.classList.remove('show'), 2600);
+    function showToast(msg, iconName = '') {
+      const $toast = document.getElementById('toast');
+      if (!$toast) return;
+      $toast.innerHTML = iconName ? `${iconSpan(iconName)}<span>${e(msg)}</span>` : e(msg);
+      $toast.classList.add('show');
+      clearTimeout($toast._tid); $toast._tid = setTimeout(() => $toast.classList.remove('show'), 2600);
     }
 
     // ================================================================
@@ -4127,7 +4278,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
       });
     }
 
-    function init() {
+    async function init() {
+      await loadPlatformDataScripts();
       loadLS();
       _applyAccentVars(S.settings.accentColor || '#0EA5E9');
 
@@ -4135,11 +4287,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
       const ps = document.getElementById('platform-select');
       const plats = allPlats();
       if (plats.length === 0) {
-        // Fallback: no data files loaded (e.g. opened via file://)
-        const opt = document.createElement('option'); opt.value = ''; opt.textContent = '⚠️ data/*.js が読み込めません（ローカルサーバー経由で開いてください）';
+        // Fallback: no platform scripts loaded
+        const opt = document.createElement('option'); opt.value = ''; opt.textContent = 'フリーモードのみ利用できます（必要なら window.MB_PLATFORM_SCRIPT_PATHS を設定してください）';
         ps.appendChild(opt);
       } else {
-        plats.forEach(p => { const opt = document.createElement('option'); opt.value = p.id; opt.textContent = p.icon + ' ' + p.name; ps.appendChild(opt); });
+        plats.forEach(p => { const opt = document.createElement('option'); opt.value = p.id; opt.textContent = p.name; ps.appendChild(opt); });
         if (!S.platformId || (window.MB_PLATFORMS && !window.MB_PLATFORMS[S.platformId])) S.platformId = plats[0].id;
         ps.value = S.platformId;
       }

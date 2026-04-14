@@ -3492,8 +3492,45 @@ li.CodeMirror-hint-active {
     padding: 0.35rem !important;
   }
 
-  #wew_Menu table {
-    border-collapse: collapse !important;
+  #wew_Menu {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    margin-bottom: 0.35rem !important;
+  }
+
+  #wew .wew_Toolbar {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    min-width: max-content !important;
+  }
+
+  #wew .wew_ToolbarBrand {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.3rem !important;
+    padding-right: 0.45rem !important;
+    margin-right: 0.15rem !important;
+    border-right: 1px solid var(--wew-border) !important;
+  }
+
+  #wew .wew_Brand {
+    font-size: 0.84rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    color: var(--wew-text-muted) !important;
+  }
+
+  #wew .wew_ToolbarDivider {
+    color: var(--wew-text-muted) !important;
+    font-size: 0.78rem !important;
+  }
+
+  #wew .wew_ToolbarActions {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+    flex-wrap: nowrap !important;
   }
 
   #wew_Keys {
@@ -3528,6 +3565,19 @@ li.CodeMirror-hint-active {
     min-width: 2.25rem !important;
     padding: 0.4rem !important;
     vertical-align: middle !important;
+  }
+
+  #wew .wew_ToolbarButton {
+    min-width: auto !important;
+    padding: 0.45rem 0.6rem !important;
+    gap: 0.35rem !important;
+    white-space: nowrap !important;
+  }
+
+  #wew .wew_ButtonLabel {
+    font-size: 0.8rem !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
   }
 
   #wew button:hover,
@@ -3580,34 +3630,34 @@ li.CodeMirror-hint-active {
   }
 
   #wew_Filename {
-    min-height: 44px !important;
+    min-height: 2.25rem !important;
     background: var(--wew-surface) !important;
     color: var(--wew-text) !important;
     text-shadow: none !important;
     border: 1px solid var(--wew-border) !important;
     border-radius: 8px !important;
     box-shadow: none !important;
-    font-size: 0.88rem !important;
+    font-size: 0.84rem !important;
     font-weight: 500 !important;
-    max-width: min(54vw, 560px) !important;
+    max-width: min(38vw, 440px) !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
-    padding: 0.35rem 0.7rem !important;
+    padding: 0.4rem 0.6rem !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    gap: 0.3rem !important;
+    gap: 0.35rem !important;
   }
 
   #wew .wew_ImgMenu,
   body > table[id$='Overlay'] .wew_ImgMenu {
     display: block !important;
-    width: 1.2rem !important;
-    height: 1.2rem !important;
+    width: 1.05rem !important;
+    height: 1.05rem !important;
     margin: 0 !important;
-    font-size: 1.2rem !important;
-    line-height: 1.2rem !important;
+    font-size: 1.05rem !important;
+    line-height: 1.05rem !important;
     text-align: center !important;
     vertical-align: middle !important;
     color: var(--wew-text-muted) !important;
@@ -3720,6 +3770,33 @@ li.CodeMirror-hint-active {
     color: var(--wew-accent) !important;
   }
 
+  #wew_Status {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.45rem !important;
+    background: var(--wew-surface) !important;
+    border: 1px solid var(--wew-border) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 1px 2px oklch(0 0 0 / 0.08) !important;
+    margin-top: 0.35rem !important;
+    padding: 0.34rem 0.55rem !important;
+    font-size: 0.78rem !important;
+    color: var(--wew-text-muted) !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+
+  #wew_Status .wew_StatusSep {
+    color: var(--wew-text-muted) !important;
+  }
+
+  #wew_StatusDirty[data-dirty='true'] {
+    color: var(--wew-accent) !important;
+    font-weight: 600 !important;
+  }
+
   #wew .CodeMirror pre {
     font-size: inherit !important;
     letter-spacing: 0 !important;
@@ -3745,16 +3822,31 @@ li.CodeMirror-hint-active {
     }
 
     #wew_Filename {
-      max-width: 40vw !important;
-      font-size: 0.82rem !important;
+      max-width: 48vw !important;
+      font-size: 0.8rem !important;
       padding: 0.3rem 0.5rem !important;
     }
 
+    #wew .wew_ToolbarButton {
+      padding: 0.4rem 0.45rem !important;
+      gap: 0.3rem !important;
+    }
+
+    #wew .wew_ButtonLabel {
+      font-size: 0.75rem !important;
+    }
+
     #wew .wew_ImgMenu {
-      height: 1.1rem !important;
-      width: 1.1rem !important;
-      font-size: 1.1rem !important;
-      line-height: 1.1rem !important;
+      height: 1rem !important;
+      width: 1rem !important;
+      font-size: 1rem !important;
+      line-height: 1rem !important;
+    }
+
+    #wew_Status {
+      margin-top: 0.25rem !important;
+      font-size: 0.74rem !important;
+      padding: 0.3rem 0.45rem !important;
     }
 
     #wew .CodeMirror {
@@ -3770,6 +3862,7 @@ li.CodeMirror-hint-active {
 
   html[data-wew-mode='dark'] #wew_Menu,
   html[data-wew-mode='dark'] #wew_Keys,
+  html[data-wew-mode='dark'] #wew_Status,
   html[data-wew-mode='dark'] #wew .CodeMirror,
   html[data-wew-mode='dark'] #wew .CodeMirror-scroll,
   html[data-wew-mode='dark'] #wew .CodeMirror-sizer,
@@ -3855,7 +3948,9 @@ li.CodeMirror-hint-active {
   html[data-wew-mode='dark'] body > table[id$='Overlay'] label,
   html[data-wew-mode='dark'] body > table[id$='Overlay'] div,
   html[data-wew-mode='dark'] body > table[id$='Overlay'] span,
-  html[data-wew-mode='dark'] #wew .wew_ImgMenu {
+  html[data-wew-mode='dark'] #wew .wew_ImgMenu,
+  html[data-wew-mode='dark'] #wew .wew_Brand,
+  html[data-wew-mode='dark'] #wew_Status {
     color: var(--wew-dark-text-muted) !important;
   }
 }
@@ -3867,44 +3962,64 @@ li.CodeMirror-hint-active {
         <div id="wew">
             <!-- Menu -->
             <div id="wew_Menu" onclick="wew.editor.focus();">
-                <table width="100%" cellspacing="0" cellpadding="0">
-                    <tr>
-                        <td style="text-align:left;">
-                            <button onclick="wew.newHTML();" title="新規ファイル (Ctrl+Alt+N)">
-                                <span id="wew_newImg" class="material-icons wew_ImgMenu" aria-hidden="true">note_add</span>
-                            </button>
-                            <button onclick="document.querySelector('#wew_OpenFile').click()" title="ファイルを開く (Ctrl+O)">
-                                <span class="material-icons wew_ImgMenu" aria-hidden="true">folder_open</span>
-                            </button>
-                            <input id="wew_OpenFile" type="file" onchange="wew.openHTML()" accept=".html,.htm,.xhtml,.js,.css,.xml,.json,.txt" hidden/>
-                            <button onclick="wew.saveHTML();" title="ファイルを保存 (Ctrl+S)">
-                                <span id="wew_saveImg" class="material-icons wew_ImgMenu" aria-hidden="true">save</span>
-                            </button>
-                            &nbsp;
-                        </td>
-                        <td style="text-align:center;">
-                            <button onclick="wew.openRenameDialog();" id="wew_Filename" title="ファイル名を変更 (F2)"></button>
-                            <button onclick="wew.formatCode()" title="選択コードを整形 (Alt+Shift+F)">
-                                <span class="material-icons wew_ImgMenu" aria-hidden="true">code</span>
-                            </button>
-                            <button onclick="wew.runHTML();" id="wew_ButtonRun" title="HTMLを実行 (F9)">
-                                <span class="material-icons wew_ImgMenu" aria-hidden="true">play_arrow</span>
-                            </button>
-                        </td>
-                        <td style="text-align:right;">
-                            &nbsp;
-                            <button onclick="wew.openConfigDialog();" title="設定 (F8)">
-                                <span id="wew_configImg" class="material-icons wew_ImgMenu" aria-hidden="true">settings</span>
-                            </button>
-                            <button onclick="wew.openHelpDialog();" title="ヘルプ (F1)">
-                                <span id="wew_helpImg" class="material-icons wew_ImgMenu" aria-hidden="true">help</span>
-                            </button>
-                            <button onclick="wew.openAboutDialog();" title="このアプリについて">
-                                <span class="material-icons wew_ImgMenu" aria-hidden="true">info</span>
-                            </button>
-                        </td>
-                    </tr>
-                </table>
+                <div class="wew_Toolbar">
+                    <div class="wew_ToolbarBrand">
+                        <span class="wew_Brand">WEW</span>
+                        <span class="wew_ToolbarDivider" aria-hidden="true">|</span>
+                        <button onclick="wew.openRenameDialog();" id="wew_Filename" title="ファイル名を変更 (F2)"></button>
+                    </div>
+                    <div class="wew_ToolbarActions">
+                        <button class="wew_ToolbarButton" onclick="document.querySelector('#wew_OpenFile').click()" title="ファイルを開く (Ctrl+O)">
+                            <span class="material-icons wew_ImgMenu" aria-hidden="true">folder_open</span>
+                            <span class="wew_ButtonLabel">開く</span>
+                        </button>
+                        <input id="wew_OpenFile" type="file" onchange="wew.openHTML()" accept=".html,.htm,.xhtml,.js,.css,.xml,.json,.txt" hidden/>
+                        <button class="wew_ToolbarButton" onclick="wew.saveHTML();" title="保存 (Ctrl+S)">
+                            <span id="wew_saveImg" class="material-icons wew_ImgMenu" aria-hidden="true">save</span>
+                            <span class="wew_ButtonLabel">保存</span>
+                        </button>
+                        <button class="wew_ToolbarButton" onclick="wew.saveAsHTML();" title="別名保存 (Ctrl+Shift+S)">
+                            <span class="material-icons wew_ImgMenu" aria-hidden="true">save_as</span>
+                            <span class="wew_ButtonLabel">別名保存</span>
+                        </button>
+                        <button class="wew_ToolbarButton" onclick="wew.newHTML();" title="新規ファイル (Ctrl+Alt+N)">
+                            <span id="wew_newImg" class="material-icons wew_ImgMenu" aria-hidden="true">note_add</span>
+                            <span class="wew_ButtonLabel">新規</span>
+                        </button>
+                        <button class="wew_ToolbarButton" onclick="wew.undo()" title="元に戻す (Ctrl+Z)">
+                            <span class="material-icons wew_ImgMenu" aria-hidden="true">undo</span>
+                            <span class="wew_ButtonLabel">Undo</span>
+                        </button>
+                        <button class="wew_ToolbarButton" onclick="wew.redo()" title="やり直し (Ctrl+Y)">
+                            <span class="material-icons wew_ImgMenu" aria-hidden="true">redo</span>
+                            <span class="wew_ButtonLabel">Redo</span>
+                        </button>
+                        <button class="wew_ToolbarButton" onclick="wew.findInDoc()" title="検索 (Ctrl+F / F3)">
+                            <span class="material-icons wew_ImgMenu" aria-hidden="true">search</span>
+                            <span class="wew_ButtonLabel">検索</span>
+                        </button>
+                        <button class="wew_ToolbarButton" onclick="wew.replaceInDoc()" title="置換 (Ctrl+Shift+F)">
+                            <span class="material-icons wew_ImgMenu" aria-hidden="true">find_replace</span>
+                            <span class="wew_ButtonLabel">置換</span>
+                        </button>
+                        <button class="wew_ToolbarButton" onclick="wew.formatCode()" title="選択コードを整形 (Alt+Shift+F)">
+                            <span class="material-icons wew_ImgMenu" aria-hidden="true">code</span>
+                            <span class="wew_ButtonLabel">整形</span>
+                        </button>
+                        <button class="wew_ToolbarButton" onclick="wew.runHTML();" id="wew_ButtonRun" title="HTMLを実行 (F9)">
+                            <span class="material-icons wew_ImgMenu" aria-hidden="true">play_arrow</span>
+                            <span class="wew_ButtonLabel">実行</span>
+                        </button>
+                        <button class="wew_ToolbarButton" onclick="wew.openConfigDialog();" title="設定 (F8)">
+                            <span id="wew_configImg" class="material-icons wew_ImgMenu" aria-hidden="true">settings</span>
+                            <span class="wew_ButtonLabel">設定</span>
+                        </button>
+                        <button class="wew_ToolbarButton" onclick="wew.openHelpDialog();" title="ヘルプ (F1)">
+                            <span id="wew_helpImg" class="material-icons wew_ImgMenu" aria-hidden="true">help</span>
+                            <span class="wew_ButtonLabel">ヘルプ</span>
+                        </button>
+                    </div>
+                </div>
             </div>
             <!-- Brackets Keyboard -->
             <div id="wew_Keys" onclick="wew.editor.focus();">
@@ -3924,6 +4039,18 @@ li.CodeMirror-hint-active {
                 <button class="wew_BracketsKb" onclick="wew.onClickBracketsKb('.')">.</button>
                 <button class="wew_BracketsKb" onclick="wew.onClickBracketsKb(',')">,</button>
                 <button class="wew_BracketsKb" onclick="wew.onClickBracketsKb(';')">;</button>
+            </div>
+
+            <div id="wew_Status" onclick="wew.editor.focus();">
+                <span id="wew_StatusCursor">Ln 1 Col 1</span>
+                <span class="wew_StatusSep">|</span>
+                <span id="wew_StatusLanguage">HTML</span>
+                <span class="wew_StatusSep">|</span>
+                <span>UTF-8</span>
+                <span class="wew_StatusSep">|</span>
+                <span id="wew_StatusLint">Lint OFF</span>
+                <span class="wew_StatusSep">|</span>
+                <span id="wew_StatusDirty" data-dirty="false">保存済み</span>
             </div>
             
             <!-- Codemirror Editor -->
@@ -21141,6 +21268,8 @@ jsPopupBox.table = (caption, columns, rows, columnsRowParams, tableParams, id) =
 // wew app
 //******************************************************************************
 const wew = {};
+const qs = (sel, root = document) => root.querySelector(sel);
+const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];
 const FILE_ICON_BY_LANGUAGE = {
     htmlmixed: "language",
     css: "palette",
@@ -21148,6 +21277,14 @@ const FILE_ICON_BY_LANGUAGE = {
     xml: "description",
     json: "description",
     "text/plain": "notes"
+};
+const MODE_LABEL_BY_LANGUAGE = {
+    htmlmixed: "HTML",
+    css: "CSS",
+    javascript: "JavaScript",
+    xml: "XML",
+    json: "JSON",
+    "text/plain": "Text"
 };
 
 const TOOLBAR_ICON_BY_ACTION = {
@@ -21170,11 +21307,78 @@ wew.viewMenu = true;
 wew.viewBracketsKeys = false;
 wew.autoCloseBrackets = true;
 wew.autoCloseTags = true;
+wew.isDirty = false;
 const DARK_THEME_PATTERN = /(ambiance|dark|night|blackboard|cobalt|darcula|dracula|gruvbox|lesser|liquibyte|lucario|material|midnight|monokai|nord|oceanic|paraiso-dark|pastel-on-dark|railscasts|rubyblue|seti|shadowfox|solarized|matrix|twilight|vibrant|zenburn|mbo)/i;
 
 wew.isDarkTheme = (theme) => DARK_THEME_PATTERN.test(theme);
 wew.hasJSLint = () => window.JSHINT !== undefined;
 wew.hasCSSLint = () => window.CSSLint !== undefined;
+wew.getLanguageLabel = (language) => MODE_LABEL_BY_LANGUAGE[language] || "Text";
+
+wew.renderFilename = (iconName) => {
+    const $filename = qs("#wew_Filename");
+    if ($filename === null) {
+        return;
+    }
+    $filename.replaceChildren();
+    const $icon = document.createElement("span");
+    $icon.className = "material-icons wew_ImgMenu";
+    $icon.setAttribute("aria-hidden", "true");
+    $icon.textContent = iconName;
+
+    const $label = document.createElement("span");
+    $label.className = "wew_ButtonLabel";
+    $label.textContent = wew.curFile;
+
+    $filename.append($icon, $label);
+};
+
+wew.updateStatusBar = () => {
+    if (wew.editor === undefined) {
+        return;
+    }
+    const cursor = wew.editor.getCursor();
+    const lintEnabled = wew.editor.getOption("lint") !== false;
+
+    const $cursor = qs("#wew_StatusCursor");
+    const $language = qs("#wew_StatusLanguage");
+    const $lint = qs("#wew_StatusLint");
+    const $dirty = qs("#wew_StatusDirty");
+
+    if ($cursor !== null) {
+        $cursor.textContent = "Ln " + (cursor.line + 1) + " Col " + (cursor.ch + 1);
+    }
+    if ($language !== null) {
+        $language.textContent = wew.getLanguageLabel(wew.curLanguage);
+    }
+    if ($lint !== null) {
+        $lint.textContent = lintEnabled ? "Lint ON" : "Lint OFF";
+    }
+    if ($dirty !== null) {
+        $dirty.dataset.dirty = wew.isDirty ? "true" : "false";
+        $dirty.textContent = wew.isDirty ? "変更あり*" : "保存済み";
+    }
+};
+
+wew.undo = () => {
+    wew.editor.execCommand("undo");
+    wew.editor.focus();
+};
+
+wew.redo = () => {
+    wew.editor.execCommand("redo");
+    wew.editor.focus();
+};
+
+wew.findInDoc = () => {
+    wew.editor.execCommand("find");
+    wew.editor.focus();
+};
+
+wew.replaceInDoc = () => {
+    wew.editor.execCommand("replace");
+    wew.editor.focus();
+};
 
 /**
  * Init Web Editor Web
@@ -21203,6 +21407,13 @@ wew.init = () => {
     wew.editor.setOption("foldGutter", true);
     wew.editor.setOption("gutters", ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"]);
     wew.editor.setOption("mode", {name: "htmlmixed", globalVars: true});    
+    wew.editor.on("cursorActivity", () => wew.updateStatusBar());
+    wew.editor.on("change", (_cm, changeObj) => {
+        if (changeObj !== undefined && changeObj.origin !== "setValue") {
+            wew.isDirty = true;
+        }
+        wew.updateStatusBar();
+    });
 
     wew.editor.setOption("extraKeys", {
         "Tab": (cm) => {
@@ -21219,6 +21430,7 @@ wew.init = () => {
         "Ctrl-Q": (cm) => cm.foldCode(cm.getCursor()),
         "Ctrl-Alt-N": () => wew.newHTML(),
         "Ctrl-S": () => wew.saveHTML(),
+        "Shift-Ctrl-S": () => wew.saveAsHTML(),
         "Ctrl-O": () => document.querySelector('#wew_OpenFile').click(),
         "Shift-Ctrl-Alt-Up": (cm) => wew.duplicateLines(cm, true),
         "Shift-Ctrl-Alt-Down": (cm) => wew.duplicateLines(cm, false),
@@ -21228,6 +21440,7 @@ wew.init = () => {
         "Shift-Ctrl-Down": (cm) => wew.duplicateLines(cm, false),
         "Shift-Alt-Up": (cm) => wew.moveLines(cm, true),
         "Shift-Alt-Down": (cm) => wew.moveLines(cm, false),
+        "F3": () => wew.findInDoc(),
         "F1": () => wew.openHelpDialog(),
         "F2": () => wew.openRenameDialog(),
         "F9": () => wew.runHTML(),
@@ -21255,8 +21468,14 @@ wew.init = () => {
     if (wew.viewBracketsKeys) {
         wew.panels[wew.bracketsKb.id] = wew.editor.addPanel(wew.bracketsKb, {position: "bottom", stable: true});
     }
+    //Status
+    wew.statusBar = document.querySelector("#wew_Status");
+    document.querySelector("#wew").removeChild(wew.statusBar);
+    wew.panels[wew.statusBar.id] = wew.editor.addPanel(wew.statusBar, {position: "bottom", stable: true});
 
     wew.setTheme(wew.theme);
+    wew.isDirty = false;
+    wew.updateStatusBar();
     wew.editor.refresh();
     wew.editor.focus();
 };
@@ -21269,41 +21488,43 @@ wew.init = () => {
 wew.setCurFile = (curFile) => {
     document.title = "WEW - " + curFile;
     wew.curFile = curFile;
-    
-    if (wew.viewMenu) {
-        document.querySelector("#wew_ButtonRun").style.display = "none";
-        wew.editor.setOption("lint", false);
-        if (wew.curFile.endsWith("html") || wew.curFile.endsWith("htm") || wew.curFile.endsWith("xhtml")) {
-            document.querySelector("#wew_ButtonRun").style.display = "inline";
-            wew.setLanguage("htmlmixed");
-            document.querySelector("#wew_Filename").innerHTML = wew.getIconHTML(wew.getFileTypeIconName("htmlmixed")) + "&nbsp;";
-        } else if (wew.curFile.endsWith("xml")) {
-            wew.setLanguage("htmlmixed");
-            document.querySelector("#wew_Filename").innerHTML = wew.getIconHTML(wew.getFileTypeIconName("xml")) + "&nbsp;";
-        } else if (wew.curFile.endsWith("js")) {
-            wew.setLanguage("javascript");
-            document.querySelector("#wew_Filename").innerHTML = wew.getIconHTML(wew.getFileTypeIconName("javascript")) + "&nbsp;";
-            if (wew.hasJSLint()) {
-                wew.editor.setOption("lint", {options: {esversion: 6}});
-            }
-        } else if (wew.curFile.endsWith("json")) {
-            wew.setLanguage("javascript");
-            document.querySelector("#wew_Filename").innerHTML = wew.getIconHTML(wew.getFileTypeIconName("json")) + "&nbsp;";
-        } else if (wew.curFile.endsWith("css")) {
-            wew.setLanguage("css");
-            document.querySelector("#wew_Filename").innerHTML = wew.getIconHTML(wew.getFileTypeIconName("css")) + "&nbsp;";
-            if (wew.hasCSSLint()) {
-                wew.editor.setOption("lint", true);
-            }
-        } else {
-            wew.setLanguage("text/plain");
-            document.querySelector("#wew_Filename").innerHTML = wew.getIconHTML(wew.getFileTypeIconName("text/plain")) + "&nbsp;";
-        }
+    const lowerName = wew.curFile.toLowerCase();
+    let language = "text/plain";
+    let iconName = wew.getFileTypeIconName("text/plain");
+    let showRun = false;
 
-        if (window.innerWidth > window.innerHeight) {
-            document.querySelector("#wew_Filename").innerHTML += wew.curFile;
+    wew.editor.setOption("lint", false);
+    if (lowerName.endsWith(".html") || lowerName.endsWith(".htm") || lowerName.endsWith(".xhtml")) {
+        language = "htmlmixed";
+        iconName = wew.getFileTypeIconName("htmlmixed");
+        showRun = true;
+    } else if (lowerName.endsWith(".xml")) {
+        language = "htmlmixed";
+        iconName = wew.getFileTypeIconName("xml");
+    } else if (lowerName.endsWith(".js")) {
+        language = "javascript";
+        iconName = wew.getFileTypeIconName("javascript");
+        if (wew.hasJSLint()) {
+            wew.editor.setOption("lint", {options: {esversion: 6}});
+        }
+    } else if (lowerName.endsWith(".json")) {
+        language = "javascript";
+        iconName = wew.getFileTypeIconName("json");
+    } else if (lowerName.endsWith(".css")) {
+        language = "css";
+        iconName = wew.getFileTypeIconName("css");
+        if (wew.hasCSSLint()) {
+            wew.editor.setOption("lint", true);
         }
     }
+
+    wew.setLanguage(language);
+    const $runButton = qs("#wew_ButtonRun");
+    if ($runButton !== null) {
+        $runButton.style.display = showRun ? "inline-flex" : "none";
+    }
+    wew.renderFilename(iconName);
+    wew.updateStatusBar();
 };
 
 /**
@@ -21626,6 +21847,8 @@ wew.newHTML = () => {
         document.querySelector("#wew").style.display = "block";
         wew.setCurFile(t.filename);
         wew.editor.getDoc().setValue(html);
+        wew.isDirty = false;
+        wew.updateStatusBar();
         wew.editor.refresh();
         wew.editor.focus();
     }).catch(() => {
@@ -21644,6 +21867,8 @@ wew.openHTML = () => {
         fileReader.onload = () => {
             wew.editor.getDoc().setValue(fileReader.result);
             wew.setCurFile(document.querySelector("#wew_OpenFile").files[0].name);
+            wew.isDirty = false;
+            wew.updateStatusBar();
             document.querySelector("#wew_OpenFile").value = "";
             wew.editor.focus();
         };
@@ -21651,20 +21876,33 @@ wew.openHTML = () => {
     }
 };
 
+wew.downloadCurrentFile = () => {
+    var link = document.createElement("a");
+    link.download = wew.curFile === null ? "index.html" : wew.curFile;
+    link.href = "data:text/plain;charset=utf-8," + encodeURIComponent(wew.editor.getDoc().getValue());
+    link.click();
+    wew.isDirty = false;
+    wew.updateStatusBar();
+};
+
 /**
  * Save button click
  * @returns {void}
  */
 wew.saveHTML = () => {
+    wew.downloadCurrentFile();
+    wew.editor.focus();
+};
+
+/**
+ * Save as button click
+ * @returns {void}
+ */
+wew.saveAsHTML = () => {
     document.querySelector("#wew").style.display = "none";
-    jsPopupBox.prompt("<h1>" + wew.getToolbarIconHTML("saveFile") + " ファイル保存</h1>ファイル名", wew.curFile, "text-align:center").then((filename) => {
+    jsPopupBox.prompt("<h1>" + wew.getToolbarIconHTML("saveFile") + " 別名で保存</h1>ファイル名", wew.curFile, "text-align:center").then((filename) => {
         wew.setCurFile(filename.trim());
-        
-        var link = document.createElement("a");
-        link.download = wew.curFile === null ? "index.html" : wew.curFile;
-        link.href = "data:text/plain," + encodeURIComponent(wew.editor.getDoc().getValue());
-        link.click();
-        
+        wew.downloadCurrentFile();
         document.querySelector("#wew").style.display = "block";
         wew.editor.refresh();
         wew.editor.focus();
@@ -21761,6 +21999,8 @@ wew.openHelpDialog = () => {
     message += "<tr><td align='right'><b>Ctrl + Alt + N</b><td align='left'>新規ファイル";
     message += "<tr><td align='right'><b>Ctrl + O</b><td align='left'>編集するファイルを開く";
     message += "<tr><td align='right'><b>Ctrl + S</b><td align='left'>現在のファイルを保存";
+    message += "<tr><td align='right'><b>Ctrl + Shift + S</b><td align='left'>別名で保存";
+    message += "<tr><td align='right'><b>Ctrl + Z / Ctrl + Y</b><td align='left'>元に戻す / やり直し";
     message += "<tr><td align='right'><td align='left'>";
     message += "<tr><td align='right'><b>F1</b><td align='left'>ヘルプを開く";
     message += "<tr><td align='right'><b>F2</b><td align='left'>現在のファイル名を変更";

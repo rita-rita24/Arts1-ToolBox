@@ -5,6 +5,11 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>プライバシーガード | Human-Made UI</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23008735'/%3E%3Cpath d='M16 46V18h8l8 14 8-14h8v28h-7V30l-7 12h-4l-7-12v16z' fill='white'/%3E%3C/svg%3E"
+    />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
@@ -99,149 +104,750 @@
       };
     </script>
   </head>
-  <body
-    class="bg-background text-on-surface min-h-screen flex flex-col overflow-hidden"
-  >
-    <!-- Header -->
-    <header class="w-full flex flex-col items-center pt-12 pb-6">
-      <h1 class="text-lg font-bold tracking-[0.1em] text-zinc-900">
-        プライバシーガード
-      </h1>
-      <div
-        class="flex items-center gap-2 mt-2 px-3 py-1 bg-tertiary-container/10 rounded-full"
+  <body class="bg-surface-container-low text-on-surface min-h-screen">
+    <main class="max-w-[1280px] w-[96vw] mx-auto py-4 space-y-3">
+      <section
+        class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg border border-outline-variant/20 bg-surface-container-lowest"
       >
-        <span
-          class="w-1.5 h-1.5 bg-tertiary-container rounded-full animate-pulse"
-        ></span>
-        <span
-          class="text-[0.625rem] uppercase tracking-widest font-bold text-tertiary"
-          >保護機能 有効</span
+        <div>
+          <h1 class="text-sm font-semibold tracking-[0.06em] leading-none py-1">
+            Maskinger
+          </h1>
+        </div>
+        <div class="inline-flex gap-2">
+          <button
+            data-action="clear"
+            class="px-2.5 py-1.5 text-[0.75rem] rounded border border-outline-variant/35 bg-secondary-container/45 hover:bg-secondary-container/70"
+            type="button"
+          >
+            クリア
+          </button>
+          <button
+            data-action="copy"
+            class="px-2.5 py-1.5 text-[0.75rem] rounded border border-outline-variant/35 bg-tertiary-container/20 hover:bg-tertiary-container/35"
+            type="button"
+          >
+            コピー
+          </button>
+        </div>
+      </section>
+
+      <section class="grid grid-cols-2 gap-3 min-h-[calc(100dvh-7.5rem)]">
+        <article
+          class="rounded-lg border border-outline-variant/20 bg-surface-container-lowest min-h-0 flex flex-col"
         >
-      </div>
-    </header>
-    <!-- Main Workspace -->
-    <main class="flex-1 max-w-[1400px] w-full mx-auto px-12 py-8 flex flex-col">
-      <div class="flex-1 grid grid-cols-2 gap-12">
-        <!-- Input Canvas -->
-        <div class="flex flex-col gap-4">
-          <div class="flex justify-between items-end">
-            <h3
-              class="text-[0.6875rem] font-bold uppercase tracking-widest text-on-surface-variant"
-            >
-              入力キャンバス
-            </h3>
-            <button
-              class="text-[0.75rem] text-zinc-400 hover:text-zinc-900 transition-colors flex items-center gap-1"
-            >
-              <span class="material-symbols-outlined text-[16px]">delete</span>
-              クリア
-            </button>
-          </div>
-          <div
-            class="flex-1 bg-surface-container-lowest rounded-lg border border-outline-variant/10 p-8 shadow-sm"
+          <header
+            class="px-3 py-2 border-b border-outline-variant/20 text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-on-surface-variant"
           >
-            <textarea
-              class="w-full h-full bg-transparent border-none focus:ring-0 resize-none text-[0.875rem] leading-relaxed text-on-surface-variant placeholder-zinc-300"
-              placeholder="ここに機密文書を貼り付けると、自動的にマスキングが開始されます..."
-            ></textarea>
-          </div>
-        </div>
-        <!-- Protected Output -->
-        <div class="flex flex-col gap-4">
-          <div class="flex justify-between items-end">
-            <h3
-              class="text-[0.6875rem] font-bold uppercase tracking-widest text-tertiary"
-            >
-              保護済み出力
-            </h3>
-            <button
-              class="text-[0.75rem] font-bold text-primary flex items-center gap-1 hover:underline"
-            >
-              <span class="material-symbols-outlined text-[16px]"
-                >content_copy</span
-              >
-              コピー
-            </button>
-          </div>
-          <div
-            class="flex-1 bg-surface-container-lowest rounded-lg border-l-2 border-tertiary p-8 shadow-sm overflow-y-auto"
+            input
+          </header>
+          <textarea
+            id="inputText"
+            spellcheck="false"
+            class="flex-1 min-h-0 w-full resize-none border-0 bg-transparent p-3 text-[0.86rem] leading-relaxed font-mono text-on-surface-variant focus:ring-0"
+            placeholder="ここにテキストやコードを貼り付けてください"
+          ></textarea>
+        </article>
+
+        <article
+          class="rounded-lg border border-outline-variant/20 bg-surface-container-lowest min-h-0 flex flex-col"
+        >
+          <header
+            class="px-3 py-2 border-b border-outline-variant/20 text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-on-surface-variant"
           >
-            <div class="text-[0.875rem] leading-[2.25rem] text-on-surface">
-              <span
-                class="bg-surface-container-high px-2 py-0.5 rounded text-[0.625rem] font-bold text-on-surface-variant mx-1 inline-flex items-center gap-1 border border-outline-variant/20"
-                >[氏名]</span
-              >
-              様、 <br /><br />
-              <span
-                class="bg-surface-container-high px-2 py-0.5 rounded text-[0.625rem] font-bold text-on-surface-variant mx-1 inline-flex items-center gap-1 border border-outline-variant/20"
-                >[企業名]</span
-              >
-              との契約についてご連絡いたします。
-              <br />
-              本プロジェクトの予算
-              <span
-                class="bg-surface-container-high px-2 py-0.5 rounded text-[0.625rem] font-bold text-on-surface-variant mx-1 inline-flex items-center gap-1 border border-outline-variant/20"
-                >[金額]</span
-              >
-              は
-              <span
-                class="bg-surface-container-high px-2 py-0.5 rounded text-[0.625rem] font-bold text-on-surface-variant mx-1 inline-flex items-center gap-1 border border-outline-variant/20"
-                >[拠点名]</span
-              >
-              オフィスにて承認されました。 <br /><br />
-              詳細については
-              <span
-                class="bg-surface-container-high px-2 py-0.5 rounded text-[0.625rem] font-bold text-on-surface-variant mx-1 inline-flex items-center gap-1 border border-outline-variant/20"
-                >[メールアドレス]</span
-              >
-              までお問い合わせください。 <br /><br />
-              宜しくお願い申し上げます。
-              <br />
-              <span
-                class="bg-surface-container-high px-2 py-0.5 rounded text-[0.625rem] font-bold text-on-surface-variant mx-1 inline-flex items-center gap-1 border border-outline-variant/20"
-                >[氏名]</span
-              >
-            </div>
-          </div>
-        </div>
-      </div>
+            output
+          </header>
+          <pre
+            id="maskedOutput"
+            class="flex-1 min-h-0 overflow-auto p-3 text-[0.86rem] leading-relaxed font-mono text-on-surface whitespace-pre-wrap break-words"
+          ></pre>
+        </article>
+      </section>
     </main>
-    <!-- Quiet Footer -->
-    <footer
-      class="w-full flex justify-center gap-12 py-8 bg-background border-t border-outline-variant/5"
-    >
-      <div class="flex items-center gap-2">
-        <span
-          class="text-[0.625rem] font-bold text-on-surface-variant/60 uppercase tracking-widest"
-          >マスキング精度:</span
-        >
-        <span class="text-[0.75rem] font-medium text-on-surface-variant"
-          >99.8%</span
-        >
-      </div>
-      <div class="flex items-center gap-2">
-        <span
-          class="text-[0.625rem] font-bold text-on-surface-variant/60 uppercase tracking-widest"
-          >ローカル処理中:</span
-        >
-        <span class="text-[0.75rem] font-medium text-tertiary">暗号化済み</span>
-      </div>
-    </footer>
-    <!-- Subtle Texture Overlay -->
-    <div
-      class="fixed inset-0 pointer-events-none opacity-[0.02] mix-blend-multiply"
-    >
-      <svg viewbox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        <filter id="noiseFilter">
-          <feturbulence
-            basefrequency="0.65"
-            numoctaves="3"
-            stitchtiles="stitch"
-            type="fractalNoise"
-          ></feturbulence>
-        </filter>
-        <rect filter="url(#noiseFilter)" height="100%" width="100%"></rect>
-      </svg>
-    </div>
+    <script>
+      (() => {
+        "use strict";
+
+        const qs = (sel, root = document) => root.querySelector(sel);
+        const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+        const CODE_SIGNAL_REGEXES = [
+          /\b(function|const|let|var|class|import|export|def|return|interface|enum)\b/,
+          /=>|\{\s*\n|;\s*\n/,
+          /<\/?[A-Za-z][^>]*>/,
+          /\bSELECT\b.+\bFROM\b/i,
+        ];
+        const SQL_STATEMENT_REGEX =
+          /(SELECT\s+.+\s+FROM|INSERT\s+INTO|UPDATE\s+.+\s+SET|DELETE\s+FROM|CREATE\s+TABLE|DROP\s+TABLE|ALTER\s+TABLE|WITH\s+.+\s+SELECT)/i;
+        const NON_MASKABLE_CONSTANTS = new Set([
+          "TRUE",
+          "FALSE",
+          "NULL",
+          "NONE",
+          "NAN",
+          "INF",
+          "STDIN",
+          "STDOUT",
+          "STDERR",
+          "EOF",
+          "GET",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE",
+          "SELECT",
+          "FROM",
+          "WHERE",
+          "AND",
+          "OR",
+          "NOT",
+        ]);
+        const SECRET_ASSIGNMENT_KEY_PATTERN =
+          "password|passwd|pwd|secret|token|api[_-]?key|access[_-]?(?:token|key)|client[_-]?secret|authorization|auth|session(?:id)?|cookie|bearer|private[_-]?key|ssh[_-]?key|refresh[_-]?token|id[_-]?token|webhook[_-]?secret";
+        const PII_ASSIGNMENT_KEY_PATTERN =
+          "email|mail|phone|tel|mobile|address|ssn|social[_-]?security|passport|license|driver[_-]?license|my[_-]?number|mynumber|card(?:number)?|credit[_-]?card|iban|account(?:_?number)?|routing(?:_?number)?|dob|birth(?:date)?|full[_-]?name|real[_-]?name|employee(?:_?id)?|customer(?:_?id)?|user(?:_?id)?";
+
+        const _buildAssignmentRegexes = (_keyPattern) => ({
+          _quoted: new RegExp(
+            `((?:["']?(?:${_keyPattern})["']?\\s*[:=]\\s*))(["'\`])([^"'\\\`\\n]{0,400})(\\2)`,
+            "gi",
+          ),
+          _bare: new RegExp(
+            `((?:["']?(?:${_keyPattern})["']?\\s*[:=]\\s*))([^\\s,;\\n"'\\\`]+)`,
+            "gi",
+          ),
+        });
+
+        const SECRET_ASSIGNMENT_REGEXES = _buildAssignmentRegexes(
+          SECRET_ASSIGNMENT_KEY_PATTERN,
+        );
+        const PII_ASSIGNMENT_REGEXES = _buildAssignmentRegexes(
+          PII_ASSIGNMENT_KEY_PATTERN,
+        );
+
+        const $inputText = qs("#inputText");
+        const $maskedOutput = qs("#maskedOutput");
+        const $actionButtons = qsa("[data-action]");
+
+        if (!$inputText || !$maskedOutput || $actionButtons.length === 0) {
+          return;
+        }
+
+        const _applyColorScheme = () => {
+          const _colorScheme = document.documentElement.classList.contains(
+            "dark",
+          )
+            ? "dark"
+            : "light";
+          document.documentElement.style.colorScheme = _colorScheme;
+        };
+
+        const _looksLikeCode = (_text) => {
+          if (!_text.trim()) {
+            return false;
+          }
+          const _lineCount = _text.split(/\r?\n/).length;
+          const _hasCodeSignals = CODE_SIGNAL_REGEXES.some((_regex) =>
+            _regex.test(_text),
+          );
+          const _symbolDensity =
+            (_text.match(/[{}();=<>]/g) || []).length /
+            Math.max(_text.length, 1);
+          return _hasCodeSignals || (_lineCount >= 4 && _symbolDensity > 0.02);
+        };
+
+        const _isHashCommentStart = (_text, _index) => {
+          if (_index === 0) {
+            return true;
+          }
+          const _previousChar = _text[_index - 1];
+          return (
+            _previousChar === " " ||
+            _previousChar === "\t" ||
+            _previousChar === "\n"
+          );
+        };
+
+        const _isDoubleDashCommentStart = (_text, _index) => {
+          if (_index === 0) {
+            return true;
+          }
+          return /\s/.test(_text[_index - 1]);
+        };
+
+        const _stripComments = (_text) => {
+          let _result = "";
+          let _index = 0;
+          let _isInString = false;
+          let _stringQuote = "";
+
+          while (_index < _text.length) {
+            const _char = _text[_index];
+            const _nextChar = _text[_index + 1];
+
+            if (_isInString) {
+              _result += _char;
+
+              if (_char === "\\") {
+                const _escapedChar = _text[_index + 1];
+                if (_escapedChar) {
+                  _result += _escapedChar;
+                  _index += 2;
+                  continue;
+                }
+              }
+
+              if (_char === _stringQuote) {
+                _isInString = false;
+                _stringQuote = "";
+              }
+
+              _index += 1;
+              continue;
+            }
+
+            if (_char === "'" || _char === '"' || _char === "`") {
+              _isInString = true;
+              _stringQuote = _char;
+              _result += _char;
+              _index += 1;
+              continue;
+            }
+
+            if (_char === "/" && _nextChar === "/") {
+              _index += 2;
+              while (_index < _text.length && _text[_index] !== "\n") {
+                _index += 1;
+              }
+              continue;
+            }
+
+            if (_char === "/" && _nextChar === "*") {
+              _index += 2;
+              while (_index < _text.length) {
+                if (_text[_index] === "*" && _text[_index + 1] === "/") {
+                  _index += 2;
+                  break;
+                }
+                if (_text[_index] === "\n") {
+                  _result += "\n";
+                }
+                _index += 1;
+              }
+              continue;
+            }
+
+            if (
+              _char === "-" &&
+              _nextChar === "-" &&
+              _isDoubleDashCommentStart(_text, _index)
+            ) {
+              _index += 2;
+              while (_index < _text.length && _text[_index] !== "\n") {
+                _index += 1;
+              }
+              continue;
+            }
+
+            if (_char === "#" && _isHashCommentStart(_text, _index)) {
+              _index += 1;
+              while (_index < _text.length && _text[_index] !== "\n") {
+                _index += 1;
+              }
+              continue;
+            }
+
+            _result += _char;
+            _index += 1;
+          }
+
+          return _result;
+        };
+
+        const _consumeQuotedLiteral = (_text, _startIndex, _quote) => {
+          let _index = _startIndex + 1;
+          let _isEscaped = false;
+
+          while (_index < _text.length) {
+            const _char = _text[_index];
+            if (_isEscaped) {
+              _isEscaped = false;
+              _index += 1;
+              continue;
+            }
+            if (_char === "\\") {
+              _isEscaped = true;
+              _index += 1;
+              continue;
+            }
+            if (_char === _quote) {
+              _index += 1;
+              break;
+            }
+            _index += 1;
+          }
+
+          const _literal = _text.slice(_startIndex, _index);
+          const _isClosed = _literal.endsWith(_quote);
+          const _content = _isClosed
+            ? _literal.slice(1, -1)
+            : _literal.slice(1);
+
+          return {
+            _literal,
+            _content,
+            _nextIndex: _index,
+            _isClosed,
+          };
+        };
+
+        const _isSqlStatement = (_candidate) => {
+          const _oneLine = _candidate.replace(/\s+/g, " ").trim();
+          if (!_oneLine) {
+            return false;
+          }
+          return SQL_STATEMENT_REGEX.test(_oneLine.toUpperCase());
+        };
+
+        const _maskSqlStrings = (_text) => {
+          let _result = "";
+          let _index = 0;
+          let _counter = 0;
+
+          while (_index < _text.length) {
+            const _char = _text[_index];
+            if (_char === "'" || _char === '"' || _char === "`") {
+              const _literalInfo = _consumeQuotedLiteral(_text, _index, _char);
+              if (
+                _literalInfo._isClosed &&
+                _isSqlStatement(_literalInfo._content)
+              ) {
+                _counter += 1;
+                _result += `[SQL_${_counter}]`;
+              } else {
+                _result += _literalInfo._literal;
+              }
+              _index = _literalInfo._nextIndex;
+              continue;
+            }
+            _result += _char;
+            _index += 1;
+          }
+
+          return _result;
+        };
+
+        const _isIdentifierStart = (_char) => /[A-Za-z_]/.test(_char);
+        const _isIdentifierPart = (_char) => /[A-Za-z0-9_]/.test(_char);
+
+        const _isMaskableConstant = (_token) => {
+          if (!/^[A-Z][A-Z0-9_]+$/.test(_token)) {
+            return false;
+          }
+          if (NON_MASKABLE_CONSTANTS.has(_token)) {
+            return false;
+          }
+          if (!_token.includes("_") && _token.length < 4) {
+            return false;
+          }
+          return true;
+        };
+
+        const _maskConstants = (_text) => {
+          let _result = "";
+          let _index = 0;
+          let _isInString = false;
+          let _stringQuote = "";
+          let _counter = 0;
+
+          while (_index < _text.length) {
+            const _char = _text[_index];
+
+            if (_isInString) {
+              _result += _char;
+              if (_char === "\\") {
+                const _escapedChar = _text[_index + 1];
+                if (_escapedChar) {
+                  _result += _escapedChar;
+                  _index += 2;
+                  continue;
+                }
+              }
+              if (_char === _stringQuote) {
+                _isInString = false;
+                _stringQuote = "";
+              }
+              _index += 1;
+              continue;
+            }
+
+            if (_char === "'" || _char === '"' || _char === "`") {
+              _isInString = true;
+              _stringQuote = _char;
+              _result += _char;
+              _index += 1;
+              continue;
+            }
+
+            const _placeholderMatch = _text
+              .slice(_index)
+              .match(/^\[[A-Z]+_\d+\]/);
+            if (_placeholderMatch) {
+              _result += _placeholderMatch[0];
+              _index += _placeholderMatch[0].length;
+              continue;
+            }
+
+            if (_isIdentifierStart(_char)) {
+              let _endIndex = _index + 1;
+              while (
+                _endIndex < _text.length &&
+                _isIdentifierPart(_text[_endIndex])
+              ) {
+                _endIndex += 1;
+              }
+              const _token = _text.slice(_index, _endIndex);
+              if (_isMaskableConstant(_token)) {
+                _counter += 1;
+                _result += `[CONST_${_counter}]`;
+              } else {
+                _result += _token;
+              }
+              _index = _endIndex;
+              continue;
+            }
+
+            _result += _char;
+            _index += 1;
+          }
+
+          return _result;
+        };
+
+        const _createMaskState = () => ({
+          _counterByLabel: new Map(),
+        });
+
+        const _nextPlaceholder = (_label, _state) => {
+          const _nextCount = (_state._counterByLabel.get(_label) || 0) + 1;
+          _state._counterByLabel.set(_label, _nextCount);
+          return `[${_label}_${_nextCount}]`;
+        };
+
+        const _isPlaceholder = (_value) => /^\[[A-Z]+_\d+\]$/.test(_value);
+
+        const _maskByRegex = (
+          _text,
+          _regex,
+          _label,
+          _state,
+          _validator = null,
+        ) =>
+          _text.replace(_regex, (_match) => {
+            if (_isPlaceholder(_match)) {
+              return _match;
+            }
+            if (_validator && !_validator(_match)) {
+              return _match;
+            }
+            return _nextPlaceholder(_label, _state);
+          });
+
+        const _isLikelyCreditCard = (_candidate) => {
+          const _digits = _candidate.replace(/\D/g, "");
+          if (_digits.length < 13 || _digits.length > 19) {
+            return false;
+          }
+
+          let _sum = 0;
+          let _shouldDouble = false;
+          for (let _index = _digits.length - 1; _index >= 0; _index -= 1) {
+            let _digit = Number(_digits[_index]);
+            if (_shouldDouble) {
+              _digit *= 2;
+              if (_digit > 9) {
+                _digit -= 9;
+              }
+            }
+            _sum += _digit;
+            _shouldDouble = !_shouldDouble;
+          }
+
+          return _sum % 10 === 0;
+        };
+
+        const _maskAssignmentValues = (_text, _regexes, _label, _state) => {
+          let _result = _text.replace(
+            _regexes._quoted,
+            (_match, _prefix, _quote, _value, _suffixQuote) => {
+              if (_isPlaceholder(_value)) {
+                return _match;
+              }
+              const _placeholder = _nextPlaceholder(_label, _state);
+              return `${_prefix}${_quote}${_placeholder}${_suffixQuote}`;
+            },
+          );
+
+          _result = _result.replace(
+            _regexes._bare,
+            (_match, _prefix, _value) => {
+              if (_isPlaceholder(_value)) {
+                return _match;
+              }
+              const _placeholder = _nextPlaceholder(_label, _state);
+              return `${_prefix}${_placeholder}`;
+            },
+          );
+
+          return _result;
+        };
+
+        const _maskText = (_rawText) => {
+          const _state = _createMaskState();
+          let _result = _rawText;
+
+          if (_looksLikeCode(_rawText)) {
+            _result = _stripComments(_result);
+            _result = _maskSqlStrings(_result);
+            _result = _maskConstants(_result);
+          }
+
+          _result = _maskAssignmentValues(
+            _result,
+            SECRET_ASSIGNMENT_REGEXES,
+            "SECRET",
+            _state,
+          );
+          _result = _maskAssignmentValues(
+            _result,
+            PII_ASSIGNMENT_REGEXES,
+            "PII",
+            _state,
+          );
+
+          _result = _maskByRegex(
+            _result,
+            /-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/g,
+            "SECRET",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\bBearer\s+[A-Za-z0-9._\-+/=]{16,}\b/gi,
+            "SECRET",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\b(?:postgres(?:ql)?|mysql|mssql|mongodb(?:\+srv)?|redis):\/\/[^\s"'`]+/gi,
+            "SECRET",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\bsk-ant-[A-Za-z0-9_-]{10,}\b/g,
+            "SECRET",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\bAIza[0-9A-Za-z_-]{35}\b/g,
+            "SECRET",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\bsk_(?:live|test)_[0-9a-zA-Z]{16,}\b/g,
+            "SECRET",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\bxox[baprs]-[A-Za-z0-9-]{10,}\b/g,
+            "SECRET",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\bAKIA[0-9A-Z]{16}\b/g,
+            "SECRET",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\bASIA[0-9A-Z]{16}\b/g,
+            "SECRET",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\bgh[pousr]_[A-Za-z0-9]{20,}\b/g,
+            "SECRET",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g,
+            "SECRET",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\bsk-[A-Za-z0-9]{20,}\b/g,
+            "SECRET",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\bhttps?:\/\/[^\s"'`<>]+/gi,
+            "URL",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,
+            "EMAIL",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\b(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}\b/g,
+            "IP",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\b\d{3}-\d{2}-\d{4}\b/g,
+            "PII",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /〒?\s?\d{3}-\d{4}\b/g,
+            "ADDRESS",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\b[A-Z]{2}\d{2}[A-Z0-9]{11,30}\b/g,
+            "ACCOUNT",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi,
+            "ID",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\b(?:\d[ -]?){13,19}\d\b/g,
+            "CARD",
+            _state,
+            _isLikelyCreditCard,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\b\d{4}[-\s]?\d{4}[-\s]?\d{4}\b/g,
+            "PII",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\b(?:\+?\d{1,3}[\s-]?)?(?:\d{2,4}[\s-]\d{2,4}[\s-]\d{3,4})\b/g,
+            "PHONE",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /(?:[A-Za-z]:\\(?:[^\\\s"'`]+\\)*[^\\\s"'`]*|\/(?:Users|home|var|etc|opt|tmp)\/[\w./-]+)/g,
+            "PATH",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /([一-龠々ぁ-んァ-ヶー]{1,12}(?:\s+[一-龠々ぁ-んァ-ヶー]{1,12})?)\s*(様|さん|氏|殿)/g,
+            "NAME",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\b((?:Mr|Ms|Mrs|Dr)\.?\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\b/g,
+            "NAME",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /\b([A-Z][A-Za-z0-9&.'-]*(?:\s+[A-Z][A-Za-z0-9&.'-]*){0,3}\s(?:Inc\.|LLC|Ltd\.|Corp\.|Corporation|Company))\b/g,
+            "ORG",
+            _state,
+          );
+          _result = _maskByRegex(
+            _result,
+            /(?:株式会社|有限会社|合同会社)\s*[^\s、。,.()\n]{1,24}/g,
+            "ORG",
+            _state,
+          );
+
+          return _result;
+        };
+
+        const _renderMaskedOutput = () => {
+          const _sourceText = $inputText.value;
+          if (!_sourceText.trim()) {
+            $maskedOutput.textContent = "";
+            return;
+          }
+          $maskedOutput.textContent = _maskText(_sourceText);
+        };
+
+        const _copyOutput = async () => {
+          const _outputText = $maskedOutput.textContent || "";
+          if (!_outputText) {
+            return;
+          }
+          try {
+            await navigator.clipboard.writeText(_outputText);
+            return;
+          } catch (_error) {
+            const $buffer = document.createElement("textarea");
+            $buffer.value = _outputText;
+            document.body.append($buffer);
+            $buffer.select();
+            document.execCommand("copy");
+            $buffer.remove();
+          }
+        };
+
+        document.addEventListener("input", (_event) => {
+          if (_event.target !== $inputText) {
+            return;
+          }
+          _renderMaskedOutput();
+        });
+
+        document.addEventListener("click", async (_event) => {
+          const $button = _event.target.closest("[data-action]");
+          if (!$button) {
+            return;
+          }
+
+          const _action = $button.dataset.action;
+          if (_action === "clear") {
+            $inputText.value = "";
+            $maskedOutput.textContent = "";
+            $inputText.focus();
+            return;
+          }
+
+          if (_action === "copy") {
+            await _copyOutput();
+          }
+        });
+
+        _applyColorScheme();
+        $maskedOutput.textContent = "";
+      })();
+    </script>
   </body>
 </html>

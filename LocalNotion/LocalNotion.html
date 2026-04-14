@@ -421,32 +421,6 @@
       color: var(--text-tertiary);
     }
 
-    /* Mode Toggle */
-    .mode-toggle {
-      display: flex;
-      background: var(--bg-secondary);
-      border-radius: 6px;
-      padding: 2px;
-      gap: 2px;
-    }
-
-    .mode-btn {
-      padding: 4px 14px;
-      border: none;
-      background: transparent;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 13px;
-      color: var(--text-secondary);
-      font-family: inherit;
-    }
-
-    .mode-btn.active {
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      box-shadow: 0 1px 3px var(--shadow);
-    }
-
     .md-help-btn {
       display: flex;
       align-items: center;
@@ -556,91 +530,85 @@
     }
 
     /* Editor */
-    .editor-textarea {
+    .editor-surface {
       width: 100%;
       min-height: 60vh;
-      border: none;
-      outline: none;
-      resize: none;
       background: transparent;
       color: var(--text-primary);
-      font-family: var(--font-mono);
-      font-size: 15px;
-      line-height: 1.8;
-      padding: 0;
-      caret-color: var(--text-primary);
-    }
-
-    .editor-textarea::placeholder {
-      color: var(--text-tertiary);
-    }
-
-    .editor-textarea.hidden {
-      display: none;
-    }
-
-    /* Preview */
-    .editor-preview {
-      display: none;
+      font-size: 16px;
       line-height: 1.7;
+      caret-color: var(--text-primary);
+      outline: none;
+      border: none;
     }
 
-    .editor-preview.active {
-      display: block;
+    .editor-surface[data-empty="true"]::before {
+      content: attr(data-placeholder);
+      color: var(--text-tertiary);
+      pointer-events: none;
     }
 
-    .editor-preview h1 {
+    .editor-surface h1 {
       font-size: 2em;
       font-weight: 700;
       margin: 0.8em 0 0.4em;
       line-height: 1.2;
     }
 
-    .editor-preview h2 {
+    .editor-surface h2 {
       font-size: 1.5em;
       font-weight: 600;
       margin: 0.7em 0 0.35em;
       line-height: 1.3;
     }
 
-    .editor-preview h3 {
+    .editor-surface h3 {
       font-size: 1.2em;
       font-weight: 600;
       margin: 0.6em 0 0.3em;
       line-height: 1.3;
     }
 
-    .editor-preview p {
+    .editor-surface p {
       margin: 0.4em 0;
     }
 
-    .editor-preview ul,
-    .editor-preview ol {
+    .editor-surface ul,
+    .editor-surface ol {
       margin: 0.4em 0;
       padding-left: 1.6em;
     }
 
-    .editor-preview li {
+    .editor-surface li {
       margin: 0.2em 0;
     }
 
-    .editor-preview li.task-item {
+    .editor-surface li.task-item {
       list-style: none;
       margin-left: -1.2em;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
     }
 
-    .editor-preview li.task-item input[type="checkbox"] {
-      margin-right: 6px;
+    .editor-surface li.task-item input[type="checkbox"] {
+      margin-top: 4px;
+      flex-shrink: 0;
     }
 
-    .editor-preview blockquote {
+    .editor-surface li.task-item .task-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .editor-surface blockquote {
       border-left: 3px solid var(--text-tertiary);
       padding-left: 1em;
       margin: 0.6em 0;
       color: var(--text-secondary);
     }
 
-    .editor-preview pre {
+    .editor-surface pre {
       background: var(--code-bg);
       border-radius: 4px;
       padding: 14px 16px;
@@ -648,14 +616,17 @@
       margin: 0.6em 0;
     }
 
-    .editor-preview pre code {
+    .editor-surface pre code {
       background: none;
       padding: 0;
       font-size: 14px;
       line-height: 1.6;
+      display: block;
+      min-height: 1.6em;
+      outline: none;
     }
 
-    .editor-preview code {
+    .editor-surface code {
       background: var(--code-bg);
       padding: 2px 5px;
       border-radius: 3px;
@@ -663,30 +634,30 @@
       font-size: 87%;
     }
 
-    .editor-preview hr {
+    .editor-surface hr {
       border: none;
       border-top: 1px solid var(--border-color);
       margin: 1em 0;
     }
 
-    .editor-preview a {
+    .editor-surface a {
       color: var(--blue);
       text-decoration: none;
     }
 
-    .editor-preview a:hover {
+    .editor-surface a:hover {
       text-decoration: underline;
     }
 
-    .editor-preview strong {
+    .editor-surface strong {
       font-weight: 700;
     }
 
-    .editor-preview em {
+    .editor-surface em {
       font-style: italic;
     }
 
-    .editor-preview del {
+    .editor-surface del {
       text-decoration: line-through;
       color: var(--text-tertiary);
     }
@@ -999,10 +970,6 @@
             <span class="material-icons">help_outline</span>
             Markdown
           </button>
-          <div class="mode-toggle">
-            <button class="mode-btn active" id="editModeBtn" onclick="setMode('edit')">編集</button>
-            <button class="mode-btn" id="previewModeBtn" onclick="setMode('preview')">プレビュー</button>
-          </div>
         </div>
       </div>
       <div class="editor-container">
@@ -1010,8 +977,8 @@
           <div class="page-header">
             <input type="text" class="page-title-input" id="pageTitle" placeholder="無題">
           </div>
-          <textarea class="editor-textarea" id="editorTextarea" placeholder="マークダウンで書く...&#10;&#10;# 見出し1&#10;## 見出し2&#10;**太字** *斜体* `コード`&#10;- リスト項目&#10;1. 番号付きリスト&#10;- [ ] チェックリスト&#10;> 引用&#10;```&#10;コードブロック&#10;```"></textarea>
-          <div class="editor-preview" id="editorPreview"></div>
+          <div class="editor-surface" id="editorSurface" contenteditable="true"
+            data-placeholder="ここに入力すると、見出しやリストが自動でブロック変換されます"></div>
         </div>
       </div>
     </main>
@@ -1071,6 +1038,7 @@
             <tr><td><code>1. 項目</code></td><td>番号付きリスト</td></tr>
             <tr><td><code>- [ ] タスク</code></td><td>未完了チェック</td></tr>
             <tr><td><code>- [x] タスク</code></td><td>完了チェック</td></tr>
+            <tr><td><code>" 引用文</code></td><td>引用ブロック</td></tr>
             <tr><td><code>&gt; 引用文</code></td><td>引用ブロック</td></tr>
             <tr><td><code>```<br>コード<br>```</code></td><td>コードブロック</td></tr>
             <tr><td><code>---</code></td><td>水平線</td></tr>
@@ -1131,7 +1099,9 @@
     let deleteTargetId = null;
     let opfsHandle = null;
     let saveTimeout = null;
-    let currentMode = 'edit';
+    const FALLBACK_STORAGE_KEY = 'master-data-notion-plus-fallback';
+    const BLOCK_SELECTOR = 'p,div,h1,h2,h3,blockquote,li,pre';
+    const qs = (sel, root = document) => root.querySelector(sel);
 
     // === Init ===
     document.addEventListener('DOMContentLoaded', () => {
@@ -1140,19 +1110,26 @@
     });
 
     async function initFileSystem() {
+      let rawStateText = '';
       try {
         const root = await navigator.storage.getDirectory();
         opfsHandle = await root.getFileHandle('master-data-notion-plus.json', { create: true });
         const file = await opfsHandle.getFile();
-        const text = await file.text();
-        if (text) {
-          const loaded = JSON.parse(text);
+        rawStateText = await file.text();
+      } catch (e) {
+        opfsHandle = null;
+        rawStateText = localStorage.getItem(FALLBACK_STORAGE_KEY) || '';
+      }
+
+      if (rawStateText) {
+        try {
+          const loaded = JSON.parse(rawStateText);
           if (loaded.pages) state.pages = loaded.pages.map(migratePageData);
           if (loaded.settings) state.settings = { ...state.settings, ...loaded.settings };
           if (loaded.sectionExpanded) state.sectionExpanded = loaded.sectionExpanded;
+        } catch (e) {
+          console.warn('State load skipped: invalid JSON');
         }
-      } catch (e) {
-        console.error('File init error:', e);
       }
       state.currentPage = null;
       applySettings();
@@ -1196,9 +1173,8 @@
 
     // === State Management ===
     function saveState() {
-      if (!opfsHandle) return;
       if (state.currentPage) {
-        state.currentPage.content = document.getElementById('editorTextarea').value;
+        state.currentPage.content = getEditorSerializedContent();
       }
       if (saveTimeout) clearTimeout(saveTimeout);
       saveTimeout = setTimeout(async () => {
@@ -1208,11 +1184,16 @@
           sectionExpanded: state.sectionExpanded
         };
         try {
-          const writable = await opfsHandle.createWritable();
-          await writable.write(JSON.stringify(saveData, null, 2));
-          await writable.close();
+          const serialized = JSON.stringify(saveData, null, 2);
+          if (opfsHandle) {
+            const writable = await opfsHandle.createWritable();
+            await writable.write(serialized);
+            await writable.close();
+          } else {
+            localStorage.setItem(FALLBACK_STORAGE_KEY, serialized);
+          }
         } catch (e) {
-          console.error('Save failed:', e);
+          console.warn('Save skipped:', e);
         }
       }, 800);
     }
@@ -1306,6 +1287,50 @@
       return result;
     }
 
+    function isHtmlContent(content = '') {
+      return /<[^>]+>/.test(content);
+    }
+
+    function getEditorSerializedContent() {
+      const $editor = qs('#editorSurface');
+      if (!$editor) return '';
+      const html = $editor.innerHTML.trim();
+      return html || '<p><br></p>';
+    }
+
+    function getEditorNormalizedContent(content = '') {
+      if (!content || !content.trim()) return '<p><br></p>';
+      return isHtmlContent(content) ? content : markdownToHtml(content);
+    }
+
+    function updateEditorEmptyState() {
+      const $editor = qs('#editorSurface');
+      if (!$editor) return;
+      $editor.dataset.empty = (($editor.textContent || '').trim() === '') ? 'true' : 'false';
+    }
+
+    function ensureEditorHasBlock() {
+      const $editor = qs('#editorSurface');
+      if (!$editor) return;
+      if ($editor.innerHTML.trim() === '') {
+        $editor.innerHTML = '<p><br></p>';
+      }
+      updateEditorEmptyState();
+    }
+
+    function setEditorContent(content = '') {
+      const $editor = qs('#editorSurface');
+      if (!$editor) return;
+      $editor.innerHTML = getEditorNormalizedContent(content);
+      ensureEditorHasBlock();
+      updateEditorEmptyState();
+    }
+
+    function syncCurrentPageFromEditor() {
+      if (!state.currentPage) return;
+      state.currentPage.content = getEditorSerializedContent();
+    }
+
     function openPage(pageId) {
       const page = findPage(pageId);
       if (!page) return;
@@ -1317,10 +1342,7 @@
       document.getElementById('pageTitle').value = page.title || '';
       document.getElementById('breadcrumb').innerHTML = `<div class="breadcrumb-item"><span>${page.title || '無題'}</span></div>`;
       const content = page.content || '';
-      document.getElementById('editorTextarea').value = content;
-      if (currentMode === 'preview') {
-        document.getElementById('editorPreview').innerHTML = markdownToHtml(content);
-      }
+      setEditorContent(content);
       saveState();
     }
 
@@ -1394,41 +1416,11 @@
       }
     });
 
-    document.getElementById('editorTextarea').addEventListener('input', (e) => {
-      if (state.currentPage) {
-        state.currentPage.content = e.target.value;
-        saveState();
-      }
+    qs('#editorSurface').addEventListener('input', () => {
+      ensureEditorHasBlock();
+      syncCurrentPageFromEditor();
+      saveState();
     });
-
-    // === Mode Toggle ===
-    function setMode(mode) {
-      currentMode = mode;
-      const textarea = document.getElementById('editorTextarea');
-      const preview = document.getElementById('editorPreview');
-      const editBtn = document.getElementById('editModeBtn');
-      const previewBtn = document.getElementById('previewModeBtn');
-      const helpBtn = document.getElementById('mdHelpBtn');
-      if (mode === 'edit') {
-        textarea.classList.remove('hidden');
-        preview.classList.remove('active');
-        editBtn.classList.add('active');
-        previewBtn.classList.remove('active');
-        helpBtn.style.display = '';
-        textarea.focus();
-      } else {
-        if (state.currentPage) {
-          state.currentPage.content = textarea.value;
-        }
-        textarea.classList.add('hidden');
-        preview.classList.add('active');
-        editBtn.classList.remove('active');
-        previewBtn.classList.add('active');
-        helpBtn.style.display = 'none';
-        closeMdHelp();
-        preview.innerHTML = markdownToHtml(state.currentPage?.content || '');
-      }
-    }
 
     function openMdHelp() {
       document.getElementById('mdHelpOverlay').classList.add('visible');
@@ -1463,7 +1455,7 @@
     }
 
     function markdownToHtml(md) {
-      if (!md) return '<p style="color:var(--text-tertiary)">プレビューする内容がありません。</p>';
+      if (!md) return '<p><br></p>';
       const lines = md.split('\n');
       let html = '';
       let inCodeBlock = false;
@@ -1529,12 +1521,12 @@
         const todoSpace = line.match(/^- \[ \] (.+)/);
         if (todoX) {
           if (listType !== 'ul') { flushList(); listType = 'ul'; }
-          listItems += `<li class="task-item"><input type="checkbox" checked disabled> <del>${inlineMarkdown(todoX[1])}</del></li>`;
+          listItems += `<li class="task-item"><input type="checkbox" checked contenteditable="false"><span class="task-text">${inlineMarkdown(todoX[1]) || '<br>'}</span></li>`;
           continue;
         }
         if (todoSpace) {
           if (listType !== 'ul') { flushList(); listType = 'ul'; }
-          listItems += `<li class="task-item"><input type="checkbox" disabled> ${inlineMarkdown(todoSpace[1])}</li>`;
+          listItems += `<li class="task-item"><input type="checkbox" contenteditable="false"><span class="task-text">${inlineMarkdown(todoSpace[1]) || '<br>'}</span></li>`;
           continue;
         }
 
@@ -1578,6 +1570,13 @@
       document.getElementById('searchModal').classList.remove('visible');
     }
 
+    function toPlainTextContent(content = '') {
+      if (!isHtmlContent(content)) return content;
+      const $tmp = document.createElement('div');
+      $tmp.innerHTML = content;
+      return $tmp.textContent || '';
+    }
+
     function renderSearchResults(query) {
       const container = document.getElementById('searchResults');
       const allPages = getAllPages();
@@ -1588,7 +1587,7 @@
       const q = query.toLowerCase();
       const matched = allPages.filter(page => {
         const titleMatch = (page.title || '無題').toLowerCase().includes(q);
-        const contentMatch = (page.content || '').toLowerCase().includes(q);
+        const contentMatch = toPlainTextContent(page.content || '').toLowerCase().includes(q);
         return titleMatch || contentMatch;
       });
       if (matched.length === 0) {
@@ -1626,18 +1625,207 @@
       saveState();
     }
 
+    function getSelectionRange() {
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return null;
+      return sel.getRangeAt(0);
+    }
+
+    function getCurrentBlock() {
+      const range = getSelectionRange();
+      if (!range) return null;
+      let $node = range.startContainer;
+      if ($node.nodeType === Node.TEXT_NODE) $node = $node.parentElement;
+      if (!($node instanceof Element)) return null;
+      const $block = $node.closest(BLOCK_SELECTOR);
+      if (!$block || $block.id === 'editorSurface') return null;
+      return $block;
+    }
+
+    function setCaretAtStart($node) {
+      const range = document.createRange();
+      range.selectNodeContents($node);
+      range.collapse(true);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+
+    function isCaretAtStart($block) {
+      const range = getSelectionRange();
+      if (!range || !range.collapsed) return false;
+      const head = range.cloneRange();
+      head.selectNodeContents($block);
+      head.setEnd(range.startContainer, range.startOffset);
+      return head.toString().length === 0;
+    }
+
+    function isCaretAtEnd($block) {
+      const range = getSelectionRange();
+      if (!range || !range.collapsed) return false;
+      const tail = range.cloneRange();
+      tail.selectNodeContents($block);
+      tail.setStart(range.endContainer, range.endOffset);
+      return tail.toString().length === 0;
+    }
+
+    function isBlockEmpty($block) {
+      if (!$block) return true;
+      if ($block.tagName === 'LI') {
+        const $taskText = $block.querySelector('.task-text');
+        const text = ($taskText ? $taskText.textContent : $block.textContent) || '';
+        return text.trim() === '';
+      }
+      return (($block.textContent || '').trim() === '');
+    }
+
+    function createParagraphBlock() {
+      const $p = document.createElement('p');
+      $p.innerHTML = '<br>';
+      return $p;
+    }
+
+    function replaceBlockAndMoveCaret($from, $to, $caretTarget = $to) {
+      $from.replaceWith($to);
+      setCaretAtStart($caretTarget);
+      updateEditorEmptyState();
+      syncCurrentPageFromEditor();
+      saveState();
+    }
+
+    function convertToHeading($block, tagName) {
+      const $heading = document.createElement(tagName);
+      $heading.innerHTML = '<br>';
+      replaceBlockAndMoveCaret($block, $heading);
+    }
+
+    function convertToList($block, type) {
+      const $list = document.createElement(type);
+      const $li = document.createElement('li');
+      $li.innerHTML = '<br>';
+      $list.appendChild($li);
+      replaceBlockAndMoveCaret($block, $list, $li);
+    }
+
+    function convertToTaskList($block, checked) {
+      const $list = document.createElement('ul');
+      const $li = document.createElement('li');
+      $li.className = 'task-item';
+      const $checkbox = document.createElement('input');
+      $checkbox.type = 'checkbox';
+      $checkbox.checked = checked;
+      $checkbox.setAttribute('contenteditable', 'false');
+      const $text = document.createElement('span');
+      $text.className = 'task-text';
+      $text.innerHTML = '<br>';
+      $li.append($checkbox, $text);
+      $list.appendChild($li);
+      replaceBlockAndMoveCaret($block, $list, $text);
+    }
+
+    function convertToQuote($block) {
+      const $quote = document.createElement('blockquote');
+      $quote.innerHTML = '<br>';
+      replaceBlockAndMoveCaret($block, $quote);
+    }
+
+    function convertToCodeBlock($block) {
+      const $pre = document.createElement('pre');
+      const $code = document.createElement('code');
+      $code.innerHTML = '<br>';
+      $pre.appendChild($code);
+      replaceBlockAndMoveCaret($block, $pre, $code);
+    }
+
+    function transformMarkdownShortcut() {
+      const $block = getCurrentBlock();
+      if (!$block || !['P', 'DIV'].includes($block.tagName)) return false;
+      const marker = ($block.textContent || '').replace(/\u00A0/g, ' ').trim();
+      if (marker === '#') { convertToHeading($block, 'h1'); return true; }
+      if (marker === '##') { convertToHeading($block, 'h2'); return true; }
+      if (marker === '###') { convertToHeading($block, 'h3'); return true; }
+      if (marker === '-' || marker === '*' || marker === '+') { convertToList($block, 'ul'); return true; }
+      if (/^(1\.|a\.|i\.)$/i.test(marker)) { convertToList($block, 'ol'); return true; }
+      if (marker === '"' || marker === '>') { convertToQuote($block); return true; }
+      if (marker === '[]' || marker === '[ ]') { convertToTaskList($block, false); return true; }
+      if (/^\[(x|X)\]$/.test(marker)) { convertToTaskList($block, true); return true; }
+      if (marker === '```') { convertToCodeBlock($block); return true; }
+      return false;
+    }
+
+    function exitListToParagraph($li) {
+      const $list = $li.closest('ul,ol');
+      const $p = createParagraphBlock();
+      if ($list) {
+        $list.insertAdjacentElement('afterend', $p);
+      } else {
+        qs('#editorSurface').appendChild($p);
+      }
+      $li.remove();
+      if ($list && !$list.querySelector('li')) $list.remove();
+      setCaretAtStart($p);
+      updateEditorEmptyState();
+      syncCurrentPageFromEditor();
+      saveState();
+    }
+
+    function handleEditorEnter(e) {
+      if (e.key !== 'Enter' || e.shiftKey) return;
+      const $block = getCurrentBlock();
+      if (!$block) return;
+
+      if ($block.tagName === 'LI' && isBlockEmpty($block)) {
+        e.preventDefault();
+        exitListToParagraph($block);
+        return;
+      }
+
+      if (['H1', 'H2', 'H3', 'BLOCKQUOTE'].includes($block.tagName) && isCaretAtEnd($block)) {
+        e.preventDefault();
+        const $p = createParagraphBlock();
+        $block.insertAdjacentElement('afterend', $p);
+        setCaretAtStart($p);
+        updateEditorEmptyState();
+        syncCurrentPageFromEditor();
+        saveState();
+      }
+    }
+
+    function handleEditorBackspace(e) {
+      if (e.key !== 'Backspace' || e.metaKey || e.ctrlKey || e.altKey) return;
+      const $block = getCurrentBlock();
+      if (!$block || !isCaretAtStart($block) || !isBlockEmpty($block)) return;
+
+      if ($block.tagName === 'LI') {
+        e.preventDefault();
+        exitListToParagraph($block);
+        return;
+      }
+
+      if (['H1', 'H2', 'H3', 'BLOCKQUOTE'].includes($block.tagName)) {
+        e.preventDefault();
+        const $p = createParagraphBlock();
+        replaceBlockAndMoveCaret($block, $p);
+      }
+    }
+
     // === Event Listeners ===
     function setupEventListeners() {
-      // Tab key in textarea → insert spaces
-      document.getElementById('editorTextarea').addEventListener('keydown', (e) => {
-        if (e.key === 'Tab') {
+      const $editor = qs('#editorSurface');
+
+      $editor.addEventListener('keydown', (e) => {
+        if (e.key === ' ' && !e.metaKey && !e.ctrlKey && !e.altKey && transformMarkdownShortcut()) {
           e.preventDefault();
-          const ta = e.target;
-          const start = ta.selectionStart;
-          const end = ta.selectionEnd;
-          ta.value = ta.value.substring(0, start) + '  ' + ta.value.substring(end);
-          ta.selectionStart = ta.selectionEnd = start + 2;
-          if (state.currentPage) { state.currentPage.content = ta.value; saveState(); }
+          return;
+        }
+        handleEditorEnter(e);
+        handleEditorBackspace(e);
+      });
+
+      $editor.addEventListener('change', (e) => {
+        if (e.target.matches('input[type="checkbox"]')) {
+          syncCurrentPageFromEditor();
+          saveState();
         }
       });
 
@@ -1646,8 +1834,6 @@
         if ((e.metaKey || e.ctrlKey) && e.key === '\\') { e.preventDefault(); toggleSidebar(); }
         if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'p')) { e.preventDefault(); openSearch(); }
         if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'L') { e.preventDefault(); toggleDarkMode(); }
-        // Ctrl+E or Ctrl+Shift+P: toggle mode
-        if ((e.metaKey || e.ctrlKey) && e.key === 'e') { e.preventDefault(); setMode(currentMode === 'edit' ? 'preview' : 'edit'); }
         if (e.key === 'Escape') { closeSettings(); document.getElementById('searchModal').classList.remove('visible'); document.getElementById('mdHelpOverlay').classList.remove('visible'); }
       });
     }

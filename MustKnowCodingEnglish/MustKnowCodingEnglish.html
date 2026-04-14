@@ -1106,14 +1106,14 @@
 
         <div id="quiz-empty" class="quiz-card">
           <h3 class="subheading-strong">テストを開始してください</h3>
-          <p class="muted">現在のフィルタを優先して10問まで出題します。回答後は結果画面へ自動反映されます。</p>
+          <p class="muted">現在のフィルタを優先して全問を出題します。回答後は結果画面へ自動反映されます。</p>
           <div>
             <button class="cta-button" data-action="start-quiz">この条件で開始</button>
           </div>
         </div>
 
         <div id="quiz-live" class="quiz-card hidden">
-          <p class="section-label" id="quiz-counter">Question 1 / 10</p>
+          <p class="section-label" id="quiz-counter">Question 1 / All</p>
           <p class="question-term" id="quiz-term">access</p>
           <p class="muted" id="quiz-hint">英単語の意味を選択してください</p>
           <div class="choice-grid" id="quiz-options"></div>
@@ -9593,7 +9593,7 @@
 
         const _shift = _state.learning.randomCursor % _base.length;
         const _rolled = _base.slice(_shift).concat(_base.slice(0, _shift));
-        return _rolled.slice(0, Math.min(10, _rolled.length));
+        return _rolled;
       }
 
       function _startQuiz() {
