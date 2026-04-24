@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>プライバシーガード | Human-Made UI</title>
+    <title>Makinger</title>
     <link
       rel="icon"
       type="image/svg+xml"
@@ -111,10 +111,17 @@
       >
         <div>
           <h1 class="text-sm font-semibold tracking-[0.06em] leading-none py-1">
-            Maskinger
+            Makinger
           </h1>
         </div>
         <div class="inline-flex gap-2">
+          <button
+            data-action="help"
+            class="px-2.5 py-1.5 text-[0.75rem] rounded border border-outline-variant/35 bg-surface-container-high/60 hover:bg-surface-container-high"
+            type="button"
+          >
+            ヘルプ
+          </button>
           <button
             data-action="clear"
             class="px-2.5 py-1.5 text-[0.75rem] rounded border border-outline-variant/35 bg-secondary-container/45 hover:bg-secondary-container/70"
@@ -122,17 +129,10 @@
           >
             クリア
           </button>
-          <button
-            data-action="copy"
-            class="px-2.5 py-1.5 text-[0.75rem] rounded border border-outline-variant/35 bg-tertiary-container/20 hover:bg-tertiary-container/35"
-            type="button"
-          >
-            コピー
-          </button>
         </div>
       </section>
 
-      <section class="grid grid-cols-2 gap-3 min-h-[calc(100dvh-7.5rem)]">
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-3 h-[calc(100dvh-7.5rem)]">
         <article
           class="rounded-lg border border-outline-variant/20 bg-surface-container-lowest min-h-0 flex flex-col"
         >
@@ -149,21 +149,122 @@
           ></textarea>
         </article>
 
-        <article
-          class="rounded-lg border border-outline-variant/20 bg-surface-container-lowest min-h-0 flex flex-col"
-        >
-          <header
-            class="px-3 py-2 border-b border-outline-variant/20 text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-on-surface-variant"
+        <article class="min-h-0 h-full flex flex-col gap-3">
+          <section
+            class="rounded-lg border border-outline-variant/20 bg-surface-container-lowest min-h-0 flex-1 flex flex-col"
           >
-            output
-          </header>
-          <pre
-            id="maskedOutput"
-            class="flex-1 min-h-0 overflow-auto p-3 text-[0.86rem] leading-relaxed font-mono text-on-surface whitespace-pre-wrap break-words"
-          ></pre>
+            <header
+              class="px-3 py-2 border-b border-outline-variant/20 flex items-center justify-between gap-3"
+            >
+              <span
+                class="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-on-surface-variant"
+              >
+                output
+              </span>
+              <button
+                data-action="copy"
+                class="px-2 py-1 text-[0.7rem] rounded border border-outline-variant/35 bg-tertiary-container/20 hover:bg-tertiary-container/35"
+                type="button"
+              >
+                コピー
+              </button>
+            </header>
+            <pre
+              id="maskedOutput"
+              class="flex-1 min-h-0 overflow-auto p-3 text-[0.86rem] leading-relaxed font-mono text-on-surface whitespace-pre-wrap break-words"
+            ></pre>
+          </section>
+
+          <section
+            class="rounded-lg border border-outline-variant/20 bg-surface-container-lowest min-h-0 flex-1 flex flex-col"
+          >
+            <header
+              class="px-3 py-2 border-b border-outline-variant/20 flex items-center justify-between gap-3"
+            >
+              <span
+                class="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-on-surface-variant"
+              >
+                mask mappings
+              </span>
+              <button
+                data-action="copy-masked-list"
+                class="px-2 py-1 text-[0.7rem] rounded border border-outline-variant/35 bg-tertiary-container/20 hover:bg-tertiary-container/35"
+                type="button"
+              >
+                コピー
+              </button>
+            </header>
+            <div class="flex-1 min-h-0">
+              <article class="h-full min-h-0 flex flex-col">
+                <ul
+                  id="maskedMappingList"
+                  class="flex-1 min-h-0 overflow-auto px-6 pb-3 text-[0.8rem] leading-relaxed font-mono text-on-surface list-disc break-words"
+                ></ul>
+              </article>
+            </div>
+          </section>
         </article>
       </section>
     </main>
+    <div
+      id="helpModal"
+      class="fixed inset-0 z-50 hidden items-center justify-center bg-on-surface/40 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-hidden="true"
+      aria-labelledby="helpModalTitle"
+    >
+      <section
+        class="w-full max-w-[42rem] rounded-xl border border-outline-variant/35 bg-surface-container-lowest shadow-lg"
+      >
+        <header
+          class="flex items-center justify-between gap-3 px-4 py-3 border-b border-outline-variant/20"
+        >
+          <h2
+            id="helpModalTitle"
+            class="text-[0.9rem] font-semibold tracking-[0.04em] text-on-surface"
+          >
+            Makinger ヘルプ
+          </h2>
+          <button
+            data-action="close-help"
+            class="px-2 py-1 text-[0.72rem] rounded border border-outline-variant/35 bg-surface-container-high/50 hover:bg-surface-container-high"
+            type="button"
+          >
+            閉じる
+          </button>
+        </header>
+        <div class="px-4 py-3 space-y-3 text-[0.82rem] leading-relaxed text-on-surface-variant">
+          <p>
+            Makinger は、AI送信前のテキストをブラウザ内だけでマスキングするツールです。
+          </p>
+          <section class="space-y-1">
+            <h3 class="text-[0.75rem] font-semibold uppercase tracking-[0.08em]">
+              主なマスク対象
+            </h3>
+            <ul class="list-disc pl-5 space-y-0.5">
+              <li>メールアドレス、URL、IPアドレス、電話番号</li>
+              <li>トークン・APIキー・認証情報・秘密鍵のような機密値</li>
+              <li>カード番号、UUID、住所/名前らしき個人情報</li>
+              <li>コード入力時のコメント、クラス名、関数名、定数名、文字列リテラル</li>
+            </ul>
+          </section>
+          <section class="space-y-1">
+            <h3 class="text-[0.75rem] font-semibold uppercase tracking-[0.08em]">
+              使い方
+            </h3>
+            <ul class="list-disc pl-5 space-y-0.5">
+              <li>左の入力欄にテキストまたはコードを貼り付ける</li>
+              <li>右上でマスク結果、右下で対応一覧を確認する</li>
+              <li>必要に応じて各「コピー」ボタンで出力を取得する</li>
+            </ul>
+          </section>
+          <p class="text-[0.76rem] text-on-surface-variant/80">
+            変換はルールベースです。送信前に最終確認を行ってください。
+          </p>
+        </div>
+      </section>
+    </div>
     <script>
       (() => {
         "use strict";
@@ -206,6 +307,21 @@
           "password|passwd|pwd|secret|token|api[_-]?key|access[_-]?(?:token|key)|client[_-]?secret|authorization|auth|session(?:id)?|cookie|bearer|private[_-]?key|ssh[_-]?key|refresh[_-]?token|id[_-]?token|webhook[_-]?secret";
         const PII_ASSIGNMENT_KEY_PATTERN =
           "email|mail|phone|tel|mobile|address|ssn|social[_-]?security|passport|license|driver[_-]?license|my[_-]?number|mynumber|card(?:number)?|credit[_-]?card|iban|account(?:_?number)?|routing(?:_?number)?|dob|birth(?:date)?|full[_-]?name|real[_-]?name|employee(?:_?id)?|customer(?:_?id)?|user(?:_?id)?";
+        const EMPTY_INPUT_MESSAGE = "";
+        const NO_MATCH_MESSAGE = "マスキング対象は見つかりませんでした";
+        const COPY_DONE_LABEL = "コピーしました";
+        const COPY_FEEDBACK_DURATION_MS = 1200;
+        const COPY_IDLE_BUTTON_CLASSES = [
+          "border-outline-variant/35",
+          "bg-tertiary-container/20",
+          "hover:bg-tertiary-container/35",
+        ];
+        const COPY_DONE_BUTTON_CLASSES = [
+          "border-tertiary-container/80",
+          "bg-tertiary-container",
+          "text-on-tertiary-container",
+          "hover:bg-tertiary-container",
+        ];
 
         const _buildAssignmentRegexes = (_keyPattern) => ({
           _quoted: new RegExp(
@@ -227,9 +343,19 @@
 
         const $inputText = qs("#inputText");
         const $maskedOutput = qs("#maskedOutput");
+        const $maskedMappingList = qs("#maskedMappingList");
+        const $helpModal = qs("#helpModal");
         const $actionButtons = qsa("[data-action]");
+        const _copyFeedbackTimeoutByButton = new WeakMap();
+        let _lastFocusedElement = null;
 
-        if (!$inputText || !$maskedOutput || $actionButtons.length === 0) {
+        if (
+          !$inputText ||
+          !$maskedOutput ||
+          !$maskedMappingList ||
+          !$helpModal ||
+          $actionButtons.length === 0
+        ) {
           return;
         }
 
@@ -409,10 +535,9 @@
           return SQL_STATEMENT_REGEX.test(_oneLine.toUpperCase());
         };
 
-        const _maskSqlStrings = (_text) => {
+        const _maskSqlStrings = (_text, _state) => {
           let _result = "";
           let _index = 0;
-          let _counter = 0;
 
           while (_index < _text.length) {
             const _char = _text[_index];
@@ -422,8 +547,7 @@
                 _literalInfo._isClosed &&
                 _isSqlStatement(_literalInfo._content)
               ) {
-                _counter += 1;
-                _result += `[SQL_${_counter}]`;
+                _result += _nextPlaceholder("SQL", _state, _literalInfo._literal);
               } else {
                 _result += _literalInfo._literal;
               }
@@ -453,12 +577,175 @@
           return true;
         };
 
-        const _maskConstants = (_text) => {
+        const _escapeRegex = (_value) =>
+          _value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+        const _replaceIdentifierEverywhere = (_text, _name, _replacement) => {
+          const _pattern = new RegExp(`\\b${_escapeRegex(_name)}\\b`, "g");
+          return _text.replace(_pattern, _replacement);
+        };
+
+        const _maskClassLikeNames = (_text, _state) => {
+          const _placeholderByName = new Map();
+          const _toPlaceholder = (_name) => {
+            if (!_placeholderByName.has(_name)) {
+              _placeholderByName.set(
+                _name,
+                _nextPlaceholder("CLASS", _state, _name),
+              );
+            }
+            return _placeholderByName.get(_name);
+          };
+
+          let _result = _text.replace(
+            /\b(class\s+)([A-Z][A-Za-z0-9_]*)\b/g,
+            (_match, _prefix, _name) => `${_prefix}${_toPlaceholder(_name)}`,
+          );
+          _result = _result.replace(
+            /\b((?:interface|enum|type)\s+)([A-Z][A-Za-z0-9_]*)\b/g,
+            (_match, _prefix, _name) => `${_prefix}${_toPlaceholder(_name)}`,
+          );
+
+          for (const [_name, _placeholder] of _placeholderByName) {
+            _result = _replaceIdentifierEverywhere(_result, _name, _placeholder);
+          }
+
+          return _result;
+        };
+
+        const _maskFunctionNames = (_text, _state) => {
+          const _placeholderByName = new Map();
+          const _skipNameSet = new Set([
+            "if",
+            "for",
+            "while",
+            "switch",
+            "catch",
+            "return",
+            "throw",
+            "new",
+            "case",
+            "default",
+            "await",
+            "yield",
+            "typeof",
+            "delete",
+            "constructor",
+          ]);
+          const _shouldSkipFunctionName = (_name) =>
+            _skipNameSet.has(_name.toLowerCase()) || _isPlaceholder(_name);
+          const _toPlaceholder = (_name) => {
+            if (_shouldSkipFunctionName(_name)) {
+              return _name;
+            }
+            if (!_placeholderByName.has(_name)) {
+              _placeholderByName.set(
+                _name,
+                _nextPlaceholder("FUNC", _state, _name),
+              );
+            }
+            return _placeholderByName.get(_name);
+          };
+
+          let _result = _text.replace(
+            /\b((?:async\s+)?function\s+)([A-Za-z_][A-Za-z0-9_]*)\b/g,
+            (_match, _prefix, _name) => `${_prefix}${_toPlaceholder(_name)}`,
+          );
+          _result = _result.replace(
+            /\b(def\s+)([A-Za-z_][A-Za-z0-9_]*)\s*(?=\()/g,
+            (_match, _prefix, _name) => `${_prefix}${_toPlaceholder(_name)}`,
+          );
+          _result = _result.replace(
+            /\b(func\s+)([A-Za-z_][A-Za-z0-9_]*)\s*(?=\()/g,
+            (_match, _prefix, _name) => `${_prefix}${_toPlaceholder(_name)}`,
+          );
+          _result = _result.replace(
+            /\b((?:const|let|var)\s+)([A-Za-z_$][A-Za-z0-9_$]*)(\s*=\s*(?:async\s+)?(?:function\b|\([^)\n]*\)\s*=>|[A-Za-z_$][A-Za-z0-9_$]*\s*=>))/g,
+            (_match, _prefix, _name, _suffix) =>
+              `${_prefix}${_toPlaceholder(_name)}${_suffix}`,
+          );
+          _result = _result.replace(
+            /(^|\n)(\s*)([A-Za-z_$][A-Za-z0-9_$]*)\s*(?=\([^)\n]*\)\s*\{)/g,
+            (_match, _lineBreak, _indent, _name) => {
+              if (_shouldSkipFunctionName(_name)) {
+                return _match;
+              }
+              return `${_lineBreak}${_indent}${_toPlaceholder(_name)}`;
+            },
+          );
+          _result = _result.replace(
+            /(^|\n)(\s*(?:@\w+(?:\([^)\n]*\))?\s*)*(?:(?:public|private|protected)\s+)?(?:(?:static|final|synchronized|abstract|native|strictfp)\s+)*(?:<[^>\n]+>\s+)?(?:[A-Za-z_$][A-Za-z0-9_$<>\[\],.?]*\s+)+)([A-Za-z_$][A-Za-z0-9_$]*)\s*(?=\([^)\n]*\)\s*(?:\{|throws\b|;))/g,
+            (_match, _lineBreak, _prefix, _name) => {
+              const _prefixTrimmed = _prefix.trim();
+              const _lastWordMatch = _prefixTrimmed.match(
+                /([A-Za-z_$][A-Za-z0-9_$]*)\s*$/,
+              );
+              const _lastWord = _lastWordMatch
+                ? _lastWordMatch[1].toLowerCase()
+                : "";
+              if (
+                _shouldSkipFunctionName(_name) ||
+                _skipNameSet.has(_lastWord)
+              ) {
+                return _match;
+              }
+              return `${_lineBreak}${_prefix}${_toPlaceholder(_name)}`;
+            },
+          );
+
+          for (const [_name, _placeholder] of _placeholderByName) {
+            _result = _replaceIdentifierEverywhere(_result, _name, _placeholder);
+          }
+
+          return _result;
+        };
+
+        const _shouldMaskCodeStringLiteral = (_content) => {
+          if (!_content.trim()) {
+            return false;
+          }
+          if (_isPlaceholder(_content.trim())) {
+            return false;
+          }
+          return /[A-Za-z0-9一-龠々ぁ-んァ-ヶ]/.test(_content);
+        };
+
+        const _maskCodeStringLiterals = (_text, _state) => {
+          let _result = "";
+          let _index = 0;
+
+          while (_index < _text.length) {
+            const _char = _text[_index];
+            if (_char === "'" || _char === '"' || _char === "`") {
+              const _literalInfo = _consumeQuotedLiteral(_text, _index, _char);
+              if (
+                _literalInfo._isClosed &&
+                _shouldMaskCodeStringLiteral(_literalInfo._content)
+              ) {
+                const _placeholder = _nextPlaceholder(
+                  "STRING",
+                  _state,
+                  _literalInfo._literal,
+                );
+                _result += `${_char}${_placeholder}${_char}`;
+              } else {
+                _result += _literalInfo._literal;
+              }
+              _index = _literalInfo._nextIndex;
+              continue;
+            }
+            _result += _char;
+            _index += 1;
+          }
+
+          return _result;
+        };
+
+        const _maskConstants = (_text, _state) => {
           let _result = "";
           let _index = 0;
           let _isInString = false;
           let _stringQuote = "";
-          let _counter = 0;
 
           while (_index < _text.length) {
             const _char = _text[_index];
@@ -508,8 +795,7 @@
               }
               const _token = _text.slice(_index, _endIndex);
               if (_isMaskableConstant(_token)) {
-                _counter += 1;
-                _result += `[CONST_${_counter}]`;
+                _result += _nextPlaceholder("CONST", _state, _token);
               } else {
                 _result += _token;
               }
@@ -526,12 +812,18 @@
 
         const _createMaskState = () => ({
           _counterByLabel: new Map(),
+          _mappings: [],
         });
 
-        const _nextPlaceholder = (_label, _state) => {
+        const _nextPlaceholder = (_label, _state, _originalValue = "") => {
           const _nextCount = (_state._counterByLabel.get(_label) || 0) + 1;
           _state._counterByLabel.set(_label, _nextCount);
-          return `[${_label}_${_nextCount}]`;
+          const _placeholder = `[${_label}_${_nextCount}]`;
+          _state._mappings.push({
+            _original: _originalValue,
+            _masked: _placeholder,
+          });
+          return _placeholder;
         };
 
         const _isPlaceholder = (_value) => /^\[[A-Z]+_\d+\]$/.test(_value);
@@ -550,7 +842,7 @@
             if (_validator && !_validator(_match)) {
               return _match;
             }
-            return _nextPlaceholder(_label, _state);
+            return _nextPlaceholder(_label, _state, _match);
           });
 
         const _isLikelyCreditCard = (_candidate) => {
@@ -583,7 +875,7 @@
               if (_isPlaceholder(_value)) {
                 return _match;
               }
-              const _placeholder = _nextPlaceholder(_label, _state);
+              const _placeholder = _nextPlaceholder(_label, _state, _value);
               return `${_prefix}${_quote}${_placeholder}${_suffixQuote}`;
             },
           );
@@ -594,7 +886,7 @@
               if (_isPlaceholder(_value)) {
                 return _match;
               }
-              const _placeholder = _nextPlaceholder(_label, _state);
+              const _placeholder = _nextPlaceholder(_label, _state, _value);
               return `${_prefix}${_placeholder}`;
             },
           );
@@ -608,8 +900,11 @@
 
           if (_looksLikeCode(_rawText)) {
             _result = _stripComments(_result);
-            _result = _maskSqlStrings(_result);
-            _result = _maskConstants(_result);
+            _result = _maskSqlStrings(_result, _state);
+            _result = _maskClassLikeNames(_result, _state);
+            _result = _maskFunctionNames(_result, _state);
+            _result = _maskConstants(_result, _state);
+            _result = _maskCodeStringLiterals(_result, _state);
           }
 
           _result = _maskAssignmentValues(
@@ -789,33 +1084,144 @@
             _state,
           );
 
-          return _result;
+          return {
+            _maskedText: _result,
+            _mappings: _state._mappings,
+          };
         };
+
+        const _normalizeLineValue = (_value) =>
+          String(_value).replace(/\r?\n/g, "\\n");
+
+        const _buildMappingLines = (_mappings) =>
+          _mappings.map((_mapping) => {
+            const _left = _mapping._masked;
+            const _right = _mapping._original;
+            return `${_normalizeLineValue(_left)} = ${_normalizeLineValue(
+              _right,
+            )}`;
+          });
+
+        const _renderMappingList = ($list, _lines, _emptyMessage) => {
+          $list.textContent = "";
+          if (_lines.length === 0) {
+            if (!_emptyMessage) {
+              return;
+            }
+            const $emptyItem = document.createElement("li");
+            $emptyItem.className =
+              "list-none text-on-surface-variant/80 italic ml-[-1rem]";
+            $emptyItem.textContent = _emptyMessage;
+            $list.append($emptyItem);
+            return;
+          }
+
+          for (const _line of _lines) {
+            const $item = document.createElement("li");
+            $item.textContent = _line;
+            $list.append($item);
+          }
+        };
+
+        let _maskedMappingLines = [];
 
         const _renderMaskedOutput = () => {
           const _sourceText = $inputText.value;
           if (!_sourceText.trim()) {
             $maskedOutput.textContent = "";
+            _maskedMappingLines = [];
+            _renderMappingList(
+              $maskedMappingList,
+              _maskedMappingLines,
+              EMPTY_INPUT_MESSAGE,
+            );
             return;
           }
-          $maskedOutput.textContent = _maskText(_sourceText);
+          const _maskResult = _maskText(_sourceText);
+          $maskedOutput.textContent = _maskResult._maskedText;
+          _maskedMappingLines = _buildMappingLines(_maskResult._mappings);
+          _renderMappingList(
+            $maskedMappingList,
+            _maskedMappingLines,
+            NO_MATCH_MESSAGE,
+          );
         };
 
-        const _copyOutput = async () => {
-          const _outputText = $maskedOutput.textContent || "";
-          if (!_outputText) {
-            return;
+        const _showCopyDoneLabel = ($button) => {
+          const _defaultLabel =
+            $button.dataset.defaultLabel || $button.textContent.trim() || "コピー";
+          const _defaultClassName =
+            $button.dataset.defaultClassName || $button.className;
+          $button.dataset.defaultLabel = _defaultLabel;
+          $button.dataset.defaultClassName = _defaultClassName;
+          const _existingTimeout = _copyFeedbackTimeoutByButton.get($button);
+          if (_existingTimeout) {
+            clearTimeout(_existingTimeout);
+          }
+          $button.textContent = COPY_DONE_LABEL;
+          $button.classList.remove(...COPY_IDLE_BUTTON_CLASSES);
+          $button.classList.add(...COPY_DONE_BUTTON_CLASSES);
+          const _timeoutId = setTimeout(() => {
+            $button.textContent = _defaultLabel;
+            $button.className = _defaultClassName;
+            _copyFeedbackTimeoutByButton.delete($button);
+          }, COPY_FEEDBACK_DURATION_MS);
+          _copyFeedbackTimeoutByButton.set($button, _timeoutId);
+        };
+
+        const _copyText = async (_text) => {
+          if (!_text) {
+            return false;
           }
           try {
-            await navigator.clipboard.writeText(_outputText);
-            return;
+            await navigator.clipboard.writeText(_text);
+            return true;
           } catch (_error) {
             const $buffer = document.createElement("textarea");
-            $buffer.value = _outputText;
+            $buffer.value = _text;
             document.body.append($buffer);
             $buffer.select();
-            document.execCommand("copy");
+            let _isCopied = false;
+            try {
+              _isCopied = document.execCommand("copy");
+            } catch (_fallbackError) {
+              _isCopied = false;
+            }
             $buffer.remove();
+            return _isCopied;
+          }
+        };
+
+        const _copyOutput = async () => _copyText($maskedOutput.textContent || "");
+
+        const _openHelpModal = () => {
+          if (!$helpModal.classList.contains("hidden")) {
+            return;
+          }
+          _lastFocusedElement =
+            document.activeElement instanceof HTMLElement
+              ? document.activeElement
+              : null;
+          $helpModal.classList.remove("hidden");
+          $helpModal.classList.add("flex");
+          $helpModal.setAttribute("aria-hidden", "false");
+          document.body.classList.add("overflow-hidden");
+          const $closeButton = qs("[data-action='close-help']", $helpModal);
+          if ($closeButton) {
+            $closeButton.focus();
+          }
+        };
+
+        const _closeHelpModal = () => {
+          if ($helpModal.classList.contains("hidden")) {
+            return;
+          }
+          $helpModal.classList.add("hidden");
+          $helpModal.classList.remove("flex");
+          $helpModal.setAttribute("aria-hidden", "true");
+          document.body.classList.remove("overflow-hidden");
+          if (_lastFocusedElement && document.contains(_lastFocusedElement)) {
+            _lastFocusedElement.focus();
           }
         };
 
@@ -826,27 +1232,60 @@
           _renderMaskedOutput();
         });
 
+        document.addEventListener("keydown", (_event) => {
+          if (_event.key !== "Escape") {
+            return;
+          }
+          _closeHelpModal();
+        });
+
         document.addEventListener("click", async (_event) => {
+          if (_event.target === $helpModal) {
+            _closeHelpModal();
+            return;
+          }
+
           const $button = _event.target.closest("[data-action]");
           if (!$button) {
             return;
           }
 
           const _action = $button.dataset.action;
+          if (_action === "help") {
+            _openHelpModal();
+            return;
+          }
+
+          if (_action === "close-help") {
+            _closeHelpModal();
+            return;
+          }
+
           if (_action === "clear") {
             $inputText.value = "";
-            $maskedOutput.textContent = "";
+            _renderMaskedOutput();
             $inputText.focus();
             return;
           }
 
           if (_action === "copy") {
-            await _copyOutput();
+            const _didCopy = await _copyOutput();
+            if (_didCopy) {
+              _showCopyDoneLabel($button);
+            }
+            return;
+          }
+
+          if (_action === "copy-masked-list") {
+            const _didCopy = await _copyText(_maskedMappingLines.join("\n"));
+            if (_didCopy) {
+              _showCopyDoneLabel($button);
+            }
           }
         });
 
         _applyColorScheme();
-        $maskedOutput.textContent = "";
+        _renderMaskedOutput();
       })();
     </script>
   </body>

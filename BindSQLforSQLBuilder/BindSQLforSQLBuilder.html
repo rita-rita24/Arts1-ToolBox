@@ -48,7 +48,18 @@
         --good: oklch(0.66 0.16 150);
         --warn: oklch(0.71 0.17 40);
         --focus-ring: oklch(0.66 0.12 258 / 40%);
+        --sql-keyword: oklch(0.53 0.2 260);
+        --sql-string: oklch(0.64 0.19 56);
+        --sql-number: oklch(0.58 0.17 152);
+        --sql-comment: oklch(0.54 0.03 250);
         --shadow: 0 18px 44px oklch(0.2 0.02 250 / 10%);
+        --mode-switch-track: light-dark(oklch(0.32 0.02 252), oklch(0.33 0.02 252));
+        --mode-switch-track-active: light-dark(oklch(0.74 0.11 233), oklch(0.46 0.07 233));
+        --mode-switch-moon: light-dark(oklch(0.99 0.003 245), oklch(0.95 0.01 245));
+        --mode-switch-sun: light-dark(oklch(0.88 0.14 90), oklch(0.86 0.12 90));
+        --mode-switch-star: light-dark(oklch(0.97 0.01 245), oklch(0.96 0.01 245));
+        --mode-switch-cloud: light-dark(oklch(0.99 0.003 245), oklch(0.99 0.003 245));
+        --mode-switch-focus: light-dark(oklch(0.62 0.11 205), oklch(0.74 0.085 205));
       }
 
       :root[data-theme="dark"] {
@@ -64,6 +75,10 @@
         --good: oklch(0.78 0.17 150);
         --warn: oklch(0.8 0.16 45);
         --focus-ring: oklch(0.72 0.15 258 / 36%);
+        --sql-keyword: oklch(0.78 0.16 261);
+        --sql-string: oklch(0.82 0.15 62);
+        --sql-number: oklch(0.8 0.15 152);
+        --sql-comment: oklch(0.69 0.03 250);
         --shadow: 0 22px 48px oklch(0.05 0.02 250 / 45%);
       }
 
@@ -86,7 +101,9 @@
     @layer component {
       .app {
         min-height: 100vh;
-        padding: clamp(0.9rem, 1.7vw, 1.4rem);
+        padding-inline: clamp(0.9rem, 1.7vw, 1.4rem);
+        padding-bottom: clamp(0.9rem, 1.7vw, 1.4rem);
+        padding-top: calc(clamp(0.9rem, 1.7vw, 1.4rem) + 2.9rem);
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         gap: clamp(0.9rem, 1.4vw, 1.2rem);
@@ -142,6 +159,7 @@
       .panel__body {
         padding: 0.95rem 1rem 1rem;
         display: grid;
+        grid-template-rows: minmax(0, 1fr);
         gap: 0.75rem;
         align-content: stretch;
         min-height: 0;
@@ -160,13 +178,18 @@
         grid-template-rows: auto minmax(0, 1fr);
         gap: 0.35rem;
         min-height: 0;
+        height: 100%;
       }
 
-      .textarea {
-        width: 100%;
+      .input-editor {
+        position: relative;
         min-height: 0;
         height: 100%;
-        resize: vertical;
+      }
+
+      .input-editor__highlight {
+        position: absolute;
+        inset: 0;
         border: 1px solid var(--border);
         border-radius: 10px;
         padding: 0.75rem 0.85rem;
@@ -175,15 +198,50 @@
         font-family: "Monaco", "Menlo", "Consolas", monospace;
         font-size: 0.9rem;
         line-height: 1.55;
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow: auto;
+        pointer-events: none;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+          width: 0;
+          height: 0;
+        }
+      }
+
+      .textarea {
+        width: 100%;
+        min-height: 0;
+        height: 100%;
+        resize: vertical;
+        field-sizing: fixed;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        padding: 0.75rem 0.85rem;
+        background: transparent;
+        color: transparent;
+        caret-color: var(--text);
+        -webkit-text-fill-color: transparent;
+        font-family: "Monaco", "Menlo", "Consolas", monospace;
+        font-size: 0.9rem;
+        line-height: 1.55;
+        position: relative;
+        z-index: 1;
 
         &:focus-visible {
           outline: 2px solid var(--focus-ring);
           outline-offset: 1px;
         }
+
+        &::selection {
+          background: oklch(from var(--primary) l c h / 28%);
+        }
       }
 
       .output {
-        min-height: 100%;
+        min-height: 0;
+        height: 100%;
         border: 1px solid var(--border);
         border-radius: 10px;
         padding: 0.9rem;
@@ -194,6 +252,27 @@
         color: var(--text);
         white-space: pre-wrap;
         word-break: break-word;
+      }
+
+      .sql-token {
+        font-weight: 600;
+      }
+
+      .sql-token--keyword {
+        color: var(--sql-keyword);
+      }
+
+      .sql-token--string {
+        color: var(--sql-string);
+      }
+
+      .sql-token--number {
+        color: var(--sql-number);
+      }
+
+      .sql-token--comment {
+        color: var(--sql-comment);
+        font-style: italic;
       }
 
       .button {
@@ -252,26 +331,160 @@
         }
       }
 
+      .mode-toggle {
+        position: fixed;
+        top: clamp(0.7rem, 1.8vw, 1rem);
+        right: clamp(0.7rem, 1.8vw, 1rem);
+        z-index: 30;
+      }
+
+      .app-title {
+        position: fixed;
+        top: clamp(0.7rem, 1.8vw, 1rem);
+        left: clamp(0.7rem, 1.8vw, 1rem);
+        z-index: 30;
+        display: inline-flex;
+        align-items: center;
+        min-height: 2.2em;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 0.35rem 0.8rem;
+        background: oklch(from var(--surface) l c h / 88%);
+        color: var(--text);
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        box-shadow: 0 0 10px oklch(0 0 0 / 8%);
+        backdrop-filter: blur(2px);
+      }
+
+      .switch {
+        font-size: 17px;
+        position: relative;
+        display: inline-block;
+        width: 4em;
+        height: 2.2em;
+        border-radius: 30px;
+        box-shadow: 0 0 10px oklch(0 0 0 / 12%);
+        flex-shrink: 0;
+      }
+
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background-color: var(--mode-switch-track);
+        transition: 0.4s;
+        border-radius: 30px;
+        overflow: hidden;
+      }
+
+      .slider::before {
+        position: absolute;
+        content: "";
+        height: 1.2em;
+        width: 1.2em;
+        border-radius: 20px;
+        left: 0.5em;
+        bottom: 0.5em;
+        transition: 0.4s;
+        transition-timing-function: cubic-bezier(0.81, -0.04, 0.38, 1.5);
+        box-shadow: inset 8px -4px 0 0 var(--mode-switch-moon);
+      }
+
+      .switch input:checked + .slider {
+        background-color: var(--mode-switch-track-active);
+      }
+
+      .switch input:checked + .slider::before {
+        transform: translateX(1.8em);
+        box-shadow: inset 15px -4px 0 15px var(--mode-switch-sun);
+      }
+
+      .star {
+        background-color: var(--mode-switch-star);
+        border-radius: 50%;
+        position: absolute;
+        width: 5px;
+        height: 5px;
+        transition: all 0.4s;
+      }
+
+      .star_1 {
+        left: 2.5em;
+        top: 0.5em;
+      }
+
+      .star_2 {
+        left: 2.2em;
+        top: 1.2em;
+      }
+
+      .star_3 {
+        left: 3em;
+        top: 0.9em;
+      }
+
+      .switch input:checked ~ .slider .star {
+        opacity: 0;
+      }
+
+      .cloud {
+        width: 3.5em;
+        position: absolute;
+        bottom: -1.4em;
+        left: -1.1em;
+        opacity: 0;
+        transition: all 0.4s;
+      }
+
+      .cloud path {
+        fill: var(--mode-switch-cloud);
+      }
+
+      .switch input:checked ~ .slider .cloud {
+        opacity: 1;
+      }
+
+      .switch input:focus-visible + .slider {
+        outline: 1px solid var(--mode-switch-focus);
+      }
+
       .flash {
         position: fixed;
-        right: 1rem;
-        bottom: 1rem;
-        max-width: min(92vw, 360px);
+        top: 1rem;
+        left: 50%;
+        z-index: 20;
+        width: min(92vw, 560px);
         border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 0.62rem 0.8rem;
+        border-radius: 12px;
+        padding: 0.7rem 0.9rem;
         background: var(--surface);
         color: var(--text);
         font-size: 0.82rem;
+        font-weight: 700;
+        text-align: center;
         box-shadow: var(--shadow);
         opacity: 0;
-        transform: translateY(8px);
+        transform: translate(-50%, -10px);
         pointer-events: none;
         transition: opacity 180ms ease, transform 180ms ease;
 
+        &[data-type="error"] {
+          border-color: var(--warn);
+          background: oklch(from var(--warn) 0.95 0.04 h);
+          color: oklch(0.3 0.08 45);
+        }
+
         &.is-visible {
           opacity: 1;
-          transform: translateY(0);
+          transform: translate(-50%, 0);
         }
       }
 
@@ -293,6 +506,24 @@
   </style>
 </head>
 <body>
+  <p class="app-title">BindSQL</p>
+  <div class="mode-toggle">
+    <label class="switch" for="lightModeToggle">
+      <input checked id="lightModeToggle" type="checkbox" data-role="mode-toggle" aria-label="ライト/ダークモード切り替え" />
+      <span class="slider">
+        <div class="star star_1"></div>
+        <div class="star star_2"></div>
+        <div class="star star_3"></div>
+        <svg viewBox="0 0 16 16" class="cloud_1 cloud" aria-hidden="true">
+          <path
+            transform="matrix(.77976 0 0 .78395-299.99-418.63)"
+            fill="#fff"
+            d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"
+          ></path>
+        </svg>
+      </span>
+    </label>
+  </div>
   <main class="app">
     <section class="panel panel--input" aria-label="入力エリア">
       <header class="panel__header">
@@ -309,12 +540,15 @@
       <div class="panel__body">
         <div class="field">
           <label class="form-label" for="raw-input">貼り付け欄</label>
-          <textarea
-            id="raw-input"
-            class="textarea"
-            data-role="raw-input"
-            spellcheck="false"
-          ></textarea>
+          <div class="input-editor">
+            <pre class="input-editor__highlight" data-role="raw-highlight" aria-hidden="true"></pre>
+            <textarea
+              id="raw-input"
+              class="textarea"
+              data-role="raw-input"
+              spellcheck="false"
+            ></textarea>
+          </div>
         </div>
       </div>
 
@@ -328,22 +562,31 @@
         </div>
         <button class="button button--primary" type="button" data-action="copy">
           <span class="button__icon" aria-hidden="true">content_copy</span>
-          <span>コピー</span>
+          <span data-role="copy-label">コピー</span>
         </button>
       </header>
 
       <div class="panel__body">
-        <pre class="output" data-role="output">-- ここに変換後SQLが表示されます --</pre>
+        <div class="field">
+          <p class="form-label">出力欄</p>
+          <pre class="output" data-role="output">-- ここに変換後SQLが表示されます --</pre>
+        </div>
       </div>
     </section>
   </main>
 
-  <p class="flash" data-role="flash" aria-live="polite"></p>
+  <p class="flash" data-role="flash" aria-live="assertive"></p>
 
   <script>
     (() => {
 
       const qs = (sel, root = document) => root.querySelector(sel);
+      const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];
+      const _splitKeywordBlock = (_block) => _block.split(/\r?\n/).map((_keyword) => _keyword.trim()).filter(Boolean);
+      const _buildKeywordPatternSource = (_keyword) =>
+        _keyword
+          .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+          .replace(/\s+/g, "\\s+");
 
       const CLAUSE_KEYWORDS = [
         "WITH",
@@ -370,6 +613,667 @@
         "JOIN"
       ];
       const INLINE_KEYWORDS = ["ON", "AND", "OR"];
+      const EXPRESSION_KEYWORDS = [
+        "DISTINCT",
+        "CASE",
+        "WHEN",
+        "THEN",
+        "ELSE",
+        "END",
+        "AS",
+        "EXISTS"
+      ];
+      const DIALECT_PHRASE_KEYWORDS = _splitKeywordBlock(`
+AT TIME ZONE
+CONNECT BY
+CONNECT_BY_ROOT
+CROSS JOIN
+FETCH FIRST
+FETCH NEXT
+FOR KEY SHARE
+FOR NO KEY UPDATE
+FOR SHARE
+FOR UPDATE
+FULL JOIN
+FULL OUTER JOIN
+GROUP BY
+GROUPING SETS
+INNER JOIN
+IS NOT NULL
+IS NULL
+JSON TABLE
+LATERAL VIEW
+LEFT JOIN
+LEFT OUTER JOIN
+MATCH_RECOGNIZE
+NATURAL JOIN
+NOT EXISTS
+NOT IN
+NULLS FIRST
+NULLS LAST
+ON CONFLICT
+ORDER BY
+ORDER SIBLINGS BY
+PARTITION BY
+RIGHT JOIN
+RIGHT OUTER JOIN
+START WITH
+UNION ALL
+UNION DISTINCT
+USING INDEX
+WHEN MATCHED
+WHEN NOT MATCHED
+WITH RECURSIVE
+WITHIN GROUP
+`);
+      const ORACLE_KEYWORDS = _splitKeywordBlock(`
+ACCESS
+ADD
+ALL
+ALTER
+AND
+ANY
+AS
+ASC
+AUDIT
+BETWEEN
+BY
+CHAR
+CHECK
+CLUSTER
+COLUMN
+COMMENT
+COMPRESS
+CONNECT
+CREATE
+CURRENT
+DATE
+DECIMAL
+DEFAULT
+DELETE
+DESC
+DISTINCT
+DROP
+ELSE
+EXCLUSIVE
+EXISTS
+FILE
+FLOAT
+FOR
+FROM
+GRANT
+GROUP
+HAVING
+IDENTIFIED
+IMMEDIATE
+IN
+INCREMENT
+INDEX
+INITIAL
+INSERT
+INTEGER
+INTERSECT
+INTO
+IS
+LEVEL
+LIKE
+LOCK
+LONG
+MAXEXTENTS
+MEASURES
+MERGE
+MINUS
+MLSLABEL
+MODEL
+MODE
+MODIFY
+NOAUDIT
+NOCOMPRESS
+NOCYCLE
+NOT
+NOWAIT
+NULL
+NUMBER
+OF
+OFFLINE
+ON
+ONLINE
+OPTION
+OR
+ORDER
+PARTITION
+PATTERN
+PCTFREE
+PIVOT
+PRIOR
+PRIVILEGES
+PUBLIC
+QUALIFY
+RAW
+RENAME
+RESOURCE
+RETURNING
+REVOKE
+ROW
+ROWID
+ROWNUM
+ROWS
+SAMPLE
+SELECT
+SESSION
+SET
+SHARE
+SIZE
+SMALLINT
+START
+SUBPARTITION
+SUCCESSFUL
+SYNONYM
+SYSDATE
+SYSTIMESTAMP
+TABLE
+THEN
+TO
+TRIGGER
+UID
+UNION
+UNIQUE
+UNPIVOT
+UPDATE
+USER
+USING
+VALIDATE
+VALUES
+VARCHAR
+VARCHAR2
+VIEW
+WHENEVER
+WHERE
+WITH
+`);
+      const POSTGRESQL_KEYWORDS = _splitKeywordBlock(`
+ABORT
+ABS
+ABSOLUTE
+ACCESS
+ACTION
+ADD
+ADMIN
+AFTER
+AGGREGATE
+ALL
+ALSO
+ALTER
+ALWAYS
+ANALYSE
+ANALYZE
+AND
+ANY
+ARRAY
+AS
+ASC
+ASENSITIVE
+ASSERTION
+ASSIGNMENT
+ASYMMETRIC
+AT
+ATOMIC
+ATTACH
+ATTRIBUTE
+AUTHORIZATION
+BACKWARD
+BEFORE
+BEGIN
+BETWEEN
+BIGINT
+BINARY
+BIT
+BOOLEAN
+BOTH
+BREADTH
+BY
+CACHE
+CALL
+CALLED
+CASCADE
+CASCADED
+CASE
+CAST
+CATALOG
+CHAIN
+CHAR
+CHARACTER
+CHARACTERISTICS
+CHECK
+CHECKPOINT
+CLASS
+CLOSE
+CLUSTER
+COALESCE
+COLLATE
+COLLATION
+COLUMN
+COLUMNS
+COMMENT
+COMMENTS
+COMMIT
+COMMITTED
+COMPRESSION
+CONCURRENTLY
+CONFIGURATION
+CONFLICT
+CONNECTION
+CONSTRAINT
+CONSTRAINTS
+CONTENT
+CONTINUE
+CONVERSION
+COPY
+COST
+CREATE
+CROSS
+CSV
+CUBE
+CURRENT
+CURRENT_CATALOG
+CURRENT_DATE
+CURRENT_ROLE
+CURRENT_SCHEMA
+CURRENT_TIME
+CURRENT_TIMESTAMP
+CURRENT_USER
+CURSOR
+CYCLE
+DATA
+DATABASE
+DAY
+DEALLOCATE
+DEC
+DECIMAL
+DECLARE
+DEFAULT
+DEFAULTS
+DEFERRABLE
+DEFERRED
+DEFINER
+DELETE
+DELIMITER
+DELIMITERS
+DEPENDS
+DEPTH
+DESC
+DETACH
+DICTIONARY
+DISABLE
+DISCARD
+DISTINCT
+DO
+DOCUMENT
+DOMAIN
+DOUBLE
+DROP
+EACH
+ELSE
+ENABLE
+ENCODING
+ENCRYPTED
+END
+ENUM
+ESCAPE
+EVENT
+EXCEPT
+EXCLUDE
+EXCLUDING
+EXCLUSIVE
+EXECUTE
+EXISTS
+EXPLAIN
+EXPRESSION
+EXTENSION
+EXTERNAL
+EXTRACT
+FALSE
+FAMILY
+FETCH
+FILTER
+FINALIZE
+FIRST
+FLOAT
+FOLLOWING
+FOR
+FORCE
+FOREIGN
+FORWARD
+FREEZE
+FROM
+FULL
+FUNCTION
+FUNCTIONS
+GENERATED
+GLOBAL
+GRANT
+GRANTED
+GREATEST
+GROUP
+GROUPING
+GROUPS
+HANDLER
+HAVING
+HEADER
+HOLD
+HOUR
+IDENTITY
+IF
+ILIKE
+IMMEDIATE
+IMMUTABLE
+IMPLICIT
+IMPORT
+IN
+INCLUDING
+INCREMENT
+INDENT
+INDEX
+INDEXES
+INHERIT
+INHERITS
+INITIALLY
+INLINE
+INNER
+INOUT
+INPUT
+INSENSITIVE
+INSERT
+INSTEAD
+INT
+INTEGER
+INTERSECT
+INTERVAL
+INTO
+INVOKER
+IS
+ISNULL
+ISOLATION
+JOIN
+KEY
+LABEL
+LANGUAGE
+LARGE
+LAST
+LATERAL
+LEADING
+LEAKPROOF
+LEAST
+LEFT
+LEVEL
+LIKE
+LIMIT
+LISTEN
+LOAD
+LOCAL
+LOCALTIME
+LOCALTIMESTAMP
+LOCATION
+LOCK
+LOCKED
+LOGGED
+MAPPING
+MATCH
+MATCHED
+MATERIALIZED
+MAXVALUE
+MERGE
+METHOD
+MINUTE
+MINVALUE
+MODE
+MONTH
+MOVE
+NAME
+NAMES
+NATIONAL
+NATURAL
+NCHAR
+NEW
+NEXT
+NO
+NONE
+NORMALIZE
+NORMALIZED
+NOT
+NOTHING
+NOTIFY
+NOTNULL
+NOWAIT
+NULL
+NULLIF
+NULLS
+NUMERIC
+OBJECT
+OF
+OFF
+OFFSET
+OIDS
+OLD
+ON
+ONLY
+OPERATOR
+OPTION
+OPTIONS
+OR
+ORDER
+ORDINALITY
+OUT
+OUTER
+OVER
+OVERLAPS
+OVERLAY
+OVERRIDING
+OWNED
+OWNER
+PARALLEL
+PARAMETER
+PARSER
+PARTIAL
+PARTITION
+PASSING
+PASSWORD
+PATH
+PLACING
+PLANS
+POLICY
+POSITION
+PRECEDING
+PRECISION
+PREPARE
+PREPARED
+PRESERVE
+PRIMARY
+PRIOR
+PRIVILEGES
+PROCEDURAL
+PROCEDURE
+PROGRAM
+PUBLIC
+PUBLICATION
+QUOTE
+RANGE
+READ
+REAL
+REASSIGN
+RECHECK
+RECURSIVE
+REF
+REFERENCES
+REFERENCING
+REFRESH
+REINDEX
+RELATIVE
+RELEASE
+RENAME
+REPEATABLE
+REPLACE
+REPLICA
+RESET
+RESTART
+RESTRICT
+RETURN
+RETURNING
+RETURNS
+REVOKE
+RIGHT
+ROLE
+ROLLBACK
+ROLLUP
+ROUTINE
+ROW
+ROWS
+RULE
+SAVEPOINT
+SCHEMA
+SCHEMAS
+SCROLL
+SEARCH
+SECOND
+SECURITY
+SELECT
+SEQUENCE
+SEQUENCES
+SERIALIZABLE
+SERVER
+SESSION
+SESSION_USER
+SET
+SETOF
+SHARE
+SHOW
+SIMILAR
+SIMPLE
+SKIP
+SMALLINT
+SNAPSHOT
+SOME
+SQL
+STABLE
+STANDALONE
+START
+STATEMENT
+STATISTICS
+STDIN
+STDOUT
+STORAGE
+STORED
+STRICT
+STRIP
+SUBSCRIPTION
+SUBSTRING
+SUPPORT
+SYMMETRIC
+SYSTEM
+TABLE
+TABLES
+TABLESAMPLE
+TABLESPACE
+TEMP
+TEMPLATE
+TEMPORARY
+TEXT
+THEN
+TIES
+TIME
+TIMESTAMP
+TO
+TRAILING
+TRANSACTION
+TRANSFORM
+TREAT
+TRIGGER
+TRIM
+TRUE
+TRUNCATE
+TRUSTED
+TYPE
+UNBOUNDED
+UNCOMMITTED
+UNENCRYPTED
+UNION
+UNIQUE
+UNKNOWN
+UNLISTEN
+UNLOGGED
+UNTIL
+UPDATE
+USER
+USING
+VACUUM
+VALID
+VALIDATE
+VALIDATOR
+VALUE
+VALUES
+VARCHAR
+VARIADIC
+VARYING
+VERBOSE
+VERSION
+VIEW
+VIEWS
+VOLATILE
+WHEN
+WHERE
+WHITESPACE
+WINDOW
+WITH
+WITHIN
+WITHOUT
+WORK
+WRAPPER
+WRITE
+XML
+XMLATTRIBUTES
+XMLCONCAT
+XMLELEMENT
+XMLEXISTS
+XMLFOREST
+XMLNAMESPACES
+XMLPARSE
+XMLPI
+XMLROOT
+XMLSERIALIZE
+XMLTABLE
+YEAR
+YES
+ZONE
+`);
+      const SQL_KEYWORD_DICTIONARY = [
+        ...new Set([
+          ...CLAUSE_KEYWORDS,
+          ...INLINE_KEYWORDS,
+          ...EXPRESSION_KEYWORDS,
+          ...DIALECT_PHRASE_KEYWORDS,
+          ...ORACLE_KEYWORDS,
+          ...POSTGRESQL_KEYWORDS
+        ])
+      ].sort((a, b) => b.length - a.length);
+      const SQL_HIGHLIGHT_KEYWORD_PATTERNS_BY_INITIAL = SQL_KEYWORD_DICTIONARY.reduce((_map, _keyword) => {
+        const _patternEntry = {
+          _keyword,
+          _pattern: new RegExp(`^${_buildKeywordPatternSource(_keyword)}\\b`, "i")
+        };
+        const _initialCharacter = _keyword[0]?.toUpperCase() ?? "";
+        if (!_initialCharacter) {
+          return _map;
+        }
+        if (!_map[_initialCharacter]) {
+          _map[_initialCharacter] = [];
+        }
+        _map[_initialCharacter].push(_patternEntry);
+        return _map;
+      }, Object.create(null));
+      const SQL_KEYWORD_CASE_PATTERN = new RegExp(
+        `\\b(?:${SQL_KEYWORD_DICTIONARY.map((_keyword) => _buildKeywordPatternSource(_keyword)).join("|")})\\b`,
+        "gi"
+      );
       const PLACEHOLDER_TEXT = "-- ここに変換後SQLが表示されます --";
       const NAMED_BIND_PATTERN = /^:?(?<name>[A-Za-z_][A-Za-z0-9_$]*)\s*(?:=>|=|:)\s*(?<value>.+)$/;
       const POSITIONAL_BIND_PATTERN = /^(?:\[(?<indexA>\d+)\]|(?<indexB>\d+))\s*(?:=>|=|:)\s*(?<value>.+)$/;
@@ -377,6 +1281,25 @@
       const SQL_PARAMETER_BLOCK_PATTERN = /^\s*sql\s*=\s*\[(?<sql>[\s\S]*?)\]\s*(?:parameters?|params?)\s*=\s*\[(?<parameters>[\s\S]*?)\]\s*$/i;
       const BIND_HEADER_PATTERN = /^(?:bind(?:\s+variables?)?|params?|parameters?)\s*:?\s*$/i;
       const SQL_PREFIX_PATTERN = /^\s*sql\s*[:=]\s*(?<sql>.+)$/i;
+      const PARAMETER_QUOTE_PAIRS = Object.freeze({
+        "'": "'",
+        '"': '"',
+        "“": "”",
+        "‘": "’"
+      });
+      const HIGHLIGHT_QUOTE_PAIRS = Object.freeze({
+        "'": "'",
+        '"': '"',
+        "“": "”",
+        "‘": "’"
+      });
+      const HTML_ESCAPE_MAP = Object.freeze({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      });
       const SQL_ASSIGNMENT_NAMES = new Set([
         "SELECT",
         "FROM",
@@ -402,17 +1325,31 @@
         "WITH",
         "SQL"
       ]);
+      const FLASH_DURATION_MS = 1500;
+      const COPY_SUCCESS_DURATION_MS = 1500;
+      const THEME_STORAGE_KEY = "bindsql-theme-preference";
+      const THEME_LIGHT = "light";
+      const THEME_DARK = "dark";
 
       const $rawInput = qs('[data-role="raw-input"]');
+      const $rawHighlight = qs('[data-role="raw-highlight"]');
       const $output = qs('[data-role="output"]');
       const $flash = qs('[data-role="flash"]');
+      const $copyLabel = qs('[data-role="copy-label"]');
+      const $lightModeToggle = qs('[data-role="mode-toggle"]');
 
       const _state = {
         _lastSql: "",
-        _flashTimer: 0
+        _flashTimer: 0,
+        _copyLabelTimer: 0,
+        _lastFlashKey: "",
+        _lastFlashAt: 0,
+        _hasManualTheme: false
       };
 
       const _escapeRegExp = (_value) => _value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const _escapeHtml = (_value) => _value.replace(/[&<>"']/g, (_character) => HTML_ESCAPE_MAP[_character] ?? _character);
+      const _isWordCharacter = (_character) => /[A-Za-z0-9_$]/.test(_character);
 
       const _isQuotedValue = (_value) =>
         (_value.startsWith("'") && _value.endsWith("'")) ||
@@ -437,26 +1374,31 @@
       const _splitParameterEntries = (_parametersText) => {
         const _entries = [];
         let _current = "";
-        let _quote = "";
+        let _quoteClose = "";
+        let _quoteAllowsEscape = false;
         let _isEscaped = false;
 
         for (const _character of _parametersText) {
-          if (_quote) {
+          if (_quoteClose) {
             _current += _character;
-            if (_character === "\\" && !_isEscaped) {
+            if (_quoteAllowsEscape && _character === "\\" && !_isEscaped) {
               _isEscaped = true;
               continue;
             }
-            if (_character === _quote && !_isEscaped) {
-              _quote = "";
+            if (_character === _quoteClose && !_isEscaped) {
+              _quoteClose = "";
+              _quoteAllowsEscape = false;
             }
             _isEscaped = false;
             continue;
           }
 
-          if (_character === "'" || _character === '"') {
-            _quote = _character;
+          const _quotePair = PARAMETER_QUOTE_PAIRS[_character];
+          if (_quotePair) {
+            _quoteClose = _quotePair;
+            _quoteAllowsEscape = _character === "'" || _character === '"';
             _current += _character;
+            _isEscaped = false;
             continue;
           }
 
@@ -555,7 +1497,7 @@
         while (_index < _sql.length) {
           const _segment = _readSqlProtectedSegment(_sql, _index);
           if (_segment) {
-            const _token = `@@SQLBINDMERGE_SEGMENT_${_segments.length}@@`;
+            const _token = `@@BindSQL_SEGMENT_${_segments.length}@@`;
             _segments.push(_segment);
             _masked += _token;
             _index += _segment.length;
@@ -570,15 +1512,309 @@
       };
 
       const _restoreSqlProtectedSegments = (_sql, _segments) =>
-        _sql.replace(/@@SQLBINDMERGE_SEGMENT_(\d+)@@/g, (_all, _indexText) => {
+        _sql.replace(/@@BindSQL_SEGMENT_(\d+)@@/g, (_all, _indexText) => {
           const _index = Number(_indexText);
           return _segments[_index] ?? "";
         });
 
-      const _applyColorScheme = () => {
-        const _scheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      const _readQuotedSegment = (_sql, _startIndex, _closeQuote, _allowEscapes = false) => {
+        let _index = _startIndex + 1;
+
+        while (_index < _sql.length) {
+          const _character = _sql[_index];
+          if (_allowEscapes && _character === "\\") {
+            _index += 2;
+            continue;
+          }
+
+          if (_character === _closeQuote && _allowEscapes && _sql[_index + 1] === _closeQuote) {
+            _index += 2;
+            continue;
+          }
+
+          if (_character === _closeQuote) {
+            _index += 1;
+            break;
+          }
+
+          _index += 1;
+        }
+
+        return _sql.slice(_startIndex, _index);
+      };
+
+      const _readHighlightProtectedSegment = (_sql, _startIndex) => {
+        const _startCharacter = _sql[_startIndex];
+
+        if (_startCharacter === "-" && _sql[_startIndex + 1] === "-") {
+          const _endIndex = _sql.indexOf("\n", _startIndex);
+          return {
+            _kind: "comment",
+            _text: _sql.slice(_startIndex, _endIndex === -1 ? _sql.length : _endIndex)
+          };
+        }
+
+        if (_startCharacter === "/" && _sql[_startIndex + 1] === "*") {
+          const _endIndex = _sql.indexOf("*/", _startIndex + 2);
+          return {
+            _kind: "comment",
+            _text: _sql.slice(_startIndex, _endIndex === -1 ? _sql.length : _endIndex + 2)
+          };
+        }
+
+        const _closeQuote = HIGHLIGHT_QUOTE_PAIRS[_startCharacter];
+        if (_closeQuote) {
+          return {
+            _kind: "string",
+            _text: _readQuotedSegment(
+              _sql,
+              _startIndex,
+              _closeQuote,
+              _startCharacter === "'" || _startCharacter === '"'
+            )
+          };
+        }
+
+        if (_startCharacter === "`") {
+          return {
+            _kind: "plain",
+            _text: _readQuotedSegment(_sql, _startIndex, "`", true)
+          };
+        }
+
+        if (_startCharacter === "[") {
+          const _endIndex = _sql.indexOf("]", _startIndex + 1);
+          return {
+            _kind: "plain",
+            _text: _sql.slice(_startIndex, _endIndex === -1 ? _sql.length : _endIndex + 1)
+          };
+        }
+
+        return null;
+      };
+
+      const _readNumberSegment = (_sql, _startIndex) => {
+        const _startCharacter = _sql[_startIndex];
+        const _isDigitStart = /[0-9]/.test(_startCharacter);
+        const _isDecimalStart = _startCharacter === "." && /[0-9]/.test(_sql[_startIndex + 1] ?? "");
+        if (!_isDigitStart && !_isDecimalStart) {
+          return "";
+        }
+
+        const _previousCharacter = _sql[_startIndex - 1] ?? "";
+        if (_isWordCharacter(_previousCharacter)) {
+          return "";
+        }
+
+        let _index = _startIndex;
+        let _hasDecimalPoint = false;
+
+        if (_sql[_index] === ".") {
+          _hasDecimalPoint = true;
+          _index += 1;
+        }
+
+        while (/[0-9]/.test(_sql[_index] ?? "")) {
+          _index += 1;
+        }
+
+        if (_sql[_index] === "." && !_hasDecimalPoint) {
+          _hasDecimalPoint = true;
+          _index += 1;
+          while (/[0-9]/.test(_sql[_index] ?? "")) {
+            _index += 1;
+          }
+        }
+
+        const _nextCharacter = _sql[_index] ?? "";
+        if (/[A-Za-z_$]/.test(_nextCharacter)) {
+          return "";
+        }
+
+        return _sql.slice(_startIndex, _index);
+      };
+
+      const _readKeywordSegment = (_sql, _startIndex) => {
+        const _previousCharacter = _sql[_startIndex - 1] ?? "";
+        if (_isWordCharacter(_previousCharacter) || _previousCharacter === ":") {
+          return "";
+        }
+
+        const _slice = _sql.slice(_startIndex);
+        const _initialCharacter = _slice[0]?.toUpperCase() ?? "";
+        if (!_initialCharacter || !/[A-Z]/.test(_initialCharacter)) {
+          return "";
+        }
+        const _candidatePatterns = SQL_HIGHLIGHT_KEYWORD_PATTERNS_BY_INITIAL[_initialCharacter] ?? [];
+        for (const _entry of _candidatePatterns) {
+          const _match = _slice.match(_entry._pattern);
+          if (!_match) {
+            continue;
+          }
+
+          const _text = _match[0];
+          const _nextCharacter = _slice[_text.length] ?? "";
+          if (_isWordCharacter(_nextCharacter)) {
+            continue;
+          }
+
+          return _text;
+        }
+
+        return "";
+      };
+
+      const _tokenizeSqlForHighlight = (_sql) => {
+        const _tokens = [];
+        let _plainBuffer = "";
+        let _index = 0;
+
+        const _flushPlainBuffer = () => {
+          if (!_plainBuffer) {
+            return;
+          }
+          _tokens.push({ _kind: "plain", _text: _plainBuffer });
+          _plainBuffer = "";
+        };
+
+        while (_index < _sql.length) {
+          const _protectedSegment = _readHighlightProtectedSegment(_sql, _index);
+          if (_protectedSegment?._text) {
+            _flushPlainBuffer();
+            _tokens.push(_protectedSegment);
+            _index += _protectedSegment._text.length;
+            continue;
+          }
+
+          const _numberText = _readNumberSegment(_sql, _index);
+          if (_numberText) {
+            _flushPlainBuffer();
+            _tokens.push({ _kind: "number", _text: _numberText });
+            _index += _numberText.length;
+            continue;
+          }
+
+          const _keywordText = _readKeywordSegment(_sql, _index);
+          if (_keywordText) {
+            _flushPlainBuffer();
+            _tokens.push({ _kind: "keyword", _text: _keywordText });
+            _index += _keywordText.length;
+            continue;
+          }
+
+          _plainBuffer += _sql[_index];
+          _index += 1;
+        }
+
+        _flushPlainBuffer();
+        return _tokens;
+      };
+
+      const _buildHighlightedSqlHtml = (_sql) =>
+        _tokenizeSqlForHighlight(_sql)
+          .map((_token) => {
+            const _escapedText = _escapeHtml(_token._text);
+            if (_token._kind === "plain") {
+              return _escapedText;
+            }
+            return `<span class="sql-token sql-token--${_token._kind}">${_escapedText}</span>`;
+          })
+          .join("");
+
+      const _syncInputHighlightScroll = () => {
+        if (!$rawHighlight) {
+          return;
+        }
+        $rawHighlight.scrollTop = $rawInput.scrollTop;
+        $rawHighlight.scrollLeft = $rawInput.scrollLeft;
+      };
+
+      const _syncInputHighlight = (_rawText) => {
+        if (!$rawHighlight) {
+          return;
+        }
+
+        const _highlightSource = _rawText || " ";
+        $rawHighlight.innerHTML = _buildHighlightedSqlHtml(_highlightSource);
+        _syncInputHighlightScroll();
+      };
+
+      const _renderOutputHighlight = (_sql) => {
+        if (!_sql) {
+          $output.textContent = PLACEHOLDER_TEXT;
+          return;
+        }
+
+        $output.innerHTML = _buildHighlightedSqlHtml(_sql);
+      };
+
+      const _isSupportedTheme = (_theme) => _theme === THEME_LIGHT || _theme === THEME_DARK;
+
+      const _readStoredTheme = () => {
+        try {
+          const _storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+          return _isSupportedTheme(_storedTheme) ? _storedTheme : "";
+        } catch (_error) {
+          return "";
+        }
+      };
+
+      const _storeTheme = (_theme) => {
+        if (!_isSupportedTheme(_theme)) {
+          return;
+        }
+
+        try {
+          window.localStorage.setItem(THEME_STORAGE_KEY, _theme);
+        } catch (_error) {
+          // localStorage が使えない環境では保存をスキップ
+        }
+      };
+
+      const _resolveSystemTheme = () =>
+        window.matchMedia("(prefers-color-scheme: dark)").matches ? THEME_DARK : THEME_LIGHT;
+
+      const _syncModeToggleUi = (_theme) => {
+        if (!$lightModeToggle) {
+          return;
+        }
+        $lightModeToggle.checked = _theme === THEME_LIGHT;
+      };
+
+      const _applyColorScheme = (_theme) => {
+        const _scheme = _theme === THEME_DARK ? THEME_DARK : THEME_LIGHT;
         document.documentElement.dataset.theme = _scheme;
         document.documentElement.style.colorScheme = _scheme;
+        _syncModeToggleUi(_scheme);
+      };
+
+      const _resolveInitialTheme = () => {
+        const _storedTheme = _readStoredTheme();
+        if (_storedTheme) {
+          _state._hasManualTheme = true;
+          return _storedTheme;
+        }
+
+        _state._hasManualTheme = false;
+        return _resolveSystemTheme();
+      };
+
+      const _handleModeToggleInput = () => {
+        if (!$lightModeToggle) {
+          return;
+        }
+
+        const _nextTheme = $lightModeToggle.checked ? THEME_LIGHT : THEME_DARK;
+        _state._hasManualTheme = true;
+        _storeTheme(_nextTheme);
+        _applyColorScheme(_nextTheme);
+      };
+
+      const _handleSystemThemeChange = (event) => {
+        if (_state._hasManualTheme) {
+          return;
+        }
+        _applyColorScheme(event.matches ? THEME_DARK : THEME_LIGHT);
       };
 
       const _normalizeBindValue = (_rawValue) => {
@@ -720,6 +1956,7 @@
       const _mergeSqlAndBinds = (_sql, _binds) => {
         const _protectedStore = _maskSqlProtectedSegments(_sql);
         let _workingSql = _protectedStore._masked;
+        const _issues = [];
 
         for (const [_name, _value] of _binds._named.entries()) {
           const _result = _replaceNamedBind(_workingSql, _name, _value);
@@ -736,31 +1973,49 @@
           return _value;
         });
 
+        const _remainingPlaceholderCount = (_workingSql.match(/\?/g) ?? []).length;
+        const _extraPositionalCount = Math.max(0, _binds._positional.length - _cursor);
+
+        if (_remainingPlaceholderCount > 0) {
+          _issues.push(`未置換の位置バインド (?) が ${_remainingPlaceholderCount} 件あります。`);
+        }
+        if (_extraPositionalCount > 0) {
+          _issues.push(`余剰の位置バインドが ${_extraPositionalCount} 件あります。`);
+        }
+
         return {
-          _sql: _restoreSqlProtectedSegments(_workingSql, _protectedStore._segments)
+          _sql: _restoreSqlProtectedSegments(_workingSql, _protectedStore._segments),
+          _issues
         };
       };
 
-      const _upperCaseKeywords = (_sql) => {
-        let _result = _sql;
-        const _expressionKeywords = [
-          "DISTINCT",
-          "CASE",
-          "WHEN",
-          "THEN",
-          "ELSE",
-          "END",
-          "AS",
-          "EXISTS"
-        ];
-        const _allKeywords = [...CLAUSE_KEYWORDS, ...INLINE_KEYWORDS, ..._expressionKeywords].sort((a, b) => b.length - a.length);
+      const _buildMergeIssueOutput = (_issues, _partialSql) => {
+        const _lines = ["-- 変換は完了していません。"];
+        _issues.forEach((_issue) => {
+          _lines.push(`-- ${_issue}`);
+        });
 
-        for (const _keyword of _allKeywords) {
-          const _pattern = new RegExp(`\\b${_keyword.replace(/\s+/g, "\\s+")}\\b`, "gi");
-          _result = _result.replace(_pattern, _keyword.toUpperCase());
+        if (_partialSql) {
+          _lines.push("");
+          _lines.push("-- 参考: 途中結果");
+          _lines.push(_partialSql);
         }
 
-        return _result;
+        return _lines.join("\n");
+      };
+
+      const _upperCaseKeywords = (_sql) => {
+        if (!SQL_KEYWORD_DICTIONARY.length) {
+          return _sql;
+        }
+
+        return _sql.replace(SQL_KEYWORD_CASE_PATTERN, (_match, _offset, _source) => {
+          const _previousCharacter = _source[_offset - 1] ?? "";
+          if (_previousCharacter === ":" || _previousCharacter === ".") {
+            return _match;
+          }
+          return _match.toUpperCase();
+        });
       };
 
       const _addSpaceAroundOperators = (_sql) =>
@@ -1114,13 +2369,34 @@
         return _restoreSqlProtectedSegments(_normalizedOutput, _protectedStore._segments);
       };
 
-      const _showFlash = (_message) => {
+      const _showFlash = (_message, _type = "info", _dedupeKey = "") => {
+        const _now = Date.now();
+        const _key = _dedupeKey || `${_type}:${_message}`;
+        if (_key === _state._lastFlashKey && _now - _state._lastFlashAt < FLASH_DURATION_MS) {
+          return;
+        }
+
+        _state._lastFlashKey = _key;
+        _state._lastFlashAt = _now;
+        $flash.dataset.type = _type;
         $flash.textContent = _message;
         $flash.classList.add("is-visible");
         window.clearTimeout(_state._flashTimer);
         _state._flashTimer = window.setTimeout(() => {
           $flash.classList.remove("is-visible");
-        }, 1500);
+        }, FLASH_DURATION_MS);
+      };
+
+      const _showCopySuccessState = () => {
+        if (!$copyLabel) {
+          return;
+        }
+
+        $copyLabel.textContent = "コピーしました";
+        window.clearTimeout(_state._copyLabelTimer);
+        _state._copyLabelTimer = window.setTimeout(() => {
+          $copyLabel.textContent = "コピー";
+        }, COPY_SUCCESS_DURATION_MS);
       };
 
       const _copyWithFallback = (_text) => {
@@ -1140,40 +2416,55 @@
 
       const _copyResult = async () => {
         if (!_state._lastSql) {
-          _showFlash("コピーできるSQLがありません");
+          _showFlash("コピーできるSQLがありません", "error", "copy-empty");
           return;
         }
 
         try {
           await navigator.clipboard.writeText(_state._lastSql);
-          _showFlash("SQL をコピーしました");
+          _showCopySuccessState();
           return;
         } catch (_error) {
           const _copied = _copyWithFallback(_state._lastSql);
           if (_copied) {
-            _showFlash("SQL をコピーしました");
+            _showCopySuccessState();
             return;
           }
         }
 
-        _showFlash("コピーに失敗しました");
+        _showFlash("コピーに失敗しました", "error", "copy-failed");
       };
 
       const _render = () => {
-        const _input = _splitInputText($rawInput.value);
+        const _rawText = $rawInput.value;
+        _syncInputHighlight(_rawText);
+
+        const _input = _splitInputText(_rawText);
         const _binds = _parseBindVariables(_input._bindLines);
         const _sqlText = _input._sqlText;
         const _merged = _mergeSqlAndBinds(_sqlText, _binds);
         const _formatted = _formatSql(_merged._sql);
 
+        if (_merged._issues.length > 0) {
+          _state._lastSql = "";
+          $output.textContent = _buildMergeIssueOutput(_merged._issues, _formatted);
+          _showFlash(`変換エラー: ${_merged._issues.join(" ")}`, "error", `merge:${_merged._issues.join("|")}`);
+          return;
+        }
+
         _state._lastSql = _formatted;
-        $output.textContent = _formatted || PLACEHOLDER_TEXT;
+        _renderOutputHighlight(_formatted);
       };
 
       const _handleInputEvent = (event) => {
         const $target = event.target;
         if ($target instanceof HTMLElement && $target.matches('[data-role="raw-input"]')) {
           _render();
+          return;
+        }
+
+        if ($target instanceof HTMLElement && $target.matches('[data-role="mode-toggle"]')) {
+          _handleModeToggleInput();
         }
       };
 
@@ -1199,17 +2490,18 @@
       const _bindEvents = () => {
         document.addEventListener("input", _handleInputEvent);
         document.addEventListener("click", _handleClickEvent);
+        $rawInput.addEventListener("scroll", _syncInputHighlightScroll);
 
         const _mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
         if (typeof _mediaQuery.addEventListener === "function") {
-          _mediaQuery.addEventListener("change", _applyColorScheme);
+          _mediaQuery.addEventListener("change", _handleSystemThemeChange);
         } else {
-          _mediaQuery.addListener(_applyColorScheme);
+          _mediaQuery.addListener(_handleSystemThemeChange);
         }
       };
 
       const _init = () => {
-        _applyColorScheme();
+        _applyColorScheme(_resolveInitialTheme());
         _bindEvents();
         _render();
       };

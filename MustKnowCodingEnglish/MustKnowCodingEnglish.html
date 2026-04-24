@@ -4,10 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Must Know Coding English</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,500,1,0" />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='10' fill='%235f5ad1'/%3E%3Cpath fill='white' d='m17.4 31.6-7.6-7.6 7.6-7.6 2.8 2.8-4.8 4.8 4.8 4.8-2.8 2.8Zm13.2 0-2.8-2.8 4.8-4.8-4.8-4.8 2.8-2.8 7.6 7.6-7.6 7.6Z'/%3E%3C/svg%3E" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='10' fill='%230D5162'/%3E%3Cpath fill='white' d='M24 8 8 15v10c0 9.4 6.8 14.9 16 15 9.2-.1 16-5.6 16-15V15L24 8Zm0 4.1 11.3 4.9v7.8c0 7.2-4.8 11.5-11.3 11.6-6.5-.1-11.3-4.4-11.3-11.6V17l11.3-4.9Zm-5.2 13.4 3.2 3.2 7.4-7.4 2.3 2.3-9.7 9.7-5.5-5.5 2.3-2.3Z'/%3E%3C/svg%3E" />
   <style>
     @layer reset, base, component, utility;
 
@@ -41,43 +38,46 @@
 
     @layer base {
       :root {
-        --bg: #FCFCFC;
-        --surface: #FFFFFF;
-        --surface-soft: #FCFCFC;
-        --surface-strong: #F5F5F5;
-        --text: #2C3137;
-        --text-muted: #636A72;
-        --line: #E5E7EA;
-        --primary: oklch(0.56 0.2 257);
-        --primary-soft: oklch(0.92 0.05 257);
-        --good: oklch(0.69 0.17 152);
-        --warn: oklch(0.67 0.17 45);
-        --bad: oklch(0.62 0.2 30);
-        --ring: 0 0 0 3px oklch(0.56 0.2 257 / 0.2);
+        --bg: oklch(0.98 0.007 230);
+        --bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='88' viewBox='0 0 88 88'%3E%3Ccircle cx='6' cy='6' r='1.3' fill='%23D3DFE7'/%3E%3Ccircle cx='44' cy='44' r='1.1' fill='%23E1E8ED'/%3E%3C/svg%3E");
+        --surface: oklch(1 0 0);
+        --surface-soft: oklch(0.97 0.005 230);
+        --surface-strong: oklch(0.94 0.007 230);
+        --line: oklch(0.89 0.009 230);
+        --text: oklch(0.26 0.015 245);
+        --text-muted: oklch(0.52 0.015 240);
+        --accent: oklch(0.5 0.11 220);
+        --accent-soft: oklch(0.94 0.03 220);
+        --good: oklch(0.63 0.14 152);
+        --warn: oklch(0.73 0.14 82);
+        --bad: oklch(0.62 0.18 34);
+        --ring: 0 0 0 3px oklch(0.5 0.11 220 / 0.2);
       }
 
       :root[data-theme="dark"] {
-        --bg: oklch(0.18 0.018 257);
-        --surface: oklch(0.24 0.016 257);
-        --surface-soft: oklch(0.29 0.015 257);
-        --surface-strong: oklch(0.34 0.014 257);
-        --text: oklch(0.95 0.01 247);
-        --text-muted: oklch(0.76 0.018 247);
-        --line: oklch(0.42 0.014 257);
-        --primary: oklch(0.74 0.17 257);
-        --primary-soft: oklch(0.32 0.06 257);
-        --good: oklch(0.76 0.13 152);
-        --warn: oklch(0.79 0.14 45);
-        --bad: oklch(0.72 0.18 30);
-        --ring: 0 0 0 3px oklch(0.74 0.17 257 / 0.22);
+        --bg: oklch(0.2 0.015 250);
+        --bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='88' viewBox='0 0 88 88'%3E%3Ccircle cx='6' cy='6' r='1.2' fill='%233D4B5A'/%3E%3Ccircle cx='44' cy='44' r='1' fill='%23334250'/%3E%3C/svg%3E");
+        --surface: oklch(0.27 0.015 250);
+        --surface-soft: oklch(0.31 0.014 250);
+        --surface-strong: oklch(0.36 0.014 250);
+        --line: oklch(0.43 0.015 250);
+        --text: oklch(0.95 0.008 245);
+        --text-muted: oklch(0.78 0.012 245);
+        --accent: oklch(0.72 0.11 220);
+        --accent-soft: oklch(0.34 0.05 220);
+        --good: oklch(0.74 0.12 152);
+        --warn: oklch(0.82 0.12 82);
+        --bad: oklch(0.73 0.15 34);
+        --ring: 0 0 0 3px oklch(0.72 0.11 220 / 0.25);
       }
 
       body {
-        font-family: "Inter", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
-        background: var(--bg);
+        font-family: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+        line-height: 1.55;
         color: var(--text);
-        line-height: 1.5;
-        letter-spacing: -0.31px;
+        background-color: var(--bg);
+        background-image: var(--bg-pattern);
+        background-repeat: repeat;
         display: grid;
         grid-template-rows: auto 1fr auto;
         min-block-size: 100dvh;
@@ -85,15 +85,20 @@
 
       h1, h2, h3 {
         line-height: 1.2;
+        text-wrap: balance;
       }
 
-      a {
-        color: inherit;
+      p {
+        text-wrap: pretty;
       }
 
       :focus-visible {
         outline: none;
         box-shadow: var(--ring);
+      }
+
+      a {
+        color: inherit;
       }
     }
 
@@ -101,45 +106,46 @@
       .app-header {
         position: sticky;
         inset-block-start: 0;
-        z-index: 30;
+        z-index: 20;
+        background: color-mix(in oklch, var(--surface) 90%, transparent);
+        border-block-end: 1px solid var(--line);
+        backdrop-filter: blur(4px);
+        padding: 0.95rem 1rem;
         display: grid;
         grid-template-columns: auto 1fr auto;
-        gap: 1rem;
         align-items: center;
-        padding: 0.95rem 1.2rem;
-        background: color-mix(in oklch, var(--surface) 92%, transparent);
-        border-block-end: 1px solid var(--line);
+        gap: 0.9rem;
 
         & .brand {
-          font-size: 1.02rem;
-          font-weight: 500;
-          white-space: nowrap;
           display: inline-flex;
           align-items: center;
-          gap: 0.35rem;
+          gap: 0.5rem;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+          white-space: nowrap;
 
-          & .material-symbols-rounded {
-            font-size: 1.12rem;
-            color: var(--primary);
-            font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
+          & .brand-icon {
+            inline-size: 1.15rem;
+            block-size: 1.15rem;
+            color: var(--accent);
           }
         }
       }
 
       .tab-list {
-        display: flex;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
         justify-content: center;
-        gap: 0.35rem;
         flex-wrap: wrap;
       }
 
       .tab-button {
         border: 1px solid transparent;
-        border-radius: 0.75rem;
-        padding: 0.5rem 0.95rem;
+        border-radius: 999px;
+        padding: 0.48rem 0.9rem;
+        font-weight: 700;
         color: var(--text-muted);
-        font-weight: 500;
-        transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
 
         &:hover {
           background: var(--surface-soft);
@@ -147,26 +153,25 @@
         }
 
         &.is-active {
-          color: var(--primary);
-          background: var(--primary-soft);
-          border-color: color-mix(in oklch, var(--primary) 40%, var(--line));
+          color: var(--accent);
+          border-color: color-mix(in oklch, var(--accent) 42%, var(--line));
+          background: var(--accent-soft);
         }
       }
 
       .header-tools {
-        display: flex;
-        gap: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
       }
 
       .ghost-button {
         border: 1px solid var(--line);
+        border-radius: 0.72rem;
         background: var(--surface);
-        color: var(--text);
-        border-radius: 0.7rem;
-        padding: 0.5rem 0.8rem;
-        font-size: 0.85rem;
-        font-weight: 500;
-        transition: background-color 0.18s ease, border-color 0.18s ease;
+        padding: 0.5rem 0.82rem;
+        font-size: 0.86rem;
+        font-weight: 600;
 
         &:hover {
           background: var(--surface-soft);
@@ -174,92 +179,80 @@
       }
 
       .cta-button {
-        border-radius: 0.78rem;
-        padding: 0.72rem 1rem;
-        font-size: 0.9rem;
-        font-weight: 500;
-        background: var(--primary);
-        color: white;
-        transition: transform 0.15s ease, filter 0.15s ease;
+        border: 1px solid color-mix(in oklch, var(--accent) 50%, var(--line));
+        border-radius: 0.72rem;
+        background: var(--accent);
+        color: oklch(0.99 0.002 220);
+        padding: 0.55rem 0.9rem;
+        font-size: 0.88rem;
+        font-weight: 700;
 
         &:hover {
-          filter: brightness(1.07);
+          filter: brightness(1.05);
         }
 
-        &:active {
-          transform: translateY(1px);
+        &:disabled {
+          filter: saturate(0.3);
+          opacity: 0.6;
+          cursor: not-allowed;
         }
       }
 
       .danger-button {
-        border-radius: 0.78rem;
-        padding: 0.72rem 1rem;
-        font-size: 0.9rem;
-        font-weight: 500;
-        border: 1px solid color-mix(in oklch, var(--bad) 40%, var(--line));
+        border: 1px solid color-mix(in oklch, var(--bad) 45%, var(--line));
+        border-radius: 0.72rem;
+        background: color-mix(in oklch, var(--bad) 10%, var(--surface));
         color: var(--bad);
-        background: color-mix(in oklch, var(--bad) 9%, var(--surface));
+        padding: 0.55rem 0.9rem;
+        font-size: 0.88rem;
+        font-weight: 700;
 
         &:hover {
-          background: color-mix(in oklch, var(--bad) 16%, var(--surface));
+          background: color-mix(in oklch, var(--bad) 15%, var(--surface));
         }
       }
 
       .app-main {
-        inline-size: min(1460px, 100%);
+        inline-size: min(1240px, 100%);
         margin-inline: auto;
         padding: 1rem;
       }
 
       .view-panel {
-        min-block-size: calc(100dvh - 150px);
-        animation: fade-slide 0.22s ease;
+        min-block-size: calc(100dvh - 156px);
       }
 
-      .learning-layout {
+      .practice-layout {
         display: grid;
-        gap: 1rem;
-        grid-template-columns: minmax(250px, 280px) minmax(0, 1fr) minmax(220px, 280px);
+        grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+        gap: 0.95rem;
+      }
+
+      .history-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 0.95rem;
       }
 
       .panel {
         border: 1px solid var(--line);
-        background: var(--surface);
         border-radius: 1rem;
-      }
-
-      .panel-left,
-      .panel-right {
+        background: color-mix(in oklch, var(--surface) 92%, transparent);
         padding: 1rem;
-        max-block-size: calc(100dvh - 180px);
-        overflow: auto;
       }
 
-      .panel-center {
-        padding: 1.1rem;
-        display: grid;
-        gap: 1rem;
+      .panel-title {
+        font-size: 1.25rem;
+        font-weight: 700;
       }
 
       .section-label {
         color: var(--text-muted);
-        font-size: 0.73rem;
-        font-weight: 500;
+        font-size: 0.74rem;
         text-transform: uppercase;
-        margin-block-end: 0.55rem;
-      }
-
-      .search-box {
-        border: 1px solid var(--line);
-        border-radius: 0.75rem;
-        overflow: hidden;
-
-        & input {
-          inline-size: 100%;
-          padding: 0.7rem 0.82rem;
-          background: var(--surface);
-          border: 0;
-        }
+        letter-spacing: 0.08em;
+        font-weight: 700;
+        margin-block-end: 0.5rem;
       }
 
       .chip-grid {
@@ -271,395 +264,224 @@
       .filter-chip {
         border: 1px solid var(--line);
         border-radius: 999px;
-        padding: 0.3rem 0.62rem;
-        font-size: 0.74rem;
-        font-weight: 500;
+        padding: 0.34rem 0.68rem;
+        font-size: 0.78rem;
+        font-weight: 600;
         color: var(--text-muted);
-        transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
-
-        &:hover {
-          background: var(--surface-soft);
-          color: var(--text);
-        }
-
-        &.is-active {
-          color: var(--primary);
-          background: var(--primary-soft);
-          border-color: color-mix(in oklch, var(--primary) 45%, var(--line));
-        }
-      }
-
-      .word-list {
-        list-style: none;
-        display: grid;
-        gap: 0.4rem;
-      }
-
-      .word-item {
-        inline-size: 100%;
-        text-align: left;
-        border: 1px solid var(--line);
-        border-radius: 0.7rem;
-        padding: 0.62rem 0.7rem;
         background: var(--surface);
-        display: grid;
-        gap: 0.15rem;
 
         &:hover {
+          color: var(--text);
           background: var(--surface-soft);
-        }
-
-        & .word-term {
-          font-weight: 500;
-          font-size: 0.94rem;
-        }
-
-        & .word-meaning {
-          font-size: 0.73rem;
-          color: var(--text-muted);
-        }
-
-        & .word-meta {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-block-start: 0.2rem;
-        }
-
-        & .word-level {
-          font-size: 0.68rem;
-          color: var(--text-muted);
-          text-transform: uppercase;
-          font-weight: 500;
-        }
-
-        & .word-status {
-          font-size: 0.63rem;
-          padding: 0.17rem 0.5rem;
-          border-radius: 999px;
-          border: 1px solid var(--line);
         }
 
         &.is-active {
-          border-color: color-mix(in oklch, var(--primary) 46%, var(--line));
-          background: color-mix(in oklch, var(--primary-soft) 82%, var(--surface));
+          color: var(--accent);
+          border-color: color-mix(in oklch, var(--accent) 45%, var(--line));
+          background: var(--accent-soft);
         }
       }
 
-      .status-tag {
-        font-size: 0.7rem;
-        font-weight: 500;
-        padding: 0.2rem 0.58rem;
-        border-radius: 999px;
-
-        &.status-unseen {
-          color: var(--text-muted);
-          background: var(--surface-soft);
-          border: 1px solid var(--line);
-        }
-
-        &.status-mastered {
-          color: color-mix(in oklch, var(--good) 60%, black);
-          background: color-mix(in oklch, var(--good) 12%, var(--surface));
-          border: 1px solid color-mix(in oklch, var(--good) 30%, var(--line));
-        }
-
-        &.status-review {
-          color: color-mix(in oklch, var(--warn) 55%, black);
-          background: color-mix(in oklch, var(--warn) 15%, var(--surface));
-          border: 1px solid color-mix(in oklch, var(--warn) 30%, var(--line));
-        }
-
-        &.status-weak {
-          color: color-mix(in oklch, var(--bad) 56%, black);
-          background: color-mix(in oklch, var(--bad) 14%, var(--surface));
-          border: 1px solid color-mix(in oklch, var(--bad) 40%, var(--line));
-        }
-      }
-
-      .learning-title {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
+      .practice-side {
+        display: grid;
         gap: 1rem;
+        align-content: start;
       }
 
-      .word-card {
-        border: 1px solid var(--line);
-        background: var(--surface);
-        border-radius: 1rem;
-        padding: 1.4rem;
+      .meta-note {
+        font-size: 0.88rem;
+      }
+
+      .session-actions {
         display: grid;
-        gap: 1.1rem;
-
-        & .word-type {
-          display: inline-flex;
-          padding: 0.26rem 0.66rem;
-          border-radius: 999px;
-          font-size: 0.69rem;
-          font-weight: 500;
-          color: var(--primary);
-          background: var(--primary-soft);
-          text-transform: uppercase;
-        }
-
-        & .word-heading {
-          font-size: clamp(2rem, 5.3vw, 3.4rem);
-          font-weight: 800;
-          line-height: 1.05;
-          margin-block-start: 0.45rem;
-        }
-
-        & .meaning-main {
-          font-size: 1.16rem;
-          font-weight: 400;
-        }
-
-        & .meaning-sub {
-          color: var(--text-muted);
-          margin-block-start: 0.35rem;
-        }
+        gap: 0.6rem;
       }
 
-      .status-actions {
-        display: flex;
+      .stat-grid {
+        display: grid;
         gap: 0.55rem;
-        flex-wrap: wrap;
-      }
-
-      .status-action {
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        padding: 0.5rem 0.9rem;
-        font-size: 0.8rem;
-        font-weight: 500;
-        color: var(--text-muted);
-
-        &:hover {
-          background: var(--surface-soft);
-          color: var(--text);
-        }
-
-        &.status-mastered {
-          color: color-mix(in oklch, var(--good) 70%, black);
-        }
-
-        &.status-review {
-          color: color-mix(in oklch, var(--warn) 72%, black);
-        }
-
-        &.status-weak {
-          color: color-mix(in oklch, var(--bad) 70%, black);
-        }
-
-        &.is-selected {
-          box-shadow: inset 0 0 0 1px currentColor;
-          background: color-mix(in oklch, currentColor 12%, var(--surface));
-        }
-      }
-
-      .example-box {
-        border-radius: 0.9rem;
-        border: 1px solid var(--line);
-        background: var(--surface-soft);
-        padding: 0.9rem;
-        display: grid;
-        gap: 0.45rem;
-
-        & .en {
-          font-weight: 400;
-        }
-
-        & .ja {
-          color: var(--text-muted);
-          font-size: 0.9rem;
-        }
-      }
-
-      .word-nav {
-        display: flex;
-        justify-content: space-between;
-        gap: 0.55rem;
-
-        & button {
-          border: 1px solid var(--line);
-          border-radius: 0.76rem;
-          padding: 0.56rem 0.76rem;
-          font-size: 0.82rem;
-          font-weight: 500;
-          color: var(--text-muted);
-          background: var(--surface);
-
-          &:hover {
-            background: var(--surface-soft);
-            color: var(--text);
-          }
-        }
-      }
-
-      .stat-stack {
-        display: grid;
-        gap: 0.65rem;
       }
 
       .stat-card {
         border: 1px solid var(--line);
-        border-radius: 0.9rem;
+        border-radius: 0.82rem;
         background: var(--surface-soft);
-        padding: 0.75rem;
+        padding: 0.65rem 0.75rem;
         display: grid;
-        gap: 0.22rem;
+        gap: 0.16rem;
 
         & .name {
           color: var(--text-muted);
           font-size: 0.72rem;
-          font-weight: 500;
           text-transform: uppercase;
+          letter-spacing: 0.05em;
+          font-weight: 700;
         }
 
         & .value {
-          font-size: 1.4rem;
-          font-weight: 500;
+          font-size: 1.3rem;
+          font-weight: 700;
+          font-variant-numeric: tabular-nums;
         }
 
         & .mini {
-          font-size: 0.76rem;
           color: var(--text-muted);
+          font-size: 0.78rem;
         }
       }
 
-      .test-shell {
-        inline-size: min(840px, 100%);
-        margin-inline: auto;
-        border: 1px solid var(--line);
-        border-radius: 1rem;
-        background: var(--surface);
-        padding: 1.2rem;
+      .quiz-shell {
         display: grid;
-        gap: 1rem;
-      }
-
-      .test-top {
-        display: flex;
-        justify-content: space-between;
         gap: 0.8rem;
-        align-items: center;
       }
 
       .meter {
         inline-size: 100%;
-        block-size: 0.55rem;
-        border-radius: 999px;
+        block-size: 0.58rem;
         background: var(--surface-soft);
+        border: 1px solid var(--line);
+        border-radius: 999px;
         overflow: hidden;
 
         & span {
           display: block;
-          inline-size: 0;
           block-size: 100%;
-          background: var(--primary);
-          transition: inline-size 0.2s ease;
+          inline-size: 0;
+          background: var(--accent);
         }
       }
 
       .quiz-card {
         border: 1px solid var(--line);
-        border-radius: 0.9rem;
-        padding: 1.1rem;
+        border-radius: 0.92rem;
         background: var(--surface-soft);
+        padding: 1rem;
         display: grid;
-        gap: 0.8rem;
+        gap: 0.78rem;
+      }
+
+      .quiz-counter {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        font-weight: 700;
       }
 
       .question-term {
-        font-size: clamp(1.7rem, 6vw, 2.45rem);
+        font-size: clamp(2rem, 6.2vw, 3.2rem);
         font-weight: 700;
+        line-height: 1.06;
       }
 
       .choice-grid {
         display: grid;
-        gap: 0.55rem;
+        gap: 0.52rem;
       }
 
       .choice-btn {
         text-align: left;
         border: 1px solid var(--line);
-        border-radius: 0.7rem;
-        padding: 0.68rem 0.78rem;
-        font-size: 0.95rem;
+        border-radius: 0.72rem;
         background: var(--surface);
-        transition: border-color 0.15s ease, background-color 0.15s ease;
+        padding: 0.7rem 0.74rem;
+        font-weight: 500;
 
         &:hover {
-          background: var(--surface-soft);
+          background: var(--surface-strong);
+        }
+
+        &:disabled {
+          cursor: not-allowed;
         }
 
         &.is-correct {
-          border-color: color-mix(in oklch, var(--good) 40%, var(--line));
-          background: color-mix(in oklch, var(--good) 10%, var(--surface));
+          border-color: color-mix(in oklch, var(--good) 45%, var(--line));
+          background: color-mix(in oklch, var(--good) 12%, var(--surface));
         }
 
         &.is-incorrect {
-          border-color: color-mix(in oklch, var(--bad) 48%, var(--line));
-          background: color-mix(in oklch, var(--bad) 10%, var(--surface));
+          border-color: color-mix(in oklch, var(--bad) 45%, var(--line));
+          background: color-mix(in oklch, var(--bad) 12%, var(--surface));
         }
       }
 
       .feedback {
-        min-block-size: 1.4rem;
+        min-block-size: 1.35rem;
         font-size: 0.9rem;
-        font-weight: 500;
+        font-weight: 700;
 
         &.is-good {
           color: color-mix(in oklch, var(--good) 70%, black);
         }
 
         &.is-bad {
-          color: color-mix(in oklch, var(--bad) 62%, black);
+          color: color-mix(in oklch, var(--bad) 65%, black);
         }
       }
 
-      .results-shell {
+      .explain-box {
+        border: 1px solid var(--line);
+        border-radius: 0.8rem;
+        background: var(--surface);
+        padding: 0.68rem;
         display: grid;
-        gap: 1rem;
+        gap: 0.42rem;
+
+        & .row {
+          display: grid;
+          grid-template-columns: 78px minmax(0, 1fr);
+          gap: 0.5rem;
+          font-size: 0.9rem;
+
+          & .label {
+            color: var(--text-muted);
+            font-weight: 700;
+          }
+
+          & .value {
+            font-weight: 500;
+          }
+        }
+      }
+
+      .action-row {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.55rem;
+        flex-wrap: wrap;
       }
 
       .kpi-grid {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 0.6rem;
+        gap: 0.55rem;
       }
 
       .kpi {
         border: 1px solid var(--line);
-        border-radius: 0.9rem;
-        background: var(--surface);
-        padding: 0.9rem;
+        border-radius: 0.84rem;
+        background: var(--surface-soft);
+        padding: 0.7rem;
         display: grid;
-        gap: 0.3rem;
+        gap: 0.2rem;
 
         & .name {
           color: var(--text-muted);
+          font-size: 0.72rem;
           text-transform: uppercase;
-          font-size: 0.7rem;
-          font-weight: 500;
+          letter-spacing: 0.06em;
+          font-weight: 700;
         }
 
         & .value {
-          font-size: 1.5rem;
-          font-weight: 500;
+          font-size: 1.3rem;
+          font-weight: 700;
+          font-variant-numeric: tabular-nums;
         }
-      }
-
-      .results-layout {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(250px, 300px);
-        gap: 1rem;
       }
 
       .table-wrap {
         border: 1px solid var(--line);
-        border-radius: 0.9rem;
+        border-radius: 0.84rem;
         overflow: auto;
         background: var(--surface);
       }
@@ -671,54 +493,79 @@
       }
 
       th, td {
-        text-align: left;
         border-block-end: 1px solid var(--line);
-        padding: 0.62rem 0.68rem;
-        font-size: 0.83rem;
+        padding: 0.6rem 0.66rem;
+        text-align: left;
+        font-size: 0.82rem;
       }
 
       th {
-        background: var(--surface-soft);
-        font-size: 0.7rem;
-        text-transform: uppercase;
         color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.69rem;
+        background: var(--surface-soft);
       }
 
       .pass-badge,
       .fail-badge {
         display: inline-flex;
         border-radius: 999px;
-        padding: 0.18rem 0.46rem;
-        font-size: 0.67rem;
-        font-weight: 500;
+        padding: 0.16rem 0.46rem;
+        font-size: 0.66rem;
+        font-weight: 700;
       }
 
       .pass-badge {
-        color: color-mix(in oklch, var(--good) 70%, black);
-        background: color-mix(in oklch, var(--good) 10%, var(--surface));
+        color: color-mix(in oklch, var(--good) 72%, black);
+        background: color-mix(in oklch, var(--good) 12%, var(--surface));
       }
 
       .fail-badge {
-        color: color-mix(in oklch, var(--bad) 70%, black);
-        background: color-mix(in oklch, var(--bad) 10%, var(--surface));
+        color: color-mix(in oklch, var(--bad) 72%, black);
+        background: color-mix(in oklch, var(--bad) 12%, var(--surface));
       }
 
-      .review-panel {
-        border: 1px solid var(--line);
-        border-radius: 0.9rem;
-        background: var(--surface);
-        padding: 0.9rem;
+      .recent-list {
+        list-style: none;
         display: grid;
-        gap: 0.8rem;
+        gap: 0.52rem;
+      }
+
+      .recent-item {
+        border: 1px solid var(--line);
+        border-radius: 0.78rem;
+        background: var(--surface-soft);
+        padding: 0.62rem;
+        display: grid;
+        gap: 0.24rem;
+      }
+
+      .recent-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .recent-score {
+        font-size: 0.83rem;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .recent-meta {
+        color: var(--text-muted);
+        font-size: 0.78rem;
       }
 
       .modal {
         position: fixed;
         inset: 0;
         z-index: 80;
+        background: oklch(0 0 0 / 0.4);
         display: grid;
         place-items: center;
-        background: oklch(0 0 0 / 0.38);
         padding: 1rem;
       }
 
@@ -727,55 +574,73 @@
         border: 1px solid var(--line);
         border-radius: 1rem;
         background: var(--surface);
-        display: grid;
-        gap: 1rem;
         padding: 1rem;
+        display: grid;
+        gap: 0.92rem;
       }
 
       .modal-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        gap: 0.7rem;
+      }
+
+      .settings-title {
+        font-size: 1.3rem;
+        font-weight: 700;
       }
 
       .theme-picker {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.55rem;
+        gap: 0.5rem;
 
         & label {
           border: 1px solid var(--line);
-          border-radius: 0.76rem;
-          padding: 0.65rem;
+          border-radius: 0.75rem;
+          padding: 0.68rem;
           display: flex;
-          gap: 0.35rem;
+          gap: 0.38rem;
           align-items: center;
-          font-weight: 500;
-          cursor: pointer;
+          font-weight: 600;
 
           &:has(input:checked) {
-            border-color: color-mix(in oklch, var(--primary) 45%, var(--line));
-            background: var(--primary-soft);
-            color: var(--primary);
+            color: var(--accent);
+            background: var(--accent-soft);
+            border-color: color-mix(in oklch, var(--accent) 45%, var(--line));
           }
         }
       }
 
       .data-actions {
         display: grid;
-        gap: 0.55rem;
+        gap: 0.52rem;
 
         & button {
-          border: 1px solid var(--line);
-          border-radius: 0.75rem;
-          padding: 0.6rem 0.68rem;
           text-align: left;
+          border: 1px solid var(--line);
+          border-radius: 0.72rem;
           background: var(--surface-soft);
+          padding: 0.6rem 0.68rem;
+          font-size: 0.86rem;
+          font-weight: 600;
 
           &:hover {
-            background: color-mix(in oklch, var(--surface-soft) 65%, var(--surface-strong));
+            background: var(--surface-strong);
           }
         }
+
+        & .danger-button {
+          text-align: center;
+        }
+      }
+
+      .migration-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.55rem;
+        flex-wrap: wrap;
       }
 
       .app-footer {
@@ -784,119 +649,36 @@
         padding: 0.7rem 1rem;
         display: flex;
         justify-content: space-between;
-        gap: 0.7rem;
         align-items: center;
-
-        & .links {
-          display: flex;
-          gap: 0.7rem;
-          flex-wrap: wrap;
-        }
-
-        & .footer-link {
-          font-size: 0.78rem;
-          color: var(--text-muted);
-          text-decoration: underline;
-          text-underline-offset: 0.25rem;
-
-          &:hover {
-            color: var(--primary);
-          }
-        }
-      }
-
-      .spacer-top {
-        margin-top: 1rem;
-      }
-
-      .title-hero {
-        font-size: clamp(1.5rem, 3vw, 2.2rem);
-        font-weight: 500;
-      }
-
-      .subtitle-note {
-        font-size: 0.88rem;
-        margin-top: 0.36rem;
-      }
-
-      .section-heading {
-        font-size: clamp(1.3rem, 3vw, 1.8rem);
-        font-weight: 500;
-      }
-
-      .section-heading-results {
-        font-size: clamp(1.3rem, 3vw, 1.9rem);
-        font-weight: 500;
-      }
-
-      .subheading-strong {
-        font-size: 1.1rem;
-        font-weight: 500;
-      }
-
-      .action-row-end {
-        display: flex;
-        gap: 0.6rem;
-        justify-content: flex-end;
+        gap: 0.65rem;
         flex-wrap: wrap;
       }
 
-      .results-headline {
-        margin-top: 0.28rem;
+      .footer-links {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 0.7rem;
       }
 
-      .kpi-date-value {
-        font-size: 1rem;
-      }
-
-      .review-title {
-        font-size: 0.96rem;
-        font-weight: 500;
-      }
-
-      .review-note {
+      .footer-link {
+        color: var(--text-muted);
+        text-decoration: underline;
+        text-underline-offset: 0.25rem;
         font-size: 0.8rem;
-        margin-top: 0.24rem;
-      }
 
-      .footer-status-text {
-        font-size: 0.79rem;
-      }
-
-      .settings-title {
-        font-size: 1.45rem;
-        font-weight: 500;
-      }
-
-      .settings-info {
-        border-top: 1px solid var(--line);
-        padding-top: 0.8rem;
-      }
-
-      .settings-version {
-        font-size: 0.9rem;
-      }
-
-      .settings-note {
-        font-size: 0.79rem;
-        margin-top: 0.2rem;
-      }
-
-      .settings-footer {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.6rem;
-        flex-wrap: wrap;
-      }
-
-      @media (width <= 1180px) {
-        .learning-layout {
-          grid-template-columns: minmax(230px, 260px) minmax(0, 1fr);
+        &:hover {
+          color: var(--accent);
         }
+      }
 
-        .panel-right {
-          grid-column: 1 / -1;
-          max-block-size: none;
+      .footer-status {
+        font-size: 0.79rem;
+      }
+
+      @media (width <= 1020px) {
+        .practice-layout,
+        .history-layout {
+          grid-template-columns: 1fr;
         }
 
         .kpi-grid {
@@ -904,7 +686,7 @@
         }
       }
 
-      @media (width <= 900px) {
+      @media (width <= 760px) {
         .app-header {
           grid-template-columns: 1fr;
           justify-items: start;
@@ -914,38 +696,8 @@
           justify-content: flex-start;
         }
 
-        .learning-layout,
-        .results-layout {
+        .theme-picker {
           grid-template-columns: 1fr;
-        }
-
-        .panel-left,
-        .panel-right {
-          max-block-size: none;
-        }
-
-        .app-footer {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-      }
-
-      @media (width <= 560px) {
-        .kpi-grid {
-          grid-template-columns: 1fr;
-        }
-
-      }
-
-      @keyframes fade-slide {
-        from {
-          opacity: 0;
-          transform: translateY(8px);
-        }
-
-        to {
-          opacity: 1;
-          transform: translateY(0);
         }
       }
     }
@@ -958,203 +710,137 @@
       .muted {
         color: var(--text-muted);
       }
-
-      .mono {
-        font-family: "Menlo", "Consolas", "Monaco", monospace;
-      }
     }
   </style>
 </head>
 <body>
   <header class="app-header">
     <div class="brand">
-      <span class="material-symbols-rounded" aria-hidden="true">code</span>
-      <span>Programming English Trainer</span>
+      <svg class="brand-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M4 4h16v2H4Zm2 4h12v2H6Zm-2 4h16v2H4Zm2 4h12v2H6Z" />
+      </svg>
+      <span>Programming English Dojo</span>
     </div>
     <nav class="tab-list" aria-label="主要メニュー">
-      <button class="tab-button" data-action="switch-view" data-view="learning">学習</button>
-      <button class="tab-button" data-action="switch-view" data-view="test">テスト</button>
-      <button class="tab-button" data-action="switch-view" data-view="results">結果</button>
+      <button class="tab-button" data-action="switch-view" data-view="practice">演習</button>
+      <button class="tab-button" data-action="switch-view" data-view="history">成績/履歴</button>
     </nav>
     <div class="header-tools">
-      <button class="ghost-button" data-action="start-quiz">テスト開始</button>
       <button class="ghost-button" data-action="open-settings">設定</button>
+      <button class="cta-button" data-action="start-quiz">演習を開始</button>
     </div>
   </header>
 
-  <main class="app-main" id="app-root">
-    <section class="view-panel" id="view-learning" aria-label="学習ビュー">
-      <div class="learning-layout">
-        <aside class="panel panel-left">
+  <main class="app-main">
+    <section class="view-panel" id="view-practice" aria-label="演習ビュー">
+      <div class="practice-layout">
+        <aside class="panel practice-side">
           <div>
-            <p class="section-label">Search</p>
-            <div class="search-box">
-              <input type="search" placeholder="単語を検索..." data-role="search" id="search-input" />
+            <p class="section-label">Category</p>
+            <div class="chip-grid" id="category-filter"></div>
+            <p class="meta-note muted" id="category-summary"></p>
+            <p class="meta-note muted" id="category-count"></p>
+          </div>
+
+          <div class="session-actions">
+            <button class="cta-button" data-action="start-quiz" id="primary-start-button">この分野で全問開始</button>
+            <button class="ghost-button" data-action="switch-view" data-view="history">成績/履歴を見る</button>
+          </div>
+
+          <div>
+            <p class="section-label">Progress</p>
+            <div class="stat-grid">
+              <article class="stat-card">
+                <span class="name">覚えた</span>
+                <span class="value" id="stat-mastered">0</span>
+                <span class="mini" id="stat-mastered-sub">0語</span>
+              </article>
+              <article class="stat-card">
+                <span class="name">復習中</span>
+                <span class="value" id="stat-review">0</span>
+                <span class="mini">再演習推奨</span>
+              </article>
+              <article class="stat-card">
+                <span class="name">苦手</span>
+                <span class="value" id="stat-weak">0</span>
+                <span class="mini" id="stat-weak-sub">0語</span>
+              </article>
+              <article class="stat-card">
+                <span class="name">未確認</span>
+                <span class="value" id="stat-unseen">0</span>
+                <span class="mini">未着手語彙</span>
+              </article>
             </div>
-          </div>
-
-          <div class="spacer-top">
-            <p class="section-label">レベル</p>
-            <div class="chip-grid" id="level-filter"></div>
-          </div>
-
-          <div class="spacer-top">
-            <p class="section-label">ステータス</p>
-            <div class="chip-grid" id="status-filter"></div>
-          </div>
-
-          <div class="spacer-top">
-            <p class="section-label">Alphabet</p>
-            <div class="chip-grid" id="letter-filter"></div>
-          </div>
-
-          <div class="spacer-top">
-            <p class="section-label">単語リスト</p>
-            <ul class="word-list" id="word-list"></ul>
           </div>
         </aside>
 
-        <article class="panel panel-center">
-          <div class="learning-title">
-            <div>
-              <p class="section-label">Learning</p>
-              <h1 class="title-hero">必須コーディング英語</h1>
-              <p class="muted subtitle-note" id="learning-summary"></p>
-            </div>
-            <span id="current-status-tag" class="status-tag status-unseen">未確認</span>
+        <article class="panel quiz-shell">
+          <div>
+            <p class="section-label">Practice Session</p>
+            <h1 class="panel-title">基本情報技術者試験 対策モード</h1>
           </div>
 
-          <section class="word-card">
+          <div class="meter" aria-hidden="true"><span id="quiz-progress-bar"></span></div>
+
+          <section class="quiz-card" id="quiz-empty">
+            <h2>分野を選んで演習を開始してください</h2>
+            <p class="muted" id="quiz-start-summary">選択分野の全問題を出題します。</p>
+            <p class="muted" id="quiz-start-detail">開始後は1問ごとに即時採点します。</p>
             <div>
-              <span class="word-type" id="word-type">VERB / NOUN</span>
-              <h2 class="word-heading" id="word-term">access</h2>
+              <button class="cta-button" data-action="start-quiz" id="quiz-start-button">この分野で開始</button>
             </div>
-
-            <div>
-              <p class="meaning-main" id="word-meaning-main"></p>
-              <p class="meaning-sub" id="word-meaning-sub"></p>
-            </div>
-
-            <div class="status-actions">
-              <button class="status-action status-mastered" data-action="set-learning-status" data-status="mastered">覚えた</button>
-              <button class="status-action status-review" data-action="set-learning-status" data-status="review">復習中</button>
-              <button class="status-action status-weak" data-action="set-learning-status" data-status="weak">苦手</button>
-              <button class="status-action" data-action="set-learning-status" data-status="unseen">未確認</button>
-            </div>
-
-            <div>
-              <p class="section-label">Usage Example</p>
-              <div class="example-box">
-                <p class="en" id="word-example-en"></p>
-                <p class="ja" id="word-example-ja"></p>
-              </div>
-            </div>
-
           </section>
 
-          <div class="word-nav">
-            <button data-action="word-prev">← 前へ</button>
-            <button data-action="word-random">ランダム</button>
-            <button data-action="word-next">次へ →</button>
-          </div>
+          <section class="quiz-card hidden" id="quiz-live">
+            <p class="quiz-counter" id="quiz-counter">第1問 / 全問</p>
+            <p class="question-term" id="quiz-term">access</p>
+            <p class="muted" id="quiz-hint">意味を1つ選択してください。</p>
+            <div class="choice-grid" id="quiz-options"></div>
+            <p class="feedback" id="quiz-feedback" role="status" aria-live="polite"></p>
+
+            <div class="explain-box hidden" id="quiz-explanation">
+              <p class="row"><span class="label">正解</span><span class="value" id="quiz-correct"></span></p>
+              <p class="row"><span class="label">意味</span><span class="value" id="quiz-meaning"></span></p>
+            </div>
+
+            <div class="action-row">
+              <button class="ghost-button" data-action="switch-view" data-view="history">成績/履歴へ</button>
+              <button class="cta-button" data-action="quiz-next" id="quiz-next-button">次の問題</button>
+            </div>
+          </section>
         </article>
-
-        <aside class="panel panel-right">
-          <p class="section-label">学習状況</p>
-          <div class="stat-stack">
-            <div class="stat-card">
-              <span class="name">正答率（最新）</span>
-              <span class="value" id="stat-accuracy">-</span>
-              <span class="mini" id="stat-accuracy-sub">テスト未実施</span>
-            </div>
-            <div class="stat-card">
-              <span class="name">覚えた</span>
-              <span class="value" id="stat-mastered">0</span>
-              <span class="mini" id="stat-mastered-sub">0語 / 0語</span>
-            </div>
-            <div class="stat-card">
-              <span class="name">復習中</span>
-              <span class="value" id="stat-review">0</span>
-              <span class="mini">次回テスト推奨</span>
-            </div>
-            <div class="stat-card">
-              <span class="name">苦手</span>
-              <span class="value" id="stat-weak">0</span>
-              <span class="mini" id="stat-weak-sub">早めの再学習が必要</span>
-            </div>
-            <div class="stat-card">
-              <span class="name">未確認</span>
-              <span class="value" id="stat-unseen">0</span>
-              <span class="mini">まずはカード確認</span>
-            </div>
-          </div>
-        </aside>
       </div>
     </section>
 
-    <section class="view-panel hidden" id="view-test" aria-label="テストビュー">
-      <div class="test-shell">
-        <div class="test-top">
+    <section class="view-panel hidden" id="view-history" aria-label="成績履歴ビュー">
+      <div class="history-layout">
+        <article class="panel" id="history-summary-panel">
           <div>
-            <p class="section-label">Test Session</p>
-            <h2 class="section-heading">4択テスト</h2>
+            <p class="section-label">Latest Session</p>
+            <h2 class="panel-title">成績サマリー</h2>
+            <p class="muted" id="results-headline"></p>
           </div>
-          <button class="ghost-button" data-action="start-quiz">新しいテスト</button>
-        </div>
 
-        <div class="meter"><span id="quiz-progress-bar"></span></div>
-
-        <div id="quiz-empty" class="quiz-card">
-          <h3 class="subheading-strong">テストを開始してください</h3>
-          <p class="muted">現在のフィルタを優先して全問を出題します。回答後は結果画面へ自動反映されます。</p>
-          <div>
-            <button class="cta-button" data-action="start-quiz">この条件で開始</button>
+          <div class="kpi-grid">
+            <article class="kpi">
+              <span class="name">正解率</span>
+              <span class="value" id="kpi-accuracy">0%</span>
+            </article>
+            <article class="kpi">
+              <span class="name">正解数</span>
+              <span class="value" id="kpi-correct">0</span>
+            </article>
+            <article class="kpi">
+              <span class="name">ミス</span>
+              <span class="value" id="kpi-miss">0</span>
+            </article>
+            <article class="kpi">
+              <span class="name">実施日時</span>
+              <span class="value" id="kpi-date">-</span>
+            </article>
           </div>
-        </div>
 
-        <div id="quiz-live" class="quiz-card hidden">
-          <p class="section-label" id="quiz-counter">Question 1 / All</p>
-          <p class="question-term" id="quiz-term">access</p>
-          <p class="muted" id="quiz-hint">英単語の意味を選択してください</p>
-          <div class="choice-grid" id="quiz-options"></div>
-          <p class="feedback" id="quiz-feedback"></p>
-          <div class="action-row-end">
-            <button class="ghost-button" data-action="switch-view" data-view="learning">学習へ戻る</button>
-            <button class="cta-button" data-action="quiz-next" id="quiz-next-button">次の問題</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="view-panel hidden" id="view-results" aria-label="結果ビュー">
-      <div class="results-shell">
-        <div>
-          <p class="section-label">Session Completed</p>
-          <h2 class="section-heading-results">トレーニング結果分析</h2>
-          <p class="muted results-headline" id="results-headline"></p>
-        </div>
-
-        <div class="kpi-grid">
-          <article class="kpi">
-            <span class="name">正解率</span>
-            <span class="value" id="kpi-accuracy">0%</span>
-          </article>
-          <article class="kpi">
-            <span class="name">正解数</span>
-            <span class="value" id="kpi-correct">0</span>
-          </article>
-          <article class="kpi">
-            <span class="name">ミス</span>
-            <span class="value" id="kpi-miss">0</span>
-          </article>
-          <article class="kpi">
-            <span class="name">実施日</span>
-            <span class="value kpi-date-value" id="kpi-date"></span>
-          </article>
-        </div>
-
-        <div class="results-layout">
-          <section class="table-wrap">
+          <div class="table-wrap">
             <table>
               <thead>
                 <tr>
@@ -1166,27 +852,28 @@
               </thead>
               <tbody id="results-body"></tbody>
             </table>
-          </section>
+          </div>
+        </article>
 
-          <aside class="review-panel">
-            <div>
-              <h3 class="review-title">優先復習ワード</h3>
-              <p class="muted review-note">苦手ステータスと直近ミスを合算表示します。</p>
-            </div>
-            <div class="chip-grid" id="review-chip-list"></div>
-            <button class="cta-button" data-action="switch-view" data-view="learning">復習を開始する</button>
-          </aside>
-        </div>
+        <article class="panel">
+          <div>
+            <p class="section-label">Recent Sessions</p>
+            <h2 class="panel-title">直近履歴</h2>
+            <p class="muted" id="history-summary"></p>
+          </div>
+          <ul class="recent-list" id="recent-session-list">
+            <li class="muted">履歴なし</li>
+          </ul>
+        </article>
       </div>
     </section>
   </main>
 
   <footer class="app-footer">
-    <p id="save-status" class="muted footer-status-text">保存状態: ローカル保存済み</p>
-    <div class="links">
-      <button class="footer-link" data-action="export-csv">CSV出力</button>
-      <button class="footer-link" data-action="open-settings">ヘルプ / 設定</button>
-      <button class="footer-link" data-action="reset-progress">学習状態リセット</button>
+    <p class="footer-status muted" id="save-status">保存状態: ローカル保存済み</p>
+    <div class="footer-links">
+      <button class="footer-link" data-action="open-settings">設定を開く</button>
+      <button class="footer-link" data-action="reset-progress">進捗リセット（履歴は残る）</button>
     </div>
   </footer>
 
@@ -1195,7 +882,7 @@
       <header class="modal-header">
         <div>
           <p class="section-label">Settings</p>
-          <h2 id="settings-title" class="settings-title">設定</h2>
+          <h2 class="settings-title" id="settings-title">設定</h2>
         </div>
         <button class="ghost-button" data-action="close-settings">閉じる</button>
       </header>
@@ -1217,21 +904,25 @@
       <section>
         <p class="section-label">Data Management</p>
         <div class="data-actions">
-          <button data-action="reset-progress">学習進捗のリセット（ステータスとテスト進行）</button>
-          <button data-action="clear-history">履歴の消去（結果セッションのみ）</button>
+          <button data-action="reset-progress">学習進捗のリセット（履歴は残る）</button>
+          <button data-action="clear-history">履歴の消去</button>
+          <button class="danger-button" data-action="clear-all-data">すべてのデータを消去</button>
         </div>
       </section>
+    </div>
+  </div>
 
-      <section class="settings-info">
-        <p class="section-label">Information</p>
-        <p class="settings-version">Version 1.0.0 SPA</p>
-        <p class="muted settings-note">Parts1-Parts4を統合したローカル完結版です。</p>
-      </section>
-
-      <footer class="settings-footer">
-        <button class="ghost-button" data-action="close-settings">キャンセル</button>
-        <button class="cta-button" data-action="close-settings">保存して閉じる</button>
-      </footer>
+  <div class="modal hidden" id="migration-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="migration-title">
+    <div class="modal-card">
+      <header>
+        <p class="section-label">Data Migration</p>
+        <h2 class="settings-title" id="migration-title">旧バージョンの保存データが見つかりました</h2>
+      </header>
+      <p class="muted">新しい演習モードへ移行するため、旧データの扱いを選択してください。この確認は初回のみ表示されます。</p>
+      <div class="migration-actions">
+        <button class="ghost-button" data-action="migrate-reset">初期化して開始</button>
+        <button class="cta-button" data-action="migrate-keep">進捗を引き継ぐ</button>
+      </div>
     </div>
   </div>
 
@@ -1242,11 +933,15 @@
       const qs = (sel, root = document) => root.querySelector(sel);
       const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];
 
-      const STORAGE_KEY = "must-know-coding-english-state-v1";
+      const STORAGE_KEY_V1 = "must-know-coding-english-state-v1";
+      const STORAGE_KEY_V2 = "must-know-coding-english-state-v2";
+      const MIGRATION_DECISION_KEY = "must-know-coding-english-v2-migration-decided";
       const STATUS_ORDER = ["unseen", "mastered", "review", "weak"];
       const THEME_MODES = ["light", "dark"];
-      const VIEW_MODES = ["learning", "test", "results"];
-      const LEVEL_OPTIONS = ["all", "prerequisite", "basic", "advanced", "abbreviation", "acronym"];
+      const VIEW_MODES = ["practice", "history"];
+      const CATEGORY_OPTIONS = ["all", "prerequisite", "basic", "advanced", "abbreviation", "acronym"];
+      const DEFAULT_CATEGORY = "prerequisite";
+      const MAX_STORED_SESSIONS = 12;
 
       const STATUS_LABELS = {
         unseen: "未確認",
@@ -1255,8 +950,8 @@
         weak: "苦手"
       };
 
-      const LEVEL_LABELS = {
-        all: "すべて",
+      const CATEGORY_LABELS = {
+        all: "全分野",
         prerequisite: "前提",
         basic: "ベーシック",
         advanced: "アドバンスト",
@@ -1264,16 +959,16 @@
         acronym: "頭字語"
       };
 
-      const WORDS = [
+const WORDS = [
   {
     "id": "accept",
     "term": "accept",
     "pos": "【動詞】",
     "level": "basic",
     "meaningMain": "受諾する、受け入れる",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "レビュー結果や提案を受け入れる文脈で使う。",
+    "exampleEn": "The reviewer accepted the patch after we added unit tests.",
+    "exampleJa": "ユニットテストを追加した後、レビュアーはそのパッチを受け入れました。",
   },
   {
     "id": "access",
@@ -1281,9 +976,9 @@
     "pos": "【動詞／名詞】",
     "level": "basic",
     "meaningMain": "アクセスする、利用する、入手する／アクセス",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "権限や到達可否を確認する場面でよく使う。",
+    "exampleEn": "Only admins can access the production logs.",
+    "exampleJa": "本番ログにアクセスできるのは管理者だけです。",
   },
   {
     "id": "account",
@@ -1291,9 +986,9 @@
     "pos": "【名詞】",
     "level": "basic",
     "meaningMain": "アカウント、口座",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "サービス利用者や権限単位を表す。",
+    "exampleEn": "Create a temporary account for QA verification.",
+    "exampleJa": "QA検証用に一時アカウントを作成してください。",
   },
   {
     "id": "algorithm",
@@ -1301,9 +996,9 @@
     "pos": "【名詞】",
     "level": "basic",
     "meaningMain": "アルゴリズム",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "処理手順や計算方法を指す。",
+    "exampleEn": "We replaced the sorting algorithm to reduce API latency.",
+    "exampleJa": "APIの遅延を減らすためにソートアルゴリズムを置き換えました。",
   },
   {
     "id": "allow",
@@ -1311,9 +1006,9 @@
     "pos": "【動詞】",
     "level": "basic",
     "meaningMain": "可能にする、許可する",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "アクセス制御や仕様条件の許可で使う。",
+    "exampleEn": "This endpoint allows only POST requests.",
+    "exampleJa": "このエンドポイントはPOSTリクエストのみ許可します。",
   },
   {
     "id": "alternative",
@@ -1321,9 +1016,9 @@
     "pos": "【形容詞】",
     "level": "basic",
     "meaningMain": "代替の",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "本案が難しい時の代替案を示す。",
+    "exampleEn": "As an alternative, you can run the migration during off-hours.",
+    "exampleJa": "代替案として、営業時間外にマイグレーションを実行できます。",
   },
   {
     "id": "application",
@@ -1331,9 +1026,9 @@
     "pos": "【名詞】",
     "level": "basic",
     "meaningMain": "アプリケーション",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "実行可能なソフトウェア全体を指す。",
+    "exampleEn": "Restart the application after updating the environment variables.",
+    "exampleJa": "環境変数を更新した後、アプリケーションを再起動してください。",
   },
   {
     "id": "apply",
@@ -1341,9 +1036,9 @@
     "pos": "【動詞】",
     "level": "basic",
     "meaningMain": "適用する",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "変更や設定を反映する意味で使う。",
+    "exampleEn": "Apply the config change and redeploy the service.",
+    "exampleJa": "設定変更を適用してサービスを再デプロイしてください。",
   },
   {
     "id": "argument",
@@ -1351,9 +1046,9 @@
     "pos": "【名詞】",
     "level": "basic",
     "meaningMain": "引数、実引数",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "関数やコマンドに渡す値。",
+    "exampleEn": "Pass the timeout as the second argument.",
+    "exampleJa": "2番目の引数としてタイムアウト値を渡してください。",
   },
   {
     "id": "array",
@@ -1361,9 +1056,9 @@
     "pos": "【名詞】",
     "level": "basic",
     "meaningMain": "配列",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "順序付きで同種データを持つ構造。",
+    "exampleEn": "The API returns an array of user objects.",
+    "exampleJa": "そのAPIはユーザーオブジェクトの配列を返します。",
   },
   {
     "id": "attribute",
@@ -1371,9 +1066,9 @@
     "pos": "【名詞】",
     "level": "basic",
     "meaningMain": "属性",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "HTML要素やデータモデルの付加情報。",
+    "exampleEn": "Set the disabled attribute while the request is pending.",
+    "exampleJa": "リクエスト処理中はdisabled属性を設定してください。",
   },
   {
     "id": "audio",
@@ -1381,9 +1076,9 @@
     "pos": "【名詞】",
     "level": "basic",
     "meaningMain": "オーディオ、音声",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "音声データや再生入力機能を指す。",
+    "exampleEn": "The bug was caused by an audio device permission error.",
+    "exampleJa": "その不具合は音声デバイス権限エラーが原因でした。",
   },
   {
     "id": "author",
@@ -1391,9 +1086,9 @@
     "pos": "【名詞】",
     "level": "basic",
     "meaningMain": "作成者",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "コミットや文書の作成者を示す。",
+    "exampleEn": "The commit author explained the rollback plan in the PR.",
+    "exampleJa": "そのコミットの作成者はPRでロールバック計画を説明しました。",
   },
   {
     "id": "available",
@@ -1401,9 +1096,9 @@
     "pos": "【形容詞】",
     "level": "basic",
     "meaningMain": "利用可能な、入手可能な",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "機能や環境が使える状態を表す。",
+    "exampleEn": "The feature flag is available only in staging.",
+    "exampleJa": "その機能フラグはステージング環境でのみ利用可能です。",
   },
   {
     "id": "avoid",
@@ -1411,9 +1106,9 @@
     "pos": "【動詞】",
     "level": "basic",
     "meaningMain": "回避する",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "障害や競合を未然に避ける意味で使う。",
+    "exampleEn": "Avoid force-pushing to the shared release branch.",
+    "exampleJa": "共有のリリースブランチへのforce pushは避けてください。",
   },
   {
     "id": "backup",
@@ -1421,9 +1116,9 @@
     "pos": "【名詞】",
     "level": "basic",
     "meaningMain": "バックアップ",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "復旧に備えた複製データ。",
+    "exampleEn": "Take a backup before running the schema migration.",
+    "exampleJa": "スキーママイグレーションを実行する前にバックアップを取得してください。",
   },
   {
     "id": "based",
@@ -1431,9 +1126,9 @@
     "pos": "【形容詞】",
     "level": "basic",
     "meaningMain": "ベースの、〜に基づく",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "判断や実装の根拠を示す時に使う。",
+    "exampleEn": "The schedule is based on the incident postmortem.",
+    "exampleJa": "そのスケジュールはインシデントの振り返りに基づいています。",
   },
   {
     "id": "bit",
@@ -1441,9 +1136,9 @@
     "pos": "【名詞】",
     "level": "basic",
     "meaningMain": "ビット",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "情報量の最小単位。",
+    "exampleEn": "Use a 64-bit build for this dependency.",
+    "exampleJa": "この依存関係には64ビット版を使ってください。",
   },
   {
     "id": "blank",
@@ -1451,9 +1146,9 @@
     "pos": "【形容詞】",
     "level": "basic",
     "meaningMain": "空白の",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "未入力や空欄の状態を示す。",
+    "exampleEn": "Reject the form when the token field is blank.",
+    "exampleJa": "トークン欄が空白ならフォームを拒否してください。",
   },
   {
     "id": "block",
@@ -1461,9 +1156,9 @@
     "pos": "【名詞／動詞】",
     "level": "basic",
     "meaningMain": "ブロック／ブロックする",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "名詞は処理単位、動詞は遮断の意味で使う。",
+    "exampleEn": "This firewall rule can block outbound traffic.",
+    "exampleJa": "このファイアウォールルールは外向き通信を遮断できます。",
   },
   {
     "id": "boolean",
@@ -1471,9 +1166,9 @@
     "pos": "【形容詞】",
     "level": "basic",
     "meaningMain": "ブールの",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "true/false の2値を扱う型。",
+    "exampleEn": "Store this flag as a boolean, not a string.",
+    "exampleJa": "このフラグは文字列ではなくブール値で保持してください。",
   },
   {
     "id": "branch",
@@ -1481,9 +1176,9 @@
     "pos": "【名詞】",
     "level": "basic",
     "meaningMain": "ブランチ、分岐",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "Gitの作業分岐や条件分岐を指す。",
+    "exampleEn": "Create a feature branch before touching production code.",
+    "exampleJa": "本番コードを触る前に機能ブランチを作成してください。",
   },
   {
     "id": "browser",
@@ -1491,9 +1186,9 @@
     "pos": "【名詞】",
     "level": "basic",
     "meaningMain": "ブラウザー",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "Webページを表示・実行するクライアント。",
+    "exampleEn": "The issue reproduces only in Safari browser.",
+    "exampleJa": "その問題はSafariブラウザーでのみ再現します。",
   },
   {
     "id": "bug",
@@ -1501,9 +1196,9 @@
     "pos": "【名詞】",
     "level": "basic",
     "meaningMain": "バグ",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "仕様と異なる不具合。",
+    "exampleEn": "We logged a bug for the broken pagination.",
+    "exampleJa": "壊れたページネーションについてバグを登録しました。",
   },
   {
     "id": "byte",
@@ -1511,9 +1206,9 @@
     "pos": "【名詞】",
     "level": "basic",
     "meaningMain": "バイト",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "8ビット単位のデータ量。",
+    "exampleEn": "The payload size is limited to 1024 bytes.",
+    "exampleJa": "ペイロードサイズは1024バイトまでに制限されています。",
   },
   {
     "id": "cache",
@@ -1521,9 +1216,9 @@
     "pos": "【名詞】",
     "level": "basic",
     "meaningMain": "キャッシュ",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "再計算や再取得を減らす一時保存領域。",
+    "exampleEn": "Clear the cache after updating static assets.",
+    "exampleJa": "静的アセット更新後はキャッシュをクリアしてください。",
   },
   {
     "id": "cancel",
@@ -1531,9 +1226,9 @@
     "pos": "【動詞】",
     "level": "basic",
     "meaningMain": "キャンセルする、取り消す",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "処理や予約を中止・撤回する。",
+    "exampleEn": "Cancel the deployment if health checks fail.",
+    "exampleJa": "ヘルスチェックに失敗した場合はデプロイを中止してください。",
   },
   {
     "id": "capacity",
@@ -1541,9 +1236,9 @@
     "pos": "【名詞】",
     "level": "basic",
     "meaningMain": "容量",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "保存可能量や処理能力の上限。",
+    "exampleEn": "The queue reached capacity during peak traffic.",
+    "exampleJa": "ピークトラフィック時にキューが容量上限に達しました。",
   },
   {
     "id": "case",
@@ -1551,9 +1246,9 @@
     "pos": "【名詞】",
     "level": "basic",
     "meaningMain": "場合、ケース、大文字小文字の区別",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "文脈により「事例」や「文字種」を指す。",
+    "exampleEn": "Handle the edge case where the input is null.",
+    "exampleJa": "入力がnullになるエッジケースを処理してください。",
   },
   {
     "id": "character",
@@ -1561,9 +1256,9 @@
     "pos": "【名詞】",
     "level": "basic",
     "meaningMain": "文字",
-    "meaningSub": "",
-    "exampleEn": "",
-    "exampleJa": "",
+    "meaningSub": "文字列を構成する1文字。",
+    "exampleEn": "Usernames must be between 3 and 20 characters.",
+    "exampleJa": "ユーザー名は3文字以上20文字以下にしてください。",
   },
   {
     "id": "checkbox",
@@ -9268,28 +8963,15 @@
 ];
 
       const WORD_BY_ID = new Map(WORDS.map((word) => [word.id, word]));
-      const DEFAULT_WORD_ID = WORDS[0] ? WORDS[0].id : "";
 
       const _dom = {
         $root: document.documentElement,
-        $viewLearning: qs("#view-learning"),
-        $viewTest: qs("#view-test"),
-        $viewResults: qs("#view-results"),
-        $searchInput: qs("#search-input"),
-        $levelFilter: qs("#level-filter"),
-        $statusFilter: qs("#status-filter"),
-        $letterFilter: qs("#letter-filter"),
-        $wordList: qs("#word-list"),
-        $learningSummary: qs("#learning-summary"),
-        $currentStatusTag: qs("#current-status-tag"),
-        $wordType: qs("#word-type"),
-        $wordTerm: qs("#word-term"),
-        $wordMeaningMain: qs("#word-meaning-main"),
-        $wordMeaningSub: qs("#word-meaning-sub"),
-        $wordExampleEn: qs("#word-example-en"),
-        $wordExampleJa: qs("#word-example-ja"),
-        $statAccuracy: qs("#stat-accuracy"),
-        $statAccuracySub: qs("#stat-accuracy-sub"),
+        $viewPractice: qs("#view-practice"),
+        $viewHistory: qs("#view-history"),
+        $categoryFilter: qs("#category-filter"),
+        $categorySummary: qs("#category-summary"),
+        $categoryCount: qs("#category-count"),
+        $primaryStartButton: qs("#primary-start-button"),
         $statMastered: qs("#stat-mastered"),
         $statMasteredSub: qs("#stat-mastered-sub"),
         $statReview: qs("#stat-review"),
@@ -9299,11 +8981,17 @@
         $quizEmpty: qs("#quiz-empty"),
         $quizLive: qs("#quiz-live"),
         $quizProgressBar: qs("#quiz-progress-bar"),
+        $quizStartSummary: qs("#quiz-start-summary"),
+        $quizStartDetail: qs("#quiz-start-detail"),
+        $quizStartButton: qs("#quiz-start-button"),
         $quizCounter: qs("#quiz-counter"),
         $quizTerm: qs("#quiz-term"),
         $quizHint: qs("#quiz-hint"),
         $quizOptions: qs("#quiz-options"),
         $quizFeedback: qs("#quiz-feedback"),
+        $quizExplanation: qs("#quiz-explanation"),
+        $quizCorrect: qs("#quiz-correct"),
+        $quizMeaning: qs("#quiz-meaning"),
         $quizNextButton: qs("#quiz-next-button"),
         $resultsHeadline: qs("#results-headline"),
         $kpiAccuracy: qs("#kpi-accuracy"),
@@ -9311,45 +8999,127 @@
         $kpiMiss: qs("#kpi-miss"),
         $kpiDate: qs("#kpi-date"),
         $resultsBody: qs("#results-body"),
-        $reviewChipList: qs("#review-chip-list"),
+        $recentSessionList: qs("#recent-session-list"),
+        $historySummary: qs("#history-summary"),
         $saveStatus: qs("#save-status"),
         $settingsModal: qs("#settings-modal"),
-        $themePicker: qs("#theme-picker")
+        $themePicker: qs("#theme-picker"),
+        $migrationModal: qs("#migration-modal")
       };
 
       const _runtime = {
-        _lastSavedAt: null
+        _lastSavedAt: null,
+        _storageLoadWarning: "",
+        _storageSaveError: "",
+        _settingsOpen: false,
+        _migrationOpen: false,
+        _settingsTrigger: null,
+        _migrationPrompted: false,
+        _migrationCandidate: false
       };
 
-      const _createInitialState = () => ({
-        view: "learning",
-        theme: "light",
-        filters: {
-          search: "",
-          level: "all",
-          status: "all",
-          letter: "all"
-        },
-        learning: {
-          wordId: DEFAULT_WORD_ID,
-          randomCursor: 0
-        },
-        quiz: {
+      function _createInitialQuizState() {
+        return {
           active: false,
+          category: DEFAULT_CATEGORY,
           questionIndex: 0,
+          seed: 0,
           order: [],
           answers: [],
           choiceMap: {}
-        },
-        sessions: [],
-        statuses: {}
-      });
+        };
+      }
 
-      const _state = _loadState();
+      function _createInitialState() {
+        return {
+          view: "practice",
+          theme: "light",
+          selectedCategory: DEFAULT_CATEGORY,
+          quiz: _createInitialQuizState(),
+          sessions: [],
+          statuses: {}
+        };
+      }
 
-      function _loadState() {
+      function _isValidDateValue(value) {
+        const _date = new Date(value);
+        return !Number.isNaN(_date.getTime());
+      }
+
+      function _toSafeInteger(value, fallback = 0) {
+        const _number = Number(value);
+        if (!Number.isInteger(_number) || _number < 0) {
+          return fallback;
+        }
+        return _number;
+      }
+
+      function _sanitizeQuizAnswer(rawAnswer) {
+        if (!rawAnswer || typeof rawAnswer !== "object") {
+          return null;
+        }
+
+        if (typeof rawAnswer.wordId !== "string" || !WORD_BY_ID.has(rawAnswer.wordId)) {
+          return null;
+        }
+
+        const _word = _getWordById(rawAnswer.wordId);
+        if (!_word) {
+          return null;
+        }
+
+        const _correct = typeof rawAnswer.correct === "string" && rawAnswer.correct.trim() ? rawAnswer.correct : _word.meaningMain;
+        const _selected = typeof rawAnswer.selected === "string" ? rawAnswer.selected : "";
+        const _isCorrect = typeof rawAnswer.isCorrect === "boolean" ? rawAnswer.isCorrect : _selected === _correct;
+        const _statusAfterAnswer = STATUS_ORDER.includes(rawAnswer.statusAfterAnswer) ? rawAnswer.statusAfterAnswer : "";
+
+        return {
+          wordId: rawAnswer.wordId,
+          correct: _correct,
+          selected: _selected,
+          isCorrect: _isCorrect,
+          statusAfterAnswer: _statusAfterAnswer
+        };
+      }
+
+      function _sanitizeSession(rawSession) {
+        if (!rawSession || typeof rawSession !== "object") {
+          return null;
+        }
+
+        if (!_isValidDateValue(rawSession.finishedAt)) {
+          return null;
+        }
+
+        const _answers = Array.isArray(rawSession.answers) ? rawSession.answers.map(_sanitizeQuizAnswer).filter(Boolean) : [];
+        const _total = Math.max(_answers.length, _toSafeInteger(rawSession.total, _answers.length));
+        const _correctFromAnswers = _answers.filter((answer) => answer.isCorrect).length;
+        const _candidateCorrect = _toSafeInteger(rawSession.correct, _correctFromAnswers);
+        const _correct = Math.min(_candidateCorrect, _total);
+        const _category = CATEGORY_OPTIONS.includes(rawSession.category) ? rawSession.category : "all";
+
+        return {
+          finishedAt: new Date(rawSession.finishedAt).toISOString(),
+          category: _category,
+          total: _total,
+          correct: _correct,
+          answers: _answers.slice(0, _total)
+        };
+      }
+
+      function _loadStateV2() {
         const _default = _createInitialState();
-        const _raw = localStorage.getItem(STORAGE_KEY);
+        let _raw = "";
+        _runtime._storageLoadWarning = "";
+        _runtime._storageSaveError = "";
+
+        try {
+          _raw = localStorage.getItem(STORAGE_KEY_V2) || "";
+        } catch (_error) {
+          _runtime._storageLoadWarning = "保存データの読み込みに失敗しました。一時利用モードで起動しています。";
+          return _default;
+        }
+
         if (!_raw) {
           return _default;
         }
@@ -9368,40 +9138,26 @@
             _default.theme = _parsed.theme;
           }
 
-          if (_parsed.filters && typeof _parsed.filters === "object") {
-            if (typeof _parsed.filters.search === "string") {
-              _default.filters.search = _parsed.filters.search;
-            }
-            if (LEVEL_OPTIONS.includes(_parsed.filters.level)) {
-              _default.filters.level = _parsed.filters.level;
-            }
-            if (["all", ...STATUS_ORDER].includes(_parsed.filters.status)) {
-              _default.filters.status = _parsed.filters.status;
-            }
-            if (typeof _parsed.filters.letter === "string") {
-              _default.filters.letter = _parsed.filters.letter;
-            }
-          }
-
-          if (_parsed.learning && typeof _parsed.learning === "object") {
-            if (typeof _parsed.learning.wordId === "string") {
-              _default.learning.wordId = _parsed.learning.wordId;
-            }
-            if (Number.isInteger(_parsed.learning.randomCursor)) {
-              _default.learning.randomCursor = _parsed.learning.randomCursor;
-            }
+          if (CATEGORY_OPTIONS.includes(_parsed.selectedCategory)) {
+            _default.selectedCategory = _parsed.selectedCategory;
           }
 
           if (_parsed.quiz && typeof _parsed.quiz === "object") {
             _default.quiz.active = Boolean(_parsed.quiz.active);
+            if (CATEGORY_OPTIONS.includes(_parsed.quiz.category)) {
+              _default.quiz.category = _parsed.quiz.category;
+            }
             if (Number.isInteger(_parsed.quiz.questionIndex)) {
-              _default.quiz.questionIndex = _parsed.quiz.questionIndex;
+              _default.quiz.questionIndex = Math.max(0, _parsed.quiz.questionIndex);
+            }
+            if (Number.isInteger(_parsed.quiz.seed) && _parsed.quiz.seed > 0) {
+              _default.quiz.seed = _parsed.quiz.seed;
             }
             if (Array.isArray(_parsed.quiz.order)) {
               _default.quiz.order = _parsed.quiz.order.filter((wordId) => typeof wordId === "string" && WORD_BY_ID.has(wordId));
             }
             if (Array.isArray(_parsed.quiz.answers)) {
-              _default.quiz.answers = _parsed.quiz.answers.filter((item) => item && typeof item === "object");
+              _default.quiz.answers = _parsed.quiz.answers.map(_sanitizeQuizAnswer).filter(Boolean);
             }
             if (_parsed.quiz.choiceMap && typeof _parsed.quiz.choiceMap === "object") {
               Object.entries(_parsed.quiz.choiceMap).forEach(([key, value]) => {
@@ -9411,10 +9167,16 @@
                 _default.quiz.choiceMap[key] = value.filter((choice) => typeof choice === "string").slice(0, 4);
               });
             }
+            if (_default.quiz.order.length > 0) {
+              _default.quiz.questionIndex = Math.min(_default.quiz.questionIndex, _default.quiz.order.length - 1);
+            } else {
+              _default.quiz.questionIndex = 0;
+            }
+            _default.quiz.active = _default.quiz.active && _default.quiz.order.length > 0;
           }
 
           if (Array.isArray(_parsed.sessions)) {
-            _default.sessions = _parsed.sessions.filter((session) => session && typeof session === "object");
+            _default.sessions = _parsed.sessions.map(_sanitizeSession).filter(Boolean).slice(-MAX_STORED_SESSIONS);
           }
 
           if (_parsed.statuses && typeof _parsed.statuses === "object") {
@@ -9426,20 +9188,104 @@
             });
           }
 
-          if (!_default.learning.wordId || !WORD_BY_ID.has(_default.learning.wordId)) {
-            _default.learning.wordId = DEFAULT_WORD_ID;
-          }
-
           return _default;
         } catch (_error) {
+          _runtime._storageLoadWarning = "保存データが壊れていたため初期化しました。現在の利用は継続できます。";
           return _default;
         }
       }
 
+      function _loadLegacyStateV1() {
+        try {
+          const _raw = localStorage.getItem(STORAGE_KEY_V1) || "";
+          if (!_raw) {
+            return null;
+          }
+          const _parsed = JSON.parse(_raw);
+          if (!_parsed || typeof _parsed !== "object") {
+            return null;
+          }
+          return _parsed;
+        } catch (_error) {
+          _runtime._storageLoadWarning = "旧データの読み込みに失敗したため、初期状態で開始します。";
+          return null;
+        }
+      }
+
+      function _buildMigratedState(legacy) {
+        const _next = _createInitialState();
+        if (!legacy || typeof legacy !== "object") {
+          return _next;
+        }
+
+        if (THEME_MODES.includes(legacy.theme)) {
+          _next.theme = legacy.theme;
+        }
+
+        if (legacy.statuses && typeof legacy.statuses === "object") {
+          WORDS.forEach((word) => {
+            const _status = legacy.statuses[word.id];
+            if (STATUS_ORDER.includes(_status)) {
+              _next.statuses[word.id] = _status;
+            }
+          });
+        }
+
+        if (Array.isArray(legacy.sessions)) {
+          _next.sessions = legacy.sessions
+            .map((session) => {
+              const _normalized = {
+                ...session,
+                category: "all"
+              };
+              return _sanitizeSession(_normalized);
+            })
+            .filter(Boolean)
+            .slice(-MAX_STORED_SESSIONS);
+        }
+
+        return _next;
+      }
+
       function _saveState() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(_state));
-        _runtime._lastSavedAt = new Date();
+        try {
+          localStorage.setItem(STORAGE_KEY_V2, JSON.stringify(_state));
+          _runtime._lastSavedAt = new Date();
+          _runtime._storageSaveError = "";
+        } catch (_error) {
+          _runtime._lastSavedAt = null;
+          _runtime._storageSaveError = "このブラウザでは保存できません。一時利用モードで動作しています。";
+        }
         _renderFooter();
+      }
+
+      function _setMigrationDecision() {
+        try {
+          localStorage.setItem(MIGRATION_DECISION_KEY, "done");
+        } catch (_error) {
+          // noop
+        }
+      }
+
+      function _detectMigrationCandidate() {
+        try {
+          const _v2Raw = localStorage.getItem(STORAGE_KEY_V2) || "";
+          const _v1Raw = localStorage.getItem(STORAGE_KEY_V1) || "";
+          const _decision = localStorage.getItem(MIGRATION_DECISION_KEY) || "";
+          if (_decision === "done") {
+            return false;
+          }
+          if (_v2Raw) {
+            return false;
+          }
+          return Boolean(_v1Raw);
+        } catch (_error) {
+          return false;
+        }
+      }
+
+      function _shouldPromptMigration() {
+        return _runtime._migrationCandidate && !_runtime._migrationPrompted;
       }
 
       function _setTheme(theme) {
@@ -9479,96 +9325,28 @@
         return _parts[0];
       }
 
-      function _getMeaningSub(word) {
-        if (word.meaningSub && String(word.meaningSub).trim()) {
-          return word.meaningSub;
+      function _getWordsByCategory(category) {
+        if (category === "all") {
+          return WORDS.slice();
         }
-
-        const _parts = String(word.meaningMain || "")
-          .split("／")
-          .map((part) => part.trim())
-          .filter(Boolean);
-
-        if (_parts.length >= 2) {
-          return _parts.slice(1).join("／");
-        }
-
-        if (word.level === "abbreviation") {
-          return "略語表現";
-        }
-        if (word.level === "acronym") {
-          return "頭字語";
-        }
-        return "";
+        return WORDS.filter((word) => word.level === category);
       }
 
-      function _getExampleEn(word) {
-        if (word.exampleEn && String(word.exampleEn).trim()) {
-          return word.exampleEn;
-        }
-
-        if (word.level === "abbreviation") {
-          return `Use "${word.term}" as a shorthand in code comments when context is clear.`;
-        }
-        if (word.level === "acronym") {
-          return `"${word.term}" is used as a standard technical acronym in documentation.`;
-        }
-        return `Use "${word.term}" in code or documentation when this meaning matches the context.`;
+      function _getCategoryLabel(category) {
+        return CATEGORY_LABELS[category] || CATEGORY_LABELS.all;
       }
 
-      function _getExampleJa(word) {
-        if (word.exampleJa && String(word.exampleJa).trim()) {
-          return word.exampleJa;
-        }
-
-        if (word.level === "abbreviation") {
-          return `文脈が明確な場面では「${word.term}」のような略語を使います。`;
-        }
-        if (word.level === "acronym") {
-          return `「${word.term}」は技術文書で頻出する頭字語です。`;
-        }
-        return `「${word.term}」は意味が適合する文脈で使用します。`;
-      }
-
-      function _getFilteredWords() {
-        const _search = _state.filters.search.toLowerCase().trim();
-        const _level = _state.filters.level;
-        const _status = _state.filters.status;
-        const _letter = _state.filters.letter;
-
-        return WORDS.filter((word) => {
-          if (_level !== "all" && word.level !== _level) {
-            return false;
-          }
-
-          if (_status !== "all" && _getStatus(word.id) !== _status) {
-            return false;
-          }
-
-          if (_letter !== "all" && word.term[0].toUpperCase() !== _letter) {
-            return false;
-          }
-
-          if (!_search) {
-            return true;
-          }
-
-          const _pool = [word.term, word.meaningMain, word.meaningSub, word.exampleEn, word.exampleJa].join(" ").toLowerCase();
-          return _pool.includes(_search);
-        });
-      }
-
-      function _getLearningStats() {
-        const _total = WORDS.length;
+      function _getCategoryStats(category) {
+        const _words = _getWordsByCategory(category);
         const _counts = {
-          total: _total,
+          total: _words.length,
           mastered: 0,
           review: 0,
           weak: 0,
           unseen: 0
         };
 
-        WORDS.forEach((word) => {
+        _words.forEach((word) => {
           const _status = _getStatus(word.id);
           _counts[_status] += 1;
         });
@@ -9583,26 +9361,70 @@
         return _state.sessions[_state.sessions.length - 1] || null;
       }
 
-      function _buildQuizOrder() {
-        const _filtered = _getFilteredWords();
-        const _source = _filtered.length >= 4 ? _filtered : WORDS;
-        const _base = _source.map((word) => word.id);
-        if (_base.length === 0) {
-          return WORDS.map((word) => word.id);
+      function _getQuizPlan() {
+        const _source = _getWordsByCategory(_state.selectedCategory);
+        return {
+          category: _state.selectedCategory,
+          source: _source,
+          total: _source.length
+        };
+      }
+
+      function _nextSeed(seed) {
+        return (Math.imul(seed >>> 0, 1664525) + 1013904223) >>> 0;
+      }
+
+      function _shuffleWithSeed(values, seed) {
+        const _result = values.slice();
+        let _seed = seed >>> 0 || 1;
+
+        for (let index = _result.length - 1; index > 0; index -= 1) {
+          _seed = _nextSeed(_seed);
+          const _swapIndex = _seed % (index + 1);
+          const _tmp = _result[index];
+          _result[index] = _result[_swapIndex];
+          _result[_swapIndex] = _tmp;
         }
 
-        const _shift = _state.learning.randomCursor % _base.length;
-        const _rolled = _base.slice(_shift).concat(_base.slice(0, _shift));
-        return _rolled;
+        return _result;
+      }
+
+      function _createQuizSeed() {
+        const _timeSeed = Date.now() >>> 0;
+        const _sessionSeed = ((_state.sessions.length + 1) * 2654435761) >>> 0;
+        return (_timeSeed ^ _sessionSeed) >>> 0 || 1;
       }
 
       function _startQuiz() {
-        _state.quiz.active = true;
-        _state.quiz.order = _buildQuizOrder();
-        _state.quiz.questionIndex = 0;
-        _state.quiz.answers = [];
-        _state.quiz.choiceMap = {};
-        _switchView("test", false);
+        const _hasProgress = _state.quiz.active && _state.quiz.answers.some(Boolean);
+        if (_hasProgress) {
+          const _ok = window.confirm("進行中の演習を破棄して最初から開始しますか？");
+          if (!_ok) {
+            return;
+          }
+        }
+
+        const _plan = _getQuizPlan();
+        if (_plan.total === 0) {
+          _state.quiz = _createInitialQuizState();
+          _switchView("practice", false);
+          return;
+        }
+
+        const _seed = _createQuizSeed();
+        const _order = _shuffleWithSeed(_plan.source.map((word) => word.id), _seed);
+
+        _state.quiz = {
+          active: true,
+          category: _state.selectedCategory,
+          questionIndex: 0,
+          seed: _seed,
+          order: _order,
+          answers: [],
+          choiceMap: {}
+        };
+
+        _switchView("practice", false);
       }
 
       function _scoreDistractor(targetWord, candidateWord) {
@@ -9634,7 +9456,7 @@
         return _score;
       }
 
-      function _generateChoicesForQuestion(word, questionIndex) {
+      function _generateChoicesForQuestion(word, questionIndex, quizSeed) {
         const _correct = word.meaningMain;
         const _candidates = WORDS.filter((candidate) => candidate.id !== word.id && candidate.meaningMain !== _correct);
 
@@ -9678,20 +9500,9 @@
           _distractors.push("該当なし");
         }
 
-        const _choices = new Array(4).fill("");
-        const _correctIndex = (questionIndex + word.term.length) % 4;
-        _choices[_correctIndex] = _correct;
-
-        let _cursor = 0;
-        _choices.forEach((value, index) => {
-          if (value) {
-            return;
-          }
-          _choices[index] = _distractors[_cursor];
-          _cursor += 1;
-        });
-
-        return _choices;
+        const _choicePool = [_correct, ..._distractors.slice(0, 3)];
+        const _questionSeed = (_nextSeed(quizSeed >>> 0 || 1) ^ Math.imul(questionIndex + 1, 1597334677)) >>> 0;
+        return _shuffleWithSeed(_choicePool, _questionSeed);
       }
 
       function _getQuizViewModel() {
@@ -9707,7 +9518,7 @@
         }
 
         if (!_state.quiz.choiceMap[_index]) {
-          _state.quiz.choiceMap[_index] = _generateChoicesForQuestion(_word, _index);
+          _state.quiz.choiceMap[_index] = _generateChoicesForQuestion(_word, _index, _state.quiz.seed);
         }
 
         const _choices = _state.quiz.choiceMap[_index];
@@ -9716,6 +9527,7 @@
         return {
           index: _index,
           total: _state.quiz.order.length,
+          category: _state.quiz.category,
           word: _word,
           correct: _word.meaningMain,
           choices: _choices,
@@ -9757,6 +9569,7 @@
         };
 
         _updateStatusFromQuiz(_vm.word.id, _isCorrect);
+        _state.quiz.answers[_vm.index].statusAfterAnswer = _getStatus(_vm.word.id);
       }
 
       function _finishQuiz() {
@@ -9769,21 +9582,18 @@
         const _correct = _answers.filter((answer) => answer.isCorrect).length;
         _state.sessions.push({
           finishedAt: new Date().toISOString(),
+          category: _state.quiz.category,
           total: _total,
           correct: _correct,
           answers: _answers
         });
 
-        if (_state.sessions.length > 30) {
-          _state.sessions = _state.sessions.slice(-30);
+        if (_state.sessions.length > MAX_STORED_SESSIONS) {
+          _state.sessions = _state.sessions.slice(-MAX_STORED_SESSIONS);
         }
 
-        _state.quiz.active = false;
-        _state.quiz.order = [];
-        _state.quiz.answers = [];
-        _state.quiz.choiceMap = {};
-        _state.quiz.questionIndex = 0;
-        _switchView("results", false);
+        _state.quiz = _createInitialQuizState();
+        _switchView("history", false);
       }
 
       function _nextQuizQuestion() {
@@ -9817,6 +9627,9 @@
           return "-";
         }
         const _date = new Date(dateInput);
+        if (Number.isNaN(_date.getTime())) {
+          return "-";
+        }
         return new Intl.DateTimeFormat("ja-JP", {
           year: "numeric",
           month: "2-digit",
@@ -9836,324 +9649,318 @@
         }
       }
 
-      function _openSettings(isOpen) {
-        _dom.$settingsModal.classList.toggle("hidden", !isOpen);
-        _dom.$settingsModal.setAttribute("aria-hidden", String(!isOpen));
-      }
-
-      function _moveWord(step) {
-        const _words = _getFilteredWords();
-        if (_words.length === 0) {
-          return;
-        }
-
-        const _currentIndex = _words.findIndex((word) => word.id === _state.learning.wordId);
-        const _safeIndex = _currentIndex === -1 ? 0 : _currentIndex;
-        const _nextIndex = (_safeIndex + step + _words.length) % _words.length;
-        _state.learning.wordId = _words[_nextIndex].id;
-      }
-
-      function _jumpRandomWord() {
-        const _words = _getFilteredWords();
-        if (_words.length === 0) {
-          return;
-        }
-
-        // 疑似乱数ではなく巡回式にして、再現性を維持する。
-        _state.learning.randomCursor += 3;
-        const _index = _state.learning.randomCursor % _words.length;
-        _state.learning.wordId = _words[_index].id;
-      }
-
-      function _renderFilters() {
-        _dom.$searchInput.value = _state.filters.search;
-
-        _dom.$levelFilter.innerHTML = LEVEL_OPTIONS.map((level) => {
-          const _activeClass = _state.filters.level === level ? "is-active" : "";
-          return `<button class="filter-chip ${_activeClass}" data-action="set-level-filter" data-level="${level}">${LEVEL_LABELS[level]}</button>`;
-        }).join("");
-
-        const _statusItems = ["all", ...STATUS_ORDER];
-        _dom.$statusFilter.innerHTML = _statusItems.map((status) => {
-          const _activeClass = _state.filters.status === status ? "is-active" : "";
-          const _label = status === "all" ? "全て" : STATUS_LABELS[status];
-          return `<button class="filter-chip ${_activeClass}" data-action="set-status-filter" data-status="${status}">${_label}</button>`;
-        }).join("");
-
-        const _letters = ["all", ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")];
-        _dom.$letterFilter.innerHTML = _letters.map((letter) => {
-          const _activeClass = _state.filters.letter === letter ? "is-active" : "";
-          const _label = letter === "all" ? "All" : letter;
-          return `<button class="filter-chip ${_activeClass}" data-action="set-letter-filter" data-letter="${letter}">${_label}</button>`;
+      function _renderCategoryFilter() {
+        _dom.$categoryFilter.innerHTML = CATEGORY_OPTIONS.map((category) => {
+          const _isActive = _state.selectedCategory === category;
+          const _activeClass = _isActive ? "is-active" : "";
+          return `<button class="filter-chip ${_activeClass}" data-action="set-category" data-category="${category}" aria-pressed="${_isActive}">${_getCategoryLabel(category)}</button>`;
         }).join("");
       }
 
-      function _renderLearning() {
-        _renderFilters();
-
-        const _filtered = _getFilteredWords();
-        const _stats = _getLearningStats();
-        const _latest = _getLatestSession();
-
-        if (_filtered.length === 0) {
-          _dom.$wordList.innerHTML = "<li class=\"muted\">該当する単語がありません。</li>";
-          _dom.$learningSummary.textContent = "条件を変更して単語を表示してください。";
-          _dom.$wordType.textContent = "";
-          _dom.$wordTerm.textContent = "-";
-          _dom.$wordMeaningMain.textContent = "表示対象がありません";
-          _dom.$wordMeaningSub.textContent = "";
-          _dom.$wordExampleEn.textContent = "";
-          _dom.$wordExampleJa.textContent = "";
-          return;
-        }
-
-        if (!_filtered.some((word) => word.id === _state.learning.wordId)) {
-          _state.learning.wordId = _filtered[0].id;
-        }
-
-        const _currentWord = _getWordById(_state.learning.wordId) || _filtered[0];
-        const _currentStatus = _getStatus(_currentWord.id);
-
-        _dom.$wordList.innerHTML = _filtered.map((word) => {
-          const _activeClass = word.id === _currentWord.id ? "is-active" : "";
-          const _status = _getStatus(word.id);
-          return `
-            <li>
-              <button class="word-item ${_activeClass}" data-action="select-word" data-word-id="${word.id}">
-                <span class="word-term">${word.term}</span>
-                <span class="word-meaning">${word.meaningMain}</span>
-                <span class="word-meta">
-                  <span class="word-level">${LEVEL_LABELS[word.level]}</span>
-                  <span class="word-status status-tag status-${_status}">${STATUS_LABELS[_status]}</span>
-                </span>
-              </button>
-            </li>
-          `;
-        }).join("");
-
-        _dom.$learningSummary.textContent = `${_filtered.length}語を表示中 / 全${WORDS.length}語`;
-        _dom.$currentStatusTag.className = `status-tag status-${_currentStatus}`;
-        _dom.$currentStatusTag.textContent = STATUS_LABELS[_currentStatus];
-
-        _dom.$wordType.textContent = _currentWord.pos || "【語彙】";
-        _dom.$wordTerm.textContent = _currentWord.term;
-        _dom.$wordMeaningMain.textContent = _getMeaningMain(_currentWord);
-        _dom.$wordMeaningSub.textContent = _getMeaningSub(_currentWord);
-        _dom.$wordExampleEn.textContent = `"${_getExampleEn(_currentWord)}"`;
-        _dom.$wordExampleJa.textContent = _getExampleJa(_currentWord);
-
-        qsa("[data-action='set-learning-status']").forEach(($button) => {
-          const _isSelected = $button.dataset.status === _currentStatus;
-          $button.classList.toggle("is-selected", _isSelected);
-        });
-
-        const _total = _stats.total || 1;
+      function _renderPracticeStats() {
+        const _stats = _getCategoryStats(_state.selectedCategory);
         _dom.$statMastered.textContent = String(_stats.mastered);
         _dom.$statMasteredSub.textContent = `${_stats.mastered}語 / ${_stats.total}語`;
         _dom.$statReview.textContent = String(_stats.review);
         _dom.$statWeak.textContent = String(_stats.weak);
-        _dom.$statWeakSub.textContent = _stats.weak === 0 ? "今のところ苦手なし" : `苦手率 ${_formatPercent(_stats.weak, _total)}`;
+        _dom.$statWeakSub.textContent = _stats.weak === 0 ? "今のところ苦手なし" : `苦手率 ${_formatPercent(_stats.weak, _stats.total || 1)}`;
         _dom.$statUnseen.textContent = String(_stats.unseen);
 
-        if (_latest) {
-          _dom.$statAccuracy.textContent = _formatPercent(_latest.correct, _latest.total);
-          _dom.$statAccuracySub.textContent = `直近 ${_latest.correct}/${_latest.total}問 (${_formatDateTime(_latest.finishedAt)})`;
-        } else {
-          _dom.$statAccuracy.textContent = "-";
-          _dom.$statAccuracySub.textContent = "テスト未実施";
-        }
+        _dom.$categorySummary.textContent = `現在の分野: ${_getCategoryLabel(_state.selectedCategory)}`;
+        _dom.$categoryCount.textContent = `総問題数: ${_stats.total}問`;
       }
 
-      function _renderTest() {
-        const _vm = _getQuizViewModel();
+      function _renderPractice() {
+        _renderCategoryFilter();
+        _renderPracticeStats();
 
+        const _vm = _getQuizViewModel();
         if (!_vm) {
+          const _plan = _getQuizPlan();
+          const _categoryLabel = _getCategoryLabel(_plan.category);
+
           _dom.$quizEmpty.classList.remove("hidden");
           _dom.$quizLive.classList.add("hidden");
           _dom.$quizProgressBar.style.inlineSize = "0%";
+
+          _dom.$quizStartSummary.textContent = `${_categoryLabel}の全${_plan.total}問を出題します。`;
+          _dom.$quizStartDetail.textContent = "1問ごとに採点し、最後に成績画面へ遷移します。";
+
+          const _disabled = _plan.total === 0;
+          _dom.$primaryStartButton.disabled = _disabled;
+          _dom.$quizStartButton.disabled = _disabled;
+
+          if (_disabled) {
+            _dom.$quizStartSummary.textContent = `${_categoryLabel}に出題できる語がありません。`;
+            _dom.$quizStartDetail.textContent = "分野を変更してから演習を開始してください。";
+          }
           return;
         }
 
         _dom.$quizEmpty.classList.add("hidden");
         _dom.$quizLive.classList.remove("hidden");
 
-        _dom.$quizCounter.textContent = `Question ${_vm.index + 1} / ${_vm.total}`;
-        _dom.$quizTerm.textContent = _vm.word.term;
-        _dom.$quizHint.textContent = `レベル: ${LEVEL_LABELS[_vm.word.level]} / 品詞: ${_vm.word.pos}`;
-
         const _progress = ((_vm.index + (_vm.answer ? 1 : 0)) / _vm.total) * 100;
-        _dom.$quizProgressBar.style.inlineSize = `${Math.max(4, _progress)}%`;
+        _dom.$quizProgressBar.style.inlineSize = `${_progress}%`;
+
+        _dom.$quizCounter.textContent = `第${_vm.index + 1}問 / ${_vm.total}問`;
+        _dom.$quizTerm.textContent = _vm.word.term;
+        _dom.$quizHint.textContent = `分野: ${_getCategoryLabel(_vm.category)} | 意味を1つ選択してください。`;
 
         _dom.$quizOptions.innerHTML = _vm.choices.map((choice, index) => {
-          let _className = "choice-btn";
-          if (_vm.answer) {
-            const _isCorrectChoice = choice === _vm.correct;
-            const _isSelectedChoice = choice === _vm.answer.selected;
-            if (_isCorrectChoice) {
-              _className += " is-correct";
-            } else if (_isSelectedChoice && !_vm.answer.isCorrect) {
-              _className += " is-incorrect";
-            }
+          const _answer = _vm.answer;
+          const _isAnswered = Boolean(_answer);
+          const _isSelected = _isAnswered && _answer.selected === choice;
+          const _isCorrect = choice === _vm.correct;
+          const _classes = ["choice-btn"];
+
+          if (_isAnswered && _isCorrect) {
+            _classes.push("is-correct");
+          }
+          if (_isAnswered && _isSelected && !_isCorrect) {
+            _classes.push("is-incorrect");
           }
 
-          return `<button class="${_className}" data-action="quiz-answer" data-choice-index="${index}">${choice}</button>`;
+          return `<button class="${_classes.join(" ")}" data-action="quiz-answer" data-choice-index="${index}" ${_isAnswered ? "disabled" : ""}>${choice}</button>`;
         }).join("");
 
-        _dom.$quizFeedback.className = "feedback";
         if (_vm.answer) {
-          if (_vm.answer.isCorrect) {
-            _dom.$quizFeedback.classList.add("is-good");
-            _dom.$quizFeedback.textContent = "正解です。";
-          } else {
-            _dom.$quizFeedback.classList.add("is-bad");
-            _dom.$quizFeedback.textContent = `不正解。正解は「${_vm.correct}」です。`;
-          }
+          const _isCorrect = _vm.answer.isCorrect;
+          _dom.$quizFeedback.className = `feedback ${_isCorrect ? "is-good" : "is-bad"}`;
+          _dom.$quizFeedback.textContent = _isCorrect ? "正解です。" : "不正解です。";
+          _dom.$quizExplanation.classList.remove("hidden");
+          _dom.$quizCorrect.textContent = _vm.correct;
+          _dom.$quizMeaning.textContent = _getMeaningMain(_vm.word) || _vm.correct;
         } else {
-          _dom.$quizFeedback.textContent = "";
+          _dom.$quizFeedback.className = "feedback muted";
+          _dom.$quizFeedback.textContent = "選択肢を1つ選んでください。";
+          _dom.$quizExplanation.classList.add("hidden");
+          _dom.$quizCorrect.textContent = "";
+          _dom.$quizMeaning.textContent = "";
         }
 
         const _isLast = _vm.index >= _vm.total - 1;
         _dom.$quizNextButton.textContent = _isLast ? "結果を見る" : "次の問題";
         _dom.$quizNextButton.disabled = !_vm.answer;
-        _dom.$quizNextButton.style.opacity = _vm.answer ? "1" : "0.55";
       }
 
-      function _renderResults() {
+      function _renderRecentSessions() {
+        _dom.$recentSessionList.textContent = "";
+        const _recent = _state.sessions.slice(-10).reverse();
+        if (_recent.length === 0) {
+          const $empty = document.createElement("li");
+          $empty.className = "muted";
+          $empty.textContent = "履歴なし";
+          _dom.$recentSessionList.append($empty);
+          return;
+        }
+
+        _recent.forEach((session) => {
+          const _miss = Math.max(0, session.total - session.correct);
+          const $item = document.createElement("li");
+          $item.className = "recent-item";
+
+          const $head = document.createElement("div");
+          $head.className = "recent-head";
+          const $category = document.createElement("span");
+          $category.textContent = _getCategoryLabel(session.category);
+          const $score = document.createElement("span");
+          $score.className = "recent-score";
+          $score.textContent = `${_formatPercent(session.correct, session.total)} (${session.correct}/${session.total})`;
+          $head.append($category, $score);
+
+          const $meta = document.createElement("p");
+          $meta.className = "recent-meta";
+          $meta.textContent = `${_formatDateTime(session.finishedAt)} | ミス ${_miss}問`;
+
+          $item.append($head, $meta);
+          _dom.$recentSessionList.append($item);
+        });
+      }
+
+      function _renderHistory() {
         const _session = _getLatestSession();
+        const _allStats = _getCategoryStats("all");
+        _dom.$historySummary.textContent = `全分野進捗: 覚えた ${_allStats.mastered} / 復習中 ${_allStats.review} / 苦手 ${_allStats.weak} / 未確認 ${_allStats.unseen}`;
+
+        _renderRecentSessions();
+        _dom.$resultsBody.textContent = "";
 
         if (!_session) {
-          _dom.$resultsHeadline.textContent = "まだテスト結果がありません。テスト画面から開始してください。";
+          _dom.$resultsHeadline.textContent = "まだ演習結果がありません。演習画面から開始してください。";
           _dom.$kpiAccuracy.textContent = "0%";
           _dom.$kpiCorrect.textContent = "0";
           _dom.$kpiMiss.textContent = "0";
           _dom.$kpiDate.textContent = "-";
-          _dom.$resultsBody.innerHTML = "<tr><td colspan='4' class='muted'>テストを実施するとここに結果が表示されます。</td></tr>";
-          _dom.$reviewChipList.innerHTML = "<span class='muted'>復習ワードなし</span>";
+
+          const $row = document.createElement("tr");
+          const $cell = document.createElement("td");
+          $cell.colSpan = 4;
+          $cell.className = "muted";
+          $cell.textContent = "演習を完了するとここに結果が表示されます。";
+          $row.append($cell);
+          _dom.$resultsBody.append($row);
           return;
         }
 
-        const _accuracy = _formatPercent(_session.correct, _session.total);
         const _miss = _session.total - _session.correct;
-
-        _dom.$resultsHeadline.textContent = `直近セッション ${_session.correct}/${_session.total} 問正解`; 
-        _dom.$kpiAccuracy.textContent = _accuracy;
+        _dom.$resultsHeadline.textContent = `最新: ${_getCategoryLabel(_session.category)} | ${_session.correct}/${_session.total}問正解`;
+        _dom.$kpiAccuracy.textContent = _formatPercent(_session.correct, _session.total);
         _dom.$kpiCorrect.textContent = String(_session.correct);
         _dom.$kpiMiss.textContent = String(_miss);
         _dom.$kpiDate.textContent = _formatDateTime(_session.finishedAt);
 
-        _dom.$resultsBody.innerHTML = _session.answers.map((answer) => {
+        _session.answers.forEach((answer) => {
           const _word = _getWordById(answer.wordId);
           const _wordTerm = _word ? _word.term : answer.wordId;
-          const _badge = answer.isCorrect ? "<span class='pass-badge'>Pass</span>" : "<span class='fail-badge'>Fail</span>";
-          return `
-            <tr>
-              <td>${_wordTerm}</td>
-              <td>${answer.correct}</td>
-              <td>${answer.selected}</td>
-              <td>${_badge}</td>
-            </tr>
-          `;
-        }).join("");
+          const $row = document.createElement("tr");
+          const $word = document.createElement("td");
+          const $correct = document.createElement("td");
+          const $selected = document.createElement("td");
+          const $result = document.createElement("td");
+          const $badge = document.createElement("span");
 
-        const _priorityIds = [];
-        _session.answers.forEach((answer) => {
-          if (!answer.isCorrect && !_priorityIds.includes(answer.wordId)) {
-            _priorityIds.push(answer.wordId);
-          }
+          $word.textContent = _wordTerm;
+          $correct.textContent = answer.correct;
+          $selected.textContent = answer.selected;
+          $badge.className = answer.isCorrect ? "pass-badge" : "fail-badge";
+          $badge.textContent = answer.isCorrect ? "Pass" : "Fail";
+          $result.append($badge);
+
+          $row.append($word, $correct, $selected, $result);
+          _dom.$resultsBody.append($row);
         });
 
-        WORDS.forEach((word) => {
-          if (_getStatus(word.id) === "weak" && !_priorityIds.includes(word.id)) {
-            _priorityIds.push(word.id);
-          }
-        });
-
-        const _chips = _priorityIds.slice(0, 12).map((wordId) => {
-          const _word = _getWordById(wordId);
-          if (!_word) {
-            return "";
-          }
-          return `<button class="filter-chip" data-action="select-word-and-study" data-word-id="${wordId}">${_word.term}</button>`;
-        }).join("");
-
-        _dom.$reviewChipList.innerHTML = _chips || "<span class='muted'>復習優先ワードなし</span>";
-      }
-
-      function _renderModal() {
-        qsa("input[name='theme-mode']", _dom.$themePicker).forEach(($radio) => {
-          $radio.checked = $radio.value === _state.theme;
-        });
+        if (_session.answers.length === 0) {
+          const $row = document.createElement("tr");
+          const $cell = document.createElement("td");
+          $cell.colSpan = 4;
+          $cell.className = "muted";
+          $cell.textContent = "回答履歴がありません。";
+          $row.append($cell);
+          _dom.$resultsBody.append($row);
+        }
       }
 
       function _renderHeaderTabs() {
         qsa(".tab-button").forEach(($button) => {
           const _isActive = $button.dataset.view === _state.view;
           $button.classList.toggle("is-active", _isActive);
+          if (_isActive) {
+            $button.setAttribute("aria-current", "page");
+          } else {
+            $button.removeAttribute("aria-current");
+          }
         });
 
-        _dom.$viewLearning.classList.toggle("hidden", _state.view !== "learning");
-        _dom.$viewTest.classList.toggle("hidden", _state.view !== "test");
-        _dom.$viewResults.classList.toggle("hidden", _state.view !== "results");
+        _dom.$viewPractice.classList.toggle("hidden", _state.view !== "practice");
+        _dom.$viewHistory.classList.toggle("hidden", _state.view !== "history");
       }
 
       function _renderFooter() {
+        if (_runtime._storageSaveError) {
+          if (_runtime._storageLoadWarning) {
+            _dom.$saveStatus.textContent = `保存状態: ${_runtime._storageLoadWarning} ${_runtime._storageSaveError}`;
+            return;
+          }
+          _dom.$saveStatus.textContent = `保存状態: ${_runtime._storageSaveError}`;
+          return;
+        }
+
+        const _time = _runtime._lastSavedAt
+          ? new Intl.DateTimeFormat("ja-JP", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
+          }).format(_runtime._lastSavedAt)
+          : "";
+
+        if (_runtime._storageLoadWarning) {
+          if (_time) {
+            _dom.$saveStatus.textContent = `保存状態: ${_runtime._storageLoadWarning} ローカル保存済み (${_time})`;
+          } else {
+            _dom.$saveStatus.textContent = `保存状態: ${_runtime._storageLoadWarning}`;
+          }
+          return;
+        }
+
         if (!_runtime._lastSavedAt) {
           _dom.$saveStatus.textContent = "保存状態: ローカル保存済み";
           return;
         }
 
-        const _time = new Intl.DateTimeFormat("ja-JP", {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit"
-        }).format(_runtime._lastSavedAt);
         _dom.$saveStatus.textContent = `保存状態: ローカル保存済み (${_time})`;
       }
 
-      function _render() {
-        _setTheme(_state.theme);
-        _renderHeaderTabs();
-        _renderLearning();
-        _renderTest();
-        _renderResults();
-        _renderModal();
-        _renderFooter();
+      function _renderSettingsModal() {
+        qsa("input[name='theme-mode']", _dom.$themePicker).forEach(($radio) => {
+          $radio.checked = $radio.value === _state.theme;
+        });
       }
 
-      function _exportCsv() {
-        const _rows = [["word", "status", "level", "meaning"]];
-        WORDS.forEach((word) => {
-          _rows.push([word.term, STATUS_LABELS[_getStatus(word.id)], LEVEL_LABELS[word.level], word.meaningMain]);
-        });
+      function _getFocusableElements(root) {
+        return qsa("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])", root)
+          .filter(($element) => !$element.disabled && !$element.closest(".hidden"));
+      }
 
-        const _csv = _rows.map((row) => row.map((cell) => `"${String(cell).replaceAll("\"", "\"\"")}"`).join(",")).join("\n");
-        const _blob = new Blob([_csv], { type: "text/csv;charset=utf-8" });
-        const _url = URL.createObjectURL(_blob);
-        const $link = document.createElement("a");
-        $link.href = _url;
-        $link.download = "MustKnowCodingEnglish-progress.csv";
-        document.body.append($link);
-        $link.click();
-        $link.remove();
-        URL.revokeObjectURL(_url);
+      function _openSettings(isOpen, $trigger = null) {
+        _runtime._settingsOpen = isOpen;
+
+        if (isOpen) {
+          const $active = $trigger || document.activeElement;
+          _runtime._settingsTrigger = $active && typeof $active.focus === "function" ? $active : null;
+        }
+
+        _dom.$settingsModal.classList.toggle("hidden", !isOpen);
+        _dom.$settingsModal.setAttribute("aria-hidden", String(!isOpen));
+
+        if (isOpen) {
+          const _focusables = _getFocusableElements(_dom.$settingsModal);
+          if (_focusables.length > 0) {
+            _focusables[0].focus();
+          }
+          return;
+        }
+
+        if (_runtime._settingsTrigger && document.contains(_runtime._settingsTrigger)) {
+          _runtime._settingsTrigger.focus();
+        }
+        _runtime._settingsTrigger = null;
+      }
+
+      function _openMigration(isOpen) {
+        _runtime._migrationOpen = isOpen;
+        _dom.$migrationModal.classList.toggle("hidden", !isOpen);
+        _dom.$migrationModal.setAttribute("aria-hidden", String(!isOpen));
+
+        if (isOpen) {
+          _runtime._migrationPrompted = true;
+          const _focusables = _getFocusableElements(_dom.$migrationModal);
+          if (_focusables.length > 0) {
+            _focusables[0].focus();
+          }
+        }
+      }
+
+      function _getActiveModal() {
+        if (_runtime._migrationOpen) {
+          return _dom.$migrationModal;
+        }
+        if (_runtime._settingsOpen) {
+          return _dom.$settingsModal;
+        }
+        return null;
       }
 
       function _resetProgress() {
-        const _ok = window.confirm("学習ステータスと進行中テストをリセットします。実行しますか？");
+        const _ok = window.confirm("学習進捗をリセットします。結果履歴は残ります。実行しますか？");
         if (!_ok) {
           return;
         }
 
         _state.statuses = {};
-        _state.quiz = {
-          active: false,
-          questionIndex: 0,
-          order: [],
-          answers: [],
-          choiceMap: {}
-        };
-        _state.learning.wordId = DEFAULT_WORD_ID;
-        _state.learning.randomCursor = 0;
+        _state.quiz = _createInitialQuizState();
+        _switchView("practice", false);
       }
 
       function _clearHistory() {
@@ -10163,6 +9970,43 @@
         }
 
         _state.sessions = [];
+        _state.quiz = _createInitialQuizState();
+        if (_state.view === "history") {
+          _switchView("practice", false);
+        }
+      }
+
+      function _clearAllData() {
+        const _ok = window.confirm("進捗・履歴・テーマを含む全データを削除します。実行しますか？");
+        if (!_ok) {
+          return;
+        }
+
+        _state = _createInitialState();
+        _runtime._lastSavedAt = null;
+        _runtime._storageLoadWarning = "";
+        _runtime._storageSaveError = "";
+        _openSettings(false);
+        _switchView("practice", false);
+      }
+
+      function _handleMigrationKeep() {
+        const _legacy = _loadLegacyStateV1();
+        _state = _buildMigratedState(_legacy);
+        _runtime._migrationCandidate = false;
+        _setMigrationDecision();
+        _openMigration(false);
+        _saveState();
+        _render();
+      }
+
+      function _handleMigrationReset() {
+        _state = _createInitialState();
+        _runtime._migrationCandidate = false;
+        _setMigrationDecision();
+        _openMigration(false);
+        _saveState();
+        _render();
       }
 
       function _handleAction(action, $trigger) {
@@ -10171,55 +10015,11 @@
             _switchView($trigger.dataset.view);
             break;
           }
-          case "open-settings": {
-            _openSettings(true);
-            break;
-          }
-          case "close-settings": {
-            _openSettings(false);
-            break;
-          }
-          case "set-level-filter": {
-            _state.filters.level = $trigger.dataset.level || "all";
-            break;
-          }
-          case "set-status-filter": {
-            _state.filters.status = $trigger.dataset.status || "all";
-            break;
-          }
-          case "set-letter-filter": {
-            _state.filters.letter = $trigger.dataset.letter || "all";
-            break;
-          }
-          case "select-word": {
-            _state.learning.wordId = $trigger.dataset.wordId || _state.learning.wordId;
-            break;
-          }
-          case "select-word-and-study": {
-            _state.learning.wordId = $trigger.dataset.wordId || _state.learning.wordId;
-            _switchView("learning", false);
-            break;
-          }
-          case "set-learning-status": {
-            const _word = _getWordById(_state.learning.wordId);
-            if (_word) {
-              const _status = $trigger.dataset.status;
-              if (STATUS_ORDER.includes(_status)) {
-                _state.statuses[_word.id] = _status;
-              }
+          case "set-category": {
+            const _category = $trigger.dataset.category;
+            if (CATEGORY_OPTIONS.includes(_category)) {
+              _state.selectedCategory = _category;
             }
-            break;
-          }
-          case "word-prev": {
-            _moveWord(-1);
-            break;
-          }
-          case "word-next": {
-            _moveWord(1);
-            break;
-          }
-          case "word-random": {
-            _jumpRandomWord();
             break;
           }
           case "start-quiz": {
@@ -10237,8 +10037,12 @@
             _nextQuizQuestion();
             break;
           }
-          case "export-csv": {
-            _exportCsv();
+          case "open-settings": {
+            _openSettings(true, $trigger);
+            break;
+          }
+          case "close-settings": {
+            _openSettings(false);
             break;
           }
           case "reset-progress": {
@@ -10249,6 +10053,18 @@
             _clearHistory();
             break;
           }
+          case "clear-all-data": {
+            _clearAllData();
+            break;
+          }
+          case "migrate-keep": {
+            _handleMigrationKeep();
+            return;
+          }
+          case "migrate-reset": {
+            _handleMigrationReset();
+            return;
+          }
           default:
             break;
         }
@@ -10256,6 +10072,18 @@
         _saveState();
         _render();
       }
+
+      function _render() {
+        _setTheme(_state.theme);
+        _renderHeaderTabs();
+        _renderPractice();
+        _renderHistory();
+        _renderSettingsModal();
+        _renderFooter();
+      }
+
+      let _state = _loadStateV2();
+      _runtime._migrationCandidate = _detectMigrationCandidate();
 
       document.addEventListener("click", (event) => {
         const $action = event.target.closest("[data-action]");
@@ -10267,17 +10095,6 @@
         if (event.target === _dom.$settingsModal) {
           _openSettings(false);
         }
-      });
-
-      document.addEventListener("input", (event) => {
-        const $target = event.target;
-        if (!$target.matches("[data-role='search']")) {
-          return;
-        }
-
-        _state.filters.search = $target.value || "";
-        _saveState();
-        _render();
       });
 
       document.addEventListener("change", (event) => {
@@ -10292,13 +10109,53 @@
       });
 
       document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") {
+        const $activeModal = _getActiveModal();
+        if ($activeModal && event.key === "Tab") {
+          const _focusables = _getFocusableElements($activeModal);
+          if (_focusables.length === 0) {
+            event.preventDefault();
+            return;
+          }
+
+          const $first = _focusables[0];
+          const $last = _focusables[_focusables.length - 1];
+          const $active = document.activeElement;
+
+          if (!$activeModal.contains($active)) {
+            event.preventDefault();
+            (event.shiftKey ? $last : $first).focus();
+            return;
+          }
+
+          if (event.shiftKey && $active === $first) {
+            event.preventDefault();
+            $last.focus();
+            return;
+          }
+
+          if (!event.shiftKey && $active === $last) {
+            event.preventDefault();
+            $first.focus();
+          }
+          return;
+        }
+
+        if (_runtime._settingsOpen && event.key === "Escape") {
+          event.preventDefault();
           _openSettings(false);
         }
       });
 
-      _saveState();
+      const _needsMigrationPrompt = _shouldPromptMigration();
+      if (!_needsMigrationPrompt) {
+        _saveState();
+      }
+
       _render();
+
+      if (_needsMigrationPrompt) {
+        _openMigration(true);
+      }
     })();
   </script>
 </body>

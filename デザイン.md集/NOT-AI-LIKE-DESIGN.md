@@ -1,8 +1,3 @@
-# Design System: Human-Made UI
-## A Strict Design and Engineering Contract for Eliminating the "AI-Generated Feel"
-
----
-
 ## 0. Role of This Document
 
 This document is the single source of truth for design, frontend implementation, accessibility, interaction behavior, and AI-assisted generation.
@@ -139,18 +134,13 @@ These tokens are fixed unless explicitly overridden.
 - Font family: Inter
 - Letter spacing: -0.31px across the board
 
-### 4-2. Base Surfaces
-
-- Surface 1: #FFFFFF
-- Surface 2: #FCFCFC
-
-### 4-3. Neutral Rules
+### 4-2. Neutral Rules
 
 - Use the two-surface system as the foundation
 - Do not introduce additional background surfaces casually
 - Use visual separation through spacing, density, border, and composition before adding color
 
-### 4-4. Token Discipline
+### 4-3. Token Discipline
 
 - Do not add values because they "look nicer"
 - Do not create one-off exceptions without a documented reason
@@ -306,24 +296,19 @@ Do not:
 
 Color must express role, not style.
 
-### 8-2. Surface Usage
-
-- Surface 1 (#FFFFFF): primary canvas, reading surface, main work area
-- Surface 2 (#FCFCFC): support surface, section transition, secondary background
-
-### 8-3. Accent Usage
+### 8-2. Accent Usage
 
 - Use one accent family for primary interactive emphasis
 - Use state colors only for state meaning
 - Do not let accents compete with each other
 
-### 8-4. Color Constraints
+### 8-3. Color Constraints
 
 - Do not add color to every section
 - Do not use surface color as a substitute for layout structure
 - Do not use multiple accent colors in the same viewport unless they represent distinct system states
 
-### 8-5. Forbidden Color Behavior
+### 8-4. Forbidden Color Behavior
 
 Do not produce:
 

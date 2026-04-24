@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>テキスト変換ツール</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%232563eb'/%3E%3Cpath fill='white' d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 16c-3.31 0-6-2.69-6-6H4l3-3 3 3H8c0 2.21 1.79 4 4 4s4-1.79 4-4-1.79-4-4-4v-2c3.31 0 6 2.69 6 6s-2.69 6-6 6z'/%3E%3C/svg%3E">
+  <style>
+    @layer reset, base, component, utility;
+
+    @layer reset {
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+      }
+    }
+
+    @layer base {
+      :root {
+        --mode-switch-track: light-dark(oklch(0.32 0.02 252), oklch(0.33 0.02 252));
+        --mode-switch-track-active: light-dark(oklch(0.74 0.11 233), oklch(0.46 0.07 233));
+        --mode-switch-moon: light-dark(oklch(0.99 0.003 245), oklch(0.95 0.01 245));
+        --mode-switch-sun: light-dark(oklch(0.88 0.14 90), oklch(0.86 0.12 90));
+        --mode-switch-star: light-dark(oklch(0.97 0.01 245), oklch(0.96 0.01 245));
+        --mode-switch-cloud: light-dark(oklch(0.99 0.003 245), oklch(0.99 0.003 245));
+        --primary: light-dark(oklch(0.62 0.11 205), oklch(0.74 0.085 205));
+        --radius: 14px;
+        --radius-sm: 10px;
+      }
+
+      [data-theme="light"] {
+        --bg: oklch(0.972 0.006 250);
+        --surface: oklch(0.995 0.003 250);
+        --surface-soft: oklch(0.978 0.004 250);
+        --border: oklch(0.892 0.012 250);
+        --text: oklch(0.258 0.022 255);
+        --text-muted: oklch(0.555 0.021 255);
+        --accent: oklch(0.585 0.188 259);
+        --accent-hover: oklch(0.538 0.19 259);
+        --success: oklch(0.663 0.172 146);
+        --focus-ring: oklch(0.585 0.188 259 / 0.2);
+        --shadow: 0 10px 24px oklch(0.258 0.022 255 / 0.08);
+      }
+
+      [data-theme="dark"] {
+        --bg: oklch(0.173 0.01 260);
+        --surface: oklch(0.228 0.01 260);
+        --surface-soft: oklch(0.265 0.012 260);
+        --border: oklch(0.348 0.011 260);
+        --text: oklch(0.955 0.008 260);
+        --text-muted: oklch(0.737 0.015 260);
+        --accent: oklch(0.704 0.148 253);
+        --accent-hover: oklch(0.768 0.136 253);
+        --success: oklch(0.736 0.169 148);
+        --focus-ring: oklch(0.704 0.148 253 / 0.3);
+        --shadow: 0 10px 24px oklch(0.05 0.01 260 / 0.45);
+      }
+
+      html[data-theme="light"] {
+        color-scheme: light;
+      }
+
+      html[data-theme="dark"] {
+        color-scheme: dark;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", Helvetica, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+      }
+
+      textarea,
+      button {
+        font: inherit;
+        color: inherit;
+      }
+    }
+
+    @layer component {
+      .header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .header-content {
+        width: min(1200px, 100%);
+        margin: 0 auto;
+        padding: 10px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 20px;
+        font-weight: 650;
+
+        .material-icons {
+          font-size: 28px;
+          color: var(--accent);
+        }
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
+      }
+
+      .main {
+        width: min(1200px, 100%);
+        margin: 0 auto;
+        padding: 14px 24px 24px;
+        min-height: calc(100dvh - 64px);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 18px;
+      }
+
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        min-height: 0;
+      }
+
+      .panel-input {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .section-label {
+        font-size: 13px;
+        font-weight: 650;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      textarea {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--surface-soft);
+        color: var(--text);
+        padding: 14px;
+        line-height: 1.6;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+        &::placeholder {
+          color: var(--text-muted);
+        }
+
+        &:focus-visible {
+          border-color: var(--accent);
+          box-shadow: 0 0 0 3px var(--focus-ring);
+        }
+      }
+
+      #input-area {
+        height: 100%;
+        min-height: 560px;
+        resize: none;
+      }
+
+      .panel-output {
+        display: grid;
+        grid-template-rows: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        padding: 12px;
+      }
+
+      .output-card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-height: 0;
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .card-title {
+        font-size: 13px;
+        font-weight: 650;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .card-title-plain {
+        text-transform: none;
+        letter-spacing: 0;
+      }
+
+      .output-area {
+        flex: 1;
+        min-height: 0;
+        resize: none;
+      }
+
+      .copy-btn {
+        border: 1px solid transparent;
+        border-radius: var(--radius-sm);
+        background: var(--accent);
+        color: oklch(0.98 0.004 250);
+        padding: 7px 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 650;
+        transition: background-color 0.15s ease, transform 0.15s ease;
+        flex-shrink: 0;
+
+        &:hover {
+          background: var(--accent-hover);
+        }
+
+        &:active {
+          transform: translateY(1px);
+        }
+
+        &:focus-visible {
+          outline: 2px solid var(--accent);
+          outline-offset: 2px;
+        }
+
+        &.copied {
+          background: var(--success);
+        }
+
+        .material-icons {
+          font-size: 16px;
+        }
+      }
+
+      .switch {
+        font-size: 17px;
+        position: relative;
+        display: inline-block;
+        width: 4em;
+        height: 2.2em;
+        border-radius: 30px;
+        box-shadow: 0 0 10px oklch(0 0 0 / 0.1);
+        flex-shrink: 0;
+
+        input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background-color: var(--mode-switch-track);
+        transition: background-color 0.4s;
+        border-radius: 30px;
+        overflow: hidden;
+
+        &::before {
+          position: absolute;
+          content: "";
+          height: 1.2em;
+          width: 1.2em;
+          border-radius: 20px;
+          left: 0.5em;
+          bottom: 0.5em;
+          transition: transform 0.4s, box-shadow 0.4s;
+          transition-timing-function: cubic-bezier(0.81, -0.04, 0.38, 1.5);
+          box-shadow: inset 8px -4px 0 0 var(--mode-switch-moon);
+        }
+      }
+
+      .switch input:checked + .slider {
+        background-color: var(--mode-switch-track-active);
+
+        &::before {
+          transform: translateX(1.8em);
+          box-shadow: inset 15px -4px 0 15px var(--mode-switch-sun);
+        }
+      }
+
+      .star {
+        background-color: var(--mode-switch-star);
+        border-radius: 50%;
+        position: absolute;
+        width: 5px;
+        height: 5px;
+        transition: opacity 0.4s;
+      }
+
+      .star_1 {
+        left: 2.5em;
+        top: 0.5em;
+      }
+
+      .star_2 {
+        left: 2.2em;
+        top: 1.2em;
+      }
+
+      .star_3 {
+        left: 3em;
+        top: 0.9em;
+      }
+
+      .switch input:checked + .slider .star {
+        opacity: 0;
+      }
+
+      .cloud {
+        width: 3.5em;
+        position: absolute;
+        bottom: -1.4em;
+        left: -1.1em;
+        opacity: 0;
+        transition: opacity 0.4s;
+
+        path {
+          fill: var(--mode-switch-cloud);
+        }
+      }
+
+      .switch input:checked + .slider .cloud {
+        opacity: 1;
+      }
+
+      .switch input:focus-visible + .slider {
+        outline: 1px solid var(--primary);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .slider,
+        .slider::before,
+        .star,
+        .cloud {
+          transition: none;
+        }
+      }
+
+      @media (max-width: 980px) {
+        .main {
+          grid-template-columns: 1fr;
+        }
+
+        #input-area {
+          min-height: 280px;
+        }
+
+        .panel-output {
+          grid-template-rows: none;
+          grid-template-columns: 1fr;
+        }
+
+        .output-area {
+          min-height: 136px;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .header-content {
+          padding-inline: 14px;
+        }
+
+        .logo {
+          font-size: 18px;
+        }
+
+        .main {
+          padding-inline: 14px;
+          gap: 14px;
+        }
+
+        .panel-input,
+        .panel-output {
+          padding: 10px;
+        }
+
+        .output-card {
+          padding: 10px;
+        }
+
+        .card-header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+      }
+    }
+
+    @layer utility {
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        border: 0;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+<header class="header">
+  <div class="header-content">
+    <h1 class="logo">
+      <span class="material-icons" aria-hidden="true">change_circle</span>
+      <span>テキスト変換ツール</span>
+    </h1>
+    <div class="header-actions">
+      <label class="switch" for="lightModeToggle">
+        <input id="lightModeToggle" type="checkbox" role="switch" aria-label="ライト/ダークモード切り替え">
+        <span class="slider">
+          <div class="star star_1"></div>
+          <div class="star star_2"></div>
+          <div class="star star_3"></div>
+          <svg viewBox="0 0 16 16" class="cloud_1 cloud" aria-hidden="true">
+            <path
+              transform="matrix(.77976 0 0 .78395-299.99-418.63)"
+              fill="#fff"
+              d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"
+            ></path>
+          </svg>
+        </span>
+      </label>
+    </div>
+  </div>
+</header>
+<main class="main" id="app-main">
+  <section class="panel panel-input" aria-labelledby="input-label">
+    <label class="section-label" id="input-label" for="input-area">入力（1行につき1つの値）</label>
+    <textarea id="input-area" placeholder="ここに値を入力してください（1行に1つ）&#10;例：&#10;apple&#10;banana&#10;cherry"></textarea>
+  </section>
+  <section class="panel panel-output" aria-label="変換結果一覧">
+    <article class="output-card" aria-labelledby="a5m2-title">
+      <div class="card-header">
+        <h2 class="card-title" id="a5m2-title">A5M2用 Caption 変換</h2>
+        <button class="copy-btn" data-copy-target="#output-a5m2" data-default-label="コピー" aria-label="A5M2の結果をコピー">
+          <span class="material-icons" aria-hidden="true">content_copy</span>
+          <span class="copy-label">コピー</span>
+        </button>
+      </div>
+      <textarea class="output-area" id="output-a5m2" readonly aria-label="A5M2用 Caption 変換結果" placeholder="変換結果がここに表示されます"></textarea>
+    </article>
+    <article class="output-card" aria-labelledby="tsv-title">
+      <div class="card-header">
+        <h2 class="card-title" id="tsv-title">タブ区切り変換（Excel向け）</h2>
+        <button class="copy-btn" data-copy-target="#output-tsv" data-default-label="コピー" aria-label="TSVの結果をコピー">
+          <span class="material-icons" aria-hidden="true">content_copy</span>
+          <span class="copy-label">コピー</span>
+        </button>
+      </div>
+      <textarea class="output-area" id="output-tsv" readonly aria-label="タブ区切り変換結果" placeholder="変換結果がここに表示されます"></textarea>
+    </article>
+    <article class="output-card" aria-labelledby="sql-title">
+      <div class="card-header">
+        <h2 class="card-title" id="sql-title">SQL の IN 句変換</h2>
+        <button class="copy-btn" data-copy-target="#output-sql-in" data-default-label="コピー" aria-label="SQL IN句の結果をコピー">
+          <span class="material-icons" aria-hidden="true">content_copy</span>
+          <span class="copy-label">コピー</span>
+        </button>
+      </div>
+      <textarea class="output-area" id="output-sql-in" readonly aria-label="SQL IN句変換結果" placeholder="変換結果がここに表示されます"></textarea>
+    </article>
+    <article class="output-card" aria-labelledby="pg-sql-title">
+      <div class="card-header">
+        <h2 class="card-title card-title-plain" id="pg-sql-title">PostgreSQL INSERT + DELETE</h2>
+        <button class="copy-btn" data-copy-target="#output-pg-sql" data-default-label="コピー" aria-label="PostgreSQL INSERTとDELETEの結果をコピー">
+          <span class="material-icons" aria-hidden="true">content_copy</span>
+          <span class="copy-label">コピー</span>
+        </button>
+      </div>
+      <textarea class="output-area" id="output-pg-sql" readonly aria-label="PostgreSQL INSERTとDELETEの変換結果" placeholder="1行目にヘッダー、2行目以降にデータのタブ区切りを貼り付けると、INSERT + DELETE を生成します"></textarea>
+    </article>
+  </section>
+</main>
+<script>
+  const STORAGE_KEY = 'textChanger_settings';
+  const COPY_RESET_MS = 2000;
+  const PG_TABLE_NAME_PLACEHOLDER = '???';
+  const LIGHT_THEME = 'light';
+  const DARK_THEME = 'dark';
+  const DEFAULT_THEME = DARK_THEME;
+  const qs = (sel, root = document) => root.querySelector(sel);
+  const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+  const COPY_TIMER_MAP = new WeakMap();
+  const $inputArea = qs('#input-area');
+  const $lightModeToggle = qs('#lightModeToggle');
+  const $outputA5m2 = qs('#output-a5m2');
+  const $outputTsv = qs('#output-tsv');
+  const $outputSqlIn = qs('#output-sql-in');
+  const $outputPgSql = qs('#output-pg-sql');
+  const $main = qs('#app-main');
+
+  let _saveTimeout;
+
+  function _getThemeFromToggle() {
+    return $lightModeToggle.checked ? LIGHT_THEME : DARK_THEME;
+  }
+
+  function _getStoredTheme(theme) {
+    return theme === LIGHT_THEME || theme === DARK_THEME ? theme : DEFAULT_THEME;
+  }
+
+  function _applyTheme(theme) {
+    const _theme = _getStoredTheme(theme);
+    document.documentElement.setAttribute('data-theme', _theme);
+    document.documentElement.style.colorScheme = _theme;
+    $lightModeToggle.checked = _theme === LIGHT_THEME;
+  }
+
+  function _getLines(text) {
+    return text
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0);
+  }
+
+  function _convertA5m2(lines) {
+    if (lines.length === 0) return '';
+    return `-- *Captions ${lines.join(',')}`;
+  }
+
+  function _convertTsv(lines) {
+    if (lines.length === 0) return '';
+    return lines.join('\t');
+  }
+
+  function _convertSqlIn(lines) {
+    if (lines.length === 0) return '';
+    const _quoted = lines.map(value => `'${value}'`).join(',');
+    return `in (${_quoted});`;
+  }
+
+  function _getNonEmptyRawLines(text) {
+    return text
+      .split('\n')
+      .map(line => line.replace(/\r$/, ''))
+      .filter(line => line.trim().length > 0);
+  }
+
+  function _parseTabularInput(text) {
+    const _lines = _getNonEmptyRawLines(text);
+    if (_lines.length < 2) {
+      return { headers: [], rows: [] };
+    }
+
+    const _headers = _lines[0].split('\t').map(cell => cell.trim());
+    if (_headers.length === 0 || _headers.some(header => header.length === 0)) {
+      return { headers: [], rows: [] };
+    }
+
+    const _rows = _lines
+      .slice(1)
+      .map(line => line.split('\t').map(cell => cell.trim()))
+      .filter(row => row.length === _headers.length);
+
+    if (_rows.length === 0) {
+      return { headers: [], rows: [] };
+    }
+
+    return { headers: _headers, rows: _rows };
+  }
+
+  function _escapePgIdentifier(value) {
+    return String(value).replaceAll('"', '""');
+  }
+
+  function _escapePgStringLiteral(value) {
+    return value.replaceAll("'", "''");
+  }
+
+  function _normalizePgValue(value) {
+    const _trimmed = value.trim();
+    if (_trimmed.length === 0 || _trimmed.toUpperCase() === 'NULL') {
+      return null;
+    }
+    return _trimmed;
+  }
+
+  function _formatPgValue(value) {
+    if (value === null) {
+      return 'NULL';
+    }
+    return `'${_escapePgStringLiteral(value)}'`;
+  }
+
+  function _formatPgDeleteCondition(column, value) {
+    const _column = `"${_escapePgIdentifier(column)}"`;
+    if (value === null) {
+      return `${_column} IS NULL`;
+    }
+    return `${_column} = ${_formatPgValue(value)}`;
+  }
+
+  function _convertPostgreSQLBlock(text) {
+    const _table = _parseTabularInput(text);
+    if (_table.headers.length === 0 || _table.rows.length === 0) {
+      return '';
+    }
+
+    const _quotedColumns = _table.headers.map(column => `"${_escapePgIdentifier(column)}"`);
+    const _columnList = _quotedColumns.join(', ');
+    const _normalizedRows = _table.rows.map(row => row.map(_normalizePgValue));
+
+    const _insertStatements = _normalizedRows.map(row => {
+      const _values = row.map(_formatPgValue).join(', ');
+      return `INSERT INTO ${PG_TABLE_NAME_PLACEHOLDER} (${_columnList}) VALUES (${_values});`;
+    });
+
+    const _deleteStatements = _normalizedRows.map(row => {
+      const _conditions = row
+        .map((value, index) => _formatPgDeleteCondition(_table.headers[index], value))
+        .join(' AND ');
+      return `DELETE FROM ${PG_TABLE_NAME_PLACEHOLDER} WHERE ${_conditions};`;
+    });
+
+    return [
+      '-- INSERT文',
+      ..._insertStatements,
+      '',
+      '-- DELETE文',
+      ..._deleteStatements
+    ].join('\n');
+  }
+
+  function _convertAll() {
+    const _lines = _getLines($inputArea.value);
+    $outputA5m2.value = _convertA5m2(_lines);
+    $outputTsv.value = _convertTsv(_lines);
+    $outputSqlIn.value = _convertSqlIn(_lines);
+    $outputPgSql.value = _convertPostgreSQLBlock($inputArea.value);
+  }
+
+  function _saveSettings() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        input: $inputArea.value,
+        theme: _getThemeFromToggle()
+      }));
+    } catch (error) {
+      console.error('Storage error:', error);
+    }
+  }
+
+  function _loadSettings() {
+    let _theme = DEFAULT_THEME;
+
+    try {
+      const _raw = localStorage.getItem(STORAGE_KEY);
+      if (!_raw) {
+        _applyTheme(_theme);
+        return;
+      }
+
+      const _data = JSON.parse(_raw);
+      if (typeof _data.input === 'string') {
+        $inputArea.value = _data.input;
+      }
+
+      _theme = _getStoredTheme(_data.theme);
+    } catch {
+      // 破損データは無視して継続
+    }
+
+    _applyTheme(_theme);
+  }
+
+  function _autoSave() {
+    clearTimeout(_saveTimeout);
+    _saveTimeout = setTimeout(_saveSettings, 500);
+  }
+
+  function _setCopyButtonLabel($button, iconText, labelText) {
+    const $icon = qs('.material-icons', $button);
+    const $label = qs('.copy-label', $button);
+    if ($icon) $icon.textContent = iconText;
+    if ($label) $label.textContent = labelText;
+  }
+
+  function _showCopiedState($button) {
+    const _existingTimer = COPY_TIMER_MAP.get($button);
+    if (_existingTimer) {
+      clearTimeout(_existingTimer);
+    }
+
+    $button.classList.add('copied');
+    _setCopyButtonLabel($button, 'check', 'コピーしました');
+
+    const _timer = setTimeout(() => {
+      $button.classList.remove('copied');
+      _setCopyButtonLabel($button, 'content_copy', $button.dataset.defaultLabel || 'コピー');
+      COPY_TIMER_MAP.delete($button);
+    }, COPY_RESET_MS);
+
+    COPY_TIMER_MAP.set($button, _timer);
+  }
+
+  function _fallbackCopy($target, $button) {
+    $target.focus();
+    $target.select();
+    document.execCommand('copy');
+    _showCopiedState($button);
+    $target.setSelectionRange(0, 0);
+    $target.blur();
+  }
+
+  function _copyResult($button) {
+    const _targetSelector = $button.dataset.copyTarget;
+    if (!_targetSelector) return;
+
+    const $target = qs(_targetSelector);
+    if (!$target || !$target.value) return;
+
+    const _text = $target.value;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(_text)
+        .then(() => {
+          _showCopiedState($button);
+        })
+        .catch(() => {
+          _fallbackCopy($target, $button);
+        });
+      return;
+    }
+
+    _fallbackCopy($target, $button);
+  }
+
+  $inputArea.addEventListener('input', () => {
+    _convertAll();
+    _autoSave();
+  });
+
+  $lightModeToggle.addEventListener('change', () => {
+    _applyTheme(_getThemeFromToggle());
+    _saveSettings();
+  });
+
+  $main.addEventListener('click', event => {
+    const $button = event.target.closest('.copy-btn');
+    if (!$button) return;
+    _copyResult($button);
+  });
+
+  _loadSettings();
+  _convertAll();
+</script>
+</body>
+</html>

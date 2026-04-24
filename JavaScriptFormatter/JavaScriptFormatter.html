@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JavaScript Formatter</title>
+  <meta name="theme-color" content="#f7df1e" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='4' width='56' height='56' rx='14' fill='%23F7DF1E'/%3E%3Ctext x='32' y='40' text-anchor='middle' font-family='Arial, Helvetica, sans-serif' font-size='22' font-weight='700' fill='%23111111'%3EJS%3C/text%3E%3C/svg%3E" />
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --panel: #ffffff;
+      --border: #d9deea;
+      --text: #1f2430;
+      --muted: #677089;
+      --accent: #2463eb;
+      --accent-2: #1d4fd7;
+      --danger-bg: #fff3f2;
+      --danger-border: #f1c3bf;
+      --danger-text: #9e2d23;
+      --danger-mark-bg: rgba(220, 38, 38, 0.12);
+      --success-bg: #f1fff5;
+      --success-border: #bfe7c9;
+      --success-text: #1f7a36;
+      --shadow: 0 14px 34px rgba(27, 39, 94, 0.08);
+      --radius: 16px;
+      --mono: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, 'Liberation Mono', monospace;
+      --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background: linear-gradient(180deg, #f7f8fc 0%, #eef1f8 100%);
+      color: var(--text);
+      font-family: var(--sans);
+    }
+
+    body {
+      padding: 20px;
+    }
+
+    .app {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .header {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(217, 222, 234, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .title-wrap {
+      min-width: 0;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .button-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .button-label .material-icons-round {
+      font-size: 18px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      flex: 0 0 18px;
+    }
+
+    button > .material-icons-round,
+    .panel-action > .material-icons-round,
+    .icon-button > .material-icons-round,
+    .status-button > .material-icons-round {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.25em;
+      height: 1.25em;
+      line-height: 1;
+      flex: 0 0 1.25em;
+      vertical-align: middle;
+      transform: translateY(0);
+    }
+
+    .panel-action > span:last-child,
+    .status-button > span:last-child {
+      display: inline-flex;
+      align-items: center;
+      line-height: 1.2;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.2;
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      vertical-align: middle;
+      white-space: nowrap;
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      border-color: #b7c1d8;
+      box-shadow: 0 8px 18px rgba(22, 37, 89, 0.08);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .primary:hover {
+      background: var(--accent-2);
+      border-color: var(--accent-2);
+    }
+
+    .status-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 0 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-button .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      flex: 0 0 auto;
+    }
+
+    .status-button.is-ok {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+      color: var(--success-text);
+    }
+
+    .status-button.is-ok .status-dot {
+      background: var(--success-text);
+    }
+
+    .status-button.is-error {
+      background: var(--danger-bg);
+      border-color: var(--danger-border);
+      color: var(--danger-text);
+    }
+
+    .status-button.is-error .status-dot {
+      background: var(--danger-text);
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .panel {
+      min-width: 0;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(217, 222, 234, 0.95);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-height: 68vh;
+    }
+
+    .panel-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(217, 222, 234, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(250,252,255,0.96) 100%);
+    }
+
+    .panel-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .panel-meta {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .editor-wrap {
+      min-height: 0;
+      background: var(--panel);
+      position: relative;
+    }
+
+    .editable-code,
+    textarea {
+      width: 100%;
+      height: 100%;
+      min-height: 68vh;
+      resize: none;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      padding: 18px;
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.7;
+      letter-spacing: 0;
+      tab-size: 2;
+      white-space: pre;
+      word-break: normal;
+      overflow-wrap: normal;
+      overflow: auto;
+    }
+
+    .editable-code {
+      caret-color: var(--text);
+    }
+
+    .editable-code:empty::before {
+      content: attr(data-placeholder);
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    #outputCode {
+      background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+    }
+
+    .error-token {
+      color: var(--danger-text);
+      background: var(--danger-mark-bg);
+      border-radius: 4px;
+      text-decoration: underline;
+      text-decoration-color: rgba(158, 45, 35, 0.55);
+      text-decoration-thickness: 2px;
+      text-underline-offset: 2px;
+      cursor: help;
+    }
+
+    .error-token.is-tooltip-active {
+      background: rgba(220, 38, 38, 0.18);
+    }
+
+    .error-tooltip {
+      position: fixed;
+      z-index: 80;
+      max-width: min(320px, calc(100vw - 24px));
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(18, 24, 38, 0.96);
+      color: #ffffff;
+      font-size: 12px;
+      line-height: 1.5;
+      box-shadow: 0 12px 30px rgba(7, 12, 26, 0.28);
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.12s ease, transform 0.12s ease;
+      white-space: pre-wrap;
+    }
+
+    .error-tooltip.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .footer-area {
+      display: grid;
+      gap: 12px;
+      height: 0;
+    }
+
+    .message {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      z-index: 1200;
+      width: max-content;
+      max-width: min(560px, calc(100vw - 24px));
+      border-radius: 14px;
+      border: 1px solid var(--success-border);
+      padding: 14px 16px;
+      background: var(--success-bg);
+      box-shadow: var(--shadow);
+      color: var(--success-text);
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -8px);
+      transition: opacity 0.16s ease, transform 0.16s ease;
+    }
+
+    .message.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .icon-button {
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border-radius: 12px;
+      gap: 0;
+    }
+
+    .icon-button .material-icons-round {
+      font-size: 20px;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(16, 22, 37, 0.48);
+      z-index: 40;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-card {
+      width: min(680px, 100%);
+      max-height: min(80vh, 760px);
+      overflow: auto;
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid rgba(217, 222, 234, 0.95);
+      border-radius: 18px;
+      box-shadow: 0 24px 60px rgba(12, 20, 48, 0.18);
+    }
+
+    .modal-head {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 20px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(250,252,255,0.98) 100%);
+      border-bottom: 1px solid rgba(217, 222, 234, 0.9);
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .modal-body {
+      padding: 20px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .rule-group,
+    .error-group {
+      display: grid;
+      gap: 10px;
+    }
+
+    .rule-group h3,
+    .error-group h3 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .rule-list,
+    .modal-error-list {
+      margin: 0;
+      padding-left: 20px;
+      display: grid;
+      gap: 8px;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .rule-list code {
+      font-family: var(--mono);
+      font-size: 0.95em;
+      background: #f3f6ff;
+      border: 1px solid #dce5fb;
+      border-radius: 8px;
+      padding: 2px 6px;
+    }
+
+    .modal-note {
+      margin: 0;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: #fffbe7;
+      border: 1px solid #f2e29a;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #5d4c00;
+    }
+
+    .modal-note.is-ok {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+      color: var(--success-text);
+    }
+
+    @media (max-width: 980px) {
+      body {
+        padding: 14px;
+      }
+
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        min-height: 46vh;
+      }
+
+      .editable-code,
+      textarea {
+        min-height: 46vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="title-wrap">
+        <h1 class="title">JavaScript Formatter</h1>
+        <p class="subtitle">左に貼り付けると、右側に整形済みコードを表示します。</p>
+      </div>
+      <div class="actions">
+        <button id="errorStatusButton" class="status-button is-ok" type="button" aria-label="エラー状態を表示">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="errorStatusText">問題はありません</span>
+        </button>
+        <button id="rulesButton" class="icon-button" type="button" aria-label="ルール一覧を開く">
+          <span class="material-icons-round" aria-hidden="true">help</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Input</div>
+          <div class="panel-tools">
+            <button id="sampleButton" class="panel-action" type="button" aria-label="サンプルコードを追加">
+              <span class="material-icons-round" aria-hidden="true">data_object</span>
+              <span>サンプル</span>
+            </button>
+            <button id="clearButton" class="panel-action" type="button" aria-label="入力内容をクリア">
+              <span class="material-icons-round" aria-hidden="true">delete_sweep</span>
+              <span>クリア</span>
+            </button>
+          </div>
+        </div>
+        <div class="editor-wrap">
+          <div id="inputCode" class="editable-code" contenteditable="true" spellcheck="false" aria-label="入力コード" data-placeholder="ここに JavaScript コードを貼り付けてください"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Output</div>
+          <div class="panel-tools">
+            <button id="copyButton" class="panel-action primary" type="button" aria-label="整形結果をコピー">
+              <span class="material-icons-round" aria-hidden="true">content_copy</span>
+              <span>コピー</span>
+            </button>
+          </div>
+        </div>
+        <div class="editor-wrap">
+          <textarea id="outputCode" wrap="off" spellcheck="false" readonly placeholder="整形後のコードがここに表示されます"></textarea>
+        </div>
+      </section>
+    </main>
+
+    <div class="footer-area">
+      <div id="messageBox" class="message" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div id="errorModal" class="modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="errorModalTitle">
+      <div class="modal-head">
+        <h2 id="errorModalTitle" class="modal-title">エラー一覧</h2>
+        <button id="closeErrorButton" class="icon-button" type="button" aria-label="エラー一覧を閉じる">
+          <span class="material-icons-round" aria-hidden="true">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="error-group">
+          <h3>現在の状態</h3>
+          <div id="errorModalContent"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="rulesModal" class="modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="rulesModalTitle">
+      <div class="modal-head">
+        <h2 id="rulesModalTitle" class="modal-title">ルール一覧</h2>
+        <button id="closeRulesButton" class="icon-button" type="button" aria-label="ルール一覧を閉じる">
+          <span class="material-icons-round" aria-hidden="true">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <section class="rule-group">
+          <h3>禁止ルール</h3>
+          <ul class="rule-list">
+            <li><code>var</code> は禁止です。</li>
+            <li>文字列は基本的に <code>'single quote'</code> を使います。<code>"double quote"</code> は警告対象です。</li>
+            <li>比較演算子は <code>===</code> と <code>!==</code> を使います。</li>
+            <li><code>== null</code> と <code>!= null</code> は例外として許可します。</li>
+            <li><code>.value ===</code> と <code>.value !==</code> の比較では、比較相手にシングルクォートの文字列を使います。</li>
+          </ul>
+        </section>
+
+        <section class="rule-group">
+          <h3>自動整形ルール</h3>
+          <ul class="rule-list">
+            <li>制御構文やブロックでは、キーワードの後ろと <code>{</code> の前に半角スペースを 1 つ入れます。</li>
+            <li>セミコロンは基本的に付与します。</li>
+            <li>ただし、関数宣言の末尾には付与しません。</li>
+            <li>インデントは半角スペース 2 個に統一します。</li>
+            <li>行末の余計な空白は削除し、改行コードは <code>LF</code> に統一します。</li>
+          </ul>
+        </section>
+
+        <p class="modal-note">
+          このツールは、コードの意味を変える修正ではなく、書式統一と基本的な禁止ルールの検出に絞っています。
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="errorTooltip" class="error-tooltip" role="tooltip" aria-hidden="true"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/prettier@3/standalone.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prettier@3/plugins/babel.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prettier@3/plugins/estree.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/acorn@8/dist/acorn.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/acorn-walk@8/dist/walk.js"></script>
+  <script>
+    (function () {
+      const inputCode = document.getElementById('inputCode');
+      const outputCode = document.getElementById('outputCode');
+      const rulesButton = document.getElementById('rulesButton');
+      const sampleButton = document.getElementById('sampleButton');
+      const clearButton = document.getElementById('clearButton');
+      const copyButton = document.getElementById('copyButton');
+      const rulesModal = document.getElementById('rulesModal');
+      const closeRulesButton = document.getElementById('closeRulesButton');
+      const errorStatusButton = document.getElementById('errorStatusButton');
+      const errorStatusText = document.getElementById('errorStatusText');
+      const errorModal = document.getElementById('errorModal');
+      const closeErrorButton = document.getElementById('closeErrorButton');
+      const errorModalContent = document.getElementById('errorModalContent');
+      const errorTooltip = document.getElementById('errorTooltip');
+      const messageBox = document.getElementById('messageBox');
+
+      let debounceTimer = null;
+      let lastMessageTimer = null;
+      let currentErrors = [];
+
+      const formatOptions = {
+        parser: 'babel',
+        plugins: [],
+        semi: true,
+        singleQuote: true,
+        quoteProps: 'as-needed',
+        trailingComma: 'all',
+        bracketSpacing: true,
+        arrowParens: 'always',
+        tabWidth: 2,
+        useTabs: false,
+        printWidth: 100,
+        endOfLine: 'lf'
+      };
+
+      const sampleSource = [
+        "var selected = document.getElementById(\"status\").value",
+        "",
+        "function checkStatus() {",
+        "if(selected == null){",
+        "return \"none\"",
+        "} else if(document.value === 0){",
+        "return \"zero\"",
+        "}",
+        "",
+        "for(let i=0;i<3;i++){",
+        "console.log(\"loop\", i)",
+        "}",
+        "",
+        "switch(selected){",
+        "case \"A\":",
+        "return \"A\"",
+        "default:",
+        "return \"other\"",
+        "}",
+        "}",
+        "",
+        "const submit = () => {",
+        "const currentValue = document.querySelector(\"#kind\").value",
+        "if(currentValue===\"B\"){",
+        "return currentValue",
+        "}",
+        "return selected",
+        "};"
+      ].join('\n');
+
+      function safeFocus(element) {
+        if (element && typeof element.focus === 'function') {
+          element.focus();
+        }
+      }
+
+      function normalizeLineEndings(text) {
+        return String(text || '').replace(/\r\n?/g, '\n');
+      }
+
+      function getEditorText() {
+        return normalizeLineEndings(inputCode.textContent || '');
+      }
+
+      function escapeHtml(text) {
+        return String(text)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function escapeHtmlAttr(text) {
+        return escapeHtml(String(text || '')).replace(/\n/g, '&#10;');
+      }
+
+      function getWalkApi() {
+        if (window.acorn && window.acorn.walk) {
+          return window.acorn.walk;
+        }
+        if (window.acornWalk) {
+          return window.acornWalk;
+        }
+        return null;
+      }
+
+      function updateMeta() {
+      }
+
+      function showMessage(text) {
+        messageBox.textContent = text;
+        messageBox.classList.add('show');
+        window.clearTimeout(lastMessageTimer);
+        lastMessageTimer = window.setTimeout(function () {
+          messageBox.classList.remove('show');
+          messageBox.textContent = '';
+        }, 1800);
+      }
+
+      function setStatus(errors) {
+        const count = Array.isArray(errors) ? errors.length : 0;
+        errorStatusButton.classList.remove('is-ok', 'is-error');
+
+        if (count > 0) {
+          errorStatusButton.classList.add('is-error');
+          errorStatusText.textContent = 'エラーがあります' + (count > 0 ? ' (' + count + '件)' : '');
+        } else {
+          errorStatusButton.classList.add('is-ok');
+          errorStatusText.textContent = '問題はありません';
+        }
+      }
+
+      function renderErrorModal(errors) {
+        const count = Array.isArray(errors) ? errors.length : 0;
+
+        if (!count) {
+          errorModalContent.innerHTML = '<p class="modal-note is-ok">現在エラーはありません。</p>';
+          return;
+        }
+
+        errorModalContent.innerHTML =
+          '<ul class="modal-error-list">' +
+          errors.map(function (error) {
+            return '<li>' + escapeHtml(error) + '</li>';
+          }).join('') +
+          '</ul>';
+      }
+
+      function renderErrors(errors) {
+        currentErrors = Array.isArray(errors) ? errors.slice() : [];
+        setStatus(currentErrors);
+        renderErrorModal(currentErrors);
+      }
+
+      function openRulesModal() {
+        rulesModal.classList.add('show');
+        rulesModal.setAttribute('aria-hidden', 'false');
+        safeFocus(closeRulesButton);
+      }
+
+      function closeRulesModal() {
+        rulesModal.classList.remove('show');
+        rulesModal.setAttribute('aria-hidden', 'true');
+        safeFocus(rulesButton);
+      }
+
+      function openErrorModal() {
+        errorModal.classList.add('show');
+        errorModal.setAttribute('aria-hidden', 'false');
+        safeFocus(closeErrorButton);
+      }
+
+      function closeErrorModal() {
+        errorModal.classList.remove('show');
+        errorModal.setAttribute('aria-hidden', 'true');
+        safeFocus(errorStatusButton);
+      }
+
+      function getSelectionOffsets(element) {
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) {
+          return { start: 0, end: 0 };
+        }
+
+        const range = selection.getRangeAt(0);
+        if (!element.contains(range.startContainer) || !element.contains(range.endContainer)) {
+          const length = (element.textContent || '').length;
+          return { start: length, end: length };
+        }
+
+        const preStart = document.createRange();
+        preStart.selectNodeContents(element);
+        preStart.setEnd(range.startContainer, range.startOffset);
+
+        const preEnd = document.createRange();
+        preEnd.selectNodeContents(element);
+        preEnd.setEnd(range.endContainer, range.endOffset);
+
+        return {
+          start: preStart.toString().length,
+          end: preEnd.toString().length
+        };
+      }
+
+      function restoreSelection(element, offsets) {
+        if (!offsets || !element.isConnected) {
+          return;
+        }
+
+        const selection = window.getSelection();
+        if (!selection) {
+          return;
+        }
+
+        const range = document.createRange();
+        let startFound = false;
+        let endFound = false;
+        let charCount = 0;
+        let lastTextNode = null;
+
+        function visit(node) {
+          if (endFound) {
+            return;
+          }
+
+          if (node.nodeType === Node.TEXT_NODE) {
+            const textLength = node.nodeValue.length;
+            const nextCharCount = charCount + textLength;
+
+            if (!startFound && offsets.start >= charCount && offsets.start <= nextCharCount) {
+              range.setStart(node, Math.min(offsets.start - charCount, textLength));
+              startFound = true;
+            }
+
+            if (!endFound && offsets.end >= charCount && offsets.end <= nextCharCount) {
+              range.setEnd(node, Math.min(offsets.end - charCount, textLength));
+              endFound = true;
+            }
+
+            charCount = nextCharCount;
+            lastTextNode = node;
+            return;
+          }
+
+          const children = node.childNodes;
+          for (let i = 0; i < children.length; i += 1) {
+            visit(children[i]);
+            if (endFound) {
+              break;
+            }
+          }
+        }
+
+        visit(element);
+
+        if (!startFound || !endFound) {
+          if (lastTextNode) {
+            range.setStart(lastTextNode, lastTextNode.nodeValue.length);
+            range.setEnd(lastTextNode, lastTextNode.nodeValue.length);
+          } else {
+            range.setStart(element, 0);
+            range.setEnd(element, 0);
+          }
+        }
+
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+
+      function renderPlainInput(text, selection) {
+        const scrollTop = inputCode.scrollTop;
+        const scrollLeft = inputCode.scrollLeft;
+        inputCode.textContent = text;
+        if (selection) {
+          restoreSelection(inputCode, selection);
+        }
+        inputCode.scrollTop = scrollTop;
+        inputCode.scrollLeft = scrollLeft;
+      }
+
+      function normalizeMarker(marker, lines) {
+        if (!marker || typeof marker.startLine !== 'number' || typeof marker.startColumn !== 'number') {
+          return null;
+        }
+
+        const maxLine = Math.max(1, lines.length || 1);
+        const startLine = Math.min(Math.max(1, marker.startLine), maxLine);
+        const endLine = Math.min(Math.max(startLine, marker.endLine || marker.startLine), maxLine);
+        const startLineText = lines[startLine - 1] || '';
+        const endLineText = lines[endLine - 1] || '';
+        const startColumn = Math.max(0, Math.min(marker.startColumn, startLineText.length));
+        let endColumn = typeof marker.endColumn === 'number' ? marker.endColumn : marker.startColumn + 1;
+        endColumn = Math.max(0, endColumn);
+
+        if (endLine === startLine) {
+          endColumn = Math.min(endColumn, startLineText.length);
+          if (endColumn <= startColumn) {
+            endColumn = Math.min(startLineText.length, startColumn + 1);
+          }
+        } else {
+          endColumn = Math.min(endColumn, endLineText.length);
+        }
+
+        return {
+          startLine: startLine,
+          startColumn: startColumn,
+          endLine: endLine,
+          endColumn: endColumn,
+          message: marker.message || ''
+        };
+      }
+
+      function buildLineRanges(markers, lines) {
+        const rangesByLine = new Map();
+
+        (Array.isArray(markers) ? markers : []).forEach(function (marker) {
+          const normalized = normalizeMarker(marker, lines);
+          if (!normalized) {
+            return;
+          }
+
+          for (let lineNo = normalized.startLine; lineNo <= normalized.endLine; lineNo += 1) {
+            const lineText = lines[lineNo - 1] || '';
+            const start = lineNo === normalized.startLine ? normalized.startColumn : 0;
+            let end = lineNo === normalized.endLine ? normalized.endColumn : lineText.length;
+
+            if (end <= start) {
+              end = Math.min(lineText.length, start + 1);
+            }
+
+            const existing = rangesByLine.get(lineNo) || [];
+            existing.push({
+              start: start,
+              end: end,
+              messages: normalized.message ? [normalized.message] : []
+            });
+            rangesByLine.set(lineNo, existing);
+          }
+        });
+
+        rangesByLine.forEach(function (ranges, lineNo) {
+          ranges.sort(function (a, b) { return a.start - b.start; });
+          const merged = [];
+
+          ranges.forEach(function (range) {
+            if (!merged.length) {
+              merged.push({
+                start: range.start,
+                end: range.end,
+                messages: range.messages.slice()
+              });
+              return;
+            }
+
+            const last = merged[merged.length - 1];
+            if (range.start <= last.end) {
+              last.end = Math.max(last.end, range.end);
+              range.messages.forEach(function (message) {
+                if (last.messages.indexOf(message) === -1) {
+                  last.messages.push(message);
+                }
+              });
+            } else {
+              merged.push({
+                start: range.start,
+                end: range.end,
+                messages: range.messages.slice()
+              });
+            }
+          });
+
+          rangesByLine.set(lineNo, merged);
+        });
+
+        return rangesByLine;
+      }
+
+      function renderLineWithRanges(line, ranges) {
+        if (!ranges || !ranges.length) {
+          return line.length ? escapeHtml(line) : '';
+        }
+
+        let cursor = 0;
+        let html = '';
+
+        ranges.forEach(function (range) {
+          const start = Math.max(0, Math.min(range.start, line.length));
+          const end = Math.max(start, Math.min(range.end, line.length));
+
+          if (start > cursor) {
+            html += escapeHtml(line.slice(cursor, start));
+          }
+
+          const segment = line.slice(start, end);
+          const tooltip = range.messages.length
+            ? ' data-error-message="' + escapeHtmlAttr(range.messages.join('\n')) + '" aria-label="' + escapeHtmlAttr(range.messages.join('\n')) + '"'
+            : '';
+
+          html += '<span class="error-token"' + tooltip + '>' + escapeHtml(segment) + '</span>';
+          cursor = end;
+        });
+
+        if (cursor < line.length) {
+          html += escapeHtml(line.slice(cursor));
+        }
+
+        return html;
+      }
+
+      function hideErrorTooltip() {
+        if (!errorTooltip) {
+          return;
+        }
+
+        errorTooltip.classList.remove('show');
+        errorTooltip.setAttribute('aria-hidden', 'true');
+
+        const activeToken = inputCode.querySelector('.error-token.is-tooltip-active');
+        if (activeToken) {
+          activeToken.classList.remove('is-tooltip-active');
+        }
+      }
+
+      function positionErrorTooltip(target, clientX, clientY) {
+        if (!errorTooltip || !target) {
+          return;
+        }
+
+        const targetRect = target.getBoundingClientRect();
+        const offset = 12;
+        const tooltipRect = errorTooltip.getBoundingClientRect();
+        let left = (typeof clientX === 'number' ? clientX : targetRect.left + 12) + offset;
+        let top = (typeof clientY === 'number' ? clientY : targetRect.bottom) + offset;
+
+        if (left + tooltipRect.width > window.innerWidth - 8) {
+          left = window.innerWidth - tooltipRect.width - 8;
+        }
+
+        if (top + tooltipRect.height > window.innerHeight - 8) {
+          top = (typeof clientY === 'number' ? clientY : targetRect.top) - tooltipRect.height - offset;
+        }
+
+        errorTooltip.style.left = Math.max(8, left) + 'px';
+        errorTooltip.style.top = Math.max(8, top) + 'px';
+      }
+
+      function showErrorTooltip(target, clientX, clientY) {
+        if (!errorTooltip || !target) {
+          return;
+        }
+
+        const message = target.getAttribute('data-error-message');
+        if (!message) {
+          hideErrorTooltip();
+          return;
+        }
+
+        const activeToken = inputCode.querySelector('.error-token.is-tooltip-active');
+        if (activeToken && activeToken !== target) {
+          activeToken.classList.remove('is-tooltip-active');
+        }
+
+        target.classList.add('is-tooltip-active');
+        errorTooltip.textContent = message;
+        errorTooltip.setAttribute('aria-hidden', 'false');
+        errorTooltip.classList.add('show');
+        positionErrorTooltip(target, clientX, clientY);
+      }
+
+      function renderInputHighlights(errorMarkers, selection, sourceText) {
+        hideErrorTooltip();
+
+        const text = normalizeLineEndings(typeof sourceText === 'string' ? sourceText : getEditorText());
+        const scrollTop = inputCode.scrollTop;
+        const scrollLeft = inputCode.scrollLeft;
+
+        if (!text) {
+          inputCode.innerHTML = '';
+          if (selection) {
+            restoreSelection(inputCode, selection);
+          }
+          inputCode.scrollTop = scrollTop;
+          inputCode.scrollLeft = scrollLeft;
+          return;
+        }
+
+        if (!errorMarkers || !errorMarkers.length) {
+          renderPlainInput(text, selection);
+          return;
+        }
+
+        const lines = text.split('\n');
+        const rangesByLine = buildLineRanges(errorMarkers, lines);
+        const html = lines.map(function (line, index) {
+          return renderLineWithRanges(line, rangesByLine.get(index + 1));
+        }).join('\n');
+
+        inputCode.innerHTML = html;
+        if (selection) {
+          restoreSelection(inputCode, selection);
+        }
+        inputCode.scrollTop = scrollTop;
+        inputCode.scrollLeft = scrollLeft;
+      }
+
+      function addLintError(errors, errorMarkers, rule, message, loc) {
+        const start = loc && loc.start ? loc.start : loc;
+        const end = loc && loc.end ? loc.end : null;
+        const detail = start && typeof start.line === 'number'
+          ? '[' + rule + '] ' + message + '（' + start.line + '行目' + (typeof start.column === 'number' ? ' ' + (start.column + 1) + '列目' : '') + '）'
+          : '[' + rule + '] ' + message;
+
+        errors.push(detail);
+
+        if (start && typeof start.line === 'number') {
+          errorMarkers.push({
+            startLine: start.line,
+            startColumn: typeof start.column === 'number' ? start.column : 0,
+            endLine: end && typeof end.line === 'number' ? end.line : start.line,
+            endColumn: end && typeof end.column === 'number' ? end.column : ((typeof start.column === 'number' ? start.column : 0) + 1),
+            message: message
+          });
+        }
+      }
+
+      function isNullLikeLiteral(node) {
+        return !!node && (
+          (node.type === 'Literal' && node.value === null) ||
+          (node.type === 'Identifier' && node.name === 'undefined')
+        );
+      }
+
+
+      function isValueMemberExpression(node) {
+        return !!node &&
+          node.type === 'MemberExpression' &&
+          !node.computed &&
+          node.property &&
+          node.property.type === 'Identifier' &&
+          node.property.name === 'value';
+      }
+
+      function isSingleQuotedStringLiteralNode(node) {
+        return !!node &&
+          node.type === 'Literal' &&
+          typeof node.value === 'string' &&
+          typeof node.raw === 'string' &&
+          node.raw.charAt(0) === "'";
+      }
+
+      function collectDirectiveLiteralNodes(ast) {
+        const directiveNodes = new WeakSet();
+        const walkApi = getWalkApi();
+
+        if (!walkApi) {
+          return directiveNodes;
+        }
+
+        function visitBody(body) {
+          if (!Array.isArray(body)) {
+            return;
+          }
+
+          for (let i = 0; i < body.length; i += 1) {
+            const statement = body[i];
+            if (
+              statement &&
+              statement.type === 'ExpressionStatement' &&
+              typeof statement.directive === 'string' &&
+              statement.expression
+            ) {
+              directiveNodes.add(statement.expression);
+            } else {
+              break;
+            }
+          }
+        }
+
+        walkApi.full(ast, function (node) {
+          if (node.type === 'Program' || node.type === 'BlockStatement') {
+            visitBody(node.body);
+          }
+        });
+
+        return directiveNodes;
+      }
+
+      function parseForLint(source) {
+        if (!window.acorn) {
+          throw new Error('acorn-load-error');
+        }
+
+        try {
+          return window.acorn.parse(source, {
+            ecmaVersion: 'latest',
+            sourceType: 'module',
+            locations: true,
+            allowHashBang: true
+          });
+        } catch (moduleError) {
+          return window.acorn.parse(source, {
+            ecmaVersion: 'latest',
+            sourceType: 'script',
+            locations: true,
+            allowHashBang: true
+          });
+        }
+      }
+
+      function lintCode(source) {
+        const errors = [];
+        const errorMarkers = [];
+        const walkApi = getWalkApi();
+
+        if (!window.acorn || !walkApi) {
+          errors.push('ルール検査エンジンの読み込みに失敗しました。通信できる状態で再度開いてください。');
+          return { errors: errors, errorMarkers: [] };
+        }
+
+        let ast;
+        try {
+          ast = parseForLint(source);
+        } catch (error) {
+          const line = typeof error.loc === 'object' && error.loc ? error.loc.line : null;
+          const column = typeof error.loc === 'object' && error.loc ? error.loc.column + 1 : null;
+          addLintError(errors, errorMarkers, 'parse', '構文エラーがあります', {
+            start: { line: line || 1, column: Math.max(0, (column || 1) - 1) },
+            end: { line: line || 1, column: Math.max(0, column || 1) }
+          });
+          return { errors: errors, errorMarkers: errorMarkers };
+        }
+
+        const directiveNodes = collectDirectiveLiteralNodes(ast);
+
+        walkApi.full(ast, function (node) {
+          if (node.type === 'VariableDeclaration' && node.kind === 'var') {
+            addLintError(errors, errorMarkers, 'no-var', 'var は使用できません', node.loc);
+          }
+
+          if (node.type === 'BinaryExpression' && (node.operator === '==' || node.operator === '!=')) {
+            const allowNullLooseEquality = isNullLikeLiteral(node.left) || isNullLikeLiteral(node.right);
+            if (!allowNullLooseEquality) {
+              addLintError(errors, errorMarkers, 'eqeqeq', node.operator + ' は使用できません。=== または !== を使ってください', node.loc);
+            }
+          }
+
+          if (
+            node.type === 'Literal' &&
+            typeof node.value === 'string' &&
+            typeof node.raw === 'string' &&
+            node.raw.charAt(0) === '"' &&
+            !directiveNodes.has(node)
+          ) {
+            addLintError(errors, errorMarkers, 'quotes', 'ダブルクォートは基本的に使用せず、シングルクォートを使ってください', node.loc);
+          }
+
+
+          if (node.type === 'BinaryExpression' && (node.operator === '===' || node.operator === '!==')) {
+            const leftIsValue = isValueMemberExpression(node.left);
+            const rightIsValue = isValueMemberExpression(node.right);
+
+            if (leftIsValue || rightIsValue) {
+              const compareNode = leftIsValue ? node.right : node.left;
+              if (!isSingleQuotedStringLiteralNode(compareNode)) {
+                addLintError(errors, errorMarkers, 'value-comparison', ".value の比較では、右辺または比較相手にシングルクォートの文字列を使ってください", node.loc);
+              }
+            }
+          }
+        });
+
+        return {
+          errors: errors,
+          errorMarkers: errorMarkers
+        };
+      }
+
+      function ensureFinalNewline(text) {
+        return /\n$/.test(text) ? text : text + '\n';
+      }
+
+      function basicFormatFallback(source) {
+        let text = normalizeLineEndings(source);
+        text = text.split('\n').map(function (line) {
+          return line.replace(/[\t ]+$/g, '');
+        }).join('\n');
+        text = text.replace(/^\t+/gm, function (tabs) {
+          return '  '.repeat(tabs.length);
+        });
+        text = text.replace(/\bif\s*\(/g, 'if (');
+        text = text.replace(/\bfor\s*\(/g, 'for (');
+        text = text.replace(/\bwhile\s*\(/g, 'while (');
+        text = text.replace(/\bcatch\s*\(/g, 'catch (');
+        text = text.replace(/\}\s*else\s*\{/g, '} else {');
+        text = text.replace(/\)\s*\{/g, ') {');
+        text = text.replace(/\n{3,}/g, '\n\n');
+
+        const lines = text.split('\n');
+        const formattedLines = lines.map(function (line) {
+          const rightTrimmed = line.replace(/[\t ]+$/g, '');
+          const trimmed = rightTrimmed.trim();
+          if (!trimmed) {
+            return '';
+          }
+
+          const isBlockLine = /\{\s*$/.test(trimmed) || /^\}\s*(else\b.*)?$/.test(trimmed);
+          const isControlLine = /^(if|for|while|switch|catch)\b/.test(trimmed);
+          const isFunctionDeclaration = /^(async\s+)?function\b/.test(trimmed);
+          const alreadyEndsProperly = /[;{},:]$/.test(trimmed);
+          const shouldAddSemicolon = !isBlockLine && !isControlLine && !isFunctionDeclaration && !alreadyEndsProperly;
+
+          return shouldAddSemicolon ? rightTrimmed + ';' : rightTrimmed;
+        });
+
+        return ensureFinalNewline(formattedLines.join('\n'));
+      }
+
+      function createFormatPlugins() {
+        if (!window.prettierPlugins) {
+          return [];
+        }
+
+        const plugins = [];
+        if (window.prettierPlugins.babel) {
+          plugins.push(window.prettierPlugins.babel);
+        }
+        if (window.prettierPlugins.estree) {
+          plugins.push(window.prettierPlugins.estree);
+        }
+        return plugins;
+      }
+
+      function extractErrorLine(error) {
+        if (error && error.loc && error.loc.start && error.loc.start.line) {
+          return error.loc.start.line;
+        }
+        if (error && error.loc && error.loc.line) {
+          return error.loc.line;
+        }
+        return null;
+      }
+
+      function buildParserErrorMarker(error) {
+        const line = extractErrorLine(error) || 1;
+        let column = 0;
+
+        if (error && error.loc && error.loc.start && typeof error.loc.start.column === 'number') {
+          column = error.loc.start.column;
+        } else if (error && error.loc && typeof error.loc.column === 'number') {
+          column = error.loc.column;
+        }
+
+        return {
+          startLine: line,
+          startColumn: Math.max(0, column),
+          endLine: line,
+          endColumn: Math.max(1, column + 1),
+          message: '構文エラーがあります'
+        };
+      }
+
+      function createParserErrorMessage(error) {
+        const line = extractErrorLine(error);
+        if (line) {
+          return '整形できませんでした。' + line + '行目付近を確認してください。';
+        }
+        if (error && typeof error.message === 'string') {
+          return '整形できませんでした。' + error.message.replace(/\s+/g, ' ').trim();
+        }
+        return '整形できませんでした。入力コードを確認してください。';
+      }
+
+      async function formatCode() {
+        const source = getEditorText();
+        updateMeta();
+
+        if (!source.trim()) {
+          outputCode.value = '';
+          renderErrors([]);
+          renderInputHighlights([], null, '');
+          updateMeta();
+          return;
+        }
+
+        const selection = document.activeElement === inputCode ? getSelectionOffsets(inputCode) : null;
+        const lintResult = lintCode(source);
+        const errors = lintResult.errors.slice();
+        const errorMarkers = lintResult.errorMarkers.slice();
+
+        renderInputHighlights(errorMarkers, selection, source);
+
+        try {
+          if (!window.prettier) {
+            throw new Error('formatter-load-error');
+          }
+
+          const plugins = createFormatPlugins();
+          if (!plugins.length) {
+            throw new Error('formatter-load-error');
+          }
+
+          const formatted = await window.prettier.format(source, Object.assign({}, formatOptions, { plugins: plugins }));
+          outputCode.value = formatted;
+          renderErrors(errors);
+          updateMeta();
+        } catch (error) {
+          const fallback = basicFormatFallback(source);
+          outputCode.value = fallback;
+
+          const allErrors = errors.slice();
+          if (error && error.message === 'formatter-load-error') {
+            allErrors.unshift('Prettier を読み込めなかったため、右側には簡易整形結果を表示しています。');
+          } else {
+            allErrors.unshift('構文エラーがあるため、右側には簡易整形結果を表示しています。');
+            allErrors.unshift(createParserErrorMessage(error));
+            errorMarkers.push(buildParserErrorMarker(error));
+            renderInputHighlights(errorMarkers, selection, source);
+          }
+
+          renderErrors(allErrors);
+          updateMeta();
+        }
+      }
+
+      function scheduleFormat() {
+        window.clearTimeout(debounceTimer);
+        debounceTimer = window.setTimeout(function () {
+          formatCode();
+        }, 320);
+      }
+
+      function replaceSelectionText(insertText) {
+        const text = getEditorText();
+        const selection = getSelectionOffsets(inputCode);
+        const nextText = text.slice(0, selection.start) + insertText + text.slice(selection.end);
+        const nextCursor = selection.start + insertText.length;
+        renderPlainInput(nextText, { start: nextCursor, end: nextCursor });
+        scheduleFormat();
+        updateMeta();
+      }
+
+      inputCode.addEventListener('input', function () {
+        const selection = getSelectionOffsets(inputCode);
+        const text = getEditorText();
+        renderPlainInput(text, selection);
+        scheduleFormat();
+        updateMeta();
+      });
+
+      inputCode.addEventListener('paste', function (event) {
+        event.preventDefault();
+        const text = normalizeLineEndings((event.clipboardData || window.clipboardData).getData('text/plain'));
+        replaceSelectionText(text);
+      });
+
+      inputCode.addEventListener('keydown', function (event) {
+        if (event.key === 'Tab') {
+          event.preventDefault();
+          replaceSelectionText('  ');
+        }
+      });
+
+      inputCode.addEventListener('mouseover', function (event) {
+        const target = event.target && event.target.closest ? event.target.closest('.error-token') : null;
+        if (!target || !inputCode.contains(target)) {
+          return;
+        }
+
+        showErrorTooltip(target, event.clientX, event.clientY);
+      });
+
+      inputCode.addEventListener('mousemove', function (event) {
+        const target = event.target && event.target.closest ? event.target.closest('.error-token') : null;
+        if (!target || !inputCode.contains(target)) {
+          hideErrorTooltip();
+          return;
+        }
+
+        showErrorTooltip(target, event.clientX, event.clientY);
+      });
+
+      inputCode.addEventListener('mouseout', function (event) {
+        const related = event.relatedTarget;
+        if (related && related.closest && related.closest('.error-token')) {
+          return;
+        }
+
+        hideErrorTooltip();
+      });
+
+      inputCode.addEventListener('click', function (event) {
+        const target = event.target && event.target.closest ? event.target.closest('.error-token') : null;
+        if (!target || !inputCode.contains(target)) {
+          hideErrorTooltip();
+          return;
+        }
+
+        showErrorTooltip(target);
+      });
+
+      inputCode.addEventListener('scroll', hideErrorTooltip);
+      window.addEventListener('scroll', hideErrorTooltip, true);
+      window.addEventListener('resize', hideErrorTooltip);
+
+      sampleButton.addEventListener('click', function () {
+        hideErrorTooltip();
+        renderPlainInput(sampleSource, { start: sampleSource.length, end: sampleSource.length });
+        scheduleFormat();
+        updateMeta();
+        safeFocus(inputCode);
+        showMessage('サンプルコードを追加しました');
+      });
+
+      clearButton.addEventListener('click', function () {
+        hideErrorTooltip();
+        inputCode.innerHTML = '';
+        outputCode.value = '';
+        renderErrors([]);
+        updateMeta();
+        safeFocus(inputCode);
+      });
+
+      copyButton.addEventListener('click', async function () {
+        if (!outputCode.value) {
+          showMessage('コピーできるコードがありません');
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(outputCode.value);
+          showMessage('整形後コードをコピーしました');
+        } catch (error) {
+          safeFocus(outputCode);
+          outputCode.select();
+          try {
+            document.execCommand('copy');
+            showMessage('整形後コードをコピーしました');
+          } catch (fallbackError) {
+            showMessage('コピーに失敗しました');
+          }
+          if (window.getSelection) {
+            const selection = window.getSelection();
+            if (selection && typeof selection.removeAllRanges === 'function') {
+              selection.removeAllRanges();
+            }
+          }
+        }
+      });
+
+      errorStatusButton.addEventListener('click', openErrorModal);
+      rulesButton.addEventListener('click', openRulesModal);
+      closeRulesButton.addEventListener('click', closeRulesModal);
+      closeErrorButton.addEventListener('click', closeErrorModal);
+
+      [rulesModal, errorModal].forEach(function (modal) {
+        modal.addEventListener('click', function (event) {
+          if (event.target === modal) {
+            modal.classList.remove('show');
+            modal.setAttribute('aria-hidden', 'true');
+          }
+        });
+      });
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+          if (rulesModal.classList.contains('show')) {
+            closeRulesModal();
+          } else if (errorModal.classList.contains('show')) {
+            closeErrorModal();
+          }
+        }
+      });
+
+      renderErrors([]);
+      updateMeta();
+    }());
+  </script>
+</body>
+</html>
