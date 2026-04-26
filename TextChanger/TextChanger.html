@@ -100,9 +100,9 @@
       }
 
       .header-content {
-        width: min(1200px, 100%);
-        margin: 0 auto;
-        padding: 10px 24px;
+        width: 100%;
+        margin: 0;
+        padding: 10px 30px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -130,12 +130,12 @@
       }
 
       .main {
-        width: min(1200px, 100%);
-        margin: 0 auto;
-        padding: 14px 24px 24px;
+        width: 100%;
+        margin: 0;
+        padding: 14px 30px 24px;
         min-height: calc(100dvh - 64px);
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
         gap: 18px;
       }
 
@@ -215,6 +215,15 @@
         gap: 12px;
       }
 
+      .card-header-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: auto;
+        max-width: 100%;
+        justify-content: flex-end;
+      }
+
       .card-title {
         font-size: 13px;
         font-weight: 650;
@@ -226,12 +235,37 @@
       .card-title-plain {
         text-transform: none;
         letter-spacing: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1;
+        min-width: 0;
       }
 
       .output-area {
         flex: 1;
         min-height: 0;
         resize: none;
+      }
+
+      .table-name-input {
+        width: clamp(260px, 36vw, 340px);
+        min-width: 260px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--surface-soft);
+        color: var(--text);
+        padding: 7px 10px;
+        line-height: 1.4;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 13px;
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+        &:focus-visible {
+          border-color: var(--accent);
+          box-shadow: 0 0 0 3px var(--focus-ring);
+        }
       }
 
       .copy-btn {
@@ -399,7 +433,7 @@
 
       @media (max-width: 640px) {
         .header-content {
-          padding-inline: 14px;
+          padding-inline: 30px;
         }
 
         .logo {
@@ -407,7 +441,7 @@
         }
 
         .main {
-          padding-inline: 14px;
+          padding-inline: 30px;
           gap: 14px;
         }
 
@@ -423,6 +457,16 @@
         .card-header {
           align-items: flex-start;
           flex-direction: column;
+        }
+
+        .card-header-actions {
+          justify-content: flex-start;
+          width: 100%;
+        }
+
+        .table-name-input {
+          width: 100%;
+          min-width: 0;
         }
       }
     }
@@ -507,10 +551,14 @@
     <article class="output-card" aria-labelledby="pg-sql-title">
       <div class="card-header">
         <h2 class="card-title card-title-plain" id="pg-sql-title">PostgreSQL INSERT + DELETE</h2>
-        <button class="copy-btn" data-copy-target="#output-pg-sql" data-default-label="コピー" aria-label="PostgreSQL INSERTとDELETEの結果をコピー">
-          <span class="material-icons" aria-hidden="true">content_copy</span>
-          <span class="copy-label">コピー</span>
-        </button>
+        <div class="card-header-actions">
+          <label class="sr-only" for="pg-table-name">テーブル名</label>
+          <input class="table-name-input" id="pg-table-name" type="text" placeholder="テーブル名を入力してください" aria-label="PostgreSQLのテーブル名" autocomplete="off" spellcheck="false">
+          <button class="copy-btn" data-copy-target="#output-pg-sql" data-default-label="コピー" aria-label="PostgreSQL INSERTとDELETEの結果をコピー">
+            <span class="material-icons" aria-hidden="true">content_copy</span>
+            <span class="copy-label">コピー</span>
+          </button>
+        </div>
       </div>
       <textarea class="output-area" id="output-pg-sql" readonly aria-label="PostgreSQL INSERTとDELETEの変換結果" placeholder="1行目にヘッダー、2行目以降にデータのタブ区切りを貼り付けると、INSERT + DELETE を生成します"></textarea>
     </article>
@@ -520,6 +568,7 @@
   const STORAGE_KEY = 'textChanger_settings';
   const COPY_RESET_MS = 2000;
   const PG_TABLE_NAME_PLACEHOLDER = '???';
+  const DEFAULT_PG_TABLE_INPUT = '';
   const LIGHT_THEME = 'light';
   const DARK_THEME = 'dark';
   const DEFAULT_THEME = DARK_THEME;
@@ -529,6 +578,7 @@
   const COPY_TIMER_MAP = new WeakMap();
   const $inputArea = qs('#input-area');
   const $lightModeToggle = qs('#lightModeToggle');
+  const $pgTableNameInput = qs('#pg-table-name');
   const $outputA5m2 = qs('#output-a5m2');
   const $outputTsv = qs('#output-tsv');
   const $outputSqlIn = qs('#output-sql-in');
@@ -636,34 +686,44 @@
     return `${_column} = ${_formatPgValue(value)}`;
   }
 
-  function _convertPostgreSQLBlock(text) {
+  function _getResolvedPgTableName(value) {
+    const _tableName = String(value || '').trim();
+    return _tableName || PG_TABLE_NAME_PLACEHOLDER;
+  }
+
+  function _convertPostgreSQLBlock(text, tableName) {
     const _table = _parseTabularInput(text);
     if (_table.headers.length === 0 || _table.rows.length === 0) {
       return '';
     }
 
+    const _tableName = _getResolvedPgTableName(tableName);
     const _quotedColumns = _table.headers.map(column => `"${_escapePgIdentifier(column)}"`);
     const _columnList = _quotedColumns.join(', ');
     const _normalizedRows = _table.rows.map(row => row.map(_normalizePgValue));
 
     const _insertStatements = _normalizedRows.map(row => {
       const _values = row.map(_formatPgValue).join(', ');
-      return `INSERT INTO ${PG_TABLE_NAME_PLACEHOLDER} (${_columnList}) VALUES (${_values});`;
+      return `INSERT INTO ${_tableName} (${_columnList}) VALUES (${_values});`;
     });
 
     const _deleteStatements = _normalizedRows.map(row => {
       const _conditions = row
         .map((value, index) => _formatPgDeleteCondition(_table.headers[index], value))
         .join(' AND ');
-      return `DELETE FROM ${PG_TABLE_NAME_PLACEHOLDER} WHERE ${_conditions};`;
+      return `DELETE FROM ${_tableName} WHERE ${_conditions};`;
     });
 
     return [
       '-- INSERT文',
+      'BEGIN;',
       ..._insertStatements,
+      'COMMIT;',
       '',
       '-- DELETE文',
-      ..._deleteStatements
+      'BEGIN;',
+      ..._deleteStatements,
+      'COMMIT;'
     ].join('\n');
   }
 
@@ -672,13 +732,14 @@
     $outputA5m2.value = _convertA5m2(_lines);
     $outputTsv.value = _convertTsv(_lines);
     $outputSqlIn.value = _convertSqlIn(_lines);
-    $outputPgSql.value = _convertPostgreSQLBlock($inputArea.value);
+    $outputPgSql.value = _convertPostgreSQLBlock($inputArea.value, $pgTableNameInput.value);
   }
 
   function _saveSettings() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         input: $inputArea.value,
+        pgTableName: $pgTableNameInput.value,
         theme: _getThemeFromToggle()
       }));
     } catch (error) {
@@ -688,10 +749,12 @@
 
   function _loadSettings() {
     let _theme = DEFAULT_THEME;
+    let _pgTableName = DEFAULT_PG_TABLE_INPUT;
 
     try {
       const _raw = localStorage.getItem(STORAGE_KEY);
       if (!_raw) {
+        $pgTableNameInput.value = _pgTableName;
         _applyTheme(_theme);
         return;
       }
@@ -700,12 +763,16 @@
       if (typeof _data.input === 'string') {
         $inputArea.value = _data.input;
       }
+      if (typeof _data.pgTableName === 'string') {
+        _pgTableName = _data.pgTableName;
+      }
 
       _theme = _getStoredTheme(_data.theme);
     } catch {
       // 破損データは無視して継続
     }
 
+    $pgTableNameInput.value = _pgTableName;
     _applyTheme(_theme);
   }
 
@@ -771,6 +838,11 @@
   }
 
   $inputArea.addEventListener('input', () => {
+    _convertAll();
+    _autoSave();
+  });
+
+  $pgTableNameInput.addEventListener('input', () => {
     _convertAll();
     _autoSave();
   });

@@ -1,0 +1,3375 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trello Clone</title>
+<!--
+  Trello Clone - Local single-file implementation
+  Based on verified Trello specifications from Atlassian official documentation.
+  Extensions (not in native Trello) marked clearly: Dark mode, JSON export/import.
+  Intentionally NOT implemented (requires backend): Members, file attachments (binary),
+  notifications/watch, Power-Ups, Butler automation, card mirroring, custom fields.
+-->
+
+<!-- Material Symbols: Google Fonts CDN (Outlined style, with fill/weight axes) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..700,0..1,-25..0&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --tr-blue:       #0079BF;
+    --tr-blue-dark:  #026AA7;
+    --tr-sky:        #00AECC;
+
+    /* Trello classic label palette (sourced from documented Trello hex values) */
+    --lbl-green:  #61BD4F;
+    --lbl-yellow: #F2D600;
+    --lbl-orange: #FF9F1A;
+    --lbl-red:    #EB5A46;
+    --lbl-purple: #C377E0;
+    --lbl-blue:   #0079BF;
+    --lbl-sky:    #00C2E0;
+    --lbl-lime:   #51E898;
+    --lbl-pink:   #FF78CB;
+    --lbl-black:  #344563;
+
+    /* Due date badge colors (per Atlassian blog spec) */
+    --due-grey:   #5E6C84;
+    --due-yellow: #F2D600;
+    --due-red:    #EB5A46;
+    --due-green:  #61BD4F;
+
+    --list-bg:    #EBECF0;
+    --list-header:#DFE1E6;
+    --card-bg:    #FFFFFF;
+    --text-dark:  #172B4D;
+    --text-mid:   #42526E;
+    --text-light: #5E6C84;
+    --border:     #DFE1E6;
+    --hover-bg:   rgba(9, 30, 66, 0.08);
+    --hover-strong: rgba(9, 30, 66, 0.13);
+    --shadow-sm:  0 1px 0 rgba(9, 30, 66, 0.25);
+    --shadow-md:  0 4px 8px -2px rgba(9, 30, 66, 0.25), 0 0 1px rgba(9, 30, 66, 0.31);
+    --shadow-lg:  0 8px 16px -4px rgba(9, 30, 66, 0.25), 0 0 1px rgba(9, 30, 66, 0.31);
+    --radius:     3px;
+  }
+
+  [data-theme="dark"] {
+    --list-bg:    #22272B;
+    --list-header:#2C3338;
+    --card-bg:    #282E33;
+    --text-dark:  #B6C2CF;
+    --text-mid:   #9FADBC;
+    --text-light: #8C9BAB;
+    --border:     #3C4247;
+    --hover-bg:   rgba(255, 255, 255, 0.08);
+    --hover-strong: rgba(255, 255, 255, 0.13);
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--text-dark);
+    background: var(--board-bg, linear-gradient(135deg, #0079BF, #026AA7));
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    font-size: 14px;
+  }
+
+  /* Material Symbols defaults */
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+    user-select: none;
+  }
+  .msi-sm { font-size: 16px; }
+  .msi-md { font-size: 20px; }
+  .msi-lg { font-size: 24px; }
+  .msi-fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+  /* ===== Top Bar ===== */
+  #topbar {
+    height: 48px;
+    background: rgba(0, 0, 0, 0.32);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 8px;
+    color: #FFF;
+    position: relative;
+    z-index: 50;
+  }
+
+  .tb-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: #FFF;
+    padding: 6px 10px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+    font-family: inherit;
+    line-height: 1.2;
+  }
+  .tb-btn:hover { background: rgba(255, 255, 255, 0.32); }
+  .tb-btn:active { background: rgba(255, 255, 255, 0.4); }
+  .tb-icon-btn {
+    background: transparent;
+    border: none;
+    color: #FFF;
+    cursor: pointer;
+    width: 36px; height: 36px;
+    border-radius: var(--radius);
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .tb-icon-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+  .tb-logo {
+    display: flex; align-items: center; gap: 6px;
+    font-weight: 700; font-size: 17px; padding: 0 8px; white-space: nowrap;
+  }
+  .tb-spacer { flex: 1; }
+  .tb-board-title {
+    font-weight: 700; font-size: 18px; padding: 4px 10px; border-radius: var(--radius);
+    cursor: pointer; max-width: 40vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .tb-board-title:hover { background: rgba(255, 255, 255, 0.2); }
+
+  .tb-search {
+    background: rgba(255, 255, 255, 0.24);
+    border: 1px solid transparent;
+    color: #FFF;
+    padding: 6px 8px 6px 30px;
+    border-radius: var(--radius);
+    width: 200px;
+    font-family: inherit; font-size: 14px;
+    transition: background 0.15s, width 0.15s;
+  }
+  .tb-search::placeholder { color: rgba(255, 255, 255, 0.8); }
+  .tb-search:focus { outline: none; background: #FFF; color: var(--text-dark); width: 280px; }
+  .tb-search:focus::placeholder { color: var(--text-light); }
+  .tb-search-wrap { position: relative; display: inline-flex; align-items: center; }
+  .tb-search-icon {
+    position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+    font-size: 18px; color: rgba(255, 255, 255, 0.9); pointer-events: none;
+    transition: color 0.15s;
+  }
+  .tb-search-wrap:focus-within .tb-search-icon { color: var(--text-light); }
+
+  /* ===== Board Area ===== */
+  #board {
+    height: calc(100vh - 48px);
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 12px 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  #board::-webkit-scrollbar { height: 12px; }
+  #board::-webkit-scrollbar-track { background: rgba(0,0,0,0.15); }
+  #board::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 6px; }
+
+  /* ===== List ===== */
+  .list {
+    background: var(--list-bg);
+    border-radius: 12px;
+    width: 272px;
+    min-width: 272px;
+    max-height: calc(100vh - 80px);
+    display: flex; flex-direction: column;
+    box-shadow: var(--shadow-sm);
+  }
+  .list.drag-over { outline: 2px dashed rgba(255,255,255,0.6); }
+
+  .list-header {
+    display: flex; align-items: center; gap: 6px;
+    padding: 10px 8px 8px 12px;
+  }
+  .list-title {
+    flex: 1;
+    font-weight: 600; font-size: 14px;
+    color: var(--text-dark);
+    background: transparent; border: 2px solid transparent;
+    padding: 4px 8px; border-radius: var(--radius);
+    cursor: pointer; font-family: inherit;
+  }
+  .list-title:focus { background: var(--card-bg); border-color: var(--tr-blue); outline: none; }
+  .list-count {
+    font-size: 12px; color: var(--text-light);
+    background: var(--hover-bg); padding: 2px 6px; border-radius: 10px;
+  }
+  .list-menu-btn {
+    background: transparent; border: none; cursor: pointer;
+    width: 28px; height: 28px; border-radius: var(--radius);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--text-mid);
+  }
+  .list-menu-btn:hover { background: var(--hover-bg); }
+
+  .list-cards {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    padding: 0 4px 2px 4px;
+    margin: 0 4px;
+    min-height: 12px;
+  }
+  .list-cards::-webkit-scrollbar { width: 8px; }
+  .list-cards::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
+
+  .list-add {
+    padding: 4px 8px 10px 8px;
+  }
+  .list-add-btn {
+    width: 100%; padding: 8px;
+    background: transparent; border: none; border-radius: var(--radius);
+    color: var(--text-light); cursor: pointer; text-align: left;
+    display: flex; align-items: center; gap: 6px; font-family: inherit; font-size: 14px;
+  }
+  .list-add-btn:hover { background: var(--hover-bg); color: var(--text-dark); }
+
+  .list-composer {
+    padding: 4px 8px 8px 8px;
+  }
+  .list-composer textarea, .list-composer input {
+    width: 100%;
+    background: var(--card-bg);
+    border: none; border-radius: 8px;
+    padding: 8px 10px;
+    font-family: inherit; font-size: 14px;
+    color: var(--text-dark);
+    resize: none;
+    box-shadow: var(--shadow-sm);
+  }
+  .list-composer textarea:focus, .list-composer input:focus { outline: 2px solid var(--tr-blue); }
+  .composer-actions { display: flex; gap: 6px; margin-top: 6px; align-items: center; }
+  .btn-primary {
+    background: var(--tr-blue); color: #FFF; border: none; padding: 6px 12px;
+    border-radius: var(--radius); cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 500;
+  }
+  .btn-primary:hover { background: var(--tr-blue-dark); }
+  .btn-icon {
+    background: transparent; border: none; cursor: pointer;
+    width: 32px; height: 32px; border-radius: var(--radius);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--text-mid);
+  }
+  .btn-icon:hover { background: var(--hover-bg); }
+
+  /* Add list */
+  .add-list-btn {
+    background: rgba(255, 255, 255, 0.24);
+    color: #FFF;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 12px;
+    width: 272px;
+    min-width: 272px;
+    cursor: pointer;
+    font-family: inherit; font-size: 14px;
+    display: flex; align-items: center; gap: 6px;
+    transition: background 0.15s;
+  }
+  .add-list-btn:hover { background: rgba(255, 255, 255, 0.32); }
+
+  .add-list-composer {
+    background: var(--list-bg);
+    border-radius: 12px;
+    padding: 6px 8px 8px 8px;
+    width: 272px;
+    min-width: 272px;
+  }
+  .add-list-composer input {
+    width: 100%; padding: 8px 10px; border: 2px solid var(--tr-blue); border-radius: var(--radius);
+    font-family: inherit; font-size: 14px;
+  }
+  .add-list-composer input:focus { outline: none; }
+
+  /* ===== Card ===== */
+  .card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 6px 8px 8px 8px;
+    margin-bottom: 8px;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    position: relative;
+    border: 1px solid transparent;
+    color: var(--text-dark);
+  }
+  .card:hover { border-color: var(--border); }
+  .card.dragging { opacity: 0.4; }
+  .card-edit-btn {
+    position: absolute; top: 4px; right: 4px;
+    width: 26px; height: 26px;
+    border: none; background: var(--card-bg); border-radius: var(--radius);
+    display: none; align-items: center; justify-content: center;
+    color: var(--text-mid); cursor: pointer;
+    box-shadow: 0 1px 2px rgba(9, 30, 66, 0.18);
+  }
+  .card:hover .card-edit-btn { display: inline-flex; }
+  .card-edit-btn:hover { background: var(--hover-strong); color: var(--text-dark); }
+
+  .card-cover {
+    margin: -6px -8px 6px -8px;
+    border-radius: 8px 8px 0 0;
+    height: 32px;
+  }
+  .card-cover.full {
+    margin: -6px -8px -8px -8px;
+    border-radius: 8px;
+    height: auto;
+    min-height: 56px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    color: #FFF;
+    background-blend-mode: multiply;
+    background-color: rgba(0,0,0,0.18);
+  }
+  .card-cover.full .card-title { color: #FFF; text-shadow: 0 1px 2px rgba(0,0,0,0.55); }
+  .card-cover.full .card-complete-icon { color: #FFF; opacity: 0.9; }
+  .card-cover.full .card-badges { color: rgba(255,255,255,0.92); text-shadow: 0 1px 2px rgba(0,0,0,0.55); }
+  .card-labels {
+    display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 4px;
+  }
+  .label-pill {
+    height: 8px; min-width: 40px; border-radius: 4px;
+    cursor: pointer;
+    transition: height 0.15s, padding 0.15s, min-width 0.15s, filter 0.15s;
+  }
+  .label-pill:hover { filter: brightness(0.92); }
+  body.show-label-names .label-pill {
+    height: auto;
+    min-width: 56px;
+    max-width: 100%;
+    padding: 2px 8px;
+    font-size: 12px;
+    color: #FFF;
+    font-weight: 500;
+    line-height: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .card-title-row {
+    display: flex; align-items: flex-start; gap: 4px;
+  }
+  .card-complete-icon {
+    flex-shrink: 0;
+    font-size: 18px;
+    color: var(--text-light);
+    margin-top: 1px;
+    opacity: 0.4;
+    transition: opacity 0.15s, color 0.15s;
+  }
+  .card:hover .card-complete-icon { opacity: 1; }
+  .card-complete-icon.done {
+    color: var(--due-green);
+    opacity: 1;
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+  .card-complete-icon:hover { color: var(--due-green); opacity: 1; }
+
+  .card-title {
+    flex: 1;
+    font-size: 14px; line-height: 20px; color: var(--text-dark);
+    word-wrap: break-word;
+    padding-right: 22px;
+  }
+  .card.archived .card-title { color: var(--text-light); text-decoration: line-through; }
+
+  .card-badges {
+    display: flex; flex-wrap: wrap; gap: 4px 8px; margin-top: 6px;
+    font-size: 12px; color: var(--text-light);
+    align-items: center;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 2px 4px; border-radius: var(--radius);
+  }
+  .badge .material-symbols-outlined { font-size: 14px; }
+  .badge-due { padding: 2px 6px; font-weight: 500; }
+  .badge-due.grey   { background: var(--hover-bg); color: var(--text-mid); }
+  .badge-due.yellow { background: rgba(242, 214, 0, 0.24); color: #594300; }
+  .badge-due.red    { background: #FFEBE6; color: #BF2600; }
+  .badge-due.green  { background: #E3FCEF; color: #064; }
+  [data-theme="dark"] .badge-due.grey   { background: rgba(255,255,255,0.08); color: var(--text-mid); }
+  [data-theme="dark"] .badge-due.yellow { background: rgba(242, 214, 0, 0.24); color: #F2D600; }
+  [data-theme="dark"] .badge-due.red    { background: rgba(235, 90, 70, 0.28); color: #FF7452; }
+  [data-theme="dark"] .badge-due.green  { background: rgba(97, 189, 79, 0.24); color: #61BD4F; }
+
+  .badge-checklist.complete {
+    background: #E3FCEF; color: #064;
+  }
+  [data-theme="dark"] .badge-checklist.complete { background: rgba(97, 189, 79, 0.24); color: #61BD4F; }
+
+  mark.search-hit {
+    background: #FDF6B0; color: inherit; padding: 0 2px; border-radius: 2px;
+  }
+
+  /* ===== Modal (Card Back) ===== */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.64);
+    z-index: 200;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 48px 12px;
+    overflow-y: auto;
+  }
+  .modal {
+    background: #F4F5F7;
+    color: var(--text-dark);
+    width: 100%; max-width: 768px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+  }
+  [data-theme="dark"] .modal { background: #1D2125; }
+
+  .modal-close {
+    position: absolute; top: 12px; right: 12px;
+    background: transparent; border: none; cursor: pointer;
+    width: 32px; height: 32px; border-radius: var(--radius);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--text-mid); z-index: 2;
+  }
+  .modal-close:hover { background: var(--hover-bg); }
+
+  .modal-cover { border-radius: 12px 12px 0 0; height: 116px; }
+  .modal-cover.with-image { background-size: cover; background-position: center; }
+  .modal-header {
+    padding: 12px 48px 0 56px;
+    position: relative;
+  }
+  .modal-header.with-cover { padding-top: 12px; }
+  .modal-header-icon {
+    position: absolute; left: 20px; top: 14px;
+    color: var(--text-mid);
+    font-size: 24px;
+  }
+  .modal-title {
+    font-size: 20px; font-weight: 600;
+    width: 100%; border: 2px solid transparent; background: transparent;
+    color: var(--text-dark); padding: 4px 8px; border-radius: var(--radius);
+    font-family: inherit; line-height: 1.3; resize: none;
+    overflow: hidden;
+  }
+  .modal-title:focus { background: var(--card-bg); border-color: var(--tr-blue); outline: none; }
+  .modal-sub {
+    font-size: 12px; color: var(--text-mid); margin: 4px 8px 0 8px;
+  }
+  .modal-sub strong { font-weight: 600; }
+
+  .modal-body {
+    display: grid;
+    grid-template-columns: 1fr 184px;
+    gap: 16px;
+    padding: 8px 16px 20px 16px;
+  }
+  @media (max-width: 680px) {
+    .modal-body { grid-template-columns: 1fr; }
+  }
+
+  .modal-main { padding: 0 8px 0 40px; min-width: 0; }
+  .modal-side { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+
+  /* Section header: icon naturally inside flex (no absolute trickery) */
+  .section-header {
+    display: flex; align-items: center; gap: 8px;
+    margin: 18px 0 8px -32px;
+    padding-right: 8px;
+    color: var(--text-mid);
+    min-width: 0;
+  }
+  .section-header > .section-icon {
+    width: 24px; flex: 0 0 24px;
+    display: inline-flex; justify-content: center;
+    color: var(--text-mid); font-size: 20px;
+  }
+  .section-title {
+    font-size: 16px; font-weight: 600; color: var(--text-dark);
+    flex: 1; min-width: 0;
+  }
+  .section-header .checklist-title {
+    flex: 1; min-width: 0;
+  }
+  .section-header > .btn-icon {
+    flex: 0 0 32px;
+  }
+
+  /* Quick-add actions bar under title (Trello-style pill row) */
+  .quick-actions {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 0 16px 0 56px;
+    margin: 4px 0 12px 0;
+  }
+  .qa-btn {
+    background: var(--hover-bg); color: var(--text-dark);
+    border: none; border-radius: var(--radius);
+    padding: 6px 12px;
+    font-family: inherit; font-size: 14px; font-weight: 500;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .qa-btn:hover { background: var(--hover-strong); }
+  .qa-btn .material-symbols-outlined { font-size: 18px; }
+
+  /* Tab buttons (e.g. archive-popover) */
+  .tab-btn {
+    flex: 1;
+    background: var(--hover-bg); color: var(--text-dark);
+    border: none; border-radius: var(--radius);
+    padding: 6px 10px;
+    font-family: inherit; font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .tab-btn:hover { background: var(--hover-strong); }
+  .tab-btn.active { background: var(--hover-strong); font-weight: 600; }
+
+  .side-title {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--text-mid); margin: 4px 4px;
+  }
+  .side-btn {
+    width: 100%; text-align: left;
+    background: var(--hover-bg); border: none;
+    padding: 6px 10px; border-radius: var(--radius);
+    cursor: pointer; font-family: inherit; font-size: 14px;
+    color: var(--text-dark);
+    display: flex; align-items: center; gap: 8px;
+    transition: background 0.15s;
+  }
+  .side-btn:hover { background: var(--hover-strong); }
+  .side-btn.danger:hover { background: rgba(235, 90, 70, 0.18); color: var(--due-red); }
+
+  .desc-box {
+    min-height: 48px;
+    background: var(--hover-bg);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    cursor: pointer;
+    color: var(--text-dark);
+    white-space: pre-wrap;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+  }
+  .desc-box.empty { color: var(--text-light); }
+  .desc-box:hover { background: var(--hover-strong); }
+  .desc-edit textarea {
+    width: 100%; min-height: 100px;
+    padding: 8px 10px; border: 2px solid var(--tr-blue); border-radius: var(--radius);
+    font-family: inherit; font-size: 14px;
+    resize: vertical;
+    background: var(--card-bg); color: var(--text-dark);
+  }
+  .desc-edit textarea:focus { outline: none; }
+
+  .checklist {
+    margin-bottom: 16px;
+  }
+  .checklist-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 8px;
+  }
+  .checklist-title {
+    flex: 1;
+    font-weight: 600; font-size: 15px;
+    background: transparent; border: 2px solid transparent;
+    padding: 4px 8px; border-radius: var(--radius);
+    font-family: inherit; color: var(--text-dark);
+  }
+  .checklist-title:focus { background: var(--card-bg); border-color: var(--tr-blue); outline: none; }
+  .checklist-progress {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 6px; font-size: 11px; color: var(--text-mid);
+  }
+  .checklist-progress-bar {
+    flex: 1;
+    height: 8px; background: var(--hover-bg); border-radius: 4px; overflow: hidden;
+  }
+  .checklist-progress-fill {
+    height: 100%; background: var(--tr-blue); transition: width 0.2s;
+  }
+  .checklist-progress-fill.complete { background: var(--due-green); }
+  .checklist-item {
+    display: flex; align-items: flex-start; gap: 6px;
+    padding: 4px 8px; border-radius: var(--radius);
+  }
+  .checklist-item:hover { background: var(--hover-bg); }
+  .checklist-item input[type=checkbox] { margin-top: 4px; }
+  .checklist-item-text {
+    flex: 1; padding: 4px 0; font-size: 14px; line-height: 1.4;
+    color: var(--text-dark); cursor: pointer;
+    word-wrap: break-word;
+  }
+  .checklist-item-text.done { text-decoration: line-through; color: var(--text-light); }
+  .checklist-item-delete {
+    opacity: 0; transition: opacity 0.15s;
+  }
+  .checklist-item:hover .checklist-item-delete { opacity: 1; }
+
+  .comment-composer {
+    margin-bottom: 16px;
+  }
+  .comment-input {
+    width: 100%;
+    background: var(--card-bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 12px; min-height: 40px;
+    font-family: inherit; font-size: 14px;
+    resize: vertical;
+    color: var(--text-dark);
+    box-sizing: border-box;
+  }
+  .comment-input:focus { outline: none; border-color: var(--tr-blue); }
+
+  .comment-item {
+    margin-bottom: 12px;
+  }
+  .comment-content {
+    background: var(--card-bg);
+    padding: 8px 12px; border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+    font-size: 14px; line-height: 1.4;
+    white-space: pre-wrap; overflow-wrap: break-word;
+  }
+  .comment-meta {
+    font-size: 11px; color: var(--text-mid); margin-top: 4px;
+    display: flex; gap: 10px;
+  }
+  .comment-meta a { color: inherit; cursor: pointer; text-decoration: underline; }
+
+  /* Attachments */
+  .attachment-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px; border-radius: var(--radius);
+    margin-bottom: 8px;
+    background: var(--hover-bg);
+  }
+  .attachment-thumb {
+    width: 80px; height: 48px; border-radius: var(--radius);
+    background: var(--list-header);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-mid); flex-shrink: 0;
+    overflow: hidden;
+  }
+  .attachment-info { flex: 1; min-width: 0; }
+  .attachment-name { font-weight: 600; color: var(--text-dark); word-break: break-all; font-size: 14px; }
+  .attachment-meta { font-size: 12px; color: var(--text-mid); display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
+  .attachment-meta a { color: inherit; cursor: pointer; text-decoration: underline; }
+
+  /* ===== Popover ===== */
+  .popover-backdrop {
+    position: fixed; inset: 0; z-index: 300;
+  }
+  .popover {
+    position: absolute; z-index: 301;
+    background: var(--card-bg); color: var(--text-dark);
+    border-radius: 8px;
+    box-shadow: var(--shadow-lg);
+    width: 304px; max-width: calc(100vw - 24px);
+    overflow: hidden;
+  }
+  .popover-header {
+    padding: 8px 36px 8px 12px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    font-weight: 600; text-align: center; font-size: 14px;
+    color: var(--text-dark);
+  }
+  .popover-close {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    background: transparent; border: none; cursor: pointer;
+    width: 28px; height: 28px; border-radius: var(--radius);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-mid);
+  }
+  .popover-close:hover { background: var(--hover-bg); }
+  .popover-body {
+    padding: 8px 12px 12px 12px;
+    max-height: 400px; overflow-y: auto;
+  }
+  .popover-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px; border-radius: var(--radius);
+    cursor: pointer; font-size: 14px;
+    color: var(--text-dark); user-select: none;
+    border: none; background: transparent; width: 100%; text-align: left;
+    font-family: inherit;
+  }
+  .popover-item:hover { background: var(--hover-bg); }
+  .popover-item .label-chip {
+    flex: 1;
+    height: 32px; border-radius: var(--radius);
+    padding: 6px 10px;
+    color: #FFF; font-weight: 500; font-size: 13px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .popover-item .label-check {
+    margin-left: auto; opacity: 0;
+  }
+  .popover-item.active .label-check { opacity: 1; }
+  .popover-section-title {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--text-mid); margin: 8px 4px 4px;
+  }
+
+  /* Date picker */
+  .date-row {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+  }
+  .date-row label { flex: 0 0 80px; font-size: 13px; color: var(--text-mid); }
+  .date-row input[type=date], .date-row input[type=time] {
+    flex: 1; padding: 6px 8px; border: 1px solid var(--border); border-radius: var(--radius);
+    font-family: inherit; font-size: 14px;
+    background: var(--card-bg); color: var(--text-dark);
+  }
+  .date-row input[type=checkbox] { flex: 0 0 auto; }
+
+  /* ===== Toast ===== */
+  #toaster {
+    position: fixed; bottom: 16px; left: 16px;
+    display: flex; flex-direction: column; gap: 8px;
+    z-index: 400;
+  }
+  .toast {
+    background: #172B4D;
+    color: #FFF;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    display: flex; align-items: center; gap: 12px;
+    max-width: 360px;
+    animation: slideIn 0.2s ease-out;
+  }
+  @keyframes slideIn {
+    from { transform: translateY(8px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .toast button {
+    background: transparent; border: none; color: #79B8FF;
+    cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600;
+    text-transform: uppercase;
+  }
+  .toast button:hover { text-decoration: underline; }
+
+  /* ===== Boards menu (left drawer) ===== */
+  .drawer-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 150;
+  }
+  .drawer {
+    position: fixed; top: 0; left: 0; bottom: 0;
+    width: 320px; max-width: 90vw;
+    background: var(--card-bg);
+    box-shadow: var(--shadow-lg);
+    z-index: 151;
+    display: flex; flex-direction: column;
+    animation: slideRight 0.2s ease-out;
+  }
+  @keyframes slideRight {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+  }
+  .drawer-header {
+    padding: 12px 12px 12px 16px;
+    display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .drawer-title { flex: 1; font-weight: 700; font-size: 16px; }
+  .drawer-body { flex: 1; overflow-y: auto; padding: 8px; }
+  .board-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: var(--radius);
+    cursor: pointer;
+    margin-bottom: 4px;
+  }
+  .board-item:hover { background: var(--hover-bg); }
+  .board-item.current { background: var(--hover-strong); }
+  .board-swatch {
+    width: 32px; height: 32px; border-radius: var(--radius);
+    flex-shrink: 0;
+  }
+  .board-item-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .board-item-actions { display: flex; gap: 2px; }
+
+  /* Background picker */
+  .bg-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .bg-swatch {
+    aspect-ratio: 16 / 10;
+    border-radius: var(--radius);
+    cursor: pointer;
+    border: 2px solid transparent;
+    background-size: cover; background-position: center;
+    position: relative;
+  }
+  .bg-swatch.selected { border-color: var(--tr-blue); }
+  .bg-swatch.selected::after {
+    content: 'check';
+    font-family: 'Material Symbols Outlined';
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    color: #FFF;
+    font-size: 24px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  }
+
+  /* Filter chips */
+  .filter-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 8px; background: var(--hover-bg);
+    border-radius: 12px; font-size: 12px;
+    color: var(--text-dark);
+    margin: 2px;
+  }
+  .filter-chip button {
+    background: transparent; border: none; cursor: pointer;
+    color: var(--text-mid); display: inline-flex; align-items: center;
+  }
+
+  /* Shortcuts modal */
+  .shortcuts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 4px 16px;
+  }
+  .shortcut-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 0; font-size: 13px;
+  }
+  kbd {
+    background: var(--hover-bg); border: 1px solid var(--border);
+    border-radius: 4px; padding: 2px 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px; color: var(--text-dark);
+    white-space: nowrap;
+  }
+
+  /* Modal label & date chips */
+  .modal-chip-row {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .modal-label-chip {
+    height: 32px; min-width: 48px;
+    padding: 0 12px;
+    color: #FFF; font-weight: 500; font-size: 13px;
+    border: none; border-radius: var(--radius);
+    cursor: pointer;
+    display: inline-flex; align-items: center;
+    transition: filter 0.15s;
+  }
+  .modal-label-chip:hover { filter: brightness(0.92); }
+  .modal-date-chip {
+    background: var(--hover-bg); color: var(--text-dark);
+    border: none; border-radius: var(--radius);
+    padding: 6px 10px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: inherit; font-size: 14px;
+    transition: background 0.15s;
+  }
+  .modal-date-chip:hover { background: var(--hover-strong); }
+  .modal-date-chip .material-symbols-outlined { font-size: 18px; color: var(--text-mid); }
+
+  /* Utility */
+  .hidden { display: none !important; }
+  .muted { color: var(--text-light); }
+  .row { display: flex; align-items: center; gap: 8px; }
+  .grow { flex: 1; }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <button class="tb-icon-btn" id="btn-boards" title="ボードメニュー (B)">
+    <span class="material-symbols-outlined msi-lg">dashboard</span>
+  </button>
+  <div class="tb-logo">
+    <span class="material-symbols-outlined">view_kanban</span>
+    Boards
+  </div>
+  <button class="tb-btn" id="btn-home" title="ボード一覧">
+    <span class="material-symbols-outlined msi-md">home</span>
+    ボード
+  </button>
+
+  <div class="tb-spacer"></div>
+
+  <div class="tb-board-title" id="current-board-title">—</div>
+
+  <div class="tb-spacer"></div>
+
+  <div class="tb-search-wrap">
+    <span class="material-symbols-outlined tb-search-icon">search</span>
+    <input type="search" class="tb-search" id="search-input" placeholder="検索..." aria-label="検索">
+  </div>
+  <button class="tb-icon-btn" id="btn-filter" title="フィルター (F)">
+    <span class="material-symbols-outlined msi-lg">filter_list</span>
+  </button>
+  <button class="tb-icon-btn" id="btn-label-names" title="ラベル名の表示切替 (;)">
+    <span class="material-symbols-outlined msi-lg">label</span>
+  </button>
+  <button class="tb-icon-btn" id="btn-theme" title="テーマ切替">
+    <span class="material-symbols-outlined msi-lg" id="theme-icon">dark_mode</span>
+  </button>
+  <button class="tb-icon-btn" id="btn-shortcuts" title="キーボードショートカット (?)">
+    <span class="material-symbols-outlined msi-lg">keyboard</span>
+  </button>
+  <button class="tb-icon-btn" id="btn-settings" title="ボード設定 (W)">
+    <span class="material-symbols-outlined msi-lg">more_horiz</span>
+  </button>
+</div>
+
+<div id="board"></div>
+<div id="toaster"></div>
+
+<script>
+/* ============================================================================
+   Trello Clone — single-file implementation
+   References: Atlassian official support & blog (see copious header comment)
+   ============================================================================ */
+
+// ===== Constants (Trello spec) =====
+
+const LABEL_COLORS = [
+  { key: 'green',  hex: '#61BD4F', num: 1 },
+  { key: 'yellow', hex: '#F2D600', num: 2 },
+  { key: 'orange', hex: '#FF9F1A', num: 3 },
+  { key: 'red',    hex: '#EB5A46', num: 4 },
+  { key: 'purple', hex: '#C377E0', num: 5 },
+  { key: 'blue',   hex: '#0079BF', num: 6 },
+  { key: 'sky',    hex: '#00C2E0', num: 7 },
+  { key: 'lime',   hex: '#51E898', num: 8 },
+  { key: 'pink',   hex: '#FF78CB', num: 9 },
+  { key: 'black',  hex: '#344563', num: 0 }
+];
+
+// Board backgrounds (Trello has color & photo options; here: curated solid+gradient+photo URLs)
+const BG_COLORS = [
+  { key: 'blue',   value: 'linear-gradient(135deg, #0079BF, #026AA7)' },
+  { key: 'orange', value: 'linear-gradient(135deg, #D29034, #A06121)' },
+  { key: 'green',  value: 'linear-gradient(135deg, #519839, #356119)' },
+  { key: 'red',    value: 'linear-gradient(135deg, #B04632, #7A2F23)' },
+  { key: 'purple', value: 'linear-gradient(135deg, #89609E, #5E4373)' },
+  { key: 'pink',   value: 'linear-gradient(135deg, #CD5A91, #9B3F6C)' },
+  { key: 'lime',   value: 'linear-gradient(135deg, #4BBF6B, #306F3D)' },
+  { key: 'sky',    value: 'linear-gradient(135deg, #00AECC, #007589)' },
+  { key: 'grey',   value: 'linear-gradient(135deg, #838C91, #4F5A65)' }
+];
+
+const DEFAULT_LABELS = () => LABEL_COLORS.map(c => ({
+  id: uid(), color: c.key, name: ''
+}));
+
+const STORAGE_KEY = 'trello-clone-data-v2';
+
+// ===== Utilities =====
+
+function uid() {
+  return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+}
+
+function nowIso() { return new Date().toISOString(); }
+
+function labelHex(colorKey) {
+  const c = LABEL_COLORS.find(x => x.key === colorKey);
+  return c ? c.hex : '#5E6C84';
+}
+
+function bgValue(key) {
+  const b = BG_COLORS.find(x => x.key === key);
+  return b ? b.value : BG_COLORS[0].value;
+}
+
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function formatDateShort(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const y = d.getFullYear();
+  const now = new Date();
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  const dateStr = (y === now.getFullYear()) ? `${m}月${day}日` : `${y}/${m}/${day}`;
+  if (d.getHours() === 0 && d.getMinutes() === 0) return dateStr;
+  return `${dateStr} ${hh}:${mm}`;
+}
+
+function formatRelative(iso) {
+  const d = new Date(iso);
+  const diff = Date.now() - d.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'たった今';
+  if (mins < 60) return `${mins}分前`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}時間前`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}日前`;
+  return formatDateShort(iso);
+}
+
+/**
+ * Due date badge color per Atlassian blog spec:
+ *  - grey: >24h future
+ *  - yellow: <24h future
+ *  - red: overdue (stays red 24h)
+ *  - green: marked complete
+ */
+function dueStatus(iso, complete) {
+  if (!iso) return null;
+  if (complete) return 'green';
+  const t = new Date(iso).getTime();
+  const now = Date.now();
+  const diff = t - now;
+  if (diff < 0) return 'red';
+  if (diff < 24 * 3600 * 1000) return 'yellow';
+  return 'grey';
+}
+
+// ===== State =====
+
+let state = loadState();
+let dragData = null;
+let undoStack = [];
+let redoStack = [];
+let currentModal = null;
+let activePopover = null;
+let filterCriteria = { text: '', labelIds: [], due: '' };
+
+function defaultState() {
+  const boardId = uid();
+  const labels = DEFAULT_LABELS();
+  return {
+    boards: [{
+      id: boardId,
+      name: 'ようこそボード',
+      background: 'blue',
+      closed: false,
+      labels,
+      lists: [
+        {
+          id: uid(), title: 'To Do', archived: false, cards: [
+            {
+              ...newCardTemplate(),
+              title: 'このアプリの使い方を確認する',
+              description: '• 左上のダッシュボードアイコンからボード一覧を開けます\n• リストやカードはドラッグで並べ替えできます\n• キーボードショートカット "?" で一覧を表示します\n• カードをクリックすると詳細(裏面)が開きます',
+              labelIds: [labels[0].id, labels[1].id]
+            },
+            { ...newCardTemplate(), title: 'ラベルを設定する (L)' },
+            { ...newCardTemplate(), title: '期限をつける (D)' }
+          ]
+        },
+        {
+          id: uid(), title: 'Doing', archived: false, cards: [
+            { ...newCardTemplate(), title: 'サンプルタスクを作る' }
+          ]
+        },
+        {
+          id: uid(), title: 'Done', archived: false, cards: []
+        }
+      ]
+    }],
+    currentBoardId: boardId,
+    theme: 'light',
+    showLabelNames: false
+  };
+}
+
+function newCardTemplate() {
+  return {
+    id: uid(),
+    title: '',
+    description: '',
+    labelIds: [],
+    startDate: null,
+    dueDate: null,
+    dueComplete: false,
+    checklists: [],
+    attachments: [],
+    cover: null, // { type: 'color'|'image', value, size: 'half'|'full' }
+    comments: [],
+    archived: false,
+    createdAt: nowIso(),
+    updatedAt: nowIso()
+  };
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    // basic migration
+    if (!parsed.boards || !parsed.boards.length) return defaultState();
+    return parsed;
+  } catch (e) {
+    console.warn('loadState failed, using default', e);
+    return defaultState();
+  }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    console.warn('saveState failed', e);
+    showToast('保存に失敗しました', null, 3000);
+  }
+}
+
+function pushUndo(action) {
+  undoStack.push(action);
+  if (undoStack.length > 50) undoStack.shift();
+  redoStack = [];
+}
+
+function doUndo() {
+  if (!undoStack.length) { showToast('元に戻す操作がありません', null, 1500); return; }
+  const a = undoStack.pop();
+  redoStack.push(a);
+  a.undo();
+  saveState(); renderAll();
+  showToast('元に戻しました', null, 1500);
+}
+
+function doRedo() {
+  if (!redoStack.length) { showToast('やり直す操作がありません', null, 1500); return; }
+  const a = redoStack.pop();
+  undoStack.push(a);
+  a.redo();
+  saveState(); renderAll();
+  showToast('やり直しました', null, 1500);
+}
+
+// ===== State helpers =====
+
+function currentBoard() {
+  return state.boards.find(b => b.id === state.currentBoardId);
+}
+
+function findList(boardId, listId) {
+  const b = state.boards.find(x => x.id === boardId);
+  return b ? b.lists.find(l => l.id === listId) : null;
+}
+
+function findCard(boardId, cardId) {
+  const b = state.boards.find(x => x.id === boardId);
+  if (!b) return null;
+  for (const l of b.lists) {
+    const c = l.cards.find(x => x.id === cardId);
+    if (c) return { list: l, card: c };
+  }
+  return null;
+}
+
+// ===== Rendering =====
+
+function renderAll() {
+  document.body.setAttribute('data-theme', state.theme);
+  document.getElementById('theme-icon').textContent = state.theme === 'dark' ? 'light_mode' : 'dark_mode';
+  document.body.classList.toggle('show-label-names', !!state.showLabelNames);
+
+  const board = currentBoard();
+  if (!board) {
+    document.getElementById('board').innerHTML = '';
+    document.getElementById('current-board-title').textContent = '—';
+    return;
+  }
+  document.getElementById('current-board-title').textContent = board.name;
+  document.body.style.setProperty('--board-bg', bgValue(board.background));
+
+  const boardEl = document.getElementById('board');
+  boardEl.innerHTML = '';
+  for (const list of board.lists) {
+    if (list.archived) continue;
+    boardEl.appendChild(renderList(list, board));
+  }
+  boardEl.appendChild(renderAddList());
+
+  saveState();
+}
+
+function renderList(list, board) {
+  const el = document.createElement('div');
+  el.className = 'list';
+  el.dataset.listId = list.id;
+  // Note: draggable is set later, after content is rendered
+
+  const visibleCards = list.cards.filter(c => !c.archived && matchesFilter(c));
+
+  el.innerHTML = `
+    <div class="list-header" data-drag-handle>
+      <input class="list-title" value="${escapeHtml(list.title)}" data-list-id="${list.id}" aria-label="リスト名">
+      <span class="list-count">${visibleCards.length}</span>
+      <button class="list-menu-btn" data-list-menu="${list.id}" title="リストメニュー">
+        <span class="material-symbols-outlined msi-md">more_horiz</span>
+      </button>
+    </div>
+    <div class="list-cards" data-cards-container="${list.id}"></div>
+    <div class="list-add" data-list-add="${list.id}">
+      <button class="list-add-btn">
+        <span class="material-symbols-outlined msi-md">add</span>カードを追加
+      </button>
+    </div>
+  `;
+
+  const cardsEl = el.querySelector('[data-cards-container]');
+  for (const card of visibleCards) {
+    cardsEl.appendChild(renderCard(card, list));
+  }
+
+  // Events
+  el.querySelector('.list-title').addEventListener('blur', (e) => {
+    const v = e.target.value.trim();
+    if (!v) { e.target.value = list.title; return; }
+    if (v === list.title) return;
+    const oldT = list.title;
+    list.title = v;
+    pushUndo({
+      undo: () => { list.title = oldT; },
+      redo: () => { list.title = v; }
+    });
+    saveState();
+  });
+  el.querySelector('.list-title').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); }
+    if (e.key === 'Escape') { e.target.value = list.title; e.target.blur(); }
+  });
+
+  el.querySelector('[data-list-menu]').addEventListener('click', (e) => {
+    e.stopPropagation();
+    openListMenu(list, e.currentTarget);
+  });
+
+  el.querySelector('.list-add-btn').addEventListener('click', () => openCardComposer(list, el));
+
+  // Drag & drop for cards
+  cardsEl.addEventListener('dragover', (e) => {
+    if (!dragData || dragData.type !== 'card') return;
+    e.preventDefault();
+    const afterEl = getDragAfter(cardsEl, e.clientY, '.card:not(.dragging)');
+    const draggingEl = document.querySelector('.card.dragging');
+    if (!draggingEl) return;
+    if (afterEl == null) cardsEl.appendChild(draggingEl);
+    else cardsEl.insertBefore(draggingEl, afterEl);
+  });
+  cardsEl.addEventListener('drop', (e) => {
+    if (!dragData || dragData.type !== 'card') return;
+    e.preventDefault();
+    const cards = [...cardsEl.querySelectorAll('.card')].map(n => n.dataset.cardId);
+    relocateCard(dragData.cardId, list.id, cards);
+  });
+
+  // Drag-drop for entire list — always draggable, but block when target is interactive
+  el.draggable = true;
+  el.addEventListener('dragstart', (e) => {
+    // Don't start a list drag if user is interacting with input/button/card etc.
+    const t = e.target;
+    if (t !== el && t.closest('input, textarea, button, .card, .list-cards, .list-add, .list-composer')) {
+      e.preventDefault();
+      return;
+    }
+    dragData = { type: 'list', listId: list.id };
+    el.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', list.id); } catch (ex) {}
+  });
+  el.addEventListener('dragend', () => {
+    el.classList.remove('dragging');
+    dragData = null;
+  });
+
+  return el;
+}
+
+function renderAddList() {
+  const el = document.createElement('div');
+  el.className = 'add-list-wrap';
+  el.innerHTML = `
+    <button class="add-list-btn">
+      <span class="material-symbols-outlined">add</span>
+      別のリストを追加
+    </button>
+  `;
+  const btn = el.querySelector('button');
+  btn.addEventListener('click', () => {
+    el.innerHTML = `
+      <div class="add-list-composer">
+        <input type="text" placeholder="リストのタイトルを入力..." />
+        <div class="composer-actions" style="margin-top:8px;">
+          <button class="btn-primary" data-add>リストを追加</button>
+          <button class="btn-icon" data-cancel aria-label="キャンセル">
+            <span class="material-symbols-outlined msi-md">close</span>
+          </button>
+        </div>
+      </div>
+    `;
+    const input = el.querySelector('input');
+    input.focus();
+    input.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter') { ev.preventDefault(); submit(); }
+      if (ev.key === 'Escape') renderAll();
+    });
+    el.querySelector('[data-add]').addEventListener('click', submit);
+    el.querySelector('[data-cancel]').addEventListener('click', () => renderAll());
+    function submit() {
+      const title = input.value.trim();
+      if (!title) return;
+      const b = currentBoard();
+      const newList = { id: uid(), title, archived: false, cards: [] };
+      b.lists.push(newList);
+      pushUndo({
+        undo: () => { b.lists = b.lists.filter(l => l.id !== newList.id); },
+        redo: () => { b.lists.push(newList); }
+      });
+      saveState();
+      renderAll();
+    }
+  });
+
+  // Allow dropping a list here
+  el.addEventListener('dragover', (e) => {
+    if (dragData && dragData.type === 'list') e.preventDefault();
+  });
+
+  return el;
+}
+
+function renderCard(card, list) {
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.dataset.cardId = card.id;
+  el.draggable = true;
+
+  const status = dueStatus(card.dueDate, card.dueComplete);
+  const board = currentBoard();
+  const cardLabels = card.labelIds.map(id => board.labels.find(l => l.id === id)).filter(Boolean);
+
+  let cover = '';
+  if (card.cover && card.cover.type) {
+    const bg = card.cover.type === 'color' ? card.cover.value : `url('${escapeHtml(card.cover.value)}') center/cover`;
+    if (card.cover.size === 'full') {
+      cover = `<div class="card-cover full" style="background:${bg}; color:${card.cover.type === 'color' ? '#FFF' : '#FFF'};">
+        ${renderCardInner(card, cardLabels, status, true)}
+      </div>`;
+    } else {
+      cover = `<div class="card-cover" style="background:${bg};"></div>`;
+    }
+  }
+
+  const editBtn = `<button class="card-edit-btn" data-quick-edit aria-label="クイック編集">
+    <span class="material-symbols-outlined" style="font-size:16px;">edit</span>
+  </button>`;
+
+  if (card.cover && card.cover.size === 'full') {
+    el.innerHTML = cover + editBtn;
+  } else {
+    el.innerHTML = cover + renderCardInner(card, cardLabels, status, false) + editBtn;
+  }
+
+  el.addEventListener('click', (e) => {
+    if (e.target.closest('[data-quick-edit]')) { e.stopPropagation(); openQuickEdit(card, el); return; }
+    if (e.target.closest('[data-complete-toggle]')) { e.stopPropagation(); toggleComplete(card); return; }
+    if (e.target.closest('[data-label-pill]')) {
+      e.stopPropagation();
+      if (!state.showLabelNames) { state.showLabelNames = true; saveState(); renderAll(); }
+      else { state.showLabelNames = false; saveState(); renderAll(); }
+      return;
+    }
+    openCardModal(card);
+  });
+
+  el.addEventListener('dragstart', (e) => {
+    e.stopPropagation(); // Prevent list dragstart from also firing
+    dragData = { type: 'card', cardId: card.id, fromListId: list.id };
+    el.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', card.id); } catch (ex) {}
+  });
+  el.addEventListener('dragend', (e) => {
+    e.stopPropagation();
+    el.classList.remove('dragging');
+    dragData = null;
+  });
+
+  return el;
+}
+
+function renderCardInner(card, cardLabels, status, insideFullCover) {
+  const labelsHtml = cardLabels.length
+    ? `<div class="card-labels">${cardLabels.map(l =>
+        `<div class="label-pill" data-label-pill style="background:${labelHex(l.color)};"${l.name ? ` title="${escapeHtml(l.name)}"` : ''}>${escapeHtml(l.name || '')}</div>`
+      ).join('')}</div>`
+    : '';
+
+  const title = highlightSearch(escapeHtml(card.title));
+
+  const completeIcon = card.dueDate
+    ? `<span class="material-symbols-outlined card-complete-icon ${card.dueComplete ? 'done' : ''}" data-complete-toggle title="完了としてマーク">${card.dueComplete ? 'check_circle' : 'radio_button_unchecked'}</span>`
+    : '';
+
+  const badges = [];
+
+  if (card.description && card.description.trim()) {
+    badges.push(`<span class="badge" title="説明あり"><span class="material-symbols-outlined">notes</span></span>`);
+  }
+  if (card.comments.length) {
+    badges.push(`<span class="badge" title="コメント"><span class="material-symbols-outlined">chat_bubble</span>${card.comments.length}</span>`);
+  }
+  if (card.attachments.length) {
+    badges.push(`<span class="badge" title="添付"><span class="material-symbols-outlined">attach_file</span>${card.attachments.length}</span>`);
+  }
+  const clTotal = card.checklists.reduce((s, cl) => s + cl.items.length, 0);
+  const clDone = card.checklists.reduce((s, cl) => s + cl.items.filter(i => i.done).length, 0);
+  if (clTotal) {
+    const allDone = clDone === clTotal;
+    badges.push(`<span class="badge badge-checklist ${allDone ? 'complete' : ''}" title="チェックリスト"><span class="material-symbols-outlined">${allDone ? 'task_alt' : 'checklist'}</span>${clDone}/${clTotal}</span>`);
+  }
+  if (card.startDate || card.dueDate) {
+    const iso = card.dueDate || card.startDate;
+    const statusClass = card.dueDate ? (status || 'grey') : 'grey';
+    const icon = card.dueDate ? (card.dueComplete ? 'check_circle' : 'schedule') : 'play_arrow';
+    badges.push(`<span class="badge badge-due ${statusClass}" title="期限"><span class="material-symbols-outlined">${icon}</span>${formatDateShort(iso)}</span>`);
+  }
+
+  const badgesHtml = badges.length ? `<div class="card-badges">${badges.join('')}</div>` : '';
+
+  if (insideFullCover) {
+    return `
+      <div style="width:100%;">
+        ${labelsHtml}
+        <div class="card-title-row">
+          ${completeIcon}
+          <div class="card-title">${title}</div>
+        </div>
+        ${badgesHtml}
+      </div>`;
+  }
+
+  return `
+    ${labelsHtml}
+    <div class="card-title-row">
+      ${completeIcon}
+      <div class="card-title">${title}</div>
+    </div>
+    ${badgesHtml}
+  `;
+}
+
+function highlightSearch(html) {
+  const q = filterCriteria.text;
+  if (!q) return html;
+  try {
+    const esc = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return html.replace(new RegExp(esc, 'gi'), (m) => `<mark class="search-hit">${m}</mark>`);
+  } catch (e) { return html; }
+}
+
+function matchesFilter(card) {
+  // Text filter
+  if (filterCriteria.text) {
+    const q = filterCriteria.text.toLowerCase();
+    const hay = (card.title + ' ' + (card.description || '')).toLowerCase();
+    if (!hay.includes(q)) return false;
+  }
+  // Label filter
+  if (filterCriteria.labelIds && filterCriteria.labelIds.length) {
+    if (!filterCriteria.labelIds.every(id => card.labelIds.includes(id))) return false;
+  }
+  // Due filter
+  if (filterCriteria.due) {
+    const status = dueStatus(card.dueDate, card.dueComplete);
+    if (filterCriteria.due === 'no-due' && card.dueDate) return false;
+    if (filterCriteria.due === 'overdue' && status !== 'red') return false;
+    if (filterCriteria.due === 'due-soon' && status !== 'yellow') return false;
+    if (filterCriteria.due === 'complete' && !card.dueComplete) return false;
+    if (filterCriteria.due === 'incomplete' && card.dueComplete) return false;
+  }
+  return true;
+}
+
+// ===== Card operations =====
+
+function relocateCard(cardId, toListId, orderedIds) {
+  const board = currentBoard();
+  let src = null, srcIdx = -1;
+  for (const l of board.lists) {
+    const i = l.cards.findIndex(c => c.id === cardId);
+    if (i !== -1) { src = l; srcIdx = i; break; }
+  }
+  if (!src) return;
+  const [card] = src.cards.splice(srcIdx, 1);
+  const dest = board.lists.find(l => l.id === toListId);
+  if (!dest) { src.cards.splice(srcIdx, 0, card); return; }
+
+  // Build new visible-order array per orderedIds
+  const rebuilt = [];
+  for (const id of orderedIds) {
+    if (id === cardId) {
+      rebuilt.push(card);
+    } else {
+      const existing = dest.cards.find(c => c.id === id);
+      if (existing) rebuilt.push(existing);
+    }
+  }
+  // Preserve cards in dest that weren't in the visible drag set (archived/filtered)
+  const visibleIds = new Set(orderedIds);
+  const remaining = dest.cards.filter(c => !visibleIds.has(c.id));
+  dest.cards = rebuilt.concat(remaining);
+  card.updatedAt = nowIso();
+  saveState();
+  renderAll();
+}
+
+function toggleComplete(card) {
+  card.dueComplete = !card.dueComplete;
+  card.updatedAt = nowIso();
+  saveState(); renderAll();
+}
+
+function archiveCard(card, list) {
+  card.archived = true;
+  saveState(); renderAll();
+  showToast('カードをアーカイブしました', () => {
+    card.archived = false;
+    saveState(); renderAll();
+  }, 5000);
+}
+
+function deleteCardPermanent(card, list) {
+  if (!confirm('このカードを完全に削除します。元に戻せません。よろしいですか?')) return;
+  const idx = list.cards.findIndex(c => c.id === card.id);
+  if (idx < 0) return;
+  const removed = list.cards.splice(idx, 1)[0];
+  pushUndo({
+    undo: () => { list.cards.splice(idx, 0, removed); },
+    redo: () => { list.cards.splice(idx, 1); }
+  });
+  saveState(); renderAll();
+  if (currentModal) closeModal();
+  showToast('カードを削除しました', null, 3000);
+}
+
+function copyCard(card, list) {
+  const copy = JSON.parse(JSON.stringify(card));
+  copy.id = uid();
+  copy.title = card.title + ' のコピー';
+  copy.comments = [];
+  copy.archived = false;
+  copy.createdAt = nowIso();
+  copy.updatedAt = nowIso();
+  // Re-id checklists and items so they stay independent
+  if (copy.checklists) {
+    copy.checklists.forEach(cl => {
+      cl.id = uid();
+      if (cl.items) cl.items.forEach(it => { it.id = uid(); });
+    });
+  }
+  if (copy.attachments) copy.attachments.forEach(a => { a.id = uid(); });
+  const idx = list.cards.findIndex(c => c.id === card.id);
+  list.cards.splice(idx + 1, 0, copy);
+  saveState(); renderAll();
+  showToast('カードを複製しました', null, 2000);
+}
+
+function moveCardTo(card, targetListId, position) {
+  const board = currentBoard();
+  const src = board.lists.find(l => l.cards.some(c => c.id === card.id));
+  if (!src) return;
+  const dest = board.lists.find(l => l.id === targetListId);
+  if (!dest) return;
+  src.cards = src.cards.filter(c => c.id !== card.id);
+  const pos = Math.max(0, Math.min(dest.cards.length, position));
+  dest.cards.splice(pos, 0, card);
+  card.updatedAt = nowIso();
+  saveState(); renderAll();
+}
+
+// ===== List operations =====
+
+function archiveList(list) {
+  list.archived = true;
+  saveState(); renderAll();
+  showToast('リストをアーカイブしました', () => {
+    list.archived = false;
+    saveState(); renderAll();
+  }, 5000);
+}
+
+function deleteListPermanent(list) {
+  if (!confirm(`「${list.title}」と、その中の全カードを完全に削除します。元に戻せません。よろしいですか?`)) return;
+  const board = currentBoard();
+  const idx = board.lists.findIndex(l => l.id === list.id);
+  if (idx < 0) return;
+  const [removed] = board.lists.splice(idx, 1);
+  pushUndo({
+    undo: () => { board.lists.splice(idx, 0, removed); },
+    redo: () => { board.lists.splice(idx, 1); }
+  });
+  saveState(); renderAll();
+  showToast('リストを削除しました', null, 3000);
+}
+
+function archiveAllCardsInList(list) {
+  list.cards.forEach(c => c.archived = true);
+  saveState(); renderAll();
+  showToast(`${list.cards.length}件のカードをアーカイブしました`, null, 3000);
+}
+
+function copyList(list) {
+  const board = currentBoard();
+  const copy = JSON.parse(JSON.stringify(list));
+  copy.id = uid();
+  copy.title = list.title + ' のコピー';
+  copy.cards.forEach(c => { c.id = uid(); });
+  const idx = board.lists.findIndex(l => l.id === list.id);
+  board.lists.splice(idx + 1, 0, copy);
+  saveState(); renderAll();
+}
+
+function sortList(list, by) {
+  const order = (a, b) => {
+    switch (by) {
+      case 'created-newest': return new Date(b.createdAt) - new Date(a.createdAt);
+      case 'created-oldest': return new Date(a.createdAt) - new Date(b.createdAt);
+      case 'due-soonest':
+        if (!a.dueDate && !b.dueDate) return 0;
+        if (!a.dueDate) return 1;
+        if (!b.dueDate) return -1;
+        return new Date(a.dueDate) - new Date(b.dueDate);
+      case 'name': return (a.title || '').localeCompare(b.title || '', 'ja');
+      default: return 0;
+    }
+  };
+  list.cards.sort(order);
+  saveState(); renderAll();
+}
+
+// ===== Composer (Add card) =====
+
+function openCardComposer(list, listEl) {
+  const addBox = listEl.querySelector('[data-list-add]');
+  addBox.innerHTML = `
+    <div class="list-composer">
+      <textarea rows="3" placeholder="このカードのタイトルを入力..."></textarea>
+      <div class="composer-actions">
+        <button class="btn-primary" data-add>カードを追加</button>
+        <button class="btn-icon" data-cancel aria-label="キャンセル">
+          <span class="material-symbols-outlined msi-md">close</span>
+        </button>
+      </div>
+    </div>
+  `;
+  const ta = addBox.querySelector('textarea');
+  ta.focus();
+  ta.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); }
+    if (e.key === 'Escape') renderAll();
+  });
+  addBox.querySelector('[data-add]').addEventListener('click', submit);
+  addBox.querySelector('[data-cancel]').addEventListener('click', () => renderAll());
+
+  function submit() {
+    const title = ta.value.trim();
+    if (!title) return;
+    const card = { ...newCardTemplate(), title };
+    list.cards.push(card);
+    const addedId = card.id;
+    pushUndo({
+      undo: () => { list.cards = list.cards.filter(c => c.id !== addedId); },
+      redo: () => { list.cards.push(card); }
+    });
+    saveState();
+    renderAll();
+    // reopen composer for rapid entry
+    const listElNow = document.querySelector(`[data-list-id="${list.id}"]`);
+    if (listElNow) openCardComposer(list, listElNow);
+  }
+}
+
+// ===== Quick edit popover =====
+
+function openQuickEdit(card, cardEl) {
+  const rect = cardEl.getBoundingClientRect();
+  const { list } = findCard(state.currentBoardId, card.id) || {};
+  showPopover({
+    title: 'クイック編集',
+    anchor: rect,
+    body: (pop) => {
+      const box = document.createElement('div');
+      box.innerHTML = `
+        <textarea rows="3" style="width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:8px;font-family:inherit;font-size:14px;background:var(--card-bg);color:var(--text-dark);">${escapeHtml(card.title)}</textarea>
+        <div class="composer-actions" style="margin-top:8px;">
+          <button class="btn-primary" data-save>保存</button>
+        </div>
+        <button class="popover-item" data-labels><span class="material-symbols-outlined msi-md">label</span>ラベルを編集</button>
+        <button class="popover-item" data-dates><span class="material-symbols-outlined msi-md">schedule</span>日付を編集</button>
+        <button class="popover-item" data-archive><span class="material-symbols-outlined msi-md">archive</span>アーカイブ</button>
+      `;
+      box.querySelector('[data-save]').addEventListener('click', () => {
+        card.title = box.querySelector('textarea').value.trim() || card.title;
+        card.updatedAt = nowIso();
+        saveState(); renderAll(); closePopover();
+      });
+      box.querySelector('[data-labels]').addEventListener('click', (e) => {
+        closePopover();
+        openLabelsPopover(card, e.currentTarget.getBoundingClientRect());
+      });
+      box.querySelector('[data-dates]').addEventListener('click', (e) => {
+        closePopover();
+        openDatesPopover(card, e.currentTarget.getBoundingClientRect());
+      });
+      box.querySelector('[data-archive]').addEventListener('click', () => {
+        closePopover();
+        archiveCard(card, list);
+      });
+      return box;
+    }
+  });
+}
+
+// ===== Card Modal =====
+
+function openCardModal(card) {
+  closePopover();
+  currentModal = { card };
+  const { list } = findCard(state.currentBoardId, card.id) || {};
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-backdrop';
+  overlay.innerHTML = `<div class="modal" role="dialog" aria-modal="true"></div>`;
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+  document.body.appendChild(overlay);
+  renderCardModal(card, list, overlay.querySelector('.modal'));
+}
+
+function closeModal() {
+  // Force-blur any active editable element so its blur handler can save
+  if (document.activeElement && typeof document.activeElement.blur === 'function') {
+    document.activeElement.blur();
+  }
+  const m = document.querySelector('.modal-backdrop');
+  if (m) m.remove();
+  currentModal = null;
+  saveState();
+  renderAll();
+}
+
+function renderCardModal(card, list, modalEl) {
+  const board = currentBoard();
+  const coverHtml = card.cover && card.cover.type
+    ? `<div class="modal-cover" style="background:${card.cover.type === 'color' ? card.cover.value : `url('${escapeHtml(card.cover.value)}') center/cover`};"></div>`
+    : '';
+
+  const cardLabels = card.labelIds.map(id => board.labels.find(l => l.id === id)).filter(Boolean);
+
+  modalEl.innerHTML = `
+    <button class="modal-close" aria-label="閉じる">
+      <span class="material-symbols-outlined msi-lg">close</span>
+    </button>
+    ${coverHtml}
+    <div class="modal-header ${coverHtml ? 'with-cover' : ''}">
+      <span class="material-symbols-outlined modal-header-icon">${card.dueComplete ? 'check_circle' : 'credit_card'}</span>
+      <textarea class="modal-title" rows="1" data-field="title">${escapeHtml(card.title)}</textarea>
+      <div class="modal-sub">リスト <strong>${escapeHtml(list.title)}</strong> 内</div>
+    </div>
+
+    <div class="quick-actions" data-quick-actions></div>
+
+    <div class="modal-body">
+      <div class="modal-main">
+        ${cardLabels.length ? `
+          <div class="section-header">
+            <span class="material-symbols-outlined section-icon">label</span>
+            <span class="section-title">ラベル</span>
+          </div>
+          <div id="modal-labels" style="padding-left:4px;"></div>
+        ` : ''}
+
+        ${(card.startDate || card.dueDate) ? `
+          <div class="section-header">
+            <span class="material-symbols-outlined section-icon">schedule</span>
+            <span class="section-title">日付</span>
+          </div>
+          <div id="modal-dates" style="padding-left:4px;"></div>
+        ` : ''}
+
+        <div class="section-header">
+          <span class="material-symbols-outlined section-icon">notes</span>
+          <span class="section-title">説明</span>
+        </div>
+        <div id="modal-description"></div>
+
+        ${card.attachments.length ? `
+          <div class="section-header">
+            <span class="material-symbols-outlined section-icon">attach_file</span>
+            <span class="section-title">添付</span>
+          </div>
+          <div id="modal-attachments"></div>
+        ` : ''}
+
+        <div id="modal-checklists"></div>
+
+        <div class="section-header">
+          <span class="material-symbols-outlined section-icon">chat_bubble</span>
+          <span class="section-title">コメント</span>
+        </div>
+        <div id="modal-comments"></div>
+      </div>
+
+      <div class="modal-side">
+        <div class="side-title">追加</div>
+        <button class="side-btn" data-add-labels><span class="material-symbols-outlined msi-md">label</span>ラベル</button>
+        <button class="side-btn" data-add-dates><span class="material-symbols-outlined msi-md">schedule</span>日付</button>
+        <button class="side-btn" data-add-checklist><span class="material-symbols-outlined msi-md">checklist</span>チェックリスト</button>
+        <button class="side-btn" data-add-attachment><span class="material-symbols-outlined msi-md">attach_file</span>添付</button>
+        <button class="side-btn" data-add-cover><span class="material-symbols-outlined msi-md">image</span>カバー</button>
+
+        <div class="side-title">アクション</div>
+        <button class="side-btn" data-action-move><span class="material-symbols-outlined msi-md">arrow_forward</span>移動</button>
+        <button class="side-btn" data-action-copy><span class="material-symbols-outlined msi-md">content_copy</span>コピー</button>
+        ${card.archived
+          ? `<button class="side-btn" data-action-unarchive><span class="material-symbols-outlined msi-md">unarchive</span>ボードに戻す</button>
+             <button class="side-btn danger" data-action-delete><span class="material-symbols-outlined msi-md">delete_forever</span>削除</button>`
+          : `<button class="side-btn" data-action-archive><span class="material-symbols-outlined msi-md">archive</span>アーカイブ</button>`
+        }
+      </div>
+    </div>
+  `;
+
+  // Quick actions (pill-style)
+  const qa = modalEl.querySelector('[data-quick-actions]');
+  qa.innerHTML = `
+    <button class="qa-btn" data-qa-labels><span class="material-symbols-outlined">label</span>ラベル</button>
+    <button class="qa-btn" data-qa-dates><span class="material-symbols-outlined">schedule</span>日付</button>
+    <button class="qa-btn" data-qa-checklist><span class="material-symbols-outlined">checklist</span>チェックリスト</button>
+    <button class="qa-btn" data-qa-attachment><span class="material-symbols-outlined">attach_file</span>添付</button>
+    <button class="qa-btn" data-qa-complete>
+      <span class="material-symbols-outlined">${card.dueComplete ? 'check_circle' : 'radio_button_unchecked'}</span>
+      ${card.dueComplete ? '完了済み' : '未完了にする'}
+    </button>
+  `;
+
+  // Title
+  const titleEl = modalEl.querySelector('[data-field="title"]');
+  autoResizeTextarea(titleEl);
+  titleEl.addEventListener('input', () => autoResizeTextarea(titleEl));
+  titleEl.addEventListener('blur', () => {
+    const v = titleEl.value.trim();
+    if (!v) { titleEl.value = card.title; return; }
+    if (v === card.title) return;
+    card.title = v;
+    card.updatedAt = nowIso();
+    saveState();
+    // Update only board cards in background, modal stays open
+    const boardEl = document.getElementById('board');
+    const cardEl = boardEl?.querySelector(`.card[data-card-id="${card.id}"] .card-title`);
+    if (cardEl) cardEl.textContent = v;
+  });
+
+  // Modal close
+  modalEl.querySelector('.modal-close').addEventListener('click', closeModal);
+
+  // Labels
+  if (cardLabels.length) {
+    const ll = modalEl.querySelector('#modal-labels');
+    ll.className = 'modal-chip-row';
+    for (const lbl of cardLabels) {
+      const chip = document.createElement('button');
+      chip.className = 'modal-label-chip';
+      chip.style.background = labelHex(lbl.color);
+      chip.textContent = lbl.name || '';
+      chip.addEventListener('click', (e) => openLabelsPopover(card, e.currentTarget.getBoundingClientRect(), () => renderCardModal(card, list, modalEl)));
+      ll.appendChild(chip);
+    }
+  }
+
+  // Dates
+  if (card.startDate || card.dueDate) {
+    const de = modalEl.querySelector('#modal-dates');
+    const status = dueStatus(card.dueDate, card.dueComplete);
+    de.innerHTML = `
+      <div class="modal-chip-row">
+        ${card.dueDate ? `<button class="modal-date-chip" data-edit-dates>
+          <input type="checkbox" ${card.dueComplete ? 'checked' : ''} data-toggle-complete aria-label="完了">
+          <span class="badge-due ${status}" style="padding:2px 8px;border-radius:3px;">${formatDateShort(card.dueDate)}</span>
+          ${card.dueComplete ? '<span class="muted">(完了)</span>' : ''}
+        </button>` : ''}
+        ${card.startDate ? `<button class="modal-date-chip" data-edit-dates>
+          <span class="material-symbols-outlined">play_arrow</span>
+          <span>開始: ${formatDateShort(card.startDate)}</span>
+        </button>` : ''}
+      </div>
+    `;
+    const toggle = de.querySelector('[data-toggle-complete]');
+    if (toggle) toggle.addEventListener('change', (e) => { e.stopPropagation(); toggleComplete(card); renderCardModal(card, list, modalEl); });
+    de.querySelectorAll('[data-edit-dates]').forEach(b => b.addEventListener('click', (e) => {
+      if (e.target.matches('[data-toggle-complete]')) return;
+      openDatesPopover(card, e.currentTarget.getBoundingClientRect(), () => renderCardModal(card, list, modalEl));
+    }));
+  }
+
+  // Description
+  renderDescription(modalEl.querySelector('#modal-description'), card, () => renderCardModal(card, list, modalEl));
+
+  // Attachments
+  if (card.attachments.length) {
+    renderAttachments(modalEl.querySelector('#modal-attachments'), card, () => renderCardModal(card, list, modalEl));
+  }
+
+  // Checklists
+  renderChecklistsSection(modalEl.querySelector('#modal-checklists'), card, () => renderCardModal(card, list, modalEl));
+
+  // Comments
+  renderCommentsSection(modalEl.querySelector('#modal-comments'), card, () => renderCardModal(card, list, modalEl));
+
+  // Side/quick actions
+  const rerender = () => renderCardModal(card, list, modalEl);
+  const bindAdd = (sel, handler) => modalEl.querySelectorAll(sel).forEach(b => b.addEventListener('click', (e) => handler(e.currentTarget)));
+
+  bindAdd('[data-add-labels],[data-qa-labels]', (btn) => openLabelsPopover(card, btn.getBoundingClientRect(), rerender));
+  bindAdd('[data-add-dates],[data-qa-dates]',   (btn) => openDatesPopover(card, btn.getBoundingClientRect(), rerender));
+  bindAdd('[data-add-checklist],[data-qa-checklist]', (btn) => openChecklistPopover(card, btn.getBoundingClientRect(), rerender));
+  bindAdd('[data-add-attachment],[data-qa-attachment]', (btn) => openAttachmentPopover(card, btn.getBoundingClientRect(), rerender));
+  bindAdd('[data-add-cover]', (btn) => openCoverPopover(card, btn.getBoundingClientRect(), rerender));
+  bindAdd('[data-qa-complete]', () => { toggleComplete(card); rerender(); });
+  bindAdd('[data-action-move]', (btn) => openMoveCardPopover(card, btn.getBoundingClientRect(), () => { closeModal(); }));
+  bindAdd('[data-action-copy]', () => { copyCard(card, list); closeModal(); });
+  bindAdd('[data-action-archive]', () => { archiveCard(card, list); closeModal(); });
+  bindAdd('[data-action-unarchive]', () => { card.archived = false; saveState(); rerender(); });
+  bindAdd('[data-action-delete]', () => deleteCardPermanent(card, list));
+}
+
+function autoResizeTextarea(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+function renderDescription(el, card, rerender) {
+  const empty = !card.description || !card.description.trim();
+  el.innerHTML = empty
+    ? `<div class="desc-box empty">より詳細な説明を追加...</div>`
+    : `<div class="desc-box">${escapeHtml(card.description)}</div>`;
+  el.querySelector('.desc-box').addEventListener('click', () => {
+    el.innerHTML = `
+      <div class="desc-edit">
+        <textarea placeholder="より詳細な説明を追加...">${escapeHtml(card.description || '')}</textarea>
+        <div class="composer-actions" style="margin-top:8px;">
+          <button class="btn-primary" data-save>保存</button>
+          <button class="btn-icon" data-cancel aria-label="キャンセル">
+            <span class="material-symbols-outlined msi-md">close</span>
+          </button>
+        </div>
+      </div>
+    `;
+    const ta = el.querySelector('textarea');
+    ta.focus();
+    ta.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); save(); }
+      if (e.key === 'Escape') rerender();
+    });
+    el.querySelector('[data-save]').addEventListener('click', save);
+    el.querySelector('[data-cancel]').addEventListener('click', rerender);
+    function save() {
+      card.description = ta.value;
+      card.updatedAt = nowIso();
+      saveState(); rerender();
+    }
+  });
+}
+
+function renderAttachments(el, card, rerender) {
+  el.innerHTML = '';
+  for (const a of card.attachments) {
+    const isImg = a.isLocal
+      ? (a.mimeType && a.mimeType.startsWith('image/')) || a.url.startsWith('data:image/')
+      : /\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(a.url);
+    const item = document.createElement('div');
+    item.className = 'attachment-item';
+    const linkHtml = a.isLocal
+      ? `<a data-open-local>表示</a>`
+      : `<a href="${escapeHtml(a.url)}" target="_blank" rel="noreferrer noopener">リンクを開く</a>`;
+    item.innerHTML = `
+      <div class="attachment-thumb">
+        ${isImg ? `<img src="${escapeHtml(a.url)}" alt="" style="width:100%;height:100%;object-fit:cover;">` : `<span class="material-symbols-outlined">${a.isLocal ? 'description' : (/https?:\/\//.test(a.url) ? 'link' : 'attach_file')}</span>`}
+      </div>
+      <div class="attachment-info">
+        <div class="attachment-name">${escapeHtml(a.name || a.url)}</div>
+        <div class="attachment-meta">
+          ${linkHtml}
+          ${isImg ? '<a data-as-cover>カバーに設定</a>' : ''}
+          <a data-remove>削除</a>
+          ${a.isCover ? '<span>(カバー)</span>' : ''}
+          ${a.isLocal ? '<span class="muted">(ローカル)</span>' : ''}
+        </div>
+      </div>
+    `;
+    const asCoverBtn = item.querySelector('[data-as-cover]');
+    if (asCoverBtn) {
+      asCoverBtn.addEventListener('click', () => {
+        card.attachments.forEach(x => x.isCover = false);
+        a.isCover = true;
+        card.cover = { type: 'image', value: a.url, size: 'half' };
+        saveState(); rerender();
+      });
+    }
+    const openLocalBtn = item.querySelector('[data-open-local]');
+    if (openLocalBtn) {
+      openLocalBtn.addEventListener('click', () => {
+        // Open data URL in new tab/window
+        const w = window.open();
+        if (w) {
+          w.document.write(`<title>${escapeHtml(a.name)}</title><body style="margin:0;background:#222;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="${a.url}" style="max-width:100%;max-height:100vh;"></body>`);
+        }
+      });
+    }
+    item.querySelector('[data-remove]').addEventListener('click', () => {
+      card.attachments = card.attachments.filter(x => x.id !== a.id);
+      if (card.cover && card.cover.value === a.url) card.cover = null;
+      saveState(); rerender();
+    });
+    el.appendChild(item);
+  }
+}
+
+function renderChecklistsSection(container, card, rerender) {
+  container.innerHTML = '';
+  card.checklists.forEach(cl => {
+    const wrap = document.createElement('div');
+    wrap.className = 'checklist';
+    const total = cl.items.length;
+    const done = cl.items.filter(i => i.done).length;
+    const pct = total ? Math.round(done / total * 100) : 0;
+    wrap.innerHTML = `
+      <div class="section-header">
+        <span class="material-symbols-outlined section-icon">checklist</span>
+        <input class="checklist-title" value="${escapeHtml(cl.title)}">
+        <button class="btn-icon" data-delete-cl title="チェックリストを削除"><span class="material-symbols-outlined msi-md">delete</span></button>
+      </div>
+      <div class="checklist-progress">
+        <span style="min-width:32px;text-align:right;">${pct}%</span>
+        <div class="checklist-progress-bar"><div class="checklist-progress-fill ${pct === 100 ? 'complete' : ''}" style="width:${pct}%"></div></div>
+      </div>
+      <div class="checklist-items"></div>
+      <div class="checklist-add" style="padding-left:4px;margin-top:6px;">
+        <button class="side-btn" data-add-item><span class="material-symbols-outlined msi-md">add</span>アイテムを追加</button>
+      </div>
+    `;
+    const itemsEl = wrap.querySelector('.checklist-items');
+    cl.items.forEach(it => {
+      const row = document.createElement('div');
+      row.className = 'checklist-item';
+      row.innerHTML = `
+        <input type="checkbox" ${it.done ? 'checked' : ''}>
+        <div class="checklist-item-text ${it.done ? 'done' : ''}">${escapeHtml(it.text)}</div>
+        <button class="btn-icon checklist-item-delete" data-del title="削除"><span class="material-symbols-outlined msi-md">close</span></button>
+      `;
+      row.querySelector('input').addEventListener('change', (e) => {
+        it.done = e.target.checked;
+        card.updatedAt = nowIso();
+        saveState(); rerender();
+      });
+      row.querySelector('.checklist-item-text').addEventListener('click', (e) => {
+        const cur = it.text;
+        const input = document.createElement('input');
+        input.value = cur;
+        input.style.cssText = 'flex:1;padding:4px 6px;border:2px solid var(--tr-blue);border-radius:3px;font-family:inherit;font-size:14px;background:var(--card-bg);color:var(--text-dark);';
+        e.currentTarget.replaceWith(input);
+        input.focus();
+        input.select();
+        const commit = () => {
+          it.text = input.value.trim() || it.text;
+          card.updatedAt = nowIso();
+          saveState(); rerender();
+        };
+        input.addEventListener('blur', commit);
+        input.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Enter') { ev.preventDefault(); input.blur(); }
+          if (ev.key === 'Escape') rerender();
+        });
+      });
+      row.querySelector('[data-del]').addEventListener('click', () => {
+        cl.items = cl.items.filter(x => x.id !== it.id);
+        card.updatedAt = nowIso();
+        saveState(); rerender();
+      });
+      itemsEl.appendChild(row);
+    });
+    wrap.querySelector('.checklist-title').addEventListener('blur', (e) => {
+      cl.title = e.target.value.trim() || cl.title;
+      saveState(); rerender();
+    });
+    wrap.querySelector('[data-delete-cl]').addEventListener('click', () => {
+      if (!confirm(`チェックリスト「${cl.title}」を削除しますか?`)) return;
+      card.checklists = card.checklists.filter(x => x.id !== cl.id);
+      saveState(); rerender();
+    });
+    wrap.querySelector('[data-add-item]').addEventListener('click', (e) => {
+      const btn = e.currentTarget;
+      const composer = document.createElement('div');
+      composer.innerHTML = `
+        <input type="text" placeholder="新しいアイテム" style="width:100%;padding:8px;border:2px solid var(--tr-blue);border-radius:3px;font-family:inherit;font-size:14px;background:var(--card-bg);color:var(--text-dark);">
+        <div class="composer-actions" style="margin-top:6px;">
+          <button class="btn-primary" data-save>追加</button>
+          <button class="btn-icon" data-cancel><span class="material-symbols-outlined msi-md">close</span></button>
+        </div>
+      `;
+      btn.replaceWith(composer);
+      const input = composer.querySelector('input');
+      input.focus();
+      const save = () => {
+        const v = input.value.trim();
+        if (!v) return;
+        cl.items.push({ id: uid(), text: v, done: false });
+        card.updatedAt = nowIso();
+        saveState(); rerender();
+      };
+      input.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter') { ev.preventDefault(); save(); }
+        if (ev.key === 'Escape') rerender();
+      });
+      composer.querySelector('[data-save]').addEventListener('click', save);
+      composer.querySelector('[data-cancel]').addEventListener('click', rerender);
+    });
+
+    container.appendChild(wrap);
+  });
+}
+
+function renderCommentsSection(container, card, rerender) {
+  container.innerHTML = '';
+
+  // Composer (no avatar)
+  const composer = document.createElement('div');
+  composer.className = 'comment-composer';
+  composer.innerHTML = `
+    <textarea class="comment-input" placeholder="コメントを書く... (Ctrl/⌘ + Enter で送信)"></textarea>
+  `;
+  const ta = composer.querySelector('textarea');
+  ta.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      const v = ta.value.trim();
+      if (!v) return;
+      card.comments.unshift({ id: uid(), text: v, createdAt: nowIso() });
+      card.updatedAt = nowIso();
+      ta.value = '';
+      saveState(); rerender();
+    }
+  });
+  container.appendChild(composer);
+
+  // List (no avatar)
+  for (const c of card.comments) {
+    const item = document.createElement('div');
+    item.className = 'comment-item';
+    item.innerHTML = `
+      <div class="comment-content">${escapeHtml(c.text)}</div>
+      <div class="comment-meta">
+        <span>${formatRelative(c.createdAt)}</span>
+        <a data-edit>編集</a>
+        <a data-del>削除</a>
+      </div>
+    `;
+    item.querySelector('[data-edit]').addEventListener('click', () => {
+      const content = item.querySelector('.comment-content');
+      const cur = c.text;
+      content.innerHTML = `
+        <textarea class="comment-input" style="min-height:48px;">${escapeHtml(cur)}</textarea>
+        <div class="composer-actions" style="margin-top:6px;">
+          <button class="btn-primary" data-save>保存</button>
+          <button class="btn-icon" data-cancel><span class="material-symbols-outlined msi-md">close</span></button>
+        </div>
+      `;
+      const area = content.querySelector('textarea');
+      area.focus();
+      content.querySelector('[data-save]').addEventListener('click', () => {
+        c.text = area.value.trim() || c.text;
+        card.updatedAt = nowIso();
+        saveState(); rerender();
+      });
+      content.querySelector('[data-cancel]').addEventListener('click', rerender);
+    });
+    item.querySelector('[data-del]').addEventListener('click', () => {
+      if (!confirm('このコメントを削除しますか?')) return;
+      card.comments = card.comments.filter(x => x.id !== c.id);
+      saveState(); rerender();
+    });
+    container.appendChild(item);
+  }
+}
+
+// ===== Popovers =====
+
+function showPopover({ title, anchor, body, width }) {
+  closePopover();
+  const bd = document.createElement('div');
+  bd.className = 'popover-backdrop';
+  bd.addEventListener('click', closePopover);
+  document.body.appendChild(bd);
+
+  const pop = document.createElement('div');
+  pop.className = 'popover';
+  if (width) pop.style.width = width + 'px';
+  pop.innerHTML = `
+    <div class="popover-header">
+      ${escapeHtml(title)}
+      <button class="popover-close" aria-label="閉じる"><span class="material-symbols-outlined msi-md">close</span></button>
+    </div>
+    <div class="popover-body"></div>
+  `;
+  pop.querySelector('.popover-close').addEventListener('click', closePopover);
+  pop.addEventListener('click', (e) => e.stopPropagation());
+
+  const bodyEl = pop.querySelector('.popover-body');
+  const content = typeof body === 'function' ? body(pop) : body;
+  if (typeof content === 'string') bodyEl.innerHTML = content;
+  else if (content instanceof Node) bodyEl.appendChild(content);
+
+  document.body.appendChild(pop);
+
+  // Position
+  const padding = 8;
+  const w = pop.offsetWidth;
+  const h = pop.offsetHeight;
+  let x = (anchor.left || 100);
+  let y = (anchor.bottom || 100) + 4;
+  if (x + w > window.innerWidth - padding) x = window.innerWidth - w - padding;
+  if (x < padding) x = padding;
+  if (y + h > window.innerHeight - padding) y = Math.max(padding, (anchor.top || 100) - h - 4);
+  pop.style.left = x + 'px';
+  pop.style.top = y + 'px';
+
+  activePopover = { backdrop: bd, pop };
+}
+
+function closePopover() {
+  if (!activePopover) return;
+  activePopover.backdrop.remove();
+  activePopover.pop.remove();
+  activePopover = null;
+}
+
+function openLabelsPopover(card, anchor, onChange) {
+  const board = currentBoard();
+  showPopover({
+    title: 'ラベル',
+    anchor,
+    body: () => {
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `<input type="text" placeholder="ラベルを検索..." style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:3px;font-family:inherit;font-size:14px;margin-bottom:8px;background:var(--card-bg);color:var(--text-dark);">`;
+      const search = wrap.querySelector('input');
+      const list = document.createElement('div');
+      wrap.appendChild(list);
+      const render = () => {
+        list.innerHTML = '';
+        const q = search.value.trim().toLowerCase();
+        const labels = board.labels.filter(l => !q || (l.name && l.name.toLowerCase().includes(q)) || l.color.includes(q));
+        for (const lbl of labels) {
+          const active = card.labelIds.includes(lbl.id);
+          const row = document.createElement('button');
+          row.className = 'popover-item' + (active ? ' active' : '');
+          row.innerHTML = `
+            <div class="label-chip" style="background:${labelHex(lbl.color)};">${escapeHtml(lbl.name || '')}</div>
+            <span class="material-symbols-outlined msi-md label-check">check</span>
+            <button class="btn-icon" data-edit-label="${lbl.id}" aria-label="編集"><span class="material-symbols-outlined msi-md">edit</span></button>
+          `;
+          row.addEventListener('click', (e) => {
+            if (e.target.closest('[data-edit-label]')) {
+              e.stopPropagation();
+              openEditLabelPopover(lbl, e.currentTarget.getBoundingClientRect(), () => { render(); if (onChange) onChange(); });
+              return;
+            }
+            if (active) card.labelIds = card.labelIds.filter(id => id !== lbl.id);
+            else card.labelIds.push(lbl.id);
+            card.updatedAt = nowIso();
+            saveState();
+            renderAll();
+            if (onChange) onChange();
+            render();
+          });
+          list.appendChild(row);
+        }
+        const create = document.createElement('button');
+        create.className = 'popover-item';
+        create.style.justifyContent = 'center';
+        create.innerHTML = `<span class="material-symbols-outlined msi-md">add</span>新しいラベルを作成`;
+        create.addEventListener('click', (e) => openEditLabelPopover(null, e.currentTarget.getBoundingClientRect(), () => { render(); if (onChange) onChange(); }));
+        list.appendChild(create);
+      };
+      search.addEventListener('input', render);
+      render();
+      return wrap;
+    }
+  });
+}
+
+function openEditLabelPopover(label, anchor, onChange) {
+  const board = currentBoard();
+  showPopover({
+    title: label ? 'ラベルを編集' : 'ラベルを作成',
+    anchor,
+    body: () => {
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `
+        <div style="margin-bottom:8px;font-weight:600;font-size:12px;color:var(--text-mid);">名前</div>
+        <input type="text" id="lbl-name" value="${label ? escapeHtml(label.name) : ''}" placeholder="ラベル名を入力..." style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:3px;font-family:inherit;font-size:14px;margin-bottom:12px;background:var(--card-bg);color:var(--text-dark);">
+        <div style="font-weight:600;font-size:12px;color:var(--text-mid);margin-bottom:6px;">色を選択</div>
+        <div id="colors" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px;"></div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn-primary" data-save>${label ? '保存' : '作成'}</button>
+          ${label ? `<button class="side-btn danger" data-delete style="width:auto;padding:6px 12px;"><span class="material-symbols-outlined msi-md">delete</span>削除</button>` : ''}
+        </div>
+      `;
+      const colors = wrap.querySelector('#colors');
+      let selected = label ? label.color : LABEL_COLORS[0].key;
+      const renderColors = () => {
+        colors.innerHTML = '';
+        for (const c of LABEL_COLORS) {
+          const swatch = document.createElement('button');
+          swatch.style.cssText = `height:32px;border-radius:3px;border:${c.key === selected ? '3px solid var(--text-dark)' : '2px solid transparent'};background:${c.hex};cursor:pointer;`;
+          swatch.addEventListener('click', () => { selected = c.key; renderColors(); });
+          colors.appendChild(swatch);
+        }
+      };
+      renderColors();
+      wrap.querySelector('[data-save]').addEventListener('click', () => {
+        const name = wrap.querySelector('#lbl-name').value.trim();
+        if (label) {
+          label.name = name;
+          label.color = selected;
+        } else {
+          board.labels.push({ id: uid(), color: selected, name });
+        }
+        saveState();
+        closePopover();
+        if (onChange) onChange();
+        renderAll();
+      });
+      const delBtn = wrap.querySelector('[data-delete]');
+      if (delBtn) {
+        delBtn.addEventListener('click', () => {
+          if (!confirm(`ラベル「${label.name || label.color}」をボードから削除します。このラベルが付いた全カードから外されます。よろしいですか?`)) return;
+          board.labels = board.labels.filter(l => l.id !== label.id);
+          for (const l of board.lists) {
+            for (const c of l.cards) c.labelIds = c.labelIds.filter(id => id !== label.id);
+          }
+          saveState();
+          closePopover();
+          if (onChange) onChange();
+          renderAll();
+        });
+      }
+      return wrap;
+    }
+  });
+}
+
+function openDatesPopover(card, anchor, onChange) {
+  showPopover({
+    title: '日付',
+    anchor,
+    body: () => {
+      const wrap = document.createElement('div');
+      const start = card.startDate ? new Date(card.startDate) : null;
+      const due = card.dueDate ? new Date(card.dueDate) : null;
+      const formatDate = (d) => d ? d.toISOString().slice(0, 10) : '';
+      const formatTime = (d) => d ? d.toTimeString().slice(0, 5) : '';
+      wrap.innerHTML = `
+        <div class="date-row">
+          <label><input type="checkbox" id="chk-start" ${start ? 'checked' : ''}> 開始日</label>
+          <input type="date" id="start-date" value="${formatDate(start)}" ${start ? '' : 'disabled'}>
+        </div>
+        <div class="date-row">
+          <label><input type="checkbox" id="chk-due" ${due ? 'checked' : ''}> 期限日</label>
+          <input type="date" id="due-date" value="${formatDate(due)}" ${due ? '' : 'disabled'}>
+          <input type="time" id="due-time" value="${formatTime(due)}" ${due ? '' : 'disabled'}>
+        </div>
+        <label style="display:flex;gap:6px;align-items:center;margin:8px 0;">
+          <input type="checkbox" id="chk-complete" ${card.dueComplete ? 'checked' : ''}>
+          完了としてマーク
+        </label>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <button class="btn-primary" data-save>保存</button>
+          <button class="side-btn danger" data-remove style="width:auto;padding:6px 12px;">削除</button>
+        </div>
+      `;
+      const chkStart = wrap.querySelector('#chk-start');
+      const chkDue = wrap.querySelector('#chk-due');
+      const sd = wrap.querySelector('#start-date');
+      const dd = wrap.querySelector('#due-date');
+      const dt = wrap.querySelector('#due-time');
+      chkStart.addEventListener('change', (e) => sd.disabled = !e.target.checked);
+      chkDue.addEventListener('change', (e) => { dd.disabled = !e.target.checked; dt.disabled = !e.target.checked; });
+      wrap.querySelector('[data-save]').addEventListener('click', () => {
+        card.startDate = chkStart.checked && sd.value ? new Date(sd.value + 'T00:00:00').toISOString() : null;
+        if (chkDue.checked && dd.value) {
+          const iso = new Date(`${dd.value}T${dt.value || '23:59'}:00`).toISOString();
+          card.dueDate = iso;
+        } else {
+          card.dueDate = null;
+        }
+        card.dueComplete = !!wrap.querySelector('#chk-complete').checked;
+        card.updatedAt = nowIso();
+        saveState(); closePopover(); if (onChange) onChange(); renderAll();
+      });
+      wrap.querySelector('[data-remove]').addEventListener('click', () => {
+        card.startDate = null; card.dueDate = null; card.dueComplete = false;
+        card.updatedAt = nowIso();
+        saveState(); closePopover(); if (onChange) onChange(); renderAll();
+      });
+      return wrap;
+    }
+  });
+}
+
+function openChecklistPopover(card, anchor, onChange) {
+  showPopover({
+    title: 'チェックリストを追加',
+    anchor,
+    body: () => {
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `
+        <div style="font-weight:600;font-size:12px;color:var(--text-mid);margin-bottom:4px;">タイトル</div>
+        <input type="text" value="チェックリスト" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:3px;font-family:inherit;font-size:14px;margin-bottom:12px;background:var(--card-bg);color:var(--text-dark);">
+        <button class="btn-primary" data-add>追加</button>
+      `;
+      const input = wrap.querySelector('input');
+      input.focus();
+      input.select();
+      wrap.querySelector('[data-add]').addEventListener('click', () => {
+        card.checklists.push({ id: uid(), title: input.value.trim() || 'チェックリスト', items: [] });
+        card.updatedAt = nowIso();
+        saveState(); closePopover(); if (onChange) onChange();
+      });
+      return wrap;
+    }
+  });
+}
+
+function openAttachmentPopover(card, anchor, onChange) {
+  showPopover({
+    title: '添付',
+    anchor,
+    body: () => {
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `
+        <button class="popover-item" data-pick-file style="justify-content:center;background:var(--hover-bg);font-weight:500;margin-bottom:8px;">
+          <span class="material-symbols-outlined msi-md">upload</span>このコンピュータから...
+        </button>
+        <div style="font-size:12px;color:var(--text-mid);margin-bottom:6px;font-weight:600;">またはURLを貼り付け</div>
+        <input type="url" id="att-url" placeholder="https://..." style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:3px;font-family:inherit;font-size:14px;margin-bottom:8px;background:var(--card-bg);color:var(--text-dark);box-sizing:border-box;">
+        <div style="font-weight:600;font-size:12px;color:var(--text-mid);margin-bottom:4px;">表示名 (任意)</div>
+        <input type="text" id="att-name" placeholder="例: 参考資料" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:3px;font-family:inherit;font-size:14px;margin-bottom:12px;background:var(--card-bg);color:var(--text-dark);box-sizing:border-box;">
+        <button class="btn-primary" data-add>添付</button>
+        <input type="file" id="att-file-input" accept="image/*" style="display:none;">
+      `;
+      const urlInput = wrap.querySelector('#att-url');
+      const fileInput = wrap.querySelector('#att-file-input');
+
+      wrap.querySelector('[data-pick-file]').addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        // Limit file size to ~3MB to fit in localStorage
+        if (file.size > 3 * 1024 * 1024) {
+          alert('ファイルサイズは3MB以下にしてください(localStorage制限のため)');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const dataUrl = ev.target.result;
+          card.attachments.push({
+            id: uid(),
+            url: dataUrl,
+            name: file.name,
+            isLocal: true,
+            mimeType: file.type,
+            isCover: false
+          });
+          card.updatedAt = nowIso();
+          saveState(); closePopover(); if (onChange) onChange();
+        };
+        reader.onerror = () => alert('ファイルの読み込みに失敗しました');
+        reader.readAsDataURL(file);
+      });
+
+      wrap.querySelector('[data-add]').addEventListener('click', () => {
+        const url = urlInput.value.trim();
+        if (!url) return;
+        const name = wrap.querySelector('#att-name').value.trim() || url;
+        card.attachments.push({ id: uid(), url, name, isLocal: false, isCover: false });
+        card.updatedAt = nowIso();
+        saveState(); closePopover(); if (onChange) onChange();
+      });
+      return wrap;
+    }
+  });
+}
+
+function openCoverPopover(card, anchor, onChange) {
+  showPopover({
+    title: 'カバー',
+    anchor,
+    width: 320,
+    body: () => {
+      const wrap = document.createElement('div');
+      const isColor = card.cover && card.cover.type === 'color';
+      const size = (card.cover && card.cover.size) || 'half';
+      const currentImageValue = card.cover && card.cover.type === 'image' ? card.cover.value : '';
+      const currentIsLocal = currentImageValue && currentImageValue.startsWith('data:');
+      wrap.innerHTML = `
+        <div style="font-weight:600;font-size:12px;color:var(--text-mid);margin-bottom:6px;">サイズ</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;">
+          <button class="tab-btn ${size === 'half' ? 'active' : ''}" data-size="half">ハーフ</button>
+          <button class="tab-btn ${size === 'full' ? 'active' : ''}" data-size="full">フル</button>
+        </div>
+        <div style="font-weight:600;font-size:12px;color:var(--text-mid);margin-bottom:6px;">色</div>
+        <div id="cover-colors" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px;"></div>
+        <div style="font-weight:600;font-size:12px;color:var(--text-mid);margin-bottom:6px;">画像</div>
+        <button class="popover-item" data-pick-file style="justify-content:center;background:var(--hover-bg);font-weight:500;margin-bottom:8px;">
+          <span class="material-symbols-outlined msi-md">upload</span>このコンピュータから...
+        </button>
+        ${currentIsLocal ? `<div style="font-size:11px;color:var(--text-mid);margin-bottom:8px;">現在: アップロード画像</div>` : ''}
+        <div style="font-size:12px;color:var(--text-mid);margin-bottom:4px;">またはURL</div>
+        <input type="url" id="cover-url" value="${currentIsLocal ? '' : escapeHtml(currentImageValue)}" placeholder="https://..." style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:3px;font-family:inherit;font-size:14px;margin-bottom:12px;background:var(--card-bg);color:var(--text-dark);box-sizing:border-box;">
+        <input type="file" id="cover-file-input" accept="image/*" style="display:none;">
+        <div style="display:flex;gap:6px;">
+          <button class="btn-primary" data-save>保存</button>
+          <button class="side-btn danger" data-remove style="width:auto;padding:6px 12px;">削除</button>
+        </div>
+      `;
+      let selSize = size;
+      wrap.querySelectorAll('[data-size]').forEach(b => b.addEventListener('click', () => {
+        selSize = b.dataset.size;
+        wrap.querySelectorAll('[data-size]').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+      }));
+
+      const colorsEl = wrap.querySelector('#cover-colors');
+      const urlInput = wrap.querySelector('#cover-url');
+      const fileInput = wrap.querySelector('#cover-file-input');
+      let selectedColor = isColor ? card.cover.value : null;
+      let pendingLocalImage = currentIsLocal ? currentImageValue : null;
+
+      const renderColorSwatches = () => {
+        colorsEl.innerHTML = '';
+        for (const c of LABEL_COLORS) {
+          const sw = document.createElement('button');
+          sw.style.cssText = `height:40px;border-radius:3px;border:${selectedColor === c.hex ? '3px solid var(--text-dark)' : '2px solid transparent'};background:${c.hex};cursor:pointer;`;
+          sw.addEventListener('click', () => {
+            selectedColor = c.hex;
+            urlInput.value = '';
+            pendingLocalImage = null;
+            renderColorSwatches();
+          });
+          colorsEl.appendChild(sw);
+        }
+      };
+      renderColorSwatches();
+      urlInput.addEventListener('input', () => {
+        if (urlInput.value.trim()) {
+          selectedColor = null;
+          pendingLocalImage = null;
+          renderColorSwatches();
+        }
+      });
+      wrap.querySelector('[data-pick-file]').addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 3 * 1024 * 1024) {
+          alert('画像サイズは3MB以下にしてください(localStorage制限のため)');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          pendingLocalImage = ev.target.result;
+          selectedColor = null;
+          urlInput.value = '';
+          renderColorSwatches();
+          showToast('画像を読み込みました。「保存」を押してください', null, 2500);
+        };
+        reader.onerror = () => alert('ファイルの読み込みに失敗しました');
+        reader.readAsDataURL(file);
+      });
+
+      wrap.querySelector('[data-save]').addEventListener('click', () => {
+        const url = urlInput.value.trim();
+        if (pendingLocalImage) card.cover = { type: 'image', value: pendingLocalImage, size: selSize };
+        else if (url) card.cover = { type: 'image', value: url, size: selSize };
+        else if (selectedColor) card.cover = { type: 'color', value: selectedColor, size: selSize };
+        else { closePopover(); return; }
+        card.updatedAt = nowIso();
+        saveState(); closePopover(); if (onChange) onChange(); renderAll();
+      });
+      wrap.querySelector('[data-remove]').addEventListener('click', () => {
+        card.cover = null;
+        card.updatedAt = nowIso();
+        saveState(); closePopover(); if (onChange) onChange(); renderAll();
+      });
+      return wrap;
+    }
+  });
+}
+
+function openMoveCardPopover(card, anchor, onAfter) {
+  const board = currentBoard();
+  const { list: srcList } = findCard(state.currentBoardId, card.id);
+  showPopover({
+    title: 'カードを移動',
+    anchor,
+    body: () => {
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `
+        <div style="font-weight:600;font-size:12px;color:var(--text-mid);margin-bottom:4px;">リスト</div>
+        <select id="m-list" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:3px;font-family:inherit;font-size:14px;margin-bottom:8px;background:var(--card-bg);color:var(--text-dark);">
+          ${board.lists.filter(l => !l.archived).map(l => `<option value="${l.id}" ${l.id === srcList.id ? 'selected' : ''}>${escapeHtml(l.title)} ${l.id === srcList.id ? '(現在)' : ''}</option>`).join('')}
+        </select>
+        <div style="font-weight:600;font-size:12px;color:var(--text-mid);margin-bottom:4px;">位置</div>
+        <select id="m-pos" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:3px;font-family:inherit;font-size:14px;margin-bottom:12px;background:var(--card-bg);color:var(--text-dark);"></select>
+        <button class="btn-primary" data-move>移動</button>
+      `;
+      const sel = wrap.querySelector('#m-list');
+      const pos = wrap.querySelector('#m-pos');
+      const rebuildPos = () => {
+        const target = board.lists.find(l => l.id === sel.value);
+        if (!target) return;
+        const n = target.cards.filter(c => !c.archived).length + (target.id === srcList.id ? 0 : 1);
+        pos.innerHTML = Array.from({length: n}, (_, i) => `<option value="${i}">${i + 1}</option>`).join('');
+      };
+      rebuildPos();
+      sel.addEventListener('change', rebuildPos);
+      wrap.querySelector('[data-move]').addEventListener('click', () => {
+        moveCardTo(card, sel.value, parseInt(pos.value, 10));
+        closePopover();
+        if (onAfter) onAfter();
+      });
+      return wrap;
+    }
+  });
+}
+
+function openListMenu(list, anchorEl) {
+  const anchor = anchorEl.getBoundingClientRect();
+  showPopover({
+    title: 'リストアクション',
+    anchor,
+    body: () => {
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `
+        <button class="popover-item" data-add-card><span class="material-symbols-outlined msi-md">add</span>カードを追加</button>
+        <button class="popover-item" data-copy><span class="material-symbols-outlined msi-md">content_copy</span>リストをコピー</button>
+        <div class="popover-section-title">並び替え</div>
+        <button class="popover-item" data-sort="created-newest"><span class="material-symbols-outlined msi-md">sort</span>作成日(新しい順)</button>
+        <button class="popover-item" data-sort="created-oldest"><span class="material-symbols-outlined msi-md">sort</span>作成日(古い順)</button>
+        <button class="popover-item" data-sort="due-soonest"><span class="material-symbols-outlined msi-md">schedule</span>期限日(早い順)</button>
+        <button class="popover-item" data-sort="name"><span class="material-symbols-outlined msi-md">sort_by_alpha</span>カード名(昇順)</button>
+        <div class="popover-section-title">アーカイブ</div>
+        <button class="popover-item" data-archive-cards><span class="material-symbols-outlined msi-md">inventory_2</span>全カードをアーカイブ</button>
+        <button class="popover-item" data-archive><span class="material-symbols-outlined msi-md">archive</span>リストをアーカイブ</button>
+        ${list.archived ? `<button class="popover-item" data-delete><span class="material-symbols-outlined msi-md" style="color:var(--due-red);">delete_forever</span>完全に削除</button>` : ''}
+      `;
+      wrap.querySelector('[data-add-card]').addEventListener('click', () => {
+        closePopover();
+        const listEl = document.querySelector(`[data-list-id="${list.id}"]`);
+        if (listEl) openCardComposer(list, listEl);
+      });
+      wrap.querySelector('[data-copy]').addEventListener('click', () => { closePopover(); copyList(list); });
+      wrap.querySelectorAll('[data-sort]').forEach(b => b.addEventListener('click', () => { closePopover(); sortList(list, b.dataset.sort); }));
+      wrap.querySelector('[data-archive-cards]').addEventListener('click', () => { closePopover(); archiveAllCardsInList(list); });
+      const arch = wrap.querySelector('[data-archive]');
+      if (arch) arch.addEventListener('click', () => { closePopover(); archiveList(list); });
+      const del = wrap.querySelector('[data-delete]');
+      if (del) del.addEventListener('click', () => { closePopover(); deleteListPermanent(list); });
+      return wrap;
+    }
+  });
+}
+
+// ===== Drag & Drop helpers =====
+
+function getDragAfter(container, y, selector) {
+  const draggables = [...container.querySelectorAll(selector)];
+  let closest = { offset: -Infinity, element: null };
+  for (const el of draggables) {
+    const box = el.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) {
+      closest = { offset, element: el };
+    }
+  }
+  return closest.element;
+}
+
+// Lists drag support
+document.addEventListener('dragover', (e) => {
+  if (!dragData || dragData.type !== 'list') return;
+  e.preventDefault();
+  const boardEl = document.getElementById('board');
+  const after = getDragAfter(boardEl, e.clientX, '.list:not(.dragging)');
+  // Use X axis for lists
+  const lists = [...boardEl.querySelectorAll('.list:not(.dragging)')];
+  let afterList = null;
+  for (const l of lists) {
+    const rect = l.getBoundingClientRect();
+    if (e.clientX < rect.left + rect.width / 2) { afterList = l; break; }
+  }
+  const dragging = document.querySelector('.list.dragging');
+  if (!dragging) return;
+  if (afterList) boardEl.insertBefore(dragging, afterList);
+  else {
+    const addBtn = boardEl.querySelector('.add-list-wrap');
+    if (addBtn) boardEl.insertBefore(dragging, addBtn);
+  }
+});
+document.addEventListener('drop', (e) => {
+  if (!dragData || dragData.type !== 'list') return;
+  e.preventDefault();
+  const boardEl = document.getElementById('board');
+  const ids = [...boardEl.querySelectorAll('.list')].map(n => n.dataset.listId).filter(Boolean);
+  const board = currentBoard();
+  board.lists.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+  saveState();
+  renderAll();
+});
+
+// ===== Toasts =====
+
+function showToast(message, undoHandler, ttl) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML = `<span>${escapeHtml(message)}</span>`;
+  if (undoHandler) {
+    const btn = document.createElement('button');
+    btn.textContent = '元に戻す';
+    btn.addEventListener('click', () => { undoHandler(); el.remove(); });
+    el.appendChild(btn);
+  }
+  const close = document.createElement('button');
+  close.innerHTML = `<span class="material-symbols-outlined msi-md">close</span>`;
+  close.style.color = '#FFF';
+  close.addEventListener('click', () => el.remove());
+  el.appendChild(close);
+  document.getElementById('toaster').appendChild(el);
+  setTimeout(() => { if (el.parentNode) el.remove(); }, ttl || 3000);
+}
+
+// ===== Boards Drawer =====
+
+function openBoardsDrawer() {
+  closePopover();
+  const bd = document.createElement('div');
+  bd.className = 'drawer-backdrop';
+  bd.addEventListener('click', closeDrawer);
+  document.body.appendChild(bd);
+
+  const drawer = document.createElement('div');
+  drawer.className = 'drawer';
+  drawer.innerHTML = `
+    <div class="drawer-header">
+      <div class="drawer-title">ボード</div>
+      <button class="btn-icon" id="drawer-new" title="新しいボード"><span class="material-symbols-outlined msi-md">add</span></button>
+      <button class="btn-icon" id="drawer-close" title="閉じる"><span class="material-symbols-outlined msi-md">close</span></button>
+    </div>
+    <div class="drawer-body" id="drawer-body"></div>
+    <div style="padding:8px 12px 12px 12px;border-top:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap;">
+      <button class="side-btn" id="btn-export" style="width:auto;"><span class="material-symbols-outlined msi-md">download</span>エクスポート</button>
+      <button class="side-btn" id="btn-import" style="width:auto;"><span class="material-symbols-outlined msi-md">upload</span>インポート</button>
+    </div>
+  `;
+  document.body.appendChild(drawer);
+  drawer.querySelector('#drawer-close').addEventListener('click', closeDrawer);
+  drawer.querySelector('#drawer-new').addEventListener('click', () => {
+    const name = prompt('新しいボード名を入力してください', '新しいボード');
+    if (!name) return;
+    const b = { id: uid(), name: name.trim(), background: 'blue', closed: false, labels: DEFAULT_LABELS(), lists: [] };
+    state.boards.push(b);
+    state.currentBoardId = b.id;
+    saveState(); renderAll();
+    closeDrawer();
+  });
+  drawer.querySelector('#btn-export').addEventListener('click', exportData);
+  drawer.querySelector('#btn-import').addEventListener('click', importData);
+
+  const body = drawer.querySelector('#drawer-body');
+  for (const b of state.boards) {
+    if (b.closed) continue;
+    const item = document.createElement('div');
+    item.className = 'board-item' + (b.id === state.currentBoardId ? ' current' : '');
+    item.innerHTML = `
+      <div class="board-swatch" style="background:${bgValue(b.background)};"></div>
+      <div class="board-item-name">${escapeHtml(b.name)}</div>
+      <div class="board-item-actions">
+        <button class="btn-icon" data-act="bg" title="背景"><span class="material-symbols-outlined msi-md">palette</span></button>
+        <button class="btn-icon" data-act="rename" title="名前変更"><span class="material-symbols-outlined msi-md">edit</span></button>
+        <button class="btn-icon" data-act="copy" title="コピー"><span class="material-symbols-outlined msi-md">content_copy</span></button>
+        <button class="btn-icon" data-act="close" title="ボードを閉じる"><span class="material-symbols-outlined msi-md">archive</span></button>
+      </div>
+    `;
+    item.addEventListener('click', (e) => {
+      if (e.target.closest('[data-act]')) return;
+      state.currentBoardId = b.id;
+      saveState(); renderAll();
+      closeDrawer();
+    });
+    item.querySelector('[data-act="rename"]').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const name = prompt('ボード名', b.name);
+      if (name && name.trim()) { b.name = name.trim(); saveState(); openBoardsDrawer(); closeDrawer(); renderAll(); openBoardsDrawer(); }
+    });
+    item.querySelector('[data-act="bg"]').addEventListener('click', (e) => {
+      e.stopPropagation();
+      openBackgroundPicker(b, e.currentTarget.getBoundingClientRect());
+    });
+    item.querySelector('[data-act="copy"]').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const copy = JSON.parse(JSON.stringify(b));
+      copy.id = uid();
+      copy.name = b.name + ' のコピー';
+      copy.labels.forEach(l => l.id = uid());
+      copy.lists.forEach(l => { l.id = uid(); l.cards.forEach(c => c.id = uid()); });
+      state.boards.push(copy);
+      saveState(); closeDrawer(); openBoardsDrawer();
+    });
+    item.querySelector('[data-act="close"]').addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!confirm(`ボード「${b.name}」を閉じますか?アーカイブされます。`)) return;
+      b.closed = true;
+      if (b.id === state.currentBoardId) {
+        const next = state.boards.find(x => !x.closed);
+        state.currentBoardId = next ? next.id : null;
+      }
+      saveState(); closeDrawer(); openBoardsDrawer(); renderAll();
+    });
+    body.appendChild(item);
+  }
+
+  const archivedBoards = state.boards.filter(b => b.closed);
+  if (archivedBoards.length) {
+    const section = document.createElement('div');
+    section.innerHTML = `<div class="side-title" style="margin-top:12px;">アーカイブ済みボード</div>`;
+    for (const b of archivedBoards) {
+      const item = document.createElement('div');
+      item.className = 'board-item';
+      item.innerHTML = `
+        <div class="board-swatch" style="background:${bgValue(b.background)};opacity:0.6;"></div>
+        <div class="board-item-name muted">${escapeHtml(b.name)}</div>
+        <div class="board-item-actions">
+          <button class="btn-icon" data-reopen title="再開"><span class="material-symbols-outlined msi-md">unarchive</span></button>
+          <button class="btn-icon" data-delete title="完全削除"><span class="material-symbols-outlined msi-md" style="color:var(--due-red);">delete_forever</span></button>
+        </div>
+      `;
+      item.querySelector('[data-reopen]').addEventListener('click', () => {
+        b.closed = false; saveState(); closeDrawer(); openBoardsDrawer(); renderAll();
+      });
+      item.querySelector('[data-delete]').addEventListener('click', () => {
+        if (!confirm(`「${b.name}」を完全に削除します。元に戻せません。よろしいですか?`)) return;
+        state.boards = state.boards.filter(x => x.id !== b.id);
+        saveState(); closeDrawer(); openBoardsDrawer();
+      });
+      section.appendChild(item);
+    }
+    body.appendChild(section);
+  }
+}
+
+function closeDrawer() {
+  document.querySelector('.drawer-backdrop')?.remove();
+  document.querySelector('.drawer')?.remove();
+}
+
+function openBackgroundPicker(board, anchor) {
+  showPopover({
+    title: '背景',
+    anchor,
+    body: () => {
+      const wrap = document.createElement('div');
+      wrap.className = 'bg-grid';
+      for (const c of BG_COLORS) {
+        const sw = document.createElement('div');
+        sw.className = 'bg-swatch' + (board.background === c.key ? ' selected' : '');
+        sw.style.background = c.value;
+        sw.addEventListener('click', () => {
+          board.background = c.key;
+          saveState();
+          closePopover();
+          closeDrawer();
+          openBoardsDrawer();
+          renderAll();
+        });
+        wrap.appendChild(sw);
+      }
+      return wrap;
+    }
+  });
+}
+
+// ===== Export / Import =====
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const ts = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+  a.download = `trello-clone-${ts}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('JSONをエクスポートしました', null, 2000);
+}
+
+function importData() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'application/json,.json';
+  input.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!data.boards || !Array.isArray(data.boards)) throw new Error('不正なファイル形式');
+        if (!confirm('現在のデータは上書きされます。続行しますか?')) return;
+        state = data;
+        saveState(); closeDrawer(); renderAll();
+        showToast('データをインポートしました', null, 2000);
+      } catch (err) {
+        alert('インポートに失敗しました: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  });
+  input.click();
+}
+
+// ===== Filter UI =====
+
+function openFilterPopover(anchor) {
+  const board = currentBoard();
+  showPopover({
+    title: 'カードをフィルター',
+    anchor,
+    body: () => {
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `
+        <div style="font-weight:600;font-size:12px;color:var(--text-mid);margin-bottom:6px;">キーワード</div>
+        <input type="text" id="f-text" value="${escapeHtml(filterCriteria.text)}" placeholder="カード名・説明..." style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:3px;font-family:inherit;font-size:14px;margin-bottom:12px;background:var(--card-bg);color:var(--text-dark);">
+        <div style="font-weight:600;font-size:12px;color:var(--text-mid);margin-bottom:6px;">ラベル</div>
+        <div id="f-labels" style="margin-bottom:12px;"></div>
+        <div style="font-weight:600;font-size:12px;color:var(--text-mid);margin-bottom:6px;">期限</div>
+        <select id="f-due" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:3px;font-family:inherit;font-size:14px;margin-bottom:12px;background:var(--card-bg);color:var(--text-dark);">
+          <option value="">指定なし</option>
+          <option value="no-due">期限なし</option>
+          <option value="overdue">期限切れ</option>
+          <option value="due-soon">24時間以内</option>
+          <option value="complete">完了済み</option>
+          <option value="incomplete">未完了</option>
+        </select>
+        <div style="display:flex;gap:6px;">
+          <button class="btn-primary" data-apply>適用</button>
+          <button class="side-btn" data-clear style="width:auto;padding:6px 12px;">クリア</button>
+        </div>
+      `;
+      wrap.querySelector('#f-due').value = filterCriteria.due;
+      const labelsEl = wrap.querySelector('#f-labels');
+      for (const lbl of board.labels) {
+        const active = filterCriteria.labelIds.includes(lbl.id);
+        const row = document.createElement('button');
+        row.className = 'popover-item' + (active ? ' active' : '');
+        row.innerHTML = `
+          <input type="checkbox" ${active ? 'checked' : ''}>
+          <div class="label-chip" style="background:${labelHex(lbl.color)};">${escapeHtml(lbl.name || '')}</div>
+        `;
+        row.addEventListener('click', (e) => {
+          if (e.target.matches('input')) return;
+          row.querySelector('input').checked = !row.querySelector('input').checked;
+        });
+        labelsEl.appendChild(row);
+      }
+      wrap.querySelector('[data-apply]').addEventListener('click', () => {
+        filterCriteria.text = wrap.querySelector('#f-text').value.trim();
+        filterCriteria.due = wrap.querySelector('#f-due').value;
+        filterCriteria.labelIds = [...labelsEl.querySelectorAll('.popover-item')].map((row, i) => {
+          return row.querySelector('input').checked ? board.labels[i].id : null;
+        }).filter(Boolean);
+        document.getElementById('search-input').value = filterCriteria.text;
+        closePopover(); renderAll();
+      });
+      wrap.querySelector('[data-clear]').addEventListener('click', () => {
+        filterCriteria = { text: '', labelIds: [], due: '' };
+        document.getElementById('search-input').value = '';
+        closePopover(); renderAll();
+      });
+      return wrap;
+    }
+  });
+}
+
+// ===== Shortcuts Modal =====
+
+function openShortcutsModal() {
+  closePopover();
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-backdrop';
+  overlay.innerHTML = `
+    <div class="modal" style="max-width:720px;padding:20px 28px 24px 28px;">
+      <button class="modal-close" aria-label="閉じる"><span class="material-symbols-outlined msi-lg">close</span></button>
+      <h2 style="margin-bottom:12px;">キーボードショートカット</h2>
+      <div style="font-size:12px;color:var(--text-light);margin-bottom:12px;">
+        本家Trelloの公式ショートカットに準拠。一部(メンバー・投票・監視など)はシングルユーザー版のため省略。
+      </div>
+      <div class="shortcuts-grid">
+        <div class="shortcut-row"><kbd>?</kbd><span>ショートカット一覧</span></div>
+        <div class="shortcut-row"><kbd>/</kbd><span>検索にフォーカス</span></div>
+        <div class="shortcut-row"><kbd>B</kbd><span>ボードメニュー</span></div>
+        <div class="shortcut-row"><kbd>W</kbd><span>ボード設定</span></div>
+        <div class="shortcut-row"><kbd>F</kbd><span>フィルターを開く</span></div>
+        <div class="shortcut-row"><kbd>X</kbd><span>フィルターをクリア</span></div>
+        <div class="shortcut-row"><kbd>N</kbd><span>新規カード(カードにホバー中)</span></div>
+        <div class="shortcut-row"><kbd>Enter</kbd><span>カードを開く(ホバー中)</span></div>
+        <div class="shortcut-row"><kbd>E</kbd><span>クイック編集(ホバー中)</span></div>
+        <div class="shortcut-row"><kbd>T</kbd><span>タイトル編集(ホバー中)</span></div>
+        <div class="shortcut-row"><kbd>C</kbd><span>カードをアーカイブ(ホバー中)</span></div>
+        <div class="shortcut-row"><kbd>D</kbd><span>期限日(ホバー中)</span></div>
+        <div class="shortcut-row"><kbd>L</kbd><span>ラベルメニュー(ホバー中)</span></div>
+        <div class="shortcut-row"><kbd>;</kbd><span>ラベル名の表示切替</span></div>
+        <div class="shortcut-row"><kbd>0</kbd>–<kbd>9</kbd><span>色番号でラベルを付与</span></div>
+        <div class="shortcut-row"><kbd>,</kbd> <kbd>.</kbd><span>カードを隣のリストへ移動</span></div>
+        <div class="shortcut-row"><kbd>Esc</kbd><span>モーダル・ポップオーバーを閉じる</span></div>
+        <div class="shortcut-row"><kbd>Ctrl/⌘</kbd><kbd>Enter</kbd><span>テキストを保存</span></div>
+        <div class="shortcut-row"><kbd>Z</kbd><span>元に戻す</span></div>
+        <div class="shortcut-row"><kbd>Shift</kbd><kbd>Z</kbd><span>やり直す</span></div>
+      </div>
+    </div>
+  `;
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  overlay.querySelector('.modal-close').addEventListener('click', () => overlay.remove());
+  document.body.appendChild(overlay);
+}
+
+// ===== Keyboard Shortcuts =====
+
+let hoveredCardId = null;
+
+document.addEventListener('mouseover', (e) => {
+  const card = e.target.closest('.card');
+  hoveredCardId = card ? card.dataset.cardId : null;
+});
+document.addEventListener('mouseout', (e) => {
+  if (!e.relatedTarget || !e.relatedTarget.closest?.('.card')) hoveredCardId = null;
+});
+
+document.addEventListener('keydown', (e) => {
+  const tag = (e.target.tagName || '').toUpperCase();
+  const typing = tag === 'INPUT' || tag === 'TEXTAREA' || e.target.isContentEditable;
+
+  // Escape always works
+  if (e.key === 'Escape') {
+    if (currentModal) { closeModal(); return; }
+    if (activePopover) { closePopover(); return; }
+    document.querySelector('.modal-backdrop')?.remove();
+    document.querySelector('.drawer-backdrop')?.remove();
+    document.querySelector('.drawer')?.remove();
+    return;
+  }
+
+  if (typing) return;
+
+  // Disable all other shortcuts when any overlay is open (modal/popover/drawer)
+  // This prevents accidental shortcut triggers when user is interacting with overlays.
+  const overlayOpen = !!(currentModal
+    || activePopover
+    || document.querySelector('.modal-backdrop')
+    || document.querySelector('.drawer'));
+  if (overlayOpen) return;
+
+  // Global
+  if (e.key === '?') { e.preventDefault(); openShortcutsModal(); return; }
+  if (e.key === '/') { e.preventDefault(); document.getElementById('search-input').focus(); return; }
+  if (e.key.toLowerCase() === 'b') { e.preventDefault(); openBoardsDrawer(); return; }
+  if (e.key.toLowerCase() === 'w') { e.preventDefault(); document.getElementById('btn-settings').click(); return; }
+  if (e.key.toLowerCase() === 'f') {
+    e.preventDefault();
+    openFilterPopover(document.getElementById('btn-filter').getBoundingClientRect());
+    return;
+  }
+  if (e.key.toLowerCase() === 'x') {
+    e.preventDefault();
+    filterCriteria = { text: '', labelIds: [], due: '' };
+    document.getElementById('search-input').value = '';
+    renderAll();
+    showToast('フィルターをクリアしました', null, 1500);
+    return;
+  }
+  if (e.key === ';') {
+    e.preventDefault();
+    state.showLabelNames = !state.showLabelNames;
+    saveState(); renderAll();
+    return;
+  }
+  if (e.key.toLowerCase() === 'z' && !e.shiftKey) { e.preventDefault(); doUndo(); return; }
+  if (e.key.toLowerCase() === 'z' && e.shiftKey)  { e.preventDefault(); doRedo(); return; }
+
+  // Card-hover shortcuts (only when no overlay open)
+  if (!hoveredCardId) return;
+  const found = findCard(state.currentBoardId, hoveredCardId);
+  if (!found) return;
+  const { list, card } = found;
+
+  if (e.key === 'Enter') { e.preventDefault(); openCardModal(card); return; }
+  if (e.key.toLowerCase() === 'c') { e.preventDefault(); archiveCard(card, list); return; }
+  if (e.key.toLowerCase() === 'd') {
+    e.preventDefault();
+    const cardEl = document.querySelector(`.card[data-card-id="${card.id}"]`);
+    if (cardEl) openDatesPopover(card, cardEl.getBoundingClientRect(), () => renderAll());
+    return;
+  }
+  if (e.key.toLowerCase() === 'l') {
+    e.preventDefault();
+    const cardEl = document.querySelector(`.card[data-card-id="${card.id}"]`);
+    if (cardEl) openLabelsPopover(card, cardEl.getBoundingClientRect(), () => renderAll());
+    return;
+  }
+  if (e.key.toLowerCase() === 'e') {
+    e.preventDefault();
+    const cardEl = document.querySelector(`.card[data-card-id="${card.id}"]`);
+    if (cardEl) openQuickEdit(card, cardEl);
+    return;
+  }
+  if (e.key.toLowerCase() === 't') {
+    e.preventDefault();
+    openCardModal(card);
+    setTimeout(() => document.querySelector('[data-field="title"]')?.focus(), 50);
+    return;
+  }
+  if (e.key.toLowerCase() === 'n') {
+    e.preventDefault();
+    const listEl = document.querySelector(`[data-list-id="${list.id}"]`);
+    if (listEl) openCardComposer(list, listEl);
+    return;
+  }
+  if (e.key === ',' || e.key === '.' || e.key === '<' || e.key === '>') {
+    e.preventDefault();
+    const board = currentBoard();
+    const lists = board.lists.filter(l => !l.archived);
+    const idx = lists.findIndex(l => l.id === list.id);
+    let target = null;
+    if (e.key === ',' || e.key === '<') target = lists[idx - 1];
+    if (e.key === '.' || e.key === '>') target = lists[idx + 1];
+    if (target) moveCardTo(card, target.id, target.cards.length);
+    return;
+  }
+  // 0-9 label shortcuts
+  if (/^[0-9]$/.test(e.key)) {
+    e.preventDefault();
+    const num = parseInt(e.key, 10);
+    const colorEntry = LABEL_COLORS.find(c => c.num === num);
+    if (!colorEntry) return;
+    const board = currentBoard();
+    const lbl = board.labels.find(l => l.color === colorEntry.key);
+    if (!lbl) return;
+    if (card.labelIds.includes(lbl.id)) card.labelIds = card.labelIds.filter(id => id !== lbl.id);
+    else card.labelIds.push(lbl.id);
+    card.updatedAt = nowIso();
+    saveState(); renderAll();
+  }
+});
+
+// ===== Top bar events =====
+
+document.getElementById('btn-boards').addEventListener('click', openBoardsDrawer);
+document.getElementById('btn-home').addEventListener('click', openBoardsDrawer);
+document.getElementById('current-board-title').addEventListener('click', () => {
+  const b = currentBoard();
+  if (!b) return;
+  const name = prompt('ボード名', b.name);
+  if (name && name.trim()) { b.name = name.trim(); saveState(); renderAll(); }
+});
+document.getElementById('btn-filter').addEventListener('click', (e) => openFilterPopover(e.currentTarget.getBoundingClientRect()));
+document.getElementById('btn-label-names').addEventListener('click', () => {
+  state.showLabelNames = !state.showLabelNames;
+  saveState(); renderAll();
+});
+document.getElementById('btn-theme').addEventListener('click', () => {
+  state.theme = state.theme === 'dark' ? 'light' : 'dark';
+  saveState(); renderAll();
+});
+document.getElementById('btn-shortcuts').addEventListener('click', openShortcutsModal);
+document.getElementById('btn-settings').addEventListener('click', (e) => {
+  const b = currentBoard();
+  if (!b) return;
+  showPopover({
+    title: 'ボード設定',
+    anchor: e.currentTarget.getBoundingClientRect(),
+    body: () => {
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `
+        <button class="popover-item" data-bg><span class="material-symbols-outlined msi-md">palette</span>背景を変更</button>
+        <button class="popover-item" data-rename><span class="material-symbols-outlined msi-md">edit</span>ボード名を変更</button>
+        <button class="popover-item" data-labels><span class="material-symbols-outlined msi-md">label</span>ラベルを管理</button>
+        <button class="popover-item" data-archived><span class="material-symbols-outlined msi-md">inventory_2</span>アーカイブ済みアイテム</button>
+        <button class="popover-item" data-close><span class="material-symbols-outlined msi-md">archive</span>ボードを閉じる</button>
+      `;
+      wrap.querySelector('[data-bg]').addEventListener('click', (ev) => {
+        closePopover();
+        openBackgroundPicker(b, ev.currentTarget.getBoundingClientRect());
+      });
+      wrap.querySelector('[data-rename]').addEventListener('click', () => {
+        const n = prompt('ボード名', b.name);
+        if (n && n.trim()) { b.name = n.trim(); saveState(); renderAll(); }
+        closePopover();
+      });
+      wrap.querySelector('[data-labels]').addEventListener('click', (ev) => {
+        closePopover();
+        openBoardLabelsManager(ev.currentTarget.getBoundingClientRect());
+      });
+      const arch = wrap.querySelector('[data-archived]');
+      if (arch) arch.addEventListener('click', (ev) => { closePopover(); openArchivedPopover(ev.currentTarget.getBoundingClientRect()); });
+      wrap.querySelector('[data-close]').addEventListener('click', () => {
+        if (!confirm(`ボード「${b.name}」を閉じますか?`)) return;
+        b.closed = true;
+        const next = state.boards.find(x => !x.closed && x.id !== b.id);
+        state.currentBoardId = next ? next.id : null;
+        saveState(); closePopover(); renderAll();
+      });
+      return wrap;
+    }
+  });
+});
+
+function openBoardLabelsManager(anchor) {
+  const board = currentBoard();
+  showPopover({
+    title: 'ラベル管理',
+    anchor,
+    body: () => {
+      const wrap = document.createElement('div');
+      const list = document.createElement('div');
+      const refresh = () => {
+        list.innerHTML = '';
+        for (const lbl of board.labels) {
+          const row = document.createElement('button');
+          row.className = 'popover-item';
+          row.innerHTML = `
+            <div class="label-chip" style="background:${labelHex(lbl.color)};">${escapeHtml(lbl.name || '(名前なし)')}</div>
+            <span class="material-symbols-outlined msi-md">edit</span>
+          `;
+          row.addEventListener('click', (e) => openEditLabelPopover(lbl, e.currentTarget.getBoundingClientRect(), refresh));
+          list.appendChild(row);
+        }
+        const create = document.createElement('button');
+        create.className = 'popover-item';
+        create.style.justifyContent = 'center';
+        create.innerHTML = `<span class="material-symbols-outlined msi-md">add</span>新しいラベル`;
+        create.addEventListener('click', (e) => openEditLabelPopover(null, e.currentTarget.getBoundingClientRect(), refresh));
+        list.appendChild(create);
+      };
+      refresh();
+      wrap.appendChild(list);
+      return wrap;
+    }
+  });
+}
+
+function openArchivedPopover(anchor) {
+  const board = currentBoard();
+  showPopover({
+    title: 'アーカイブ済みアイテム',
+    anchor,
+    body: () => {
+      const wrap = document.createElement('div');
+      const tabs = document.createElement('div');
+      tabs.style.cssText = 'display:flex;gap:4px;margin-bottom:8px;';
+      let mode = 'cards';
+      const body = document.createElement('div');
+      const render = () => {
+        body.innerHTML = '';
+        tabs.innerHTML = `
+          <button class="tab-btn ${mode==='cards'?'active':''}" data-tab="cards">カード</button>
+          <button class="tab-btn ${mode==='lists'?'active':''}" data-tab="lists">リスト</button>
+        `;
+        tabs.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => { mode = b.dataset.tab; render(); }));
+        if (mode === 'cards') {
+          const archivedCards = [];
+          for (const l of board.lists) for (const c of l.cards) if (c.archived) archivedCards.push({ list: l, card: c });
+          if (!archivedCards.length) body.innerHTML = '<div class="muted" style="padding:8px;">アーカイブされたカードはありません</div>';
+          else for (const { list, card } of archivedCards) {
+            const row = document.createElement('div');
+            row.className = 'popover-item';
+            row.innerHTML = `<div style="flex:1;">${escapeHtml(card.title)}<br><span class="muted" style="font-size:11px;">${escapeHtml(list.title)}</span></div>
+              <button class="btn-icon" data-restore title="ボードに戻す"><span class="material-symbols-outlined msi-md">unarchive</span></button>
+              <button class="btn-icon" data-delete title="完全削除"><span class="material-symbols-outlined msi-md" style="color:var(--due-red);">delete_forever</span></button>`;
+            row.querySelector('[data-restore]').addEventListener('click', () => { card.archived = false; saveState(); render(); renderAll(); });
+            row.querySelector('[data-delete]').addEventListener('click', () => { deleteCardPermanent(card, list); render(); });
+            body.appendChild(row);
+          }
+        } else {
+          const archivedLists = board.lists.filter(l => l.archived);
+          if (!archivedLists.length) body.innerHTML = '<div class="muted" style="padding:8px;">アーカイブされたリストはありません</div>';
+          else for (const list of archivedLists) {
+            const row = document.createElement('div');
+            row.className = 'popover-item';
+            row.innerHTML = `<div style="flex:1;">${escapeHtml(list.title)} <span class="muted" style="font-size:11px;">(${list.cards.length}枚)</span></div>
+              <button class="btn-icon" data-restore title="ボードに戻す"><span class="material-symbols-outlined msi-md">unarchive</span></button>
+              <button class="btn-icon" data-delete title="完全削除"><span class="material-symbols-outlined msi-md" style="color:var(--due-red);">delete_forever</span></button>`;
+            row.querySelector('[data-restore]').addEventListener('click', () => { list.archived = false; saveState(); render(); renderAll(); });
+            row.querySelector('[data-delete]').addEventListener('click', () => { deleteListPermanent(list); render(); });
+            body.appendChild(row);
+          }
+        }
+      };
+      wrap.appendChild(tabs);
+      wrap.appendChild(body);
+      render();
+      return wrap;
+    }
+  });
+}
+
+// Search input
+let searchTimer = null;
+document.getElementById('search-input').addEventListener('input', (e) => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    filterCriteria.text = e.target.value.trim();
+    renderAll();
+  }, 120);
+});
+
+// Initial render
+renderAll();
+</script>
+</body>
+</html>

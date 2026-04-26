@@ -746,10 +746,9 @@
   }
   .tab-add-btn:hover { background: var(--bg-hover); color: var(--text-secondary); }
   .tab-panel {
-    padding: 2px 0;
+    padding: 2px 0 2px 4px;
     min-height: 40px;
     position: relative;
-    padding-left: 4px;
   }
 
   /* Drag states */
@@ -1310,6 +1309,7 @@ function showPrompt(message, { title = '入力', okText = 'OK', cancelText = '�
     dialogBox.querySelector('[data-cancel]').onclick = () => hideDialog(null);
     dialogBox.querySelector('[data-ok]').onclick = () => hideDialog(input.value);
     input.addEventListener('keydown', (e) => {
+      if (e.isComposing) return;
       if (e.key === 'Enter') { e.preventDefault(); hideDialog(input.value); }
       if (e.key === 'Escape') { e.preventDefault(); hideDialog(null); }
     });
@@ -1737,6 +1737,7 @@ function renderCodeBlock(block, el, parentList) {
   });
   codeInner.addEventListener('blur', applyHighlight);
   codeInner.addEventListener('keydown', (e) => {
+    if (e.isComposing) return;
     if (e.key === 'Tab') { e.preventDefault(); document.execCommand('insertText', false, '  '); }
     if (e.key === 'Backspace' && codeInner.textContent === '') { e.preventDefault(); convertBlockType(block, 'text'); }
   });
@@ -1842,6 +1843,7 @@ function renderTableBlock(block, el, parentList) {
 }
 
 function handleTableCellKey(e, block, r, c) {
+  if (e.isComposing) return;
   if (e.key === 'Tab') {
     e.preventDefault();
     let nr = r, nc = c + (e.shiftKey ? -1 : 1);
@@ -1998,6 +2000,7 @@ function renderTabsBlock(block, el, parentList) {
       title.contentEditable = 'true';
       title.addEventListener('input', () => { tab.title = title.textContent; saveState(); });
       title.addEventListener('keydown', (e) => {
+        if (e.isComposing) return;
         if (e.key === 'Enter') { e.preventDefault(); title.blur(); }
       });
       // Prevent tab-item click from firing when user interacts with the
@@ -2273,6 +2276,13 @@ function hideSlashMenu() { slashOpen = false; slashBlock = null; slashContentEl 
 
 /* ==================== Block Input ==================== */
 function handleBlockInput(e, block, content) {
+  // Skip processing during IME composition (Japanese/Chinese/Korean input).
+  // Otherwise typing "#" mid-conversion would convert the block to a heading
+  // before the user has confirmed the input.
+  if (e && e.isComposing) {
+    block.content = content.innerHTML; saveState();
+    return;
+  }
   block.content = content.innerHTML; saveState();
   const text = content.textContent || '';
   if (text.startsWith('/')) { slashQuery = text.slice(1); showSlashMenu(content, block); }
@@ -2307,7 +2317,7 @@ function handleBlockInput(e, block, content) {
 }
 
 function handleBlockKeydown(e, block, el, content, parentList) {
-  if (slashOpen && slashBlock && slashBlock.id === block.id && ctxNavContext) {
+  if (slashOpen && slashBlock && slashBlock.id === block.id && ctxNavContext && !e.isComposing) {
     const items = ctxNavContext.selectable;
     if (e.key === 'ArrowDown') { e.preventDefault(); moveCtxSel(items, 1); return; }
     if (e.key === 'ArrowUp')   { e.preventDefault(); moveCtxSel(items, -1); return; }
@@ -2347,7 +2357,7 @@ function handleBlockKeydown(e, block, el, content, parentList) {
     return;
   }
 
-  if (e.key === 'Backspace' && isCaretAtStart(content)) {
+  if (e.key === 'Backspace' && !e.isComposing && isCaretAtStart(content)) {
     if (block.type !== 'text') { e.preventDefault(); convertBlockType(block, 'text'); return; }
     if (!content.textContent.trim() && !content.innerHTML.trim()) {
       e.preventDefault(); const prev = deleteBlock(block.id); renderEditor();
@@ -2378,13 +2388,13 @@ function handleBlockKeydown(e, block, el, content, parentList) {
     return;
   }
 
-  if (e.key === 'ArrowUp' && isCaretAtStart(content)) {
+  if (e.key === 'ArrowUp' && !e.isComposing && isCaretAtStart(content)) {
     const f = findBlockAndList(block.id, parentList);
     if (f && f.index > 0) { e.preventDefault(); focusBlock(f.list[f.index - 1].id, 'end'); }
     else { e.preventDefault(); const t = $('#page-title'); t.focus(); placeCaret(t, 'end'); }
     return;
   }
-  if (e.key === 'ArrowDown' && isCaretAtEnd(content)) {
+  if (e.key === 'ArrowDown' && !e.isComposing && isCaretAtEnd(content)) {
     const f = findBlockAndList(block.id, parentList);
     if (f && f.index < f.list.length - 1) { e.preventDefault(); focusBlock(f.list[f.index + 1].id, 'start'); }
     return;
@@ -2612,6 +2622,7 @@ let draggingBlockId = null;
 const titleEl = $('#page-title');
 titleEl.addEventListener('input', () => { const page = getCurrentPage(); if (!page) return; page.title = titleEl.textContent; saveState(); renderSidebar(); renderBreadcrumb(); });
 titleEl.addEventListener('keydown', (e) => {
+  if (e.isComposing) return;
   if (e.key === 'Enter' || e.key === 'ArrowDown') { e.preventDefault(); const page = getCurrentPage(); if (page.blocks.length) focusBlock(page.blocks[0].id, 'start'); }
 });
 
@@ -2808,6 +2819,7 @@ function renderSearchResults(q) {
 
 searchInput.addEventListener('input', () => renderSearchResults(searchInput.value));
 searchInput.addEventListener('keydown', (e) => {
+  if (e.isComposing) return;
   if (e.key === 'Escape') { e.preventDefault(); closeSearchModal(); return; }
   if (e.key === 'ArrowDown') { e.preventDefault(); if (searchItems.length) { searchItems.forEach(i => i.classList.remove('selected')); searchSelectedIdx = (searchSelectedIdx + 1) % searchItems.length; searchItems[searchSelectedIdx].classList.add('selected'); searchItems[searchSelectedIdx].scrollIntoView({block: 'nearest'}); } return; }
   if (e.key === 'ArrowUp')   { e.preventDefault(); if (searchItems.length) { searchItems.forEach(i => i.classList.remove('selected')); searchSelectedIdx = (searchSelectedIdx - 1 + searchItems.length) % searchItems.length; searchItems[searchSelectedIdx].classList.add('selected'); searchItems[searchSelectedIdx].scrollIntoView({block: 'nearest'}); } return; }
@@ -2933,12 +2945,14 @@ const BlockSelection = (() => {
 
   // Click anywhere except the block-type conversion menu clears selection.
   // (Note: inside #context-menu the user is picking a new block type, so we
-  //  keep the selection alive until the menu actually applies the change.)
+  //  keep the selection alive until the menu actually applies the change.
+  //  Also preserve selection when clicking the block drag handle so users
+  //  can interact with selected blocks via the gutter.)
   document.addEventListener('mousedown', (e) => {
     if (isDragging) return;
     if (!hasSelection()) return;
-    // Preserve selection ONLY when clicking inside the type-conversion menu
     if (e.target.closest('#context-menu')) return;
+    if (e.target.closest('.block-drag')) return;
     clear();
   }, true);
 
@@ -2947,6 +2961,7 @@ const BlockSelection = (() => {
 
 // Esc/Copy/Cut/Delete/SelectAll for selected blocks
 document.addEventListener('keydown', (e) => {
+  if (e.isComposing) return;
   const tag = e.target && e.target.tagName;
   const inField = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
   const mod = e.ctrlKey || e.metaKey;
@@ -3054,6 +3069,7 @@ function renderAll() {
     });
     // Enter key should blur (not insert a newline)
     wnEl.addEventListener('keydown', (e) => {
+      if (e.isComposing) return;
       if (e.key === 'Enter') { e.preventDefault(); wnEl.blur(); }
     });
     // On blur: if empty, restore default

@@ -7329,6 +7329,9 @@
             return;
           }
           if (key === 'Enter' && !e.repeat) {
+            const $eventTarget = e.target instanceof HTMLElement ? e.target : null;
+            const $button = $eventTarget?.closest('button');
+            if ($button === closeConfirmModalBtn) return;
             e.preventDefault();
             executeConfirmedAction();
           }

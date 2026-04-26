@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BindSQLforSQLBuilder</title>
+  <title>BindSQL</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f97316'/%3E%3Cpath d='M16 20c0-4.4 7.2-8 16-8s16 3.6 16 8-7.2 8-16 8-16-3.6-16-8Zm0 10c0 4.4 7.2 8 16 8s16-3.6 16-8v8c0 4.4-7.2 8-16 8s-16-3.6-16-8v-8Zm0 18c0 4.4 7.2 8 16 8s16-3.6 16-8v-8c0 4.4-7.2 8-16 8s-16-3.6-16-8v8Z' fill='%23fff7ed'/%3E%3C/svg%3E" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,500,0,0" />
   <style>
@@ -792,19 +792,7 @@ WHERE
 WITH
 `);
       const POSTGRESQL_KEYWORDS = _splitKeywordBlock(`
-ABORT
-ABS
-ABSOLUTE
-ACCESS
-ACTION
-ADD
-ADMIN
-AFTER
-AGGREGATE
 ALL
-ALSO
-ALTER
-ALWAYS
 ANALYSE
 ANALYZE
 AND
@@ -812,69 +800,20 @@ ANY
 ARRAY
 AS
 ASC
-ASENSITIVE
-ASSERTION
-ASSIGNMENT
 ASYMMETRIC
-AT
-ATOMIC
-ATTACH
-ATTRIBUTE
 AUTHORIZATION
-BACKWARD
-BEFORE
-BEGIN
 BETWEEN
-BIGINT
 BINARY
-BIT
-BOOLEAN
 BOTH
-BREADTH
-BY
-CACHE
-CALL
-CALLED
-CASCADE
-CASCADED
 CASE
 CAST
-CATALOG
-CHAIN
-CHAR
-CHARACTER
-CHARACTERISTICS
 CHECK
-CHECKPOINT
-CLASS
-CLOSE
-CLUSTER
-COALESCE
 COLLATE
 COLLATION
 COLUMN
-COLUMNS
-COMMENT
-COMMENTS
-COMMIT
-COMMITTED
-COMPRESSION
-CONCURRENTLY
-CONFIGURATION
-CONFLICT
-CONNECTION
 CONSTRAINT
-CONSTRAINTS
-CONTENT
-CONTINUE
-CONVERSION
-COPY
-COST
 CREATE
 CROSS
-CSV
-CUBE
-CURRENT
 CURRENT_CATALOG
 CURRENT_DATE
 CURRENT_ROLE
@@ -882,368 +821,82 @@ CURRENT_SCHEMA
 CURRENT_TIME
 CURRENT_TIMESTAMP
 CURRENT_USER
-CURSOR
-CYCLE
-DATA
-DATABASE
-DAY
-DEALLOCATE
-DEC
-DECIMAL
-DECLARE
 DEFAULT
-DEFAULTS
 DEFERRABLE
-DEFERRED
-DEFINER
-DELETE
-DELIMITER
-DELIMITERS
-DEPENDS
-DEPTH
 DESC
-DETACH
-DICTIONARY
-DISABLE
-DISCARD
 DISTINCT
 DO
-DOCUMENT
-DOMAIN
-DOUBLE
-DROP
-EACH
 ELSE
-ENABLE
-ENCODING
-ENCRYPTED
 END
-ENUM
-ESCAPE
-EVENT
 EXCEPT
-EXCLUDE
-EXCLUDING
-EXCLUSIVE
-EXECUTE
 EXISTS
-EXPLAIN
-EXPRESSION
-EXTENSION
-EXTERNAL
-EXTRACT
 FALSE
-FAMILY
 FETCH
-FILTER
-FINALIZE
-FIRST
-FLOAT
-FOLLOWING
 FOR
-FORCE
 FOREIGN
-FORWARD
-FREEZE
 FROM
 FULL
-FUNCTION
-FUNCTIONS
-GENERATED
-GLOBAL
 GRANT
-GRANTED
-GREATEST
 GROUP
-GROUPING
-GROUPS
-HANDLER
 HAVING
-HEADER
-HOLD
-HOUR
-IDENTITY
-IF
 ILIKE
-IMMEDIATE
-IMMUTABLE
-IMPLICIT
-IMPORT
 IN
-INCLUDING
-INCREMENT
-INDENT
-INDEX
-INDEXES
-INHERIT
-INHERITS
 INITIALLY
-INLINE
 INNER
-INOUT
-INPUT
-INSENSITIVE
-INSERT
-INSTEAD
-INT
-INTEGER
 INTERSECT
-INTERVAL
 INTO
-INVOKER
 IS
 ISNULL
-ISOLATION
 JOIN
-KEY
-LABEL
-LANGUAGE
-LARGE
-LAST
 LATERAL
 LEADING
-LEAKPROOF
-LEAST
 LEFT
-LEVEL
 LIKE
 LIMIT
-LISTEN
-LOAD
-LOCAL
 LOCALTIME
 LOCALTIMESTAMP
-LOCATION
-LOCK
-LOCKED
-LOGGED
-MAPPING
-MATCH
-MATCHED
-MATERIALIZED
-MAXVALUE
 MERGE
-METHOD
-MINUTE
-MINVALUE
-MODE
-MONTH
-MOVE
-NAME
-NAMES
-NATIONAL
 NATURAL
-NCHAR
-NEW
-NEXT
-NO
-NONE
-NORMALIZE
-NORMALIZED
 NOT
-NOTHING
-NOTIFY
 NOTNULL
-NOWAIT
 NULL
-NULLIF
-NULLS
-NUMERIC
-OBJECT
-OF
-OFF
 OFFSET
-OIDS
-OLD
 ON
 ONLY
-OPERATOR
-OPTION
-OPTIONS
 OR
 ORDER
-ORDINALITY
-OUT
 OUTER
 OVER
 OVERLAPS
-OVERLAY
-OVERRIDING
-OWNED
-OWNER
-PARALLEL
-PARAMETER
-PARSER
-PARTIAL
 PARTITION
-PASSING
-PASSWORD
-PATH
 PLACING
-PLANS
-POLICY
-POSITION
-PRECEDING
-PRECISION
-PREPARE
-PREPARED
-PRESERVE
 PRIMARY
-PRIOR
-PRIVILEGES
-PROCEDURAL
-PROCEDURE
-PROGRAM
-PUBLIC
-PUBLICATION
-QUOTE
-RANGE
-READ
-REAL
-REASSIGN
-RECHECK
 RECURSIVE
-REF
 REFERENCES
-REFERENCING
-REFRESH
-REINDEX
-RELATIVE
-RELEASE
-RENAME
-REPEATABLE
-REPLACE
-REPLICA
-RESET
-RESTART
-RESTRICT
-RETURN
 RETURNING
-RETURNS
-REVOKE
 RIGHT
-ROLE
-ROLLBACK
-ROLLUP
-ROUTINE
-ROW
-ROWS
-RULE
-SAVEPOINT
-SCHEMA
-SCHEMAS
-SCROLL
-SEARCH
-SECOND
-SECURITY
 SELECT
-SEQUENCE
-SEQUENCES
-SERIALIZABLE
-SERVER
-SESSION
 SESSION_USER
 SET
-SETOF
-SHARE
-SHOW
 SIMILAR
-SIMPLE
-SKIP
-SMALLINT
-SNAPSHOT
 SOME
-SQL
-STABLE
-STANDALONE
-START
-STATEMENT
-STATISTICS
-STDIN
-STDOUT
-STORAGE
-STORED
-STRICT
-STRIP
-SUBSCRIPTION
-SUBSTRING
-SUPPORT
 SYMMETRIC
-SYSTEM
 TABLE
-TABLES
-TABLESAMPLE
-TABLESPACE
-TEMP
-TEMPLATE
-TEMPORARY
-TEXT
 THEN
-TIES
-TIME
-TIMESTAMP
 TO
 TRAILING
-TRANSACTION
-TRANSFORM
-TREAT
-TRIGGER
-TRIM
 TRUE
-TRUNCATE
-TRUSTED
-TYPE
-UNBOUNDED
-UNCOMMITTED
-UNENCRYPTED
 UNION
 UNIQUE
-UNKNOWN
-UNLISTEN
-UNLOGGED
-UNTIL
 UPDATE
 USER
 USING
-VACUUM
-VALID
-VALIDATE
-VALIDATOR
-VALUE
 VALUES
-VARCHAR
 VARIADIC
-VARYING
-VERBOSE
-VERSION
-VIEW
-VIEWS
-VOLATILE
 WHEN
 WHERE
-WHITESPACE
 WINDOW
 WITH
-WITHIN
-WITHOUT
-WORK
-WRAPPER
-WRITE
-XML
-XMLATTRIBUTES
-XMLCONCAT
-XMLELEMENT
-XMLEXISTS
-XMLFOREST
-XMLNAMESPACES
-XMLPARSE
-XMLPI
-XMLROOT
-XMLSERIALIZE
-XMLTABLE
-YEAR
-YES
-ZONE
 `);
       const SQL_KEYWORD_DICTIONARY = [
         ...new Set([
@@ -1276,6 +929,7 @@ ZONE
       );
       const PLACEHOLDER_TEXT = "-- ここに変換後SQLが表示されます --";
       const NAMED_BIND_PATTERN = /^:?(?<name>[A-Za-z_][A-Za-z0-9_$]*)\s*(?:=>|=|:)\s*(?<value>.+)$/;
+      const NAMED_PLACEHOLDER_PATTERN = /(^|[^:]):(?<name>[A-Za-z_][A-Za-z0-9_$]*)\b/g;
       const POSITIONAL_BIND_PATTERN = /^(?:\[(?<indexA>\d+)\]|(?<indexB>\d+))\s*(?:=>|=|:)\s*(?<value>.+)$/;
       const PARAMETER_ENTRY_PATTERN = /^(?<key>:?[A-Za-z_][A-Za-z0-9_$]*|\[\d+\]|\d+)\s*(?:=>|=|:)\s*(?<value>.+)$/;
       const SQL_PARAMETER_BLOCK_PATTERN = /^\s*sql\s*=\s*\[(?<sql>[\s\S]*?)\]\s*(?:parameters?|params?)\s*=\s*\[(?<parameters>[\s\S]*?)\]\s*$/i;
@@ -1354,7 +1008,8 @@ ZONE
       const _isQuotedValue = (_value) =>
         (_value.startsWith("'") && _value.endsWith("'")) ||
         (_value.startsWith('"') && _value.endsWith('"')) ||
-        (_value.startsWith("“") && _value.endsWith("”"));
+        (_value.startsWith("“") && _value.endsWith("”")) ||
+        (_value.startsWith("‘") && _value.endsWith("’"));
 
       const _isSqlLiteralValue = (_value) =>
         /^null$/i.test(_value) ||
@@ -1431,8 +1086,30 @@ ZONE
         return `${_match.groups.key} = ${_quoteParameterValue(_match.groups.value)}`;
       };
 
+      const _readDollarQuotedSegment = (_sql, _startIndex) => {
+        if (_sql[_startIndex] !== "$") {
+          return "";
+        }
+
+        const _slice = _sql.slice(_startIndex);
+        const _delimiter = _slice.startsWith("$$")
+          ? "$$"
+          : (_slice.match(/^\$[A-Za-z_][A-Za-z0-9_]*\$/)?.[0] ?? "");
+        if (!_delimiter) {
+          return "";
+        }
+
+        const _contentStartIndex = _startIndex + _delimiter.length;
+        const _endIndex = _sql.indexOf(_delimiter, _contentStartIndex);
+        return _sql.slice(_startIndex, _endIndex === -1 ? _sql.length : _endIndex + _delimiter.length);
+      };
+
       const _readSqlProtectedSegment = (_sql, _startIndex) => {
         const _startCharacter = _sql[_startIndex];
+        const _dollarQuotedSegment = _readDollarQuotedSegment(_sql, _startIndex);
+        if (_dollarQuotedSegment) {
+          return _dollarQuotedSegment;
+        }
 
         if (_startCharacter === "'") {
           let _index = _startIndex + 1;
@@ -1559,6 +1236,14 @@ ZONE
           return {
             _kind: "comment",
             _text: _sql.slice(_startIndex, _endIndex === -1 ? _sql.length : _endIndex + 2)
+          };
+        }
+
+        const _dollarQuotedSegment = _readDollarQuotedSegment(_sql, _startIndex);
+        if (_dollarQuotedSegment) {
+          return {
+            _kind: "string",
+            _text: _dollarQuotedSegment
           };
         }
 
@@ -1823,7 +1508,11 @@ ZONE
           return "";
         }
 
-        if ((_value.startsWith('"') && _value.endsWith('"')) || (_value.startsWith("“") && _value.endsWith("”"))) {
+        if (
+          (_value.startsWith('"') && _value.endsWith('"')) ||
+          (_value.startsWith("“") && _value.endsWith("”")) ||
+          (_value.startsWith("‘") && _value.endsWith("’"))
+        ) {
           const _inner = _value.slice(1, -1).replace(/\\"/g, '"').replace(/'/g, "''");
           return `'${_inner}'`;
         }
@@ -1912,7 +1601,7 @@ ZONE
 
       const _parseBindVariables = (_bindLines) => {
         const _named = new Map();
-        const _positional = [];
+        const _positional = new Map();
 
         for (const _line of _bindLines) {
           const _trimmed = _line.trim();
@@ -1930,18 +1619,32 @@ ZONE
           if (_positionalMatch?.groups?.value) {
             const _index = Number(_positionalMatch.groups.indexA ?? _positionalMatch.groups.indexB ?? "0");
             if (_index > 0) {
-              _positional.push({ _index, _value: _normalizeBindValue(_positionalMatch.groups.value) });
+              _positional.set(_index, _normalizeBindValue(_positionalMatch.groups.value));
             }
           }
         }
 
-        _positional.sort((_left, _right) => _left._index - _right._index);
-
         return {
           _named,
-          _positional: _positional.map((_entry) => _entry._value)
+          _positional
         };
       };
+
+      const _countNamedPlaceholders = (_sql) => {
+        const _counts = new Map();
+        for (const _match of _sql.matchAll(NAMED_PLACEHOLDER_PATTERN)) {
+          const _name = _match.groups?.name ?? "";
+          if (!_name) {
+            continue;
+          }
+
+          _counts.set(_name, (_counts.get(_name) ?? 0) + 1);
+        }
+        return _counts;
+      };
+
+      const _formatNamedBindList = (_names) => _names.map((_name) => `:${_name}`).join(", ");
+      const _formatPositionalBindList = (_indexes) => _indexes.map((_index) => `[${_index}]`).join(", ");
 
       const _replaceNamedBind = (_sql, _name, _value) => {
         const _pattern = new RegExp(`(^|[^:]):${_escapeRegExp(_name)}\\b`, "g");
@@ -1957,30 +1660,49 @@ ZONE
         const _protectedStore = _maskSqlProtectedSegments(_sql);
         let _workingSql = _protectedStore._masked;
         const _issues = [];
+        const _requiredNamedCounts = _countNamedPlaceholders(_workingSql);
+        const _protectMergedValue = (_value) => {
+          const _token = `@@BindSQL_SEGMENT_${_protectedStore._segments.length}@@`;
+          _protectedStore._segments.push(_value);
+          return _token;
+        };
 
         for (const [_name, _value] of _binds._named.entries()) {
-          const _result = _replaceNamedBind(_workingSql, _name, _value);
+          const _result = _replaceNamedBind(_workingSql, _name, _protectMergedValue(_value));
           _workingSql = _result._nextSql;
         }
 
-        let _cursor = 0;
+        let _placeholderIndex = 0;
+        const _usedPositionalIndexes = new Set();
         _workingSql = _workingSql.replace(/\?/g, () => {
-          const _value = _binds._positional[_cursor];
-          if (typeof _value === "undefined") {
+          _placeholderIndex += 1;
+          if (!_binds._positional.has(_placeholderIndex)) {
             return "?";
           }
-          _cursor += 1;
-          return _value;
+          const _value = _binds._positional.get(_placeholderIndex);
+          _usedPositionalIndexes.add(_placeholderIndex);
+          return _protectMergedValue(_value);
         });
 
+        const _missingNamedNames = [..._requiredNamedCounts.keys()].filter((_name) => !_binds._named.has(_name));
+        const _extraNamedNames = [..._binds._named.keys()].filter((_name) => !_requiredNamedCounts.has(_name));
         const _remainingPlaceholderCount = (_workingSql.match(/\?/g) ?? []).length;
-        const _extraPositionalCount = Math.max(0, _binds._positional.length - _cursor);
+        const _extraPositionalIndexes = [..._binds._positional.keys()]
+          .filter((_index) => !_usedPositionalIndexes.has(_index))
+          .sort((_left, _right) => _left - _right);
+
+        if (_missingNamedNames.length > 0) {
+          _issues.push(`未置換の名前付きバインド (${_formatNamedBindList(_missingNamedNames)}) が ${_missingNamedNames.length} 件あります。`);
+        }
+        if (_extraNamedNames.length > 0) {
+          _issues.push(`余剰の名前付きバインド (${_formatNamedBindList(_extraNamedNames)}) が ${_extraNamedNames.length} 件あります。`);
+        }
 
         if (_remainingPlaceholderCount > 0) {
           _issues.push(`未置換の位置バインド (?) が ${_remainingPlaceholderCount} 件あります。`);
         }
-        if (_extraPositionalCount > 0) {
-          _issues.push(`余剰の位置バインドが ${_extraPositionalCount} 件あります。`);
+        if (_extraPositionalIndexes.length > 0) {
+          _issues.push(`余剰の位置バインド (${_formatPositionalBindList(_extraPositionalIndexes)}) が ${_extraPositionalIndexes.length} 件あります。`);
         }
 
         return {
@@ -2011,7 +1733,7 @@ ZONE
 
         return _sql.replace(SQL_KEYWORD_CASE_PATTERN, (_match, _offset, _source) => {
           const _previousCharacter = _source[_offset - 1] ?? "";
-          if (_previousCharacter === ":" || _previousCharacter === ".") {
+          if (_previousCharacter === ":" || _previousCharacter === "." || _previousCharacter === "[" || _previousCharacter === "`") {
             return _match;
           }
           return _match.toUpperCase();
