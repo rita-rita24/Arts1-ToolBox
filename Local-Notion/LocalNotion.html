@@ -1620,7 +1620,7 @@ function buildGutter(block, parentList) {
   aBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>';
   aBtn.onclick = (e) => { e.stopPropagation(); const nb = blk('text', ''); insertBlockAfter(nb, block.id, parentList); renderEditor(); setTimeout(() => focusBlock(nb.id), 0); };
   const dBtn = document.createElement('button'); dBtn.className = 'block-gutter-btn block-drag'; dBtn.title = 'ドラッグ・クリックでメニュー';
-  dBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>';
+  dBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.4"/><circle cx="9" cy="12" r="1.4"/><circle cx="9" cy="18" r="1.4"/><circle cx="15" cy="6" r="1.4"/><circle cx="15" cy="12" r="1.4"/><circle cx="15" cy="18" r="1.4"/></svg>';
   dBtn.draggable = true;
   dBtn.onclick = (e) => { e.stopPropagation(); showBlockContextMenu(e, block); };
   dBtn.addEventListener('dragstart', (ev) => { draggingBlockId = block.id; ev.dataTransfer.effectAllowed = 'move'; ev.dataTransfer.setData('text/plain', block.id); });
