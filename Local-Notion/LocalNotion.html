@@ -101,14 +101,33 @@
   .app { display: flex; height: 100vh; }
 
   /* ========== Sidebar ========== */
+  :root { --sidebar-width: 260px; }
   .sidebar {
-    width: 260px; flex-shrink: 0;
+    width: var(--sidebar-width); flex-shrink: 0;
     background: var(--bg-sidebar);
     border-right: 1px solid var(--border);
     display: flex; flex-direction: column;
+    position: relative;
     transition: margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .sidebar.collapsed { margin-left: -260px; }
+  .sidebar.collapsed { margin-left: calc(var(--sidebar-width) * -1); }
+  .sidebar.resizing, .sidebar.resizing * { transition: none !important; user-select: none !important; }
+  .sidebar-resizer {
+    position: absolute; top: 0; right: -3px; bottom: 0;
+    width: 6px; cursor: col-resize; z-index: 50;
+    background: transparent;
+  }
+  .sidebar-resizer::before {
+    content: ""; position: absolute; top: 0; bottom: 0;
+    left: 50%; width: 2px; transform: translateX(-50%);
+    background: transparent; transition: background 0.12s;
+  }
+  .sidebar-resizer:hover::before, .sidebar.resizing .sidebar-resizer::before {
+    background: var(--accent);
+  }
+  @media (max-width: 768px) {
+    .sidebar-resizer { display: none; }
+  }
 
   .sidebar-header { padding: 8px 12px 4px; display: flex; align-items: center; gap: 4px; }
   .workspace {
@@ -998,6 +1017,111 @@
   }
   .dialog-btn.danger:hover { filter: brightness(0.92); }
 
+  /* ========== Trash Modal ========== */
+  .trash-modal {
+    width: 600px; max-width: calc(100vw - 32px);
+    max-height: 70vh;
+    background: var(--bg-app); border-radius: 10px;
+    box-shadow: var(--shadow-modal);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    animation: modal-pop 0.15s ease-out;
+  }
+  .trash-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .trash-header svg.trash-icon { width: 20px; height: 20px; color: var(--text-tertiary); flex-shrink: 0; }
+  .trash-title { flex: 1; font-size: 16px; font-weight: 600; color: var(--text-primary); }
+  .trash-empty-btn {
+    font-size: 12px; padding: 4px 10px;
+    border-radius: 4px;
+    color: var(--red); border: 1px solid var(--border-strong);
+  }
+  .trash-empty-btn:hover { background: rgba(224, 62, 62, 0.08); border-color: var(--red); }
+  .trash-empty-btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+  .trash-body { flex: 1; overflow-y: auto; padding: 8px 10px 14px; }
+  .trash-empty-state {
+    padding: 60px 0; text-align: center;
+    color: var(--text-tertiary); font-size: 14px;
+  }
+  .trash-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 5px;
+    color: var(--text-primary);
+  }
+  .trash-item:hover { background: var(--bg-hover); }
+  .trash-item-icon {
+    width: 22px; height: 22px; display: grid; place-items: center;
+    flex-shrink: 0; color: var(--text-tertiary);
+  }
+  .trash-item-icon .material-icons-outlined { font-size: 18px; }
+  .trash-item-icon svg { width: 16px; height: 16px; }
+  .trash-item-body { flex: 1; min-width: 0; }
+  .trash-item-title {
+    font-size: 14px; color: var(--text-primary);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .trash-item-meta {
+    font-size: 12px; color: var(--text-tertiary);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .trash-item-actions { display: flex; gap: 4px; flex-shrink: 0; }
+  .trash-action-btn {
+    font-size: 12px; padding: 4px 10px;
+    border-radius: 4px;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-strong);
+    background: var(--bg-app);
+  }
+  .trash-action-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .trash-action-btn.danger { color: var(--red); border-color: rgba(224, 62, 62, 0.3); }
+  .trash-action-btn.danger:hover { background: rgba(224, 62, 62, 0.08); border-color: var(--red); }
+
+  /* ========== Keyboard Shortcuts Cheat Sheet ========== */
+  .shortcuts-modal {
+    width: 720px; max-width: calc(100vw - 32px);
+    max-height: 80vh;
+    background: var(--bg-app); border-radius: 10px;
+    box-shadow: var(--shadow-modal);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    animation: modal-pop 0.15s ease-out;
+  }
+  .shortcuts-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .shortcuts-header svg { width: 20px; height: 20px; color: var(--text-tertiary); flex-shrink: 0; }
+  .shortcuts-title { flex: 1; font-size: 16px; font-weight: 600; color: var(--text-primary); }
+  .shortcuts-body { flex: 1; overflow-y: auto; padding: 8px 18px 18px; }
+  .shortcuts-group { margin-top: 14px; }
+  .shortcuts-group-title {
+    font-size: 11px; font-weight: 600; color: var(--text-tertiary);
+    letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 4px 0 6px;
+  }
+  .shortcuts-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 7px 4px; border-radius: 4px;
+    font-size: 14px; color: var(--text-primary);
+  }
+  .shortcuts-row:hover { background: var(--bg-hover); }
+  .shortcuts-keys { display: flex; align-items: center; gap: 4px; flex-shrink: 0; margin-left: 16px; }
+  .shortcuts-keys .kbd {
+    display: inline-block; min-width: 22px;
+    padding: 2px 6px; border-radius: 4px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-sidebar);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", monospace;
+    font-size: 11px; font-weight: 500;
+    color: var(--text-secondary);
+    text-align: center; line-height: 1;
+  }
+  .shortcuts-keys .kbd-sep { color: var(--text-tertiary); font-size: 11px; }
+
   @media (max-width: 768px) {
     .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; }
     .page-container { padding: 40px 16px 30vh; }
@@ -1028,6 +1152,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="theme-icon"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
         <span id="theme-label">ダークモード</span>
       </div>
+      <div class="sidebar-nav-item" id="trash-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        ゴミ箱
+      </div>
       <div class="sidebar-nav-item" id="export-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M12 18v-6M9 15l3 3 3-3"/></svg>
         アプリをHTMLとして保存
@@ -1048,6 +1176,7 @@
         新規ページ
       </div>
     </div>
+    <div class="sidebar-resizer" id="sidebar-resizer" title="ドラッグでサイドバーの幅を調整"></div>
   </aside>
 
   <main class="main">
@@ -1094,7 +1223,7 @@
   <div class="search-modal" id="search-modal">
     <div class="search-header">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="search" id="search-input" class="search-input" placeholder="ページを検索、または新規作成...">
+      <input type="search" id="search-input" class="search-input" placeholder="ページを検索 / 入力して新規作成 / &quot;&gt;&quot; でコマンド">
       <span class="search-kbd">Esc</span>
     </div>
     <div class="search-results" id="search-results"></div>
@@ -1103,6 +1232,29 @@
 
 <div class="overlay" id="dialog-overlay" hidden>
   <div class="dialog" id="dialog-box"></div>
+</div>
+
+<div class="overlay" id="trash-overlay" hidden>
+  <div class="trash-modal" id="trash-modal">
+    <div class="trash-header">
+      <svg class="trash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      <div class="trash-title">ゴミ箱</div>
+      <button class="trash-empty-btn" id="trash-empty-btn">すべて完全削除</button>
+      <span class="search-kbd">Esc</span>
+    </div>
+    <div class="trash-body" id="trash-body"></div>
+  </div>
+</div>
+
+<div class="overlay" id="shortcuts-overlay" hidden>
+  <div class="shortcuts-modal" id="shortcuts-modal">
+    <div class="shortcuts-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
+      <div class="shortcuts-title">キーボードショートカット</div>
+      <span class="search-kbd">Esc</span>
+    </div>
+    <div class="shortcuts-body" id="shortcuts-body"></div>
+  </div>
 </div>
 
 <!-- Embedded initial state (used when opening an exported HTML file) -->
@@ -1327,7 +1479,7 @@ function createInitialState() {
   const wid = uid();
   return {
     pages: { [wid]: {
-      id: wid, title: 'Notion Clone へようこそ', icon: '👋', iconType: 'emoji', parentId: null,
+      id: wid, title: 'Notion Clone へようこそ', icon: '👋', iconType: 'emoji', hasIcon: true, parentId: null,
       blocks: [
         blk('text', 'これはシングルHTMLファイルで動作する <b>Notionクローン</b> です。'),
         blk('h2', 'はじめに'),
@@ -1377,8 +1529,12 @@ function getCurrentPage() { return state.pages[state.currentPageId]; }
 
 function createPage(parentId = null, opts = {}) {
   const id = uid();
+  const hasIcon = opts.hasIcon === true || (opts.icon != null && opts.icon !== '');
   const page = {
-    id, title: opts.title || '', icon: opts.icon || '📄', iconType: opts.iconType || 'emoji',
+    id, title: opts.title || '',
+    icon: hasIcon ? opts.icon : '',
+    iconType: hasIcon ? (opts.iconType || 'emoji') : 'emoji',
+    hasIcon,
     parentId, blocks: [blk('text', '')], children: [],
     createdAt: Date.now(), updatedAt: Date.now()
   };
@@ -1389,22 +1545,98 @@ function createPage(parentId = null, opts = {}) {
   return page;
 }
 
+// Soft-delete: mark the page (and all descendants) with deletedAt and detach
+// it from its parent's children list (or rootPages). The page object stays
+// in state.pages so it can be restored from the trash. prevParentId is
+// remembered so restore() can return it to the original location.
 function deletePage(id) {
   const page = state.pages[id]; if (!page) return;
-  [...page.children].forEach(c => deletePage(c));
-  if (page.parentId) { const p = state.pages[page.parentId]; if (p) p.children = p.children.filter(c => c !== id); }
-  else state.rootPages = state.rootPages.filter(p => p !== id);
-  delete state.pages[id];
-  if (state.currentPageId === id) {
-    const next = state.rootPages[0] || Object.keys(state.pages)[0];
+  if (page.deletedAt) return;
+  const stamp = Date.now();
+  const markRecursive = (pid) => {
+    const p = state.pages[pid]; if (!p) return;
+    p.deletedAt = stamp;
+    (p.children || []).forEach(markRecursive);
+  };
+  markRecursive(id);
+  page.prevParentId = page.parentId || null;
+  if (page.parentId) {
+    const parent = state.pages[page.parentId];
+    if (parent) parent.children = parent.children.filter(c => c !== id);
+  } else {
+    state.rootPages = state.rootPages.filter(p => p !== id);
+  }
+  if (state.currentPageId === id || isAncestorDeleted(state.currentPageId)) {
+    const next = state.rootPages[0] || firstLivePageId();
     if (next) state.currentPageId = next;
     else { const f = createPage(null); state.currentPageId = f.id; }
   }
   saveState();
 }
 
+function isPageDeleted(id) {
+  const p = state.pages[id]; return !!(p && p.deletedAt);
+}
+function isAncestorDeleted(id) {
+  let cur = state.pages[id];
+  while (cur) {
+    if (cur.deletedAt) return true;
+    cur = cur.parentId ? state.pages[cur.parentId] : null;
+  }
+  return false;
+}
+function firstLivePageId() {
+  return Object.keys(state.pages).find(k => !state.pages[k].deletedAt) || null;
+}
+function listTrashRoots() {
+  // Pages whose deletedAt is set AND parent is not deleted (top-level deleted)
+  return Object.values(state.pages)
+    .filter(p => p.deletedAt && !(p.parentId && state.pages[p.parentId] && state.pages[p.parentId].deletedAt))
+    .sort((a, b) => (b.deletedAt || 0) - (a.deletedAt || 0));
+}
+function restorePage(id) {
+  const page = state.pages[id]; if (!page || !page.deletedAt) return;
+  const clearRecursive = (pid) => {
+    const p = state.pages[pid]; if (!p) return;
+    delete p.deletedAt;
+    (p.children || []).forEach(clearRecursive);
+  };
+  clearRecursive(id);
+  const targetParent = page.prevParentId && state.pages[page.prevParentId] && !state.pages[page.prevParentId].deletedAt
+    ? page.prevParentId : null;
+  page.parentId = targetParent;
+  delete page.prevParentId;
+  if (targetParent) {
+    const parent = state.pages[targetParent];
+    if (!parent.children.includes(id)) parent.children.push(id);
+  } else {
+    if (!state.rootPages.includes(id)) state.rootPages.push(id);
+  }
+  saveState();
+}
+function purgePage(id) {
+  const page = state.pages[id]; if (!page) return;
+  (page.children || []).slice().forEach(c => purgePage(c));
+  delete state.pages[id];
+  state.rootPages = state.rootPages.filter(p => p !== id);
+  for (const p of Object.values(state.pages)) {
+    p.children = (p.children || []).filter(c => c !== id);
+  }
+  if (state.currentPageId === id) {
+    const next = state.rootPages[0] || firstLivePageId();
+    if (next) state.currentPageId = next;
+    else { const f = createPage(null); state.currentPageId = f.id; }
+  }
+  saveState();
+}
+function emptyTrash() {
+  const roots = listTrashRoots();
+  roots.forEach(p => purgePage(p.id));
+}
+
 function switchPage(id) {
   if (!state.pages[id]) return;
+  if (state.pages[id].deletedAt) return;
   state.currentPageId = id;
   saveState(); renderAll();
   $('#editor-scroll').scrollTop = 0;
@@ -1415,8 +1647,9 @@ const expandedPages = new Set();
 
 function renderSidebar() {
   const tree = $('#page-tree'); tree.innerHTML = '';
-  if (!state.rootPages.length) { tree.innerHTML = '<div class="empty-state" style="padding:20px 0">ページがありません</div>'; return; }
-  state.rootPages.forEach(pid => tree.appendChild(renderPageNode(pid, 0)));
+  const livePages = state.rootPages.filter(pid => state.pages[pid] && !state.pages[pid].deletedAt);
+  if (!livePages.length) { tree.innerHTML = '<div class="empty-state" style="padding:20px 0">ページがありません</div>'; return; }
+  livePages.forEach(pid => tree.appendChild(renderPageNode(pid, 0)));
 }
 
 function renderIconHTML(v, t, sz) {
@@ -1461,7 +1694,11 @@ function renderPageNode(pid, depth) {
   item.appendChild(chev); item.appendChild(icon); item.appendChild(title); item.appendChild(actions);
   item.onclick = () => switchPage(pid);
   wrap.appendChild(item);
-  if (expandedPages.has(pid) && page.children.length) page.children.forEach(c => wrap.appendChild(renderPageNode(c, depth + 1)));
+  if (expandedPages.has(pid) && page.children.length) {
+    page.children
+      .filter(c => state.pages[c] && !state.pages[c].deletedAt)
+      .forEach(c => wrap.appendChild(renderPageNode(c, depth + 1)));
+  }
   return wrap;
 }
 
@@ -1472,7 +1709,9 @@ function showPageContextMenu(e, pid) {
     { icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>', label: '子ページを追加', fn: () => { const np = createPage(pid); expandedPages.add(pid); switchPage(np.id); } },
     { icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>', label: '複製', fn: () => duplicatePage(pid) },
     { divider: true },
-    { icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>', label: '削除', danger: true, fn: async () => { const ok = await showConfirm('このページを削除しますか？', { title: 'ページの削除', okText: '削除', danger: true }); if (ok) { deletePage(pid); renderAll(); } } }
+    { icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M12 18v-6M9 15l3 3 3-3"/></svg>', label: 'Markdown でエクスポート', fn: () => exportPageAsMarkdown(pid) },
+    { divider: true },
+    { icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>', label: 'ゴミ箱に移動', danger: true, fn: async () => { const ok = await showConfirm('このページをゴミ箱に移動しますか？', { title: 'ゴミ箱に移動', okText: '移動', danger: true }); if (ok) { deletePage(pid); renderAll(); } } }
   ];
   showContextMenu(e, items);
 }
@@ -1492,6 +1731,285 @@ function regenBlockIds(b) {
   if (b.children) b.children = b.children.map(c => regenBlockIds(c));
   if (b.tabs) b.tabs = b.tabs.map(t => ({ ...t, id: uid(), blocks: (t.blocks || []).map(x => regenBlockIds(x)) }));
   return b;
+}
+
+/* ==================== Markdown <-> Blocks ==================== */
+// Convert HTML inline markup (as stored in block.content) to Markdown.
+// Supported: <b>/<strong>, <i>/<em>, <u>, <s>/<del>/<strike>, <code>, <a href>.
+// Unknown tags are stripped, text content is preserved.
+function htmlToMarkdownInline(html) {
+  if (!html) return '';
+  const root = document.createElement('div'); root.innerHTML = html;
+  const walk = (node) => {
+    if (node.nodeType === 3) return node.nodeValue;
+    if (node.nodeType !== 1) return '';
+    const inner = Array.from(node.childNodes).map(walk).join('');
+    const tag = node.tagName.toLowerCase();
+    switch (tag) {
+      case 'br': return '\n';
+      case 'b': case 'strong': return inner ? `**${inner}**` : '';
+      case 'i': case 'em': return inner ? `*${inner}*` : '';
+      case 'u': return inner ? `<u>${inner}</u>` : '';
+      case 's': case 'del': case 'strike': return inner ? `~~${inner}~~` : '';
+      case 'code': return inner ? `\`${inner}\`` : '';
+      case 'a': {
+        const href = node.getAttribute('href') || '';
+        return href ? `[${inner}](${href})` : inner;
+      }
+      default: return inner;
+    }
+  };
+  return Array.from(root.childNodes).map(walk).join('').replace(/ /g, ' ');
+}
+
+// Convert Markdown inline markup back to HTML for block.content.
+// Order matters: code first (so its contents aren't reinterpreted),
+// then images/links, then bold (**), italic (*), strikethrough (~~), <u>.
+function markdownToHtmlInline(md) {
+  if (!md) return '';
+  const placeholders = [];
+  const stash = (s) => { placeholders.push(s); return ` ${placeholders.length - 1} `; };
+  let out = md;
+  out = out.replace(/`([^`\n]+)`/g, (_, c) => stash(`<code>${escapeHTML(c)}</code>`));
+  out = out.replace(/\[([^\]]+)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g, (_, t, h) =>
+    stash(`<a href="${escapeHTML(h)}">${escapeHTML(t)}</a>`));
+  out = escapeHTML(out);
+  out = out.replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>');
+  out = out.replace(/(^|[^*])\*(?!\s)([^*\n]+?)\*(?!\*)/g, '$1<i>$2</i>');
+  out = out.replace(/~~([^~\n]+)~~/g, '<s>$1</s>');
+  out = out.replace(/&lt;u&gt;([\s\S]*?)&lt;\/u&gt;/g, '<u>$1</u>');
+  out = out.replace(/ (\d+) /g, (_, i) => placeholders[+i]);
+  return out;
+}
+
+const stripHTMLToText = (html) => {
+  const d = document.createElement('div'); d.innerHTML = html || '';
+  return d.textContent || '';
+};
+
+// Serialize a single block (and any nested children/tabs) to Markdown lines.
+// Numbered list ordinals are computed by the caller (blocksToMarkdown) since
+// they depend on adjacent siblings.
+function blockToMarkdown(b, ctx = {}) {
+  const ind = ctx.indent || '';
+  const inline = (s) => htmlToMarkdownInline(s);
+  switch (b.type) {
+    case 'h1': return `${ind}# ${inline(b.content)}`;
+    case 'h2': return `${ind}## ${inline(b.content)}`;
+    case 'h3': return `${ind}### ${inline(b.content)}`;
+    case 'bullet': return `${ind}- ${inline(b.content)}`;
+    case 'numbered': return `${ind}${ctx.ordinal || 1}. ${inline(b.content)}`;
+    case 'todo': return `${ind}- [${b.checked ? 'x' : ' '}] ${inline(b.content)}`;
+    case 'quote': return inline(b.content).split('\n').map(l => `${ind}> ${l}`).join('\n');
+    case 'callout': {
+      const head = `${ind}> [!NOTE]`;
+      const body = inline(b.content).split('\n').map(l => `${ind}> ${l}`).join('\n');
+      return body ? `${head}\n${body}` : head;
+    }
+    case 'code': {
+      const lang = b.language || '';
+      return `${ind}\`\`\`${lang}\n${b.content || ''}\n${ind}\`\`\``;
+    }
+    case 'divider': return `${ind}---`;
+    case 'image': {
+      const alt = stripHTMLToText(b.caption || '').replace(/\n+/g, ' ');
+      const url = b.url || '';
+      if (!url) return '';
+      return `${ind}![${alt}](${url})`;
+    }
+    case 'table': return tableBlockToMarkdown(b, ind);
+    case 'toggle':
+    case 'toggle_h1':
+    case 'toggle_h2':
+    case 'toggle_h3': {
+      const head = b.type === 'toggle' ? `${ind}- ${inline(b.content)}` :
+        `${ind}${'#'.repeat(parseInt(b.type.slice(-1), 10))} ${inline(b.content)}`;
+      const inner = blocksToMarkdown(b.children || [], { indent: ind + (b.type === 'toggle' ? '  ' : '') });
+      return inner ? `${head}\n${inner}` : head;
+    }
+    case 'tabs': {
+      const parts = (b.tabs || []).map(t => {
+        const title = stripHTMLToText(t.title || '').trim() || 'タブ';
+        const inner = blocksToMarkdown(t.blocks || [], { indent: ind });
+        return `${ind}## ${title}\n${inner}`;
+      });
+      return parts.join('\n\n');
+    }
+    case 'text':
+    default: {
+      const txt = inline(b.content);
+      return txt ? `${ind}${txt}` : '';
+    }
+  }
+}
+function tableBlockToMarkdown(b, ind = '') {
+  const cells = b.cells || [];
+  if (!cells.length) return '';
+  const cols = b.cols || (cells[0] || []).length;
+  const fmtRow = (row) => `${ind}| ` + Array.from({length: cols}, (_, i) =>
+    stripHTMLToText(row[i] || '').replace(/\|/g, '\\|').replace(/\n+/g, ' ')
+  ).join(' | ') + ' |';
+  const lines = [];
+  if (b.hasHeaderRow) {
+    lines.push(fmtRow(cells[0]));
+    lines.push(`${ind}| ` + Array.from({length: cols}).fill('---').join(' | ') + ' |');
+    for (let r = 1; r < cells.length; r++) lines.push(fmtRow(cells[r]));
+  } else {
+    lines.push(`${ind}| ` + Array.from({length: cols}).fill(' ').join(' | ') + ' |');
+    lines.push(`${ind}| ` + Array.from({length: cols}).fill('---').join(' | ') + ' |');
+    for (let r = 0; r < cells.length; r++) lines.push(fmtRow(cells[r]));
+  }
+  return lines.join('\n');
+}
+function blocksToMarkdown(blocks, ctx = {}) {
+  const ind = ctx.indent || '';
+  const out = [];
+  let ordinal = 0;
+  for (let i = 0; i < blocks.length; i++) {
+    const b = blocks[i];
+    if (b.type === 'numbered') ordinal++; else ordinal = 0;
+    out.push(blockToMarkdown(b, { indent: ind, ordinal: ordinal || 1 }));
+  }
+  return out.filter(s => s !== undefined && s !== null).join('\n\n').replace(/\n{3,}/g, '\n\n');
+}
+
+// Markdown -> blocks (best effort).
+// Block-level: heading / list / todo / numbered / blockquote / callout (GFM
+// admonition) / code fence / hr / image / table / paragraph.
+// Inline-level conversion is delegated to markdownToHtmlInline.
+function parseMarkdownToBlocks(md) {
+  const lines = md.replace(/\r\n?/g, '\n').split('\n');
+  const blocks = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    const t = line.replace(/^\s+/, '');
+    if (!t.length) { i++; continue; }
+    // Code fence
+    const fence = /^```(.*)$/.exec(t);
+    if (fence) {
+      const lang = fence[1].trim();
+      const buf = []; i++;
+      while (i < lines.length && !/^```/.test(lines[i].replace(/^\s+/, ''))) { buf.push(lines[i]); i++; }
+      if (i < lines.length) i++;
+      blocks.push(blk('code', buf.join('\n'), { language: lang || 'plaintext' }));
+      continue;
+    }
+    // Heading
+    const h = /^(#{1,3})\s+(.*)$/.exec(t);
+    if (h) {
+      blocks.push(blk(`h${h[1].length}`, markdownToHtmlInline(h[2].trim())));
+      i++; continue;
+    }
+    // Horizontal rule
+    if (/^(-{3,}|\*{3,}|_{3,})$/.test(t)) { blocks.push(blk('divider', '')); i++; continue; }
+    // Image (standalone)
+    const img = /^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)$/.exec(t);
+    if (img) {
+      blocks.push(blk('image', '', { url: img[2], caption: markdownToHtmlInline(img[1] || '') }));
+      i++; continue;
+    }
+    // Table
+    if (/^\|.*\|\s*$/.test(t) && i + 1 < lines.length &&
+        /^\|\s*[:\-]+\s*(\|\s*[:\-]+\s*)+\|\s*$/.test(lines[i + 1].replace(/^\s+/, ''))) {
+      const tableRows = [];
+      const hdr = t.replace(/^\|/, '').replace(/\|\s*$/, '').split('|').map(c => markdownToHtmlInline(c.trim()));
+      tableRows.push(hdr); i += 2;
+      while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) {
+        const r = lines[i].replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map(c => markdownToHtmlInline(c.trim()));
+        tableRows.push(r); i++;
+      }
+      const cols = Math.max(...tableRows.map(r => r.length));
+      const cells = tableRows.map(r => { while (r.length < cols) r.push(''); return r; });
+      blocks.push(blk('table', '', { rows: cells.length, cols, cells, hasHeaderRow: true, hasHeaderCol: false }));
+      continue;
+    }
+    // Todo
+    const todo = /^[-*+]\s+\[([ xX])\]\s+(.*)$/.exec(t);
+    if (todo) {
+      const b = blk('todo', markdownToHtmlInline(todo[2]));
+      b.checked = todo[1].toLowerCase() === 'x';
+      blocks.push(b); i++; continue;
+    }
+    // Bullet list
+    const bullet = /^[-*+]\s+(.*)$/.exec(t);
+    if (bullet) { blocks.push(blk('bullet', markdownToHtmlInline(bullet[1]))); i++; continue; }
+    // Numbered list
+    const num = /^\d+[.)]\s+(.*)$/.exec(t);
+    if (num) { blocks.push(blk('numbered', markdownToHtmlInline(num[1]))); i++; continue; }
+    // Callout (GFM admonition)
+    const adm = /^>\s*\[!(\w+)\]\s*(.*)$/.exec(t);
+    if (adm) {
+      const buf = adm[2] ? [adm[2]] : [];
+      i++;
+      while (i < lines.length && /^>\s?/.test(lines[i].replace(/^\s+/, ''))) {
+        buf.push(lines[i].replace(/^\s+/, '').replace(/^>\s?/, ''));
+        i++;
+      }
+      const emojiMap = { NOTE: '💡', TIP: '💡', INFO: 'ℹ️', WARNING: '⚠️', CAUTION: '⚠️', IMPORTANT: '❗', DANGER: '🚨' };
+      const e = emojiMap[adm[1].toUpperCase()] || '💡';
+      blocks.push(blk('callout', markdownToHtmlInline(buf.join('\n').trim()), { emoji: e, hasIcon: true }));
+      continue;
+    }
+    // Blockquote
+    if (/^>\s?/.test(t)) {
+      const buf = [];
+      while (i < lines.length && /^\s*>\s?/.test(lines[i])) {
+        buf.push(lines[i].replace(/^\s*>\s?/, ''));
+        i++;
+      }
+      blocks.push(blk('quote', markdownToHtmlInline(buf.join('\n').trim())));
+      continue;
+    }
+    // Paragraph (collect until blank line)
+    const para = [t];
+    i++;
+    while (i < lines.length && lines[i].replace(/^\s+/, '').length &&
+           !/^(#{1,3}\s|[-*+]\s|\d+[.)]\s|>\s|```|---|\|.*\|\s*$|!\[)/.test(lines[i].replace(/^\s+/, ''))) {
+      para.push(lines[i].replace(/^\s+/, ''));
+      i++;
+    }
+    blocks.push(blk('text', markdownToHtmlInline(para.join('\n'))));
+  }
+  return blocks;
+}
+
+function exportPageAsMarkdown(pageId) {
+  const page = state.pages[pageId] || getCurrentPage(); if (!page) return;
+  const title = page.title || '無題';
+  const md = `# ${title}\n\n` + blocksToMarkdown(page.blocks || []);
+  const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const safe = title.replace(/[\\/:*?"<>|]/g, '_').slice(0, 80) || 'page';
+  a.href = url; a.download = safe + '.md';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+function importMarkdownAsNewPage() {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = '.md,.markdown,text/markdown,text/plain';
+  input.onchange = async () => {
+    const f = input.files && input.files[0]; if (!f) return;
+    const text = await f.text();
+    let title = (f.name || 'インポート').replace(/\.(md|markdown|txt)$/i, '');
+    let body = text;
+    const firstHeading = /^#\s+(.+)$/m.exec(text);
+    if (firstHeading) {
+      const idx = text.indexOf(firstHeading[0]);
+      const before = text.slice(0, idx).trim();
+      if (!before) {
+        title = firstHeading[1].trim();
+        body = text.slice(idx + firstHeading[0].length);
+      }
+    }
+    const blocks = parseMarkdownToBlocks(body);
+    if (!blocks.length) blocks.push(blk('text', ''));
+    const p = createPage(null, { title });
+    p.blocks = blocks;
+    saveState(); switchPage(p.id);
+  };
+  input.click();
 }
 
 /* ==================== Context Menu ==================== */
@@ -2647,10 +3165,196 @@ $('#add-icon-btn').addEventListener('click', openPageIconPicker);
 $('#sidebar-toggle').addEventListener('click', () => { $('#sidebar').classList.add('collapsed'); $('#sidebar-open').style.display = 'grid'; });
 $('#sidebar-open').addEventListener('click', () => { $('#sidebar').classList.remove('collapsed'); $('#sidebar-open').style.display = 'none'; });
 
+/* ==================== Sidebar resize ==================== */
+const SIDEBAR_WIDTH_KEY = 'localnotion_sidebar_width';
+const SIDEBAR_MIN = 200, SIDEBAR_MAX = 480, SIDEBAR_DEFAULT = 260;
+function applySidebarWidth(px) {
+  const w = Math.min(SIDEBAR_MAX, Math.max(SIDEBAR_MIN, Math.round(px)));
+  document.documentElement.style.setProperty('--sidebar-width', w + 'px');
+  return w;
+}
+function loadSidebarWidth() {
+  const saved = parseInt(localStorage.getItem(SIDEBAR_WIDTH_KEY), 10);
+  applySidebarWidth(Number.isFinite(saved) ? saved : SIDEBAR_DEFAULT);
+}
+loadSidebarWidth();
+(() => {
+  const resizer = $('#sidebar-resizer');
+  const sidebar = $('#sidebar');
+  if (!resizer || !sidebar) return;
+  let startX = 0, startW = 0, dragging = false;
+  const onMove = (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    applySidebarWidth(startW + dx);
+  };
+  const onUp = () => {
+    if (!dragging) return;
+    dragging = false;
+    sidebar.classList.remove('resizing');
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    const w = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sidebar-width'), 10);
+    if (Number.isFinite(w)) localStorage.setItem(SIDEBAR_WIDTH_KEY, String(w));
+  };
+  resizer.addEventListener('mousedown', (e) => {
+    if (window.matchMedia('(max-width: 768px)').matches) return;
+    if (sidebar.classList.contains('collapsed')) return;
+    e.preventDefault();
+    dragging = true;
+    startX = e.clientX;
+    startW = sidebar.getBoundingClientRect().width;
+    sidebar.classList.add('resizing');
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+  resizer.addEventListener('dblclick', () => {
+    applySidebarWidth(SIDEBAR_DEFAULT);
+    localStorage.setItem(SIDEBAR_WIDTH_KEY, String(SIDEBAR_DEFAULT));
+  });
+})();
+
 /* ==================== New page ==================== */
 function createRootPageAndSwitch() { const p = createPage(null); switchPage(p.id); setTimeout(() => $('#page-title').focus(), 0); }
 $('#new-page-btn').addEventListener('click', createRootPageAndSwitch);
 $('#private-add-btn').addEventListener('click', (e) => { e.stopPropagation(); createRootPageAndSwitch(); });
+
+/* ==================== Trash ==================== */
+function formatTrashDate(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  const now = new Date();
+  const diff = (now - d) / 1000;
+  if (diff < 60) return 'たった今';
+  if (diff < 3600) return Math.floor(diff / 60) + '分前';
+  if (diff < 86400) return Math.floor(diff / 3600) + '時間前';
+  if (diff < 86400 * 7) return Math.floor(diff / 86400) + '日前';
+  return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
+}
+function renderTrashModal() {
+  const body = $('#trash-body');
+  const roots = listTrashRoots();
+  const emptyBtn = $('#trash-empty-btn');
+  emptyBtn.disabled = roots.length === 0;
+  body.innerHTML = '';
+  if (!roots.length) {
+    const e = document.createElement('div'); e.className = 'trash-empty-state';
+    e.textContent = 'ゴミ箱は空です';
+    body.appendChild(e);
+    return;
+  }
+  for (const page of roots) {
+    const row = document.createElement('div'); row.className = 'trash-item';
+    const icon = document.createElement('div'); icon.className = 'trash-item-icon';
+    if (page.hasIcon !== false && page.icon) {
+      icon.innerHTML = renderIconHTML(page.icon, page.iconType || 'emoji', 18);
+    } else {
+      icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>';
+    }
+    const bodyEl = document.createElement('div'); bodyEl.className = 'trash-item-body';
+    const t = document.createElement('div'); t.className = 'trash-item-title'; t.textContent = page.title || '無題';
+    const m = document.createElement('div'); m.className = 'trash-item-meta';
+    const childCount = (page.children || []).filter(c => state.pages[c]).length;
+    m.textContent = `${formatTrashDate(page.deletedAt)}に削除` + (childCount ? ` ・ ${childCount}個の子ページを含む` : '');
+    bodyEl.appendChild(t); bodyEl.appendChild(m);
+    const actions = document.createElement('div'); actions.className = 'trash-item-actions';
+    const restoreBtn = document.createElement('button'); restoreBtn.className = 'trash-action-btn'; restoreBtn.textContent = '復元';
+    restoreBtn.onclick = () => { restorePage(page.id); renderAll(); renderTrashModal(); };
+    const purgeBtn = document.createElement('button'); purgeBtn.className = 'trash-action-btn danger'; purgeBtn.textContent = '完全削除';
+    purgeBtn.onclick = async () => {
+      const ok = await showConfirm(`「${page.title || '無題'}」を完全に削除しますか？この操作は元に戻せません。`, { title: '完全削除', okText: '完全削除', danger: true });
+      if (ok) { purgePage(page.id); renderAll(); renderTrashModal(); }
+    };
+    actions.appendChild(restoreBtn); actions.appendChild(purgeBtn);
+    row.appendChild(icon); row.appendChild(bodyEl); row.appendChild(actions);
+    body.appendChild(row);
+  }
+}
+function openTrashModal() { renderTrashModal(); $('#trash-overlay').hidden = false; }
+function closeTrashModal() { $('#trash-overlay').hidden = true; }
+$('#trash-btn').addEventListener('click', openTrashModal);
+$('#trash-overlay').addEventListener('click', (e) => { if (e.target.id === 'trash-overlay') closeTrashModal(); });
+$('#trash-empty-btn').addEventListener('click', async () => {
+  const roots = listTrashRoots();
+  if (!roots.length) return;
+  const ok = await showConfirm(`ゴミ箱内の${roots.length}件のページをすべて完全に削除しますか？この操作は元に戻せません。`, { title: 'ゴミ箱を空にする', okText: '完全削除', danger: true });
+  if (ok) { emptyTrash(); renderAll(); renderTrashModal(); }
+});
+
+/* ==================== Keyboard Shortcuts Cheat Sheet ==================== */
+const IS_MAC = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+const MOD_LABEL = IS_MAC ? '⌘' : 'Ctrl';
+const SHORTCUTS_GROUPS = [
+  { title: '一般', items: [
+    { keys: [MOD_LABEL, 'K'], desc: 'ページ検索を開く（先頭に "> " でコマンドモード）' },
+    { keys: [MOD_LABEL, 'Shift', 'P'], desc: 'コマンドパレットを直接開く' },
+    { keys: [MOD_LABEL, '/'], desc: 'このショートカット一覧を表示' },
+    { keys: [MOD_LABEL, 'Z'], desc: '元に戻す' },
+    { keys: [MOD_LABEL, 'Shift', 'Z'], desc: 'やり直し' },
+    { keys: [MOD_LABEL, 'Y'], desc: 'やり直し' },
+    { keys: ['Esc'], desc: 'モーダル / メニューを閉じる' },
+  ]},
+  { title: 'インライン書式', items: [
+    { keys: [MOD_LABEL, 'B'], desc: '太字' },
+    { keys: [MOD_LABEL, 'I'], desc: '斜体' },
+    { keys: [MOD_LABEL, 'U'], desc: '下線' },
+  ]},
+  { title: 'ブロック挿入（Markdownショートカット）', items: [
+    { keys: ['#', 'Space'], desc: '見出し1' },
+    { keys: ['##', 'Space'], desc: '見出し2' },
+    { keys: ['###', 'Space'], desc: '見出し3' },
+    { keys: ['-', 'Space'], desc: '箇条書き（* / + も可）' },
+    { keys: ['1.', 'Space'], desc: '番号付きリスト' },
+    { keys: ['[]', 'Space'], desc: 'To-do' },
+    { keys: ['>', 'Space'], desc: 'トグル' },
+    { keys: ['"', 'Space'], desc: '引用' },
+    { keys: ['```'], desc: 'コードブロック' },
+    { keys: ['---'], desc: '区切り線' },
+    { keys: ['/'], desc: 'ブロックメニュー（スラッシュコマンド）' },
+  ]},
+  { title: 'ブロック編集', items: [
+    { keys: ['Enter'], desc: '次のブロックを作成' },
+    { keys: ['Shift', 'Enter'], desc: 'ブロック内で改行' },
+    { keys: ['Backspace'], desc: '空ブロック削除 / 前ブロックへ結合' },
+    { keys: ['↑'], desc: '前のブロックへ移動（行頭時）' },
+    { keys: ['↓'], desc: '次のブロックへ移動（行末時）' },
+    { keys: [MOD_LABEL, 'A'], desc: 'ブロック全選択（複数選択モード）' },
+  ]},
+  { title: 'ブロック複数選択時', items: [
+    { keys: [MOD_LABEL, 'C'], desc: '選択ブロックをコピー' },
+    { keys: [MOD_LABEL, 'X'], desc: '選択ブロックをカット' },
+    { keys: ['Delete'], desc: '選択ブロックを削除' },
+    { keys: ['Esc'], desc: '選択を解除' },
+  ]},
+];
+
+function renderShortcutsModal() {
+  const body = $('#shortcuts-body');
+  body.innerHTML = '';
+  for (const grp of SHORTCUTS_GROUPS) {
+    const g = document.createElement('div'); g.className = 'shortcuts-group';
+    const t = document.createElement('div'); t.className = 'shortcuts-group-title'; t.textContent = grp.title;
+    g.appendChild(t);
+    for (const it of grp.items) {
+      const row = document.createElement('div'); row.className = 'shortcuts-row';
+      const desc = document.createElement('div'); desc.textContent = it.desc;
+      const keys = document.createElement('div'); keys.className = 'shortcuts-keys';
+      it.keys.forEach((k, i) => {
+        if (i > 0) { const s = document.createElement('span'); s.className = 'kbd-sep'; s.textContent = '+'; keys.appendChild(s); }
+        const kbd = document.createElement('span'); kbd.className = 'kbd'; kbd.textContent = k; keys.appendChild(kbd);
+      });
+      row.appendChild(desc); row.appendChild(keys); g.appendChild(row);
+    }
+    body.appendChild(g);
+  }
+}
+function openShortcutsModal() {
+  if (!$('#shortcuts-overlay').hidden) return;
+  renderShortcutsModal();
+  $('#shortcuts-overlay').hidden = false;
+}
+function closeShortcutsModal() { $('#shortcuts-overlay').hidden = true; }
+$('#shortcuts-overlay').addEventListener('click', (e) => { if (e.target.id === 'shortcuts-overlay') closeShortcutsModal(); });
 
 /* ==================== Theme ==================== */
 $('#theme-toggle').addEventListener('click', () => { state.darkMode = !state.darkMode; applyTheme(); saveState(); });
@@ -2721,12 +3425,20 @@ const searchInput = $('#search-input');
 const searchResults = $('#search-results');
 let searchSelectedIdx = 0, searchItems = [];
 
-function openSearchModal() {
+function openSearchModal(preset = '') {
   searchOverlay.hidden = false;
-  searchInput.value = '';
-  renderSearchResults('');
-  setTimeout(() => searchInput.focus(), 50);
+  searchInput.value = preset;
+  renderSearchResults(preset);
+  setTimeout(() => {
+    searchInput.focus();
+    if (preset) {
+      // Place caret at end so users can keep typing
+      const pos = searchInput.value.length;
+      try { searchInput.setSelectionRange(pos, pos); } catch (_) {}
+    }
+  }, 50);
 }
+function openCommandPalette() { openSearchModal('>'); }
 function closeSearchModal() { searchOverlay.hidden = true; }
 
 function flattenTextFromBlocks(blocks) {
@@ -2754,12 +3466,99 @@ function getPagePath(page) {
   return parts.join(' / ');
 }
 
+// Command palette commands. `keywords` provides additional fuzzy match terms.
+function getCommandPaletteCommands() {
+  const cmds = [
+    { group: 'ページ', label: '新規ページを作成', keywords: 'new create add', icon: '＋',
+      run: () => createRootPageAndSwitch() },
+    { group: 'ページ', label: '現在のページを複製', keywords: 'duplicate copy', icon: '⧉',
+      run: () => { const p = getCurrentPage(); if (p) duplicatePage(p.id); } },
+    { group: 'ページ', label: '現在のページを Markdown でエクスポート', keywords: 'markdown export download .md', icon: '↧',
+      run: () => { const p = getCurrentPage(); if (p) exportPageAsMarkdown(p.id); } },
+    { group: 'ページ', label: '現在のページをゴミ箱に移動', keywords: 'delete trash remove', icon: '🗑', danger: true,
+      run: async () => {
+        const p = getCurrentPage(); if (!p) return;
+        const ok = await showConfirm('このページをゴミ箱に移動しますか？', { title: 'ゴミ箱に移動', okText: '移動', danger: true });
+        if (ok) { deletePage(p.id); renderAll(); }
+      } },
+    { group: 'ファイル', label: 'Markdown ファイルをインポート', keywords: 'import upload .md', icon: '↥',
+      run: () => importMarkdownAsNewPage() },
+    { group: 'ファイル', label: 'アプリを HTML として保存', keywords: 'export html download backup', icon: '↧',
+      run: () => $('#export-btn').click() },
+    { group: '表示', label: 'ダークモードを切り替え', keywords: 'theme dark light toggle', icon: '◐',
+      run: () => $('#theme-toggle').click() },
+    { group: '表示', label: 'サイドバーを開閉', keywords: 'sidebar toggle collapse', icon: '◧',
+      run: () => {
+        const sb = $('#sidebar');
+        if (sb.classList.contains('collapsed')) { sb.classList.remove('collapsed'); $('#sidebar-open').style.display = 'none'; }
+        else { sb.classList.add('collapsed'); $('#sidebar-open').style.display = 'grid'; }
+      } },
+    { group: '表示', label: 'ゴミ箱を開く', keywords: 'trash deleted', icon: '🗑',
+      run: () => openTrashModal() },
+    { group: '表示', label: 'キーボードショートカットを表示', keywords: 'help keyboard shortcuts cheat sheet', icon: '?',
+      run: () => openShortcutsModal() },
+    { group: '編集', label: '元に戻す', keywords: 'undo', icon: '↶',
+      run: () => undo() },
+    { group: '編集', label: 'やり直し', keywords: 'redo', icon: '↷',
+      run: () => redo() },
+  ];
+  return cmds;
+}
+
+function renderCommandList(q) {
+  const cmds = getCommandPaletteCommands();
+  const ql = q.trim().toLowerCase();
+  const matched = !ql ? cmds : cmds.filter(c => {
+    const hay = (c.label + ' ' + (c.keywords || '') + ' ' + (c.group || '')).toLowerCase();
+    return ql.split(/\s+/).every(tok => hay.includes(tok));
+  });
+  // Group preserve order, group by .group
+  const groups = [];
+  const seen = new Map();
+  for (const c of matched) {
+    if (!seen.has(c.group)) { seen.set(c.group, groups.length); groups.push({ name: c.group, items: [] }); }
+    groups[seen.get(c.group)].items.push(c);
+  }
+  if (!matched.length) {
+    const empty = document.createElement('div'); empty.className = 'search-empty';
+    empty.textContent = '一致するコマンドがありません';
+    searchResults.appendChild(empty);
+    return;
+  }
+  for (const g of groups) {
+    const h = document.createElement('div'); h.className = 'search-section'; h.textContent = g.name;
+    searchResults.appendChild(h);
+    for (const c of g.items) {
+      const item = document.createElement('div'); item.className = 'search-item';
+      if (c.danger) item.style.color = 'var(--red)';
+      const icon = document.createElement('div'); icon.className = 'search-item-icon'; icon.textContent = c.icon || '•';
+      const body = document.createElement('div'); body.className = 'search-item-body';
+      const title = document.createElement('div'); title.className = 'search-item-title';
+      title.innerHTML = highlightMatch(c.label, ql);
+      body.appendChild(title);
+      item.appendChild(icon); item.appendChild(body);
+      item.onclick = () => { closeSearchModal(); Promise.resolve().then(c.run); };
+      item.onmouseenter = () => { searchItems.forEach(i => i.classList.remove('selected')); item.classList.add('selected'); searchSelectedIdx = searchItems.indexOf(item); };
+      searchResults.appendChild(item);
+      searchItems.push(item);
+    }
+  }
+}
+
 function renderSearchResults(q) {
   searchResults.innerHTML = '';
   searchItems = [];
 
+  // Command palette mode: query starts with ">"
+  if (q.startsWith('>')) {
+    renderCommandList(q.slice(1));
+    searchSelectedIdx = 0;
+    if (searchItems[0]) searchItems[0].classList.add('selected');
+    return;
+  }
+
   const ql = q.trim().toLowerCase();
-  const allPages = Object.values(state.pages);
+  const allPages = Object.values(state.pages).filter(p => !p.deletedAt);
 
   let pageMatches;
   if (!ql) {
@@ -2789,7 +3588,9 @@ function renderSearchResults(q) {
   pageMatches.forEach((p) => {
     const item = document.createElement('div'); item.className = 'search-item';
     const icon = document.createElement('div'); icon.className = 'search-item-icon';
-    icon.innerHTML = renderIconHTML(p.icon || '📄', p.iconType || 'emoji', 18);
+    const hasIcon = p.hasIcon !== false && p.icon;
+    if (hasIcon) icon.innerHTML = renderIconHTML(p.icon, p.iconType || 'emoji', 18);
+    else icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px;color:var(--text-tertiary)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>';
     const body = document.createElement('div'); body.className = 'search-item-body';
     const title = document.createElement('div'); title.className = 'search-item-title';
     title.innerHTML = highlightMatch(p.title || '無題', ql);
@@ -2812,6 +3613,12 @@ function renderSearchResults(q) {
     searchItems.push(createItem);
   }
 
+  // Footer hint about command mode
+  const hint = document.createElement('div');
+  hint.style.cssText = 'padding:6px 12px;color:var(--text-tertiary);font-size:11px;border-top:1px solid var(--border);margin-top:6px;';
+  hint.innerHTML = '入力欄の先頭に <span class="search-kbd" style="display:inline-block">&gt;</span> を入れるとコマンド一覧';
+  searchResults.appendChild(hint);
+
   searchSelectedIdx = 0;
   if (searchItems[0]) searchItems[0].classList.add('selected');
 }
@@ -2830,9 +3637,25 @@ $('#search-btn').addEventListener('click', openSearchModal);
 
 document.addEventListener('keydown', (e) => {
   const mod = e.ctrlKey || e.metaKey;
+  if (mod && e.shiftKey && (e.key === 'p' || e.key === 'P')) {
+    e.preventDefault(); openCommandPalette();
+    return;
+  }
   if (mod && (e.key === 'p' || e.key === 'k')) {
     e.preventDefault(); openSearchModal();
     return;
+  }
+  if (mod && e.key === '/') {
+    e.preventDefault();
+    if ($('#shortcuts-overlay').hidden) openShortcutsModal();
+    else closeShortcutsModal();
+    return;
+  }
+  if (e.key === 'Escape' && !$('#shortcuts-overlay').hidden) {
+    e.preventDefault(); closeShortcutsModal(); return;
+  }
+  if (e.key === 'Escape' && !$('#trash-overlay').hidden) {
+    e.preventDefault(); closeTrashModal(); return;
   }
 
   // Undo / Redo (global, block the browser's default contenteditable undo
