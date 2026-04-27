@@ -795,13 +795,12 @@
   .icon-picker-search:focus { border-color: var(--accent); }
   .icon-picker-grid {
     display: grid;
-    grid-template-columns: repeat(10, 30.602px);
+    grid-template-columns: repeat(10, 1fr);
     gap: 2px;
     flex: 1;
-    justify-content: start;
   }
   .icon-picker-item {
-    width: 30.602px; height: 30.602px;
+    aspect-ratio: 1;
     display: grid; place-items: center;
     border-radius: 4px; cursor: pointer; line-height: 1;
   }
