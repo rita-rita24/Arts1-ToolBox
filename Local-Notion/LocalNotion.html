@@ -1504,6 +1504,11 @@ function saveState() {
   // Push a snapshot for undo BEFORE the first change after a clean point.
   // We debounce pushes too so a burst of keystrokes becomes one undo step.
   pushUndoSnapshot();
+  // saveState is only called from user-action paths (text edit, block ops,
+  // checkbox toggle, theme change, etc.) — the periodic auto-save in init
+  // calls _doSave directly to avoid bumping updatedAt during idle.
+  const cp = state.pages && state.pages[state.currentPageId];
+  if (cp && !cp.deletedAt) cp.updatedAt = Date.now();
   if (_saveTimer) clearTimeout(_saveTimer);
   _saveTimer = setTimeout(_doSave, 300);
 }
@@ -1936,7 +1941,12 @@ function renderPageNode(pid, depth) {
 /* ==================== Page Context Menu ==================== */
 function showPageContextMenu(e, pid) {
   const items = [
-    { icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>', label: '名前を変更', fn: () => { $('#page-title').focus(); document.execCommand('selectAll'); } },
+    { icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>', label: '名前を変更', fn: () => {
+      // Switch to the target page first so the title focus is on the right one.
+      const focusTitle = () => { const el = $('#page-title'); if (el) { el.focus(); document.execCommand('selectAll'); } };
+      if (state.currentPageId !== pid) { switchPage(pid); setTimeout(focusTitle, 50); }
+      else focusTitle();
+    } },
     { icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>', label: '子ページを追加', fn: () => { const np = createPage(pid); expandedPages.add(pid); switchPage(np.id); } },
     { icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>', label: '複製', fn: () => duplicatePage(pid) },
     { divider: true },
@@ -1947,15 +1957,39 @@ function showPageContextMenu(e, pid) {
   showContextMenu(e, items);
 }
 
+// Duplicate a page and its descendant subtree. The root copy gets a "(コピー)"
+// suffix, all blocks get fresh IDs, trash markers (deletedAt / prevParentId)
+// are stripped, and createdAt/updatedAt are reset to now.
 function duplicatePage(id) {
-  const o = state.pages[id]; if (!o) return;
-  const c = JSON.parse(JSON.stringify(o)); c.id = uid();
-  c.title = (o.title || '無題') + ' (コピー)'; c.children = [];
-  c.blocks = c.blocks.map(b => regenBlockIds(b));
-  state.pages[c.id] = c;
-  if (c.parentId && state.pages[c.parentId]) state.pages[c.parentId].children.push(c.id);
-  else { c.parentId = null; state.rootPages.push(c.id); }
+  const orig = state.pages[id]; if (!orig || orig.deletedAt) return null;
+  const now = Date.now();
+  const dupRecursive = (origId, newParentId) => {
+    const src = state.pages[origId]; if (!src) return null;
+    const c = JSON.parse(JSON.stringify(src));
+    c.id = uid();
+    c.parentId = newParentId;
+    c.children = [];
+    c.blocks = (c.blocks || []).map(b => regenBlockIds(b));
+    c.createdAt = now;
+    c.updatedAt = now;
+    delete c.deletedAt;
+    delete c.prevParentId;
+    state.pages[c.id] = c;
+    for (const childId of (src.children || [])) {
+      const child = state.pages[childId];
+      if (!child || child.deletedAt) continue;
+      const dc = dupRecursive(childId, c.id);
+      if (dc) c.children.push(dc.id);
+    }
+    return c;
+  };
+  const root = dupRecursive(id, orig.parentId || null);
+  if (!root) return null;
+  root.title = (orig.title || '無題') + ' (コピー)';
+  if (root.parentId && state.pages[root.parentId]) state.pages[root.parentId].children.push(root.id);
+  else { root.parentId = null; state.rootPages.push(root.id); }
   saveState(); renderSidebar();
+  return root;
 }
 function regenBlockIds(b) {
   b.id = uid();
@@ -4368,7 +4402,9 @@ function renderAll() {
   applyTheme();
   applyThemeCustom();
   renderAll();
-  setInterval(saveState, 3000);
+  // Periodic backup save: write directly without bumping updatedAt or pushing
+  // an undo snapshot. User-action paths still call saveState() to bump both.
+  setInterval(_doSave, 3000);
 })();
 </script>
 </body>
