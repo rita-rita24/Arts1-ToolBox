@@ -579,17 +579,17 @@
     </article>
     <article class="output-card" aria-labelledby="pg-sql-title">
       <div class="card-header">
-        <h2 class="card-title card-title-plain" id="pg-sql-title">PostgreSQL INSERT + DELETE</h2>
+        <h2 class="card-title card-title-plain" id="pg-sql-title">PostgreSQL SELECT + INSERT + DELETE</h2>
         <div class="card-header-actions">
           <label class="sr-only" for="pg-table-name">テーブル名</label>
           <input class="table-name-input" id="pg-table-name" type="text" placeholder="テーブル名を入力してください" aria-label="PostgreSQLのテーブル名" autocomplete="off" spellcheck="false">
-          <button class="copy-btn" data-copy-target="#output-pg-sql" data-default-label="コピー" aria-label="PostgreSQL INSERTとDELETEの結果をコピー">
+          <button class="copy-btn" data-copy-target="#output-pg-sql" data-default-label="コピー" aria-label="PostgreSQL SELECT・INSERT・DELETEの結果をコピー">
             <span class="material-icons" aria-hidden="true">content_copy</span>
             <span class="copy-label">コピー</span>
           </button>
         </div>
       </div>
-      <textarea class="output-area" id="output-pg-sql" readonly aria-label="PostgreSQL INSERTとDELETEの変換結果" placeholder="1行目にヘッダー、2行目以降にデータのタブ区切りを貼り付けると、INSERT + DELETE を生成します"></textarea>
+      <textarea class="output-area" id="output-pg-sql" readonly aria-label="PostgreSQL SELECT・INSERT・DELETEの変換結果" placeholder="1行目にヘッダー、2行目以降にデータのタブ区切りを貼り付けると、事前チェック用 SELECT + INSERT + DELETE を生成します"></textarea>
     </article>
     <article class="output-card" aria-labelledby="number-adjust-title">
       <div class="card-header">
@@ -724,7 +724,7 @@
     return `'${_escapePgStringLiteral(value)}'`;
   }
 
-  function _formatPgDeleteCondition(column, value) {
+  function _formatPgMatchCondition(column, value) {
     const _column = `"${_escapePgIdentifier(column)}"`;
     if (value === null) {
       return `${_column} IS NULL`;
@@ -748,19 +748,28 @@
     const _columnList = _quotedColumns.join(', ');
     const _normalizedRows = _table.rows.map(row => row.map(_normalizePgValue));
 
+    const _rowConditions = _normalizedRows.map(row => row
+      .map((value, index) => _formatPgMatchCondition(_table.headers[index], value))
+      .join(' AND ')
+    );
+
+    const _selectStatements = _rowConditions.map(conditions =>
+      `SELECT * FROM ${_tableName} WHERE ${conditions};`
+    );
+
     const _insertStatements = _normalizedRows.map(row => {
       const _values = row.map(_formatPgValue).join(', ');
       return `INSERT INTO ${_tableName} (${_columnList}) VALUES (${_values});`;
     });
 
-    const _deleteStatements = _normalizedRows.map(row => {
-      const _conditions = row
-        .map((value, index) => _formatPgDeleteCondition(_table.headers[index], value))
-        .join(' AND ');
-      return `DELETE FROM ${_tableName} WHERE ${_conditions};`;
-    });
+    const _deleteStatements = _rowConditions.map(conditions =>
+      `DELETE FROM ${_tableName} WHERE ${conditions};`
+    );
 
     return [
+      '-- SELECT文（事前チェック）',
+      ..._selectStatements,
+      '',
       '-- INSERT文',
       'BEGIN;',
       ..._insertStatements,
