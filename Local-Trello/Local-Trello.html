@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trello Clone</title>
 <!--
-  Trello Clone - Local single-file implementation
+  Trello Clone - Local single-file implementation (シンプル版)
   Based on verified Trello specifications from Atlassian official documentation.
   Extensions (not in native Trello) marked clearly: Dark mode, JSON export/import.
-  Intentionally NOT implemented (requires backend): Members, file attachments (binary),
-  notifications/watch, Power-Ups, Butler automation, card mirroring, custom fields.
+  Intentionally NOT implemented: Members, attachments, cover images, comments,
+  board archive/copy, notifications/watch, Power-Ups, Butler automation,
+  card mirroring, custom fields. (個人用カンバン向けに簡素化)
 -->
 
 <!-- Material Symbols: Google Fonts CDN (Outlined style, with fill/weight axes) -->
@@ -326,26 +327,6 @@
   .card:hover .card-edit-btn { display: inline-flex; }
   .card-edit-btn:hover { background: var(--hover-strong); color: var(--text-dark); }
 
-  .card-cover {
-    margin: -6px -8px 6px -8px;
-    border-radius: 8px 8px 0 0;
-    height: 32px;
-  }
-  .card-cover.full {
-    margin: -6px -8px -8px -8px;
-    border-radius: 8px;
-    height: auto;
-    min-height: 56px;
-    padding: 8px 10px;
-    display: flex;
-    align-items: center;
-    color: #FFF;
-    background-blend-mode: multiply;
-    background-color: rgba(0,0,0,0.18);
-  }
-  .card-cover.full .card-title { color: #FFF; text-shadow: 0 1px 2px rgba(0,0,0,0.55); }
-  .card-cover.full .card-complete-icon { color: #FFF; opacity: 0.9; }
-  .card-cover.full .card-badges { color: rgba(255,255,255,0.92); text-shadow: 0 1px 2px rgba(0,0,0,0.55); }
   .card-labels {
     display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 4px;
   }
@@ -453,13 +434,10 @@
   }
   .modal-close:hover { background: var(--hover-bg); }
 
-  .modal-cover { border-radius: 12px 12px 0 0; height: 116px; }
-  .modal-cover.with-image { background-size: cover; background-position: center; }
   .modal-header {
     padding: 12px 48px 0 56px;
     position: relative;
   }
-  .modal-header.with-cover { padding-top: 12px; }
   .modal-header-icon {
     position: absolute; left: 20px; top: 14px;
     color: var(--text-mid);
@@ -628,56 +606,6 @@
     opacity: 0; transition: opacity 0.15s;
   }
   .checklist-item:hover .checklist-item-delete { opacity: 1; }
-
-  .comment-composer {
-    margin-bottom: 16px;
-  }
-  .comment-input {
-    width: 100%;
-    background: var(--card-bg);
-    border: 1px solid var(--border); border-radius: 8px;
-    padding: 8px 12px; min-height: 40px;
-    font-family: inherit; font-size: 14px;
-    resize: vertical;
-    color: var(--text-dark);
-    box-sizing: border-box;
-  }
-  .comment-input:focus { outline: none; border-color: var(--tr-blue); }
-
-  .comment-item {
-    margin-bottom: 12px;
-  }
-  .comment-content {
-    background: var(--card-bg);
-    padding: 8px 12px; border-radius: 8px;
-    box-shadow: var(--shadow-sm);
-    font-size: 14px; line-height: 1.4;
-    white-space: pre-wrap; overflow-wrap: break-word;
-  }
-  .comment-meta {
-    font-size: 11px; color: var(--text-mid); margin-top: 4px;
-    display: flex; gap: 10px;
-  }
-  .comment-meta a { color: inherit; cursor: pointer; text-decoration: underline; }
-
-  /* Attachments */
-  .attachment-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 8px; border-radius: var(--radius);
-    margin-bottom: 8px;
-    background: var(--hover-bg);
-  }
-  .attachment-thumb {
-    width: 80px; height: 48px; border-radius: var(--radius);
-    background: var(--list-header);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--text-mid); flex-shrink: 0;
-    overflow: hidden;
-  }
-  .attachment-info { flex: 1; min-width: 0; }
-  .attachment-name { font-weight: 600; color: var(--text-dark); word-break: break-all; font-size: 14px; }
-  .attachment-meta { font-size: 12px; color: var(--text-mid); display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
-  .attachment-meta a { color: inherit; cursor: pointer; text-decoration: underline; }
 
   /* ===== Popover ===== */
   .popover-backdrop {
@@ -1075,7 +1003,6 @@ function defaultState() {
       id: boardId,
       name: 'ようこそボード',
       background: 'blue',
-      closed: false,
       labels,
       lists: [
         {
@@ -1116,9 +1043,6 @@ function newCardTemplate() {
     dueDate: null,
     dueComplete: false,
     checklists: [],
-    attachments: [],
-    cover: null, // { type: 'color'|'image', value, size: 'half'|'full' }
-    comments: [],
     archived: false,
     createdAt: nowIso(),
     updatedAt: nowIso()
@@ -1130,8 +1054,24 @@ function loadState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaultState();
     const parsed = JSON.parse(raw);
-    // basic migration
     if (!parsed.boards || !parsed.boards.length) return defaultState();
+
+    // Migration: drop closed boards and removed fields (comments/attachments/cover).
+    parsed.boards = parsed.boards.filter(b => !b.closed);
+    for (const b of parsed.boards) {
+      delete b.closed;
+      for (const l of (b.lists || [])) {
+        for (const c of (l.cards || [])) {
+          delete c.comments;
+          delete c.attachments;
+          delete c.cover;
+        }
+      }
+    }
+    if (!parsed.boards.length) return defaultState();
+    if (!parsed.boards.some(b => b.id === parsed.currentBoardId)) {
+      parsed.currentBoardId = parsed.boards[0].id;
+    }
     return parsed;
   } catch (e) {
     console.warn('loadState failed, using default', e);
@@ -1376,27 +1316,11 @@ function renderCard(card, list) {
   const board = currentBoard();
   const cardLabels = card.labelIds.map(id => board.labels.find(l => l.id === id)).filter(Boolean);
 
-  let cover = '';
-  if (card.cover && card.cover.type) {
-    const bg = card.cover.type === 'color' ? card.cover.value : `url('${escapeHtml(card.cover.value)}') center/cover`;
-    if (card.cover.size === 'full') {
-      cover = `<div class="card-cover full" style="background:${bg}; color:${card.cover.type === 'color' ? '#FFF' : '#FFF'};">
-        ${renderCardInner(card, cardLabels, status, true)}
-      </div>`;
-    } else {
-      cover = `<div class="card-cover" style="background:${bg};"></div>`;
-    }
-  }
-
   const editBtn = `<button class="card-edit-btn" data-quick-edit aria-label="クイック編集">
     <span class="material-symbols-outlined" style="font-size:16px;">edit</span>
   </button>`;
 
-  if (card.cover && card.cover.size === 'full') {
-    el.innerHTML = cover + editBtn;
-  } else {
-    el.innerHTML = cover + renderCardInner(card, cardLabels, status, false) + editBtn;
-  }
+  el.innerHTML = renderCardInner(card, cardLabels, status) + editBtn;
 
   el.addEventListener('click', (e) => {
     if (e.target.closest('[data-quick-edit]')) { e.stopPropagation(); openQuickEdit(card, el); return; }
@@ -1426,7 +1350,7 @@ function renderCard(card, list) {
   return el;
 }
 
-function renderCardInner(card, cardLabels, status, insideFullCover) {
+function renderCardInner(card, cardLabels, status) {
   const labelsHtml = cardLabels.length
     ? `<div class="card-labels">${cardLabels.map(l =>
         `<div class="label-pill" data-label-pill style="background:${labelHex(l.color)};"${l.name ? ` title="${escapeHtml(l.name)}"` : ''}>${escapeHtml(l.name || '')}</div>`
@@ -1444,12 +1368,6 @@ function renderCardInner(card, cardLabels, status, insideFullCover) {
   if (card.description && card.description.trim()) {
     badges.push(`<span class="badge" title="説明あり"><span class="material-symbols-outlined">notes</span></span>`);
   }
-  if (card.comments.length) {
-    badges.push(`<span class="badge" title="コメント"><span class="material-symbols-outlined">chat_bubble</span>${card.comments.length}</span>`);
-  }
-  if (card.attachments.length) {
-    badges.push(`<span class="badge" title="添付"><span class="material-symbols-outlined">attach_file</span>${card.attachments.length}</span>`);
-  }
   const clTotal = card.checklists.reduce((s, cl) => s + cl.items.length, 0);
   const clDone = card.checklists.reduce((s, cl) => s + cl.items.filter(i => i.done).length, 0);
   if (clTotal) {
@@ -1464,18 +1382,6 @@ function renderCardInner(card, cardLabels, status, insideFullCover) {
   }
 
   const badgesHtml = badges.length ? `<div class="card-badges">${badges.join('')}</div>` : '';
-
-  if (insideFullCover) {
-    return `
-      <div style="width:100%;">
-        ${labelsHtml}
-        <div class="card-title-row">
-          ${completeIcon}
-          <div class="card-title">${title}</div>
-        </div>
-        ${badgesHtml}
-      </div>`;
-  }
 
   return `
     ${labelsHtml}
@@ -1585,18 +1491,15 @@ function copyCard(card, list) {
   const copy = JSON.parse(JSON.stringify(card));
   copy.id = uid();
   copy.title = card.title + ' のコピー';
-  copy.comments = [];
   copy.archived = false;
   copy.createdAt = nowIso();
   copy.updatedAt = nowIso();
-  // Re-id checklists and items so they stay independent
   if (copy.checklists) {
     copy.checklists.forEach(cl => {
       cl.id = uid();
       if (cl.items) cl.items.forEach(it => { it.id = uid(); });
     });
   }
-  if (copy.attachments) copy.attachments.forEach(a => { a.id = uid(); });
   const idx = list.cards.findIndex(c => c.id === card.id);
   list.cards.splice(idx + 1, 0, copy);
   saveState(); renderAll();
@@ -1787,9 +1690,6 @@ function closeModal() {
 
 function renderCardModal(card, list, modalEl) {
   const board = currentBoard();
-  const coverHtml = card.cover && card.cover.type
-    ? `<div class="modal-cover" style="background:${card.cover.type === 'color' ? card.cover.value : `url('${escapeHtml(card.cover.value)}') center/cover`};"></div>`
-    : '';
 
   const cardLabels = card.labelIds.map(id => board.labels.find(l => l.id === id)).filter(Boolean);
 
@@ -1797,8 +1697,7 @@ function renderCardModal(card, list, modalEl) {
     <button class="modal-close" aria-label="閉じる">
       <span class="material-symbols-outlined msi-lg">close</span>
     </button>
-    ${coverHtml}
-    <div class="modal-header ${coverHtml ? 'with-cover' : ''}">
+    <div class="modal-header">
       <span class="material-symbols-outlined modal-header-icon">${card.dueComplete ? 'check_circle' : 'credit_card'}</span>
       <textarea class="modal-title" rows="1" data-field="title">${escapeHtml(card.title)}</textarea>
       <div class="modal-sub">リスト <strong>${escapeHtml(list.title)}</strong> 内</div>
@@ -1830,21 +1729,7 @@ function renderCardModal(card, list, modalEl) {
         </div>
         <div id="modal-description"></div>
 
-        ${card.attachments.length ? `
-          <div class="section-header">
-            <span class="material-symbols-outlined section-icon">attach_file</span>
-            <span class="section-title">添付</span>
-          </div>
-          <div id="modal-attachments"></div>
-        ` : ''}
-
         <div id="modal-checklists"></div>
-
-        <div class="section-header">
-          <span class="material-symbols-outlined section-icon">chat_bubble</span>
-          <span class="section-title">コメント</span>
-        </div>
-        <div id="modal-comments"></div>
       </div>
 
       <div class="modal-side">
@@ -1852,8 +1737,6 @@ function renderCardModal(card, list, modalEl) {
         <button class="side-btn" data-add-labels><span class="material-symbols-outlined msi-md">label</span>ラベル</button>
         <button class="side-btn" data-add-dates><span class="material-symbols-outlined msi-md">schedule</span>日付</button>
         <button class="side-btn" data-add-checklist><span class="material-symbols-outlined msi-md">checklist</span>チェックリスト</button>
-        <button class="side-btn" data-add-attachment><span class="material-symbols-outlined msi-md">attach_file</span>添付</button>
-        <button class="side-btn" data-add-cover><span class="material-symbols-outlined msi-md">image</span>カバー</button>
 
         <div class="side-title">アクション</div>
         <button class="side-btn" data-action-move><span class="material-symbols-outlined msi-md">arrow_forward</span>移動</button>
@@ -1873,7 +1756,6 @@ function renderCardModal(card, list, modalEl) {
     <button class="qa-btn" data-qa-labels><span class="material-symbols-outlined">label</span>ラベル</button>
     <button class="qa-btn" data-qa-dates><span class="material-symbols-outlined">schedule</span>日付</button>
     <button class="qa-btn" data-qa-checklist><span class="material-symbols-outlined">checklist</span>チェックリスト</button>
-    <button class="qa-btn" data-qa-attachment><span class="material-symbols-outlined">attach_file</span>添付</button>
     <button class="qa-btn" data-qa-complete>
       <span class="material-symbols-outlined">${card.dueComplete ? 'check_circle' : 'radio_button_unchecked'}</span>
       ${card.dueComplete ? '完了済み' : '未完了にする'}
@@ -1942,16 +1824,8 @@ function renderCardModal(card, list, modalEl) {
   // Description
   renderDescription(modalEl.querySelector('#modal-description'), card, () => renderCardModal(card, list, modalEl));
 
-  // Attachments
-  if (card.attachments.length) {
-    renderAttachments(modalEl.querySelector('#modal-attachments'), card, () => renderCardModal(card, list, modalEl));
-  }
-
   // Checklists
   renderChecklistsSection(modalEl.querySelector('#modal-checklists'), card, () => renderCardModal(card, list, modalEl));
-
-  // Comments
-  renderCommentsSection(modalEl.querySelector('#modal-comments'), card, () => renderCardModal(card, list, modalEl));
 
   // Side/quick actions
   const rerender = () => renderCardModal(card, list, modalEl);
@@ -1960,8 +1834,6 @@ function renderCardModal(card, list, modalEl) {
   bindAdd('[data-add-labels],[data-qa-labels]', (btn) => openLabelsPopover(card, btn.getBoundingClientRect(), rerender));
   bindAdd('[data-add-dates],[data-qa-dates]',   (btn) => openDatesPopover(card, btn.getBoundingClientRect(), rerender));
   bindAdd('[data-add-checklist],[data-qa-checklist]', (btn) => openChecklistPopover(card, btn.getBoundingClientRect(), rerender));
-  bindAdd('[data-add-attachment],[data-qa-attachment]', (btn) => openAttachmentPopover(card, btn.getBoundingClientRect(), rerender));
-  bindAdd('[data-add-cover]', (btn) => openCoverPopover(card, btn.getBoundingClientRect(), rerender));
   bindAdd('[data-qa-complete]', () => { toggleComplete(card); rerender(); });
   bindAdd('[data-action-move]', (btn) => openMoveCardPopover(card, btn.getBoundingClientRect(), () => { closeModal(); }));
   bindAdd('[data-action-copy]', () => { copyCard(card, list); closeModal(); });
@@ -2006,60 +1878,6 @@ function renderDescription(el, card, rerender) {
       saveState(); rerender();
     }
   });
-}
-
-function renderAttachments(el, card, rerender) {
-  el.innerHTML = '';
-  for (const a of card.attachments) {
-    const isImg = a.isLocal
-      ? (a.mimeType && a.mimeType.startsWith('image/')) || a.url.startsWith('data:image/')
-      : /\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(a.url);
-    const item = document.createElement('div');
-    item.className = 'attachment-item';
-    const linkHtml = a.isLocal
-      ? `<a data-open-local>表示</a>`
-      : `<a href="${escapeHtml(a.url)}" target="_blank" rel="noreferrer noopener">リンクを開く</a>`;
-    item.innerHTML = `
-      <div class="attachment-thumb">
-        ${isImg ? `<img src="${escapeHtml(a.url)}" alt="" style="width:100%;height:100%;object-fit:cover;">` : `<span class="material-symbols-outlined">${a.isLocal ? 'description' : (/https?:\/\//.test(a.url) ? 'link' : 'attach_file')}</span>`}
-      </div>
-      <div class="attachment-info">
-        <div class="attachment-name">${escapeHtml(a.name || a.url)}</div>
-        <div class="attachment-meta">
-          ${linkHtml}
-          ${isImg ? '<a data-as-cover>カバーに設定</a>' : ''}
-          <a data-remove>削除</a>
-          ${a.isCover ? '<span>(カバー)</span>' : ''}
-          ${a.isLocal ? '<span class="muted">(ローカル)</span>' : ''}
-        </div>
-      </div>
-    `;
-    const asCoverBtn = item.querySelector('[data-as-cover]');
-    if (asCoverBtn) {
-      asCoverBtn.addEventListener('click', () => {
-        card.attachments.forEach(x => x.isCover = false);
-        a.isCover = true;
-        card.cover = { type: 'image', value: a.url, size: 'half' };
-        saveState(); rerender();
-      });
-    }
-    const openLocalBtn = item.querySelector('[data-open-local]');
-    if (openLocalBtn) {
-      openLocalBtn.addEventListener('click', () => {
-        // Open data URL in new tab/window
-        const w = window.open();
-        if (w) {
-          w.document.write(`<title>${escapeHtml(a.name)}</title><body style="margin:0;background:#222;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="${a.url}" style="max-width:100%;max-height:100vh;"></body>`);
-        }
-      });
-    }
-    item.querySelector('[data-remove]').addEventListener('click', () => {
-      card.attachments = card.attachments.filter(x => x.id !== a.id);
-      if (card.cover && card.cover.value === a.url) card.cover = null;
-      saveState(); rerender();
-    });
-    el.appendChild(item);
-  }
 }
 
 function renderChecklistsSection(container, card, rerender) {
@@ -2164,69 +1982,6 @@ function renderChecklistsSection(container, card, rerender) {
 
     container.appendChild(wrap);
   });
-}
-
-function renderCommentsSection(container, card, rerender) {
-  container.innerHTML = '';
-
-  // Composer (no avatar)
-  const composer = document.createElement('div');
-  composer.className = 'comment-composer';
-  composer.innerHTML = `
-    <textarea class="comment-input" placeholder="コメントを書く... (Ctrl/⌘ + Enter で送信)"></textarea>
-  `;
-  const ta = composer.querySelector('textarea');
-  ta.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-      e.preventDefault();
-      const v = ta.value.trim();
-      if (!v) return;
-      card.comments.unshift({ id: uid(), text: v, createdAt: nowIso() });
-      card.updatedAt = nowIso();
-      ta.value = '';
-      saveState(); rerender();
-    }
-  });
-  container.appendChild(composer);
-
-  // List (no avatar)
-  for (const c of card.comments) {
-    const item = document.createElement('div');
-    item.className = 'comment-item';
-    item.innerHTML = `
-      <div class="comment-content">${escapeHtml(c.text)}</div>
-      <div class="comment-meta">
-        <span>${formatRelative(c.createdAt)}</span>
-        <a data-edit>編集</a>
-        <a data-del>削除</a>
-      </div>
-    `;
-    item.querySelector('[data-edit]').addEventListener('click', () => {
-      const content = item.querySelector('.comment-content');
-      const cur = c.text;
-      content.innerHTML = `
-        <textarea class="comment-input" style="min-height:48px;">${escapeHtml(cur)}</textarea>
-        <div class="composer-actions" style="margin-top:6px;">
-          <button class="btn-primary" data-save>保存</button>
-          <button class="btn-icon" data-cancel><span class="material-symbols-outlined msi-md">close</span></button>
-        </div>
-      `;
-      const area = content.querySelector('textarea');
-      area.focus();
-      content.querySelector('[data-save]').addEventListener('click', () => {
-        c.text = area.value.trim() || c.text;
-        card.updatedAt = nowIso();
-        saveState(); rerender();
-      });
-      content.querySelector('[data-cancel]').addEventListener('click', rerender);
-    });
-    item.querySelector('[data-del]').addEventListener('click', () => {
-      if (!confirm('このコメントを削除しますか?')) return;
-      card.comments = card.comments.filter(x => x.id !== c.id);
-      saveState(); rerender();
-    });
-    container.appendChild(item);
-  }
 }
 
 // ===== Popovers =====
@@ -2477,172 +2232,6 @@ function openChecklistPopover(card, anchor, onChange) {
   });
 }
 
-function openAttachmentPopover(card, anchor, onChange) {
-  showPopover({
-    title: '添付',
-    anchor,
-    body: () => {
-      const wrap = document.createElement('div');
-      wrap.innerHTML = `
-        <button class="popover-item" data-pick-file style="justify-content:center;background:var(--hover-bg);font-weight:500;margin-bottom:8px;">
-          <span class="material-symbols-outlined msi-md">upload</span>このコンピュータから...
-        </button>
-        <div style="font-size:12px;color:var(--text-mid);margin-bottom:6px;font-weight:600;">またはURLを貼り付け</div>
-        <input type="url" id="att-url" placeholder="https://..." style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:3px;font-family:inherit;font-size:14px;margin-bottom:8px;background:var(--card-bg);color:var(--text-dark);box-sizing:border-box;">
-        <div style="font-weight:600;font-size:12px;color:var(--text-mid);margin-bottom:4px;">表示名 (任意)</div>
-        <input type="text" id="att-name" placeholder="例: 参考資料" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:3px;font-family:inherit;font-size:14px;margin-bottom:12px;background:var(--card-bg);color:var(--text-dark);box-sizing:border-box;">
-        <button class="btn-primary" data-add>添付</button>
-        <input type="file" id="att-file-input" accept="image/*" style="display:none;">
-      `;
-      const urlInput = wrap.querySelector('#att-url');
-      const fileInput = wrap.querySelector('#att-file-input');
-
-      wrap.querySelector('[data-pick-file]').addEventListener('click', () => fileInput.click());
-      fileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        // Limit file size to ~3MB to fit in localStorage
-        if (file.size > 3 * 1024 * 1024) {
-          alert('ファイルサイズは3MB以下にしてください(localStorage制限のため)');
-          return;
-        }
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const dataUrl = ev.target.result;
-          card.attachments.push({
-            id: uid(),
-            url: dataUrl,
-            name: file.name,
-            isLocal: true,
-            mimeType: file.type,
-            isCover: false
-          });
-          card.updatedAt = nowIso();
-          saveState(); closePopover(); if (onChange) onChange();
-        };
-        reader.onerror = () => alert('ファイルの読み込みに失敗しました');
-        reader.readAsDataURL(file);
-      });
-
-      wrap.querySelector('[data-add]').addEventListener('click', () => {
-        const url = urlInput.value.trim();
-        if (!url) return;
-        const name = wrap.querySelector('#att-name').value.trim() || url;
-        card.attachments.push({ id: uid(), url, name, isLocal: false, isCover: false });
-        card.updatedAt = nowIso();
-        saveState(); closePopover(); if (onChange) onChange();
-      });
-      return wrap;
-    }
-  });
-}
-
-function openCoverPopover(card, anchor, onChange) {
-  showPopover({
-    title: 'カバー',
-    anchor,
-    width: 320,
-    body: () => {
-      const wrap = document.createElement('div');
-      const isColor = card.cover && card.cover.type === 'color';
-      const size = (card.cover && card.cover.size) || 'half';
-      const currentImageValue = card.cover && card.cover.type === 'image' ? card.cover.value : '';
-      const currentIsLocal = currentImageValue && currentImageValue.startsWith('data:');
-      wrap.innerHTML = `
-        <div style="font-weight:600;font-size:12px;color:var(--text-mid);margin-bottom:6px;">サイズ</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;">
-          <button class="tab-btn ${size === 'half' ? 'active' : ''}" data-size="half">ハーフ</button>
-          <button class="tab-btn ${size === 'full' ? 'active' : ''}" data-size="full">フル</button>
-        </div>
-        <div style="font-weight:600;font-size:12px;color:var(--text-mid);margin-bottom:6px;">色</div>
-        <div id="cover-colors" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px;"></div>
-        <div style="font-weight:600;font-size:12px;color:var(--text-mid);margin-bottom:6px;">画像</div>
-        <button class="popover-item" data-pick-file style="justify-content:center;background:var(--hover-bg);font-weight:500;margin-bottom:8px;">
-          <span class="material-symbols-outlined msi-md">upload</span>このコンピュータから...
-        </button>
-        ${currentIsLocal ? `<div style="font-size:11px;color:var(--text-mid);margin-bottom:8px;">現在: アップロード画像</div>` : ''}
-        <div style="font-size:12px;color:var(--text-mid);margin-bottom:4px;">またはURL</div>
-        <input type="url" id="cover-url" value="${currentIsLocal ? '' : escapeHtml(currentImageValue)}" placeholder="https://..." style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:3px;font-family:inherit;font-size:14px;margin-bottom:12px;background:var(--card-bg);color:var(--text-dark);box-sizing:border-box;">
-        <input type="file" id="cover-file-input" accept="image/*" style="display:none;">
-        <div style="display:flex;gap:6px;">
-          <button class="btn-primary" data-save>保存</button>
-          <button class="side-btn danger" data-remove style="width:auto;padding:6px 12px;">削除</button>
-        </div>
-      `;
-      let selSize = size;
-      wrap.querySelectorAll('[data-size]').forEach(b => b.addEventListener('click', () => {
-        selSize = b.dataset.size;
-        wrap.querySelectorAll('[data-size]').forEach(x => x.classList.remove('active'));
-        b.classList.add('active');
-      }));
-
-      const colorsEl = wrap.querySelector('#cover-colors');
-      const urlInput = wrap.querySelector('#cover-url');
-      const fileInput = wrap.querySelector('#cover-file-input');
-      let selectedColor = isColor ? card.cover.value : null;
-      let pendingLocalImage = currentIsLocal ? currentImageValue : null;
-
-      const renderColorSwatches = () => {
-        colorsEl.innerHTML = '';
-        for (const c of LABEL_COLORS) {
-          const sw = document.createElement('button');
-          sw.style.cssText = `height:40px;border-radius:3px;border:${selectedColor === c.hex ? '3px solid var(--text-dark)' : '2px solid transparent'};background:${c.hex};cursor:pointer;`;
-          sw.addEventListener('click', () => {
-            selectedColor = c.hex;
-            urlInput.value = '';
-            pendingLocalImage = null;
-            renderColorSwatches();
-          });
-          colorsEl.appendChild(sw);
-        }
-      };
-      renderColorSwatches();
-      urlInput.addEventListener('input', () => {
-        if (urlInput.value.trim()) {
-          selectedColor = null;
-          pendingLocalImage = null;
-          renderColorSwatches();
-        }
-      });
-      wrap.querySelector('[data-pick-file]').addEventListener('click', () => fileInput.click());
-      fileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        if (file.size > 3 * 1024 * 1024) {
-          alert('画像サイズは3MB以下にしてください(localStorage制限のため)');
-          return;
-        }
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          pendingLocalImage = ev.target.result;
-          selectedColor = null;
-          urlInput.value = '';
-          renderColorSwatches();
-          showToast('画像を読み込みました。「保存」を押してください', null, 2500);
-        };
-        reader.onerror = () => alert('ファイルの読み込みに失敗しました');
-        reader.readAsDataURL(file);
-      });
-
-      wrap.querySelector('[data-save]').addEventListener('click', () => {
-        const url = urlInput.value.trim();
-        if (pendingLocalImage) card.cover = { type: 'image', value: pendingLocalImage, size: selSize };
-        else if (url) card.cover = { type: 'image', value: url, size: selSize };
-        else if (selectedColor) card.cover = { type: 'color', value: selectedColor, size: selSize };
-        else { closePopover(); return; }
-        card.updatedAt = nowIso();
-        saveState(); closePopover(); if (onChange) onChange(); renderAll();
-      });
-      wrap.querySelector('[data-remove]').addEventListener('click', () => {
-        card.cover = null;
-        card.updatedAt = nowIso();
-        saveState(); closePopover(); if (onChange) onChange(); renderAll();
-      });
-      return wrap;
-    }
-  });
-}
-
 function openMoveCardPopover(card, anchor, onAfter) {
   const board = currentBoard();
   const { list: srcList } = findCard(state.currentBoardId, card.id);
@@ -2813,7 +2402,7 @@ function openBoardsDrawer() {
   drawer.querySelector('#drawer-new').addEventListener('click', () => {
     const name = prompt('新しいボード名を入力してください', '新しいボード');
     if (!name) return;
-    const b = { id: uid(), name: name.trim(), background: 'blue', closed: false, labels: DEFAULT_LABELS(), lists: [] };
+    const b = { id: uid(), name: name.trim(), background: 'blue', labels: DEFAULT_LABELS(), lists: [] };
     state.boards.push(b);
     state.currentBoardId = b.id;
     saveState(); renderAll();
@@ -2824,7 +2413,6 @@ function openBoardsDrawer() {
 
   const body = drawer.querySelector('#drawer-body');
   for (const b of state.boards) {
-    if (b.closed) continue;
     const item = document.createElement('div');
     item.className = 'board-item' + (b.id === state.currentBoardId ? ' current' : '');
     item.innerHTML = `
@@ -2833,8 +2421,6 @@ function openBoardsDrawer() {
       <div class="board-item-actions">
         <button class="btn-icon" data-act="bg" title="背景"><span class="material-symbols-outlined msi-md">palette</span></button>
         <button class="btn-icon" data-act="rename" title="名前変更"><span class="material-symbols-outlined msi-md">edit</span></button>
-        <button class="btn-icon" data-act="copy" title="コピー"><span class="material-symbols-outlined msi-md">content_copy</span></button>
-        <button class="btn-icon" data-act="close" title="ボードを閉じる"><span class="material-symbols-outlined msi-md">archive</span></button>
       </div>
     `;
     item.addEventListener('click', (e) => {
@@ -2852,55 +2438,7 @@ function openBoardsDrawer() {
       e.stopPropagation();
       openBackgroundPicker(b, e.currentTarget.getBoundingClientRect());
     });
-    item.querySelector('[data-act="copy"]').addEventListener('click', (e) => {
-      e.stopPropagation();
-      const copy = JSON.parse(JSON.stringify(b));
-      copy.id = uid();
-      copy.name = b.name + ' のコピー';
-      copy.labels.forEach(l => l.id = uid());
-      copy.lists.forEach(l => { l.id = uid(); l.cards.forEach(c => c.id = uid()); });
-      state.boards.push(copy);
-      saveState(); closeDrawer(); openBoardsDrawer();
-    });
-    item.querySelector('[data-act="close"]').addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (!confirm(`ボード「${b.name}」を閉じますか?アーカイブされます。`)) return;
-      b.closed = true;
-      if (b.id === state.currentBoardId) {
-        const next = state.boards.find(x => !x.closed);
-        state.currentBoardId = next ? next.id : null;
-      }
-      saveState(); closeDrawer(); openBoardsDrawer(); renderAll();
-    });
     body.appendChild(item);
-  }
-
-  const archivedBoards = state.boards.filter(b => b.closed);
-  if (archivedBoards.length) {
-    const section = document.createElement('div');
-    section.innerHTML = `<div class="side-title" style="margin-top:12px;">アーカイブ済みボード</div>`;
-    for (const b of archivedBoards) {
-      const item = document.createElement('div');
-      item.className = 'board-item';
-      item.innerHTML = `
-        <div class="board-swatch" style="background:${bgValue(b.background)};opacity:0.6;"></div>
-        <div class="board-item-name muted">${escapeHtml(b.name)}</div>
-        <div class="board-item-actions">
-          <button class="btn-icon" data-reopen title="再開"><span class="material-symbols-outlined msi-md">unarchive</span></button>
-          <button class="btn-icon" data-delete title="完全削除"><span class="material-symbols-outlined msi-md" style="color:var(--due-red);">delete_forever</span></button>
-        </div>
-      `;
-      item.querySelector('[data-reopen]').addEventListener('click', () => {
-        b.closed = false; saveState(); closeDrawer(); openBoardsDrawer(); renderAll();
-      });
-      item.querySelector('[data-delete]').addEventListener('click', () => {
-        if (!confirm(`「${b.name}」を完全に削除します。元に戻せません。よろしいですか?`)) return;
-        state.boards = state.boards.filter(x => x.id !== b.id);
-        saveState(); closeDrawer(); openBoardsDrawer();
-      });
-      section.appendChild(item);
-    }
-    body.appendChild(section);
   }
 }
 
@@ -3240,7 +2778,6 @@ document.getElementById('btn-settings').addEventListener('click', (e) => {
         <button class="popover-item" data-rename><span class="material-symbols-outlined msi-md">edit</span>ボード名を変更</button>
         <button class="popover-item" data-labels><span class="material-symbols-outlined msi-md">label</span>ラベルを管理</button>
         <button class="popover-item" data-archived><span class="material-symbols-outlined msi-md">inventory_2</span>アーカイブ済みアイテム</button>
-        <button class="popover-item" data-close><span class="material-symbols-outlined msi-md">archive</span>ボードを閉じる</button>
       `;
       wrap.querySelector('[data-bg]').addEventListener('click', (ev) => {
         closePopover();
@@ -3257,13 +2794,6 @@ document.getElementById('btn-settings').addEventListener('click', (e) => {
       });
       const arch = wrap.querySelector('[data-archived]');
       if (arch) arch.addEventListener('click', (ev) => { closePopover(); openArchivedPopover(ev.currentTarget.getBoundingClientRect()); });
-      wrap.querySelector('[data-close]').addEventListener('click', () => {
-        if (!confirm(`ボード「${b.name}」を閉じますか?`)) return;
-        b.closed = true;
-        const next = state.boards.find(x => !x.closed && x.id !== b.id);
-        state.currentBoardId = next ? next.id : null;
-        saveState(); closePopover(); renderAll();
-      });
       return wrap;
     }
   });
