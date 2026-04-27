@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tsumiki - 積木</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🟫</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📜</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;700" rel="stylesheet">
 <!-- Prism.js for syntax highlighting -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
@@ -32,44 +32,50 @@
 
   /* ========== Design Tokens ========== */
   :root {
-    --bg-app: #faf7f2;            /* 生成り washi */
-    --bg-sidebar: #efe9dc;        /* 一段濃い和紙 */
-    --bg-hover: rgba(42, 37, 33, 0.06);
-    --bg-hover-strong: rgba(42, 37, 33, 0.10);
-    --bg-selected: rgba(61, 90, 128, 0.14);   /* 藍墨 tint */
-    --bg-code: #f0ebe0;
-    --bg-callout: #ebe5d4;
-    --bg-overlay: rgba(20, 18, 15, 0.35);
-    --border: rgba(42, 37, 33, 0.10);
-    --border-strong: rgba(42, 37, 33, 0.18);
-    --text-primary: #2a2521;       /* 深い焦茶 */
-    --text-secondary: rgba(42, 37, 33, 0.65);
-    --text-tertiary: rgba(42, 37, 33, 0.45);
-    --text-quote: rgba(42, 37, 33, 0.82);
-    --accent: #3d5a80;             /* 藍墨 indigo ink */
-    --shadow-menu: rgba(20, 18, 15, 0.05) 0px 0px 0px 1px, rgba(20, 18, 15, 0.1) 0px 3px 6px, rgba(20, 18, 15, 0.2) 0px 9px 24px;
-    --shadow-modal: rgba(20, 18, 15, 0.05) 0px 0px 0px 1px, rgba(20, 18, 15, 0.1) 0px 6px 12px, rgba(20, 18, 15, 0.2) 0px 20px 40px;
-    --red: #b54141;                /* 朱寄りのレッド */
+    --bg-app: #f3f3f1;            /* 淡墨 — 紙の周りの余白 */
+    --bg-paper: #ffffff;           /* 紙そのもの */
+    --bg-sidebar: #ebebe9;         /* ドロワー */
+    --bg-hover: rgba(26, 26, 26, 0.05);
+    --bg-hover-strong: rgba(26, 26, 26, 0.09);
+    --bg-selected: rgba(26, 26, 26, 0.07);   /* 墨 tint (色を捨てる) */
+    --bg-code: #f5f5f3;
+    --bg-callout: #f0f0ee;
+    --bg-overlay: rgba(20, 20, 20, 0.45);
+    --border: rgba(26, 26, 26, 0.08);
+    --border-strong: rgba(26, 26, 26, 0.16);
+    --text-primary: #1a1a1a;       /* 墨 */
+    --text-secondary: #6b6b6b;     /* 鼠色 */
+    --text-tertiary: #a8a8a8;      /* 銀鼠 */
+    --text-quote: #1a1a1a;
+    --accent: #1a1a1a;             /* 墨そのものをアクセントに */
+    --shadow-paper: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 28px rgba(0, 0, 0, 0.06);
+    --shadow-menu: rgba(20, 20, 20, 0.05) 0px 0px 0px 1px, rgba(20, 20, 20, 0.08) 0px 3px 6px, rgba(20, 20, 20, 0.16) 0px 9px 24px;
+    --shadow-modal: rgba(20, 20, 20, 0.05) 0px 0px 0px 1px, rgba(20, 20, 20, 0.1) 0px 6px 12px, rgba(20, 20, 20, 0.2) 0px 20px 40px;
+    --red: #9c2b2b;
+    --serif: 'Noto Serif JP', 'YuMincho', 'Hiragino Mincho ProN', serif;
+    --sans: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
   }
 
   [data-theme="dark"] {
-    --bg-app: #1c1814;             /* 深い墨色 */
-    --bg-sidebar: #25201b;
-    --bg-hover: rgba(250, 247, 242, 0.05);
-    --bg-hover-strong: rgba(250, 247, 242, 0.09);
-    --bg-selected: rgba(125, 158, 192, 0.22);  /* 明るい藍 */
-    --bg-code: #322b24;
-    --bg-callout: #322b24;
-    --bg-overlay: rgba(0, 0, 0, 0.5);
-    --border: rgba(250, 247, 242, 0.09);
-    --border-strong: rgba(250, 247, 242, 0.17);
-    --text-primary: rgba(250, 247, 242, 0.9);
-    --text-secondary: rgba(250, 247, 242, 0.6);
-    --text-tertiary: rgba(250, 247, 242, 0.4);
-    --text-quote: rgba(250, 247, 242, 0.81);
-    --accent: #7d9ec0;             /* 淡い藍 (ダーク用) */
-    --shadow-menu: rgba(0, 0, 0, 0.2) 0px 0px 0px 1px, rgba(0, 0, 0, 0.3) 0px 3px 6px, rgba(0, 0, 0, 0.4) 0px 9px 24px;
-    --shadow-modal: rgba(0, 0, 0, 0.2) 0px 0px 0px 1px, rgba(0, 0, 0, 0.3) 0px 6px 12px, rgba(0, 0, 0, 0.5) 0px 20px 40px;
+    --bg-app: #0a0a0a;             /* 闇 */
+    --bg-paper: #161616;            /* 反転した紙 */
+    --bg-sidebar: #1c1c1c;
+    --bg-hover: rgba(240, 240, 240, 0.05);
+    --bg-hover-strong: rgba(240, 240, 240, 0.09);
+    --bg-selected: rgba(240, 240, 240, 0.08);
+    --bg-code: #222222;
+    --bg-callout: #1f1f1f;
+    --bg-overlay: rgba(0, 0, 0, 0.6);
+    --border: rgba(240, 240, 240, 0.08);
+    --border-strong: rgba(240, 240, 240, 0.16);
+    --text-primary: rgba(240, 240, 240, 0.92);
+    --text-secondary: rgba(240, 240, 240, 0.6);
+    --text-tertiary: rgba(240, 240, 240, 0.4);
+    --text-quote: rgba(240, 240, 240, 0.85);
+    --accent: rgba(240, 240, 240, 0.92);
+    --shadow-paper: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 28px rgba(0, 0, 0, 0.4);
+    --shadow-menu: rgba(0, 0, 0, 0.3) 0px 0px 0px 1px, rgba(0, 0, 0, 0.4) 0px 3px 6px, rgba(0, 0, 0, 0.5) 0px 9px 24px;
+    --shadow-modal: rgba(0, 0, 0, 0.3) 0px 0px 0px 1px, rgba(0, 0, 0, 0.4) 0px 6px 12px, rgba(0, 0, 0, 0.6) 0px 20px 40px;
   }
 
   /* ========== Reset ========== */
@@ -78,8 +84,8 @@
   html, body {
     height: 100%;
     overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Apple Color Emoji", Arial, sans-serif;
-    font-size: 16px; line-height: 1.5;
+    font-family: var(--sans);
+    font-size: 16px; line-height: 1.7;
     color: var(--text-primary);
     background: var(--bg-app);
     -webkit-font-smoothing: antialiased;
@@ -99,17 +105,31 @@
   ::-webkit-scrollbar-thumb { background: var(--bg-hover); border-radius: 10px; border: 3px solid transparent; background-clip: padding-box; }
   ::-webkit-scrollbar-thumb:hover { background: var(--bg-hover-strong); border: 3px solid transparent; background-clip: padding-box; }
 
-  .app { display: flex; height: 100vh; }
+  .app { display: flex; height: 100vh; background: var(--bg-app); }
 
-  /* ========== Sidebar ========== */
+  /* ========== Sidebar (drawer overlay — 巻物デザイン) ========== */
   .sidebar {
-    width: 260px; flex-shrink: 0;
+    position: fixed; top: 0; left: 0;
+    width: 280px; height: 100vh;
     background: var(--bg-sidebar);
     border-right: 1px solid var(--border);
     display: flex; flex-direction: column;
-    transition: margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 90;
+    transform: translateX(0);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.06);
   }
-  .sidebar.collapsed { margin-left: -260px; }
+  .sidebar.collapsed { transform: translateX(-100%); box-shadow: none; }
+
+  /* Backdrop while drawer is open */
+  .sidebar-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(20, 20, 20, 0.25);
+    z-index: 80;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .sidebar-backdrop.visible { opacity: 1; pointer-events: auto; }
 
   .sidebar-header { padding: 8px 12px 4px; display: flex; align-items: center; gap: 4px; }
   .workspace {
@@ -210,16 +230,17 @@
 
   .sidebar-bottom { padding: 8px; border-top: 1px solid var(--border); }
 
-  /* ========== Main Editor ========== */
+  /* ========== Main Editor (巻物 = paper card on a desk) ========== */
   .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-app); }
 
   .topbar {
-    height: 45px; display: flex; align-items: center; gap: 4px;
-    padding: 0 12px; flex-shrink: 0;
+    height: 48px; display: flex; align-items: center; gap: 6px;
+    padding: 0 18px; flex-shrink: 0;
+    background: var(--bg-app);
   }
   .topbar-breadcrumb {
     display: flex; align-items: center; gap: 2px;
-    font-size: 14px; color: var(--text-secondary);
+    font-size: 13px; color: var(--text-tertiary);
     flex: 1; min-width: 0;
   }
   .topbar-breadcrumb-item {
@@ -228,14 +249,35 @@
     max-width: 240px;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .topbar-breadcrumb-item:hover { background: var(--bg-hover); }
+  .topbar-breadcrumb-item:hover { background: var(--bg-hover); color: var(--text-secondary); }
 
-  .editor-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; }
+  /* Topbar action buttons (theme toggle etc.) */
+  .topbar-action {
+    width: 32px; height: 32px; display: grid; place-items: center;
+    border-radius: 6px; color: var(--text-secondary); cursor: pointer;
+    flex-shrink: 0;
+  }
+  .topbar-action:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .topbar-action .material-icons-outlined { font-size: 20px; }
 
+  .editor-scroll {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    padding: 24px 24px 64px;
+  }
+
+  /* The paper card */
   .page-container {
-    max-width: 900px; margin: 0 auto;
-    padding: 64px 48px 30vh;
+    max-width: 760px; margin: 0 auto;
+    padding: 80px 72px 200px;
     position: relative;
+    background: var(--bg-paper);
+    border-radius: 4px;
+    box-shadow: var(--shadow-paper);
+    min-height: calc(100vh - 200px);
+  }
+  @media (max-width: 720px) {
+    .editor-scroll { padding: 8px; }
+    .page-container { padding: 48px 28px 160px; border-radius: 0; }
   }
 
   .page-icon-wrapper { position: relative; margin-bottom: 4px; }
@@ -248,8 +290,9 @@
 
   .page-title-wrapper { padding-top: 4px; }
   .page-title {
-    font-size: 40px; font-weight: 700; line-height: 1.2;
-    letter-spacing: -0.01em; color: var(--text-primary);
+    font-family: var(--serif);
+    font-size: 38px; font-weight: 700; line-height: 1.3;
+    letter-spacing: 0.01em; color: var(--text-primary);
     outline: none; padding: 3px 2px;
     word-break: break-word;
   }
@@ -342,12 +385,16 @@
 
   .block-gutter {
     position: absolute;
-    left: -48px; top: 3px;
+    left: -42px; top: 3px;
     display: flex; align-items: center; gap: 2px;
-    opacity: 0; transition: opacity 0.1s;
+    opacity: 0; transition: opacity 0.15s;
     height: 28px;
     z-index: 2;
+    color: var(--text-tertiary);
   }
+  .block:hover > .block-gutter,
+  .block:hover > .toggle-header > .block-gutter { opacity: 0.55; }
+  .block-gutter:hover { opacity: 1 !important; }
   /* Align gutter with the vertical center of each heading's text */
   .block[data-type="h1"] > .block-gutter { top: 30px; }
   .block[data-type="h2"] > .block-gutter { top: 22px; }
@@ -362,8 +409,6 @@
   .block[data-type="image"] > .block-gutter { top: 6px; }
   .block[data-type="tabs"] > .block-gutter { top: 6px; }
   .block[data-type="divider"] > .block-gutter { top: 0px; }
-  .block:hover > .block-gutter,
-  .block:hover > .toggle-header > .block-gutter { opacity: 1; }
   .block-gutter-btn {
     width: 22px; height: 22px; display: grid; place-items: center;
     border-radius: 4px; color: var(--text-tertiary);
@@ -391,16 +436,19 @@
   .block[data-type="text"] .block-content { font-size: 16px; }
 
   .block[data-type="h1"] .block-content {
-    font-size: 30px; font-weight: 700; line-height: 1.3;
-    padding-top: 24px; padding-bottom: 2px; letter-spacing: -0.01em;
+    font-family: var(--serif);
+    font-size: 28px; font-weight: 700; line-height: 1.4;
+    padding-top: 28px; padding-bottom: 4px; letter-spacing: 0.01em;
   }
   .block[data-type="h2"] .block-content {
-    font-size: 24px; font-weight: 700; line-height: 1.3;
-    padding-top: 20px; padding-bottom: 1px;
+    font-family: var(--serif);
+    font-size: 22px; font-weight: 700; line-height: 1.4;
+    padding-top: 22px; padding-bottom: 2px; letter-spacing: 0.01em;
   }
   .block[data-type="h3"] .block-content {
-    font-size: 20px; font-weight: 600; line-height: 1.3;
-    padding-top: 16px; padding-bottom: 1px;
+    font-family: var(--serif);
+    font-size: 18px; font-weight: 500; line-height: 1.4;
+    padding-top: 18px; padding-bottom: 2px; letter-spacing: 0.01em;
   }
 
   /* Toggle heading content — same large text, but also applied to toggle-header */
@@ -1000,17 +1048,17 @@
   }
   .dialog-btn.danger:hover { filter: brightness(0.92); }
 
-  @media (max-width: 768px) {
-    .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; }
-    .page-container { padding: 40px 16px 30vh; }
-    .block-gutter { left: -40px; }
+  @media (max-width: 720px) {
+    .block-gutter { left: -32px; }
+    .sidebar { width: 86vw; max-width: 320px; }
   }
 </style>
 </head>
 <body>
 
 <div class="app">
-  <aside class="sidebar" id="sidebar">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar collapsed" id="sidebar">
     <div class="sidebar-header">
       <div class="workspace">
         <div class="workspace-icon" id="workspace-icon">W</div>
@@ -1054,10 +1102,13 @@
 
   <main class="main">
     <div class="topbar">
-      <button class="sidebar-toggle" id="sidebar-open" style="display:none">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      <button class="topbar-action" id="sidebar-open" title="メニューを開く">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
       <div class="topbar-breadcrumb" id="breadcrumb"></div>
+      <button class="topbar-action" id="theme-toggle-top" title="テーマ切替">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" id="theme-icon-top"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </button>
     </div>
 
     <div class="editor-scroll" id="editor-scroll">
@@ -1329,15 +1380,16 @@ function createInitialState() {
   const wid = uid();
   return {
     pages: { [wid]: {
-      id: wid, title: 'Tsumiki へようこそ', icon: '🟫', iconType: 'emoji', parentId: null,
+      id: wid, title: 'Tsumiki — 積木へようこそ', icon: '📜', iconType: 'emoji', parentId: null,
       blocks: [
-        blk('text', 'これはシングルHTMLファイルで動作する、ブロック型ローカルエディタ <b>「積木（Tsumiki）」</b> です。'),
-        blk('h2', 'はじめに'),
+        blk('text', '一枚の紙の上に、ブロックを積むように書く。シングルHTMLで動く小さな書斎、<b>Tsumiki（積木）</b>へようこそ。'),
+        blk('h2', '基本の使い方'),
         blk('text', '空の行で「/」を入力すると、ブロックメニューが開きます。'),
-        blk('bullet', '<b>Enter</b> で新しいブロックを追加'),
+        blk('bullet', '<b>Enter</b> で次のブロックを追加'),
         blk('bullet', '<b>Backspace</b> で空ブロックを削除'),
-        blk('bullet', '<b>Cmd/Ctrl + P</b> で検索モーダルを開く'),
-        blk('callout', 'サイドバーの「アプリをHTMLとして保存」で、このアプリ全体を1つのHTMLファイルとして書き出せます。他の人と共有できます。', { emoji: '💡' }),
+        blk('bullet', '<b>Cmd/Ctrl + P</b> でページ検索を開く'),
+        blk('bullet', '左上の <b>≡</b> でページ一覧（メニュー）を開閉'),
+        blk('callout', 'メニューの「アプリをHTMLとして保存」で、このアプリ全体を1つのHTMLファイルとして書き出せます。共有もそのまま。', { emoji: '💡' }),
         blk('quote', '「完璧を目指すよりまず終わらせろ。」 — Mark Zuckerberg'),
         blk('code', 'function hello() {\n  console.log("Hello!");\n}', { language: 'javascript' })
       ],
@@ -2645,9 +2697,21 @@ function openPageIconPicker(e) {
 $('#page-icon').addEventListener('click', openPageIconPicker);
 $('#add-icon-btn').addEventListener('click', openPageIconPicker);
 
-/* ==================== Sidebar toggle ==================== */
-$('#sidebar-toggle').addEventListener('click', () => { $('#sidebar').classList.add('collapsed'); $('#sidebar-open').style.display = 'grid'; });
-$('#sidebar-open').addEventListener('click', () => { $('#sidebar').classList.remove('collapsed'); $('#sidebar-open').style.display = 'none'; });
+/* ==================== Sidebar drawer (巻物 layout) ==================== */
+function openSidebar() {
+  $('#sidebar').classList.remove('collapsed');
+  $('#sidebar-backdrop').classList.add('visible');
+}
+function closeSidebar() {
+  $('#sidebar').classList.add('collapsed');
+  $('#sidebar-backdrop').classList.remove('visible');
+}
+$('#sidebar-toggle').addEventListener('click', closeSidebar);
+$('#sidebar-open').addEventListener('click', openSidebar);
+$('#sidebar-backdrop').addEventListener('click', closeSidebar);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !$('#sidebar').classList.contains('collapsed')) closeSidebar();
+});
 
 /* ==================== New page ==================== */
 function createRootPageAndSwitch() { const p = createPage(null); switchPage(p.id); setTimeout(() => $('#page-title').focus(), 0); }
@@ -2655,14 +2719,17 @@ $('#new-page-btn').addEventListener('click', createRootPageAndSwitch);
 $('#private-add-btn').addEventListener('click', (e) => { e.stopPropagation(); createRootPageAndSwitch(); });
 
 /* ==================== Theme ==================== */
-$('#theme-toggle').addEventListener('click', () => { state.darkMode = !state.darkMode; applyTheme(); saveState(); });
+function toggleTheme() { state.darkMode = !state.darkMode; applyTheme(); saveState(); }
+$('#theme-toggle').addEventListener('click', toggleTheme);
+$('#theme-toggle-top').addEventListener('click', toggleTheme);
 function applyTheme() {
   document.documentElement.dataset.theme = state.darkMode ? 'dark' : 'light';
   $('#theme-label').textContent = state.darkMode ? 'ライトモード' : 'ダークモード';
-  const icon = $('#theme-icon');
-  icon.innerHTML = state.darkMode
-    ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/>'
-    : '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>';
+  const sun = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>';
+  const moon = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/>';
+  const svg = state.darkMode ? moon : sun;
+  $('#theme-icon').innerHTML = svg;
+  $('#theme-icon-top').innerHTML = svg;
 }
 
 /* ==================== Full-App HTML Export ==================== */
