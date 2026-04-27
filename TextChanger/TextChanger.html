@@ -193,7 +193,7 @@
 
       .panel-output {
         display: grid;
-        grid-template-rows: repeat(4, minmax(0, 1fr));
+        grid-template-rows: repeat(5, minmax(0, 1fr));
         gap: 12px;
         padding: 12px;
       }
@@ -259,6 +259,27 @@
         line-height: 1.4;
         font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
         font-size: 13px;
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+        &:focus-visible {
+          border-color: var(--accent);
+          box-shadow: 0 0 0 3px var(--focus-ring);
+        }
+      }
+
+      .number-offset-input {
+        width: 120px;
+        min-width: 100px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--surface-soft);
+        color: var(--text);
+        padding: 7px 10px;
+        line-height: 1.4;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 13px;
+        text-align: right;
         outline: none;
         transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
@@ -468,6 +489,11 @@
           width: 100%;
           min-width: 0;
         }
+
+        .number-offset-input {
+          width: 100%;
+          min-width: 0;
+        }
       }
     }
 
@@ -562,6 +588,20 @@
       </div>
       <textarea class="output-area" id="output-pg-sql" readonly aria-label="PostgreSQL INSERTとDELETEの変換結果" placeholder="1行目にヘッダー、2行目以降にデータのタブ区切りを貼り付けると、INSERT + DELETE を生成します"></textarea>
     </article>
+    <article class="output-card" aria-labelledby="number-adjust-title">
+      <div class="card-header">
+        <h2 class="card-title card-title-plain" id="number-adjust-title">連番調整</h2>
+        <div class="card-header-actions">
+          <label class="sr-only" for="number-offset">増減値</label>
+          <input class="number-offset-input" id="number-offset" type="number" step="1" placeholder="例: 1, -2" aria-label="連番の増減値" autocomplete="off">
+          <button class="copy-btn" data-copy-target="#output-number-adjust" data-default-label="コピー" aria-label="連番調整の結果をコピー">
+            <span class="material-icons" aria-hidden="true">content_copy</span>
+            <span class="copy-label">コピー</span>
+          </button>
+        </div>
+      </div>
+      <textarea class="output-area" id="output-number-adjust" readonly aria-label="連番調整結果" placeholder="入力テキスト内の数値を、増減値ぶん加減算した結果を表示します"></textarea>
+    </article>
   </section>
 </main>
 <script>
@@ -569,6 +609,7 @@
   const COPY_RESET_MS = 2000;
   const PG_TABLE_NAME_PLACEHOLDER = '???';
   const DEFAULT_PG_TABLE_INPUT = '';
+  const DEFAULT_NUMBER_OFFSET_INPUT = '';
   const LIGHT_THEME = 'light';
   const DARK_THEME = 'dark';
   const DEFAULT_THEME = DARK_THEME;
@@ -579,10 +620,12 @@
   const $inputArea = qs('#input-area');
   const $lightModeToggle = qs('#lightModeToggle');
   const $pgTableNameInput = qs('#pg-table-name');
+  const $numberOffsetInput = qs('#number-offset');
   const $outputA5m2 = qs('#output-a5m2');
   const $outputTsv = qs('#output-tsv');
   const $outputSqlIn = qs('#output-sql-in');
   const $outputPgSql = qs('#output-pg-sql');
+  const $outputNumberAdjust = qs('#output-number-adjust');
   const $main = qs('#app-main');
 
   let _saveTimeout;
@@ -727,12 +770,27 @@
     ].join('\n');
   }
 
+  function _parseNumberOffset(value) {
+    const _trimmed = String(value ?? '').trim();
+    if (_trimmed.length === 0) return 0;
+    const _parsed = Number.parseInt(_trimmed, 10);
+    return Number.isFinite(_parsed) ? _parsed : 0;
+  }
+
+  function _convertNumberAdjustment(text, offsetValue) {
+    if (!text) return '';
+    const _offset = _parseNumberOffset(offsetValue);
+    if (_offset === 0) return text;
+    return text.replace(/\d+/g, match => String(Number.parseInt(match, 10) + _offset));
+  }
+
   function _convertAll() {
     const _lines = _getLines($inputArea.value);
     $outputA5m2.value = _convertA5m2(_lines);
     $outputTsv.value = _convertTsv(_lines);
     $outputSqlIn.value = _convertSqlIn(_lines);
     $outputPgSql.value = _convertPostgreSQLBlock($inputArea.value, $pgTableNameInput.value);
+    $outputNumberAdjust.value = _convertNumberAdjustment($inputArea.value, $numberOffsetInput.value);
   }
 
   function _saveSettings() {
@@ -740,6 +798,7 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         input: $inputArea.value,
         pgTableName: $pgTableNameInput.value,
+        numberOffset: $numberOffsetInput.value,
         theme: _getThemeFromToggle()
       }));
     } catch (error) {
@@ -750,11 +809,13 @@
   function _loadSettings() {
     let _theme = DEFAULT_THEME;
     let _pgTableName = DEFAULT_PG_TABLE_INPUT;
+    let _numberOffset = DEFAULT_NUMBER_OFFSET_INPUT;
 
     try {
       const _raw = localStorage.getItem(STORAGE_KEY);
       if (!_raw) {
         $pgTableNameInput.value = _pgTableName;
+        $numberOffsetInput.value = _numberOffset;
         _applyTheme(_theme);
         return;
       }
@@ -766,6 +827,9 @@
       if (typeof _data.pgTableName === 'string') {
         _pgTableName = _data.pgTableName;
       }
+      if (typeof _data.numberOffset === 'string') {
+        _numberOffset = _data.numberOffset;
+      }
 
       _theme = _getStoredTheme(_data.theme);
     } catch {
@@ -773,6 +837,7 @@
     }
 
     $pgTableNameInput.value = _pgTableName;
+    $numberOffsetInput.value = _numberOffset;
     _applyTheme(_theme);
   }
 
@@ -843,6 +908,11 @@
   });
 
   $pgTableNameInput.addEventListener('input', () => {
+    _convertAll();
+    _autoSave();
+  });
+
+  $numberOffsetInput.addEventListener('input', () => {
     _convertAll();
     _autoSave();
   });
