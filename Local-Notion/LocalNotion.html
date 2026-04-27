@@ -446,9 +446,9 @@
     align-items: flex-start; height: auto;
   }
   .block[data-type="toggle"] .toggle-header > .block-prefix { padding-top: 4px; }
-  .block[data-type="toggle_h1"] .toggle-header > .block-prefix { padding-top: 30px; }
-  .block[data-type="toggle_h2"] .toggle-header > .block-prefix { padding-top: 26px; }
-  .block[data-type="toggle_h3"] .toggle-header > .block-prefix { padding-top: 21px; }
+  .block[data-type="toggle_h1"] .toggle-header > .block-prefix { padding-top: 34px; }
+  .block[data-type="toggle_h2"] .toggle-header > .block-prefix { padding-top: 27px; }
+  .block[data-type="toggle_h3"] .toggle-header > .block-prefix { padding-top: 20px; }
 
   .toggle-chevron {
     width: 18px; height: 18px; display: grid; place-items: center;
@@ -617,7 +617,7 @@
     padding-top: 3px;
   }
   .block[data-type="callout"] > .block-content {
-    padding-top: 3px; padding-bottom: 3px; line-height: 1.5;
+    line-height: 1.5;
   }
   .callout-emoji { cursor: pointer; padding: 0 2px; border-radius: 3px; }
   .callout-emoji:hover { background: var(--bg-hover); }
@@ -795,13 +795,12 @@
   .icon-picker-search:focus { border-color: var(--accent); }
   .icon-picker-grid {
     display: grid;
-    grid-template-columns: repeat(10, 30.602px);
+    grid-template-columns: repeat(10, 1fr);
     gap: 2px;
     flex: 1;
-    justify-content: start;
   }
   .icon-picker-item {
-    width: 30.602px; height: 30.602px;
+    aspect-ratio: 1;
     display: grid; place-items: center;
     border-radius: 4px; cursor: pointer; line-height: 1;
   }
@@ -1621,7 +1620,7 @@ function buildGutter(block, parentList) {
   aBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>';
   aBtn.onclick = (e) => { e.stopPropagation(); const nb = blk('text', ''); insertBlockAfter(nb, block.id, parentList); renderEditor(); setTimeout(() => focusBlock(nb.id), 0); };
   const dBtn = document.createElement('button'); dBtn.className = 'block-gutter-btn block-drag'; dBtn.title = 'ドラッグ・クリックでメニュー';
-  dBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>';
+  dBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.4"/><circle cx="9" cy="12" r="1.4"/><circle cx="9" cy="18" r="1.4"/><circle cx="15" cy="6" r="1.4"/><circle cx="15" cy="12" r="1.4"/><circle cx="15" cy="18" r="1.4"/></svg>';
   dBtn.draggable = true;
   dBtn.onclick = (e) => { e.stopPropagation(); showBlockContextMenu(e, block); };
   dBtn.addEventListener('dragstart', (ev) => { draggingBlockId = block.id; ev.dataTransfer.effectAllowed = 'move'; ev.dataTransfer.setData('text/plain', block.id); });
