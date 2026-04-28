@@ -775,31 +775,27 @@
       .join(' AND ')
     );
 
-    const _selectStatements = _rowConditions.map(conditions =>
-      `SELECT * FROM ${_tableName} WHERE ${conditions};`
-    );
+    const _whereClause = _rowConditions.map(_condition => `(${_condition})`).join('\n   OR ');
+    const _selectStatement = `SELECT * FROM ${_tableName}\nWHERE ${_whereClause};`;
+    const _deleteStatement = `DELETE FROM ${_tableName}\nWHERE ${_whereClause};`;
 
-    const _insertStatements = _normalizedRows.map(row => {
-      const _values = row.map(_formatPgValue).join(', ');
-      return `INSERT INTO ${_tableName} (${_columnList}) VALUES (${_values});`;
-    });
-
-    const _deleteStatements = _rowConditions.map(conditions =>
-      `DELETE FROM ${_tableName} WHERE ${conditions};`
-    );
+    const _valuesList = _normalizedRows
+      .map(row => `  (${row.map(_formatPgValue).join(', ')})`)
+      .join(',\n');
+    const _insertStatement = `INSERT INTO ${_tableName} (${_columnList}) VALUES\n${_valuesList};`;
 
     return [
       '-- SELECT文（事前チェック）',
-      ..._selectStatements,
+      _selectStatement,
       '',
       '-- INSERT文',
       'BEGIN;',
-      ..._insertStatements,
+      _insertStatement,
       'COMMIT;',
       '',
       '-- DELETE文',
       'BEGIN;',
-      ..._deleteStatements,
+      _deleteStatement,
       'COMMIT;'
     ].join('\n');
   }
