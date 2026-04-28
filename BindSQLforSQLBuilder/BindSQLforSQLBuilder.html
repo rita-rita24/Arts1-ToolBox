@@ -508,6 +508,39 @@
         border: 0;
       }
     }
+
+    @media print {
+      .mode-toggle,
+      .app-title,
+      .flash,
+      .panel:not(.panel--output) {
+        display: none !important;
+      }
+
+      body {
+        background: #fff;
+        color: #000;
+        padding: 0;
+      }
+
+      main {
+        display: block;
+      }
+
+      .panel--output {
+        box-shadow: none;
+        border: 1px solid #999;
+        background: #fff;
+      }
+
+      .output {
+        color: #000;
+        background: #fff;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 10pt;
+        white-space: pre-wrap;
+      }
+    }
   </style>
 </head>
 <body>
@@ -990,6 +1023,16 @@ WITH
       const THEME_LIGHT = "light";
       const THEME_DARK = "dark";
 
+      const MESSAGES = Object.freeze({
+        unresolvedNamed: (_list, _count) => `未置換の名前付きバインド (${_list}) が ${_count} 件あります。`,
+        extraNamed: (_list, _count) => `余剰の名前付きバインド (${_list}) が ${_count} 件あります。`,
+        unresolvedPositional: (_count) => `未置換の位置バインド (?) が ${_count} 件あります。`,
+        extraPositional: (_list, _count) => `余剰の位置バインド (${_list}) が ${_count} 件あります。`,
+        copyEmpty: "コピーできるSQLがありません",
+        copyFailed: "コピーに失敗しました",
+        mergeError: (_detail) => `変換エラー: ${_detail}`
+      });
+
       const $rawInput = qs('[data-role="raw-input"]');
       const $rawHighlight = qs('[data-role="raw-highlight"]');
       const $output = qs('[data-role="output"]');
@@ -1167,6 +1210,16 @@ WITH
         if (_startCharacter === "/" && _sql[_startIndex + 1] === "*") {
           const _endIndex = _sql.indexOf("*/", _startIndex + 2);
           return _sql.slice(_startIndex, _endIndex === -1 ? _sql.length : _endIndex + 2);
+        }
+
+        if (_startCharacter === "`") {
+          const _endIndex = _sql.indexOf("`", _startIndex + 1);
+          return _sql.slice(_startIndex, _endIndex === -1 ? _sql.length : _endIndex + 1);
+        }
+
+        if (_startCharacter === "[") {
+          const _endIndex = _sql.indexOf("]", _startIndex + 1);
+          return _sql.slice(_startIndex, _endIndex === -1 ? _sql.length : _endIndex + 1);
         }
 
         return "";
@@ -1698,17 +1751,17 @@ WITH
           .sort((_left, _right) => _left - _right);
 
         if (_missingNamedNames.length > 0) {
-          _issues.push(`未置換の名前付きバインド (${_formatNamedBindList(_missingNamedNames)}) が ${_missingNamedNames.length} 件あります。`);
+          _issues.push(MESSAGES.unresolvedNamed(_formatNamedBindList(_missingNamedNames), _missingNamedNames.length));
         }
         if (_extraNamedNames.length > 0) {
-          _issues.push(`余剰の名前付きバインド (${_formatNamedBindList(_extraNamedNames)}) が ${_extraNamedNames.length} 件あります。`);
+          _issues.push(MESSAGES.extraNamed(_formatNamedBindList(_extraNamedNames), _extraNamedNames.length));
         }
 
         if (_remainingPlaceholderCount > 0) {
-          _issues.push(`未置換の位置バインド (?) が ${_remainingPlaceholderCount} 件あります。`);
+          _issues.push(MESSAGES.unresolvedPositional(_remainingPlaceholderCount));
         }
         if (_extraPositionalIndexes.length > 0) {
-          _issues.push(`余剰の位置バインド (${_formatPositionalBindList(_extraPositionalIndexes)}) が ${_extraPositionalIndexes.length} 件あります。`);
+          _issues.push(MESSAGES.extraPositional(_formatPositionalBindList(_extraPositionalIndexes), _extraPositionalIndexes.length));
         }
 
         return {
@@ -2150,7 +2203,7 @@ WITH
 
       const _copyResult = async () => {
         if (!_state._lastSql) {
-          _showFlash("コピーできるSQLがありません", "error", "copy-empty");
+          _showFlash(MESSAGES.copyEmpty, "error", "copy-empty");
           return;
         }
 
@@ -2166,7 +2219,7 @@ WITH
           }
         }
 
-        _showFlash("コピーに失敗しました", "error", "copy-failed");
+        _showFlash(MESSAGES.copyFailed, "error", "copy-failed");
       };
 
       const _render = () => {
@@ -2182,7 +2235,7 @@ WITH
         if (_merged._issues.length > 0) {
           _state._lastSql = "";
           $output.textContent = _buildMergeIssueOutput(_merged._issues, _formatted);
-          _showFlash(`変換エラー: ${_merged._issues.join(" ")}`, "error", `merge:${_merged._issues.join("|")}`);
+          _showFlash(MESSAGES.mergeError(_merged._issues.join(" ")), "error", `merge:${_merged._issues.join("|")}`);
           return;
         }
 
