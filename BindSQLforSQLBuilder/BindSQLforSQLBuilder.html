@@ -329,6 +329,11 @@
         &:hover {
           background: var(--primary-strong);
         }
+
+        &.is-success,
+        &.is-success:hover {
+          background: var(--good);
+        }
       }
 
       .mode-toggle {
@@ -990,6 +995,7 @@ WITH
       const $output = qs('[data-role="output"]');
       const $flash = qs('[data-role="flash"]');
       const $copyLabel = qs('[data-role="copy-label"]');
+      const $copyButton = qs('[data-action="copy"]');
       const $lightModeToggle = qs('[data-role="mode-toggle"]');
 
       const _state = {
@@ -2115,9 +2121,15 @@ WITH
         }
 
         $copyLabel.textContent = "コピーしました";
+        if ($copyButton) {
+          $copyButton.classList.add("is-success");
+        }
         window.clearTimeout(_state._copyLabelTimer);
         _state._copyLabelTimer = window.setTimeout(() => {
           $copyLabel.textContent = "コピー";
+          if ($copyButton) {
+            $copyButton.classList.remove("is-success");
+          }
         }, COPY_SUCCESS_DURATION_MS);
       };
 
