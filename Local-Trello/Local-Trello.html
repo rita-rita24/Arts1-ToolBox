@@ -2540,7 +2540,12 @@ function openBoardsDrawer() {
     item.querySelector('[data-act="rename"]').addEventListener('click', (e) => {
       e.stopPropagation();
       const name = prompt('ボード名', b.name);
-      if (name && name.trim()) { b.name = name.trim(); saveState(); openBoardsDrawer(); closeDrawer(); renderAll(); openBoardsDrawer(); }
+      if (!name || !name.trim()) return;
+      b.name = name.trim();
+      if (!saveState()) return;
+      closeDrawer();
+      renderAll();
+      openBoardsDrawer();
     });
     item.querySelector('[data-act="bg"]').addEventListener('click', (e) => {
       e.stopPropagation();
