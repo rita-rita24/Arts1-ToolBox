@@ -1049,30 +1049,124 @@ function newCardTemplate() {
   };
 }
 
+function isPlainObject(v) {
+  return !!v && typeof v === 'object' && !Array.isArray(v);
+}
+
+function toValidIso(v) {
+  if (!v) return null;
+  const d = new Date(v);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+}
+
+function normalizeChecklist(raw) {
+  if (!isPlainObject(raw)) return null;
+  const title = typeof raw.title === 'string' ? raw.title : 'チェックリスト';
+  const items = Array.isArray(raw.items) ? raw.items : [];
+  return {
+    id: (typeof raw.id === 'string' && raw.id) ? raw.id : uid(),
+    title,
+    items: items
+      .filter(isPlainObject)
+      .map(it => ({
+        id: (typeof it.id === 'string' && it.id) ? it.id : uid(),
+        text: typeof it.text === 'string' ? it.text : '',
+        done: !!it.done
+      }))
+  };
+}
+
+function normalizeCard(raw, labelSet) {
+  const card = newCardTemplate();
+  if (!isPlainObject(raw)) return card;
+  card.id = (typeof raw.id === 'string' && raw.id) ? raw.id : uid();
+  card.title = typeof raw.title === 'string' ? raw.title : '';
+  card.description = typeof raw.description === 'string' ? raw.description : '';
+  card.labelIds = Array.isArray(raw.labelIds)
+    ? raw.labelIds.filter(id => typeof id === 'string' && labelSet.has(id))
+    : [];
+  card.startDate = toValidIso(raw.startDate);
+  card.dueDate = toValidIso(raw.dueDate);
+  card.dueComplete = !!raw.dueComplete && !!card.dueDate;
+  card.archived = !!raw.archived;
+  card.createdAt = toValidIso(raw.createdAt) || nowIso();
+  card.updatedAt = toValidIso(raw.updatedAt) || card.createdAt;
+  card.checklists = Array.isArray(raw.checklists)
+    ? raw.checklists.map(normalizeChecklist).filter(Boolean)
+    : [];
+  return card;
+}
+
+function normalizeList(raw, labelSet) {
+  if (!isPlainObject(raw) || !Array.isArray(raw.cards)) return null;
+  return {
+    id: (typeof raw.id === 'string' && raw.id) ? raw.id : uid(),
+    title: (typeof raw.title === 'string' && raw.title.trim()) ? raw.title.trim() : '無題リスト',
+    archived: !!raw.archived,
+    cards: raw.cards.map(c => normalizeCard(c, labelSet))
+  };
+}
+
+function normalizeBoard(raw, idx) {
+  if (!isPlainObject(raw) || raw.closed) return null;
+  if (!Array.isArray(raw.labels) || !Array.isArray(raw.lists)) return null;
+  const labels = raw.labels
+    .filter(isPlainObject)
+    .map((lbl, i) => ({
+      id: (typeof lbl.id === 'string' && lbl.id) ? lbl.id : uid(),
+      color: LABEL_COLORS.some(c => c.key === lbl.color) ? lbl.color : LABEL_COLORS[i % LABEL_COLORS.length].key,
+      name: typeof lbl.name === 'string' ? lbl.name : ''
+    }));
+  const labelSet = new Set(labels.map(l => l.id));
+  const lists = raw.lists.map(l => normalizeList(l, labelSet));
+  if (lists.some(l => !l)) return null;
+  return {
+    id: (typeof raw.id === 'string' && raw.id) ? raw.id : uid(),
+    name: (typeof raw.name === 'string' && raw.name.trim()) ? raw.name.trim() : `ボード${idx + 1}`,
+    background: BG_COLORS.some(c => c.key === raw.background) ? raw.background : 'blue',
+    labels,
+    lists
+  };
+}
+
+function normalizeStateShape(raw, strict) {
+  if (!isPlainObject(raw) || !Array.isArray(raw.boards) || !raw.boards.length) {
+    return { ok: false, error: 'boards 配列が不正です' };
+  }
+  const boards = [];
+  for (let i = 0; i < raw.boards.length; i++) {
+    const board = normalizeBoard(raw.boards[i], i);
+    if (!board) {
+      if (strict) return { ok: false, error: `boards[${i}] の構造が不正です` };
+      continue;
+    }
+    boards.push(board);
+  }
+  if (!boards.length) return { ok: false, error: '有効なボードがありません' };
+  let currentBoardId = typeof raw.currentBoardId === 'string' ? raw.currentBoardId : '';
+  if (!boards.some(b => b.id === currentBoardId)) currentBoardId = boards[0].id;
+  return {
+    ok: true,
+    data: {
+      boards,
+      currentBoardId,
+      theme: raw.theme === 'dark' ? 'dark' : 'light',
+      showLabelNames: !!raw.showLabelNames
+    }
+  };
+}
+
+function loadPersistedState() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return null;
+  const parsed = JSON.parse(raw);
+  const normalized = normalizeStateShape(parsed, false);
+  return normalized.ok ? normalized.data : null;
+}
+
 function loadState() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return defaultState();
-    const parsed = JSON.parse(raw);
-    if (!parsed.boards || !parsed.boards.length) return defaultState();
-
-    // Migration: drop closed boards and removed fields (comments/attachments/cover).
-    parsed.boards = parsed.boards.filter(b => !b.closed);
-    for (const b of parsed.boards) {
-      delete b.closed;
-      for (const l of (b.lists || [])) {
-        for (const c of (l.cards || [])) {
-          delete c.comments;
-          delete c.attachments;
-          delete c.cover;
-        }
-      }
-    }
-    if (!parsed.boards.length) return defaultState();
-    if (!parsed.boards.some(b => b.id === parsed.currentBoardId)) {
-      parsed.currentBoardId = parsed.boards[0].id;
-    }
-    return parsed;
+    return loadPersistedState() || defaultState();
   } catch (e) {
     console.warn('loadState failed, using default', e);
     return defaultState();
@@ -1082,9 +1176,17 @@ function loadState() {
 function saveState() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    return true;
   } catch (e) {
     console.warn('saveState failed', e);
-    showToast('保存に失敗しました', null, 3000);
+    try {
+      const restored = loadPersistedState();
+      if (restored) state = restored;
+    } catch (restoreErr) {
+      console.warn('restore after save failure failed', restoreErr);
+    }
+    showToast('保存に失敗しました。直前の保存済み状態に戻しました', null, 3500);
+    return false;
   }
 }
 
@@ -1094,12 +1196,18 @@ function pushUndo(action) {
   redoStack = [];
 }
 
+function resetHistory() {
+  undoStack = [];
+  redoStack = [];
+}
+
 function doUndo() {
   if (!undoStack.length) { showToast('元に戻す操作がありません', null, 1500); return; }
   const a = undoStack.pop();
   redoStack.push(a);
   a.undo();
-  saveState(); renderAll();
+  if (!saveState()) return;
+  renderAll();
   showToast('元に戻しました', null, 1500);
 }
 
@@ -1108,7 +1216,8 @@ function doRedo() {
   const a = redoStack.pop();
   undoStack.push(a);
   a.redo();
-  saveState(); renderAll();
+  if (!saveState()) return;
+  renderAll();
   showToast('やり直しました', null, 1500);
 }
 
@@ -2498,10 +2607,14 @@ function importData() {
     reader.onload = (ev) => {
       try {
         const data = JSON.parse(ev.target.result);
-        if (!data.boards || !Array.isArray(data.boards)) throw new Error('不正なファイル形式');
+        const normalized = normalizeStateShape(data, true);
+        if (!normalized.ok) throw new Error(`不正なファイル形式です: ${normalized.error}`);
         if (!confirm('現在のデータは上書きされます。続行しますか?')) return;
-        state = data;
-        saveState(); closeDrawer(); renderAll();
+        state = normalized.data;
+        resetHistory();
+        if (!saveState()) return;
+        closeDrawer();
+        renderAll();
         showToast('データをインポートしました', null, 2000);
       } catch (err) {
         alert('インポートに失敗しました: ' + err.message);
