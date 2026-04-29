@@ -1023,7 +1023,289 @@
 
   <script>
     "use strict";
-    /* @insert: shell-script */
+    const qs = (sel, root = document) => root.querySelector(sel);
+    const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+    const TOOLS = [
+      {
+        id: "textchanger",
+        name: "TextChanger",
+        description: "行ベーステキストを5形式に同時変換",
+        icon: "swap_horiz",
+        eyebrow: "Text Conversion",
+        standalone: "../TextChanger/TextChanger.html",
+      },
+      {
+        id: "bindsql",
+        name: "BindSQL",
+        description: "SQLとバインド変数を実行可能形式に統合",
+        icon: "database",
+        eyebrow: "SQL Builder",
+        standalone: "../BindSQLforSQLBuilder/BindSQLforSQLBuilder.html",
+      },
+      {
+        id: "maskinger",
+        name: "Maskinger",
+        description: "機密情報を自動マスキング",
+        icon: "visibility_off",
+        eyebrow: "Privacy",
+        standalone: "../Maskinger/Maskinger.html",
+      },
+    ];
+
+    const STORAGE = Object.freeze({
+      ACTIVE: "devtoolbox_active_tool",
+      THEME: "devtoolbox_theme",
+      SIDEBAR: "devtoolbox_sidebar_collapsed",
+    });
+
+    const THEME_LIGHT = "light";
+    const THEME_DARK = "dark";
+    const DEFAULT_THEME = THEME_DARK;
+
+    const _tools = {};
+    const _initialized = new Set();
+
+    const _state = {
+      _activeId: "welcome",
+      _theme: DEFAULT_THEME,
+      _collapsed: false,
+      _mobileOpen: false,
+    };
+
+    const $app = qs("#$app");
+    const $sidebar = qs("#$sidebar");
+    const $sidebarBackdrop = qs("#$sidebarBackdrop");
+    const $sidebarToggle = qs("#$sidebarToggle");
+    const $menuToggle = qs("#$menuToggle");
+    const $nav = qs("#$nav");
+    const $themeToggle = qs("#$themeToggle");
+    const $topbarTitle = qs("#$topbarTitle");
+    const $topbarEyebrow = qs("#$topbarEyebrow");
+    const $openStandalone = qs("#$openStandalone");
+    const $welcomeGrid = qs("#$welcomeGrid");
+    const $flash = qs("#$flash");
+
+    let _flashTimer = 0;
+
+    const _saveKey = (_key, _value) => {
+      try {
+        localStorage.setItem(_key, _value);
+      } catch (_error) {
+        // localStorage unavailable; ignore.
+      }
+    };
+
+    const _loadKey = (_key) => {
+      try {
+        return localStorage.getItem(_key);
+      } catch (_error) {
+        return null;
+      }
+    };
+
+    const _showFlash = (_message, _type = "info", _durationMs = 1600) => {
+      $flash.textContent = _message;
+      $flash.dataset.type = _type;
+      $flash.classList.add("is-visible");
+      window.clearTimeout(_flashTimer);
+      _flashTimer = window.setTimeout(() => {
+        $flash.classList.remove("is-visible");
+      }, _durationMs);
+    };
+
+    const _copyToClipboard = async (_text) => {
+      if (!_text) return false;
+      try {
+        await navigator.clipboard.writeText(_text);
+        return true;
+      } catch (_error) {
+        const $temporary = document.createElement("textarea");
+        $temporary.value = _text;
+        $temporary.setAttribute("readonly", "true");
+        $temporary.style.position = "fixed";
+        $temporary.style.opacity = "0";
+        document.body.append($temporary);
+        $temporary.select();
+        let _copied = false;
+        try {
+          _copied = document.execCommand("copy");
+        } catch (_fallbackError) {
+          _copied = false;
+        }
+        $temporary.remove();
+        return _copied;
+      }
+    };
+
+    const _applyTheme = (_theme) => {
+      const _next = _theme === THEME_LIGHT ? THEME_LIGHT : THEME_DARK;
+      _state._theme = _next;
+      document.documentElement.setAttribute("data-theme", _next);
+      document.documentElement.style.colorScheme = _next;
+      $themeToggle.checked = _next === THEME_LIGHT;
+    };
+
+    const _setTheme = (_theme) => {
+      _applyTheme(_theme);
+      _saveKey(STORAGE.THEME, _state._theme);
+    };
+
+    const _applyCollapsed = (_collapsed) => {
+      _state._collapsed = Boolean(_collapsed);
+      $app.dataset.sidebarCollapsed = _state._collapsed ? "true" : "false";
+      $sidebarToggle.setAttribute("aria-pressed", _state._collapsed ? "true" : "false");
+    };
+
+    const _setCollapsed = (_collapsed) => {
+      _applyCollapsed(_collapsed);
+      _saveKey(STORAGE.SIDEBAR, _state._collapsed ? "true" : "false");
+    };
+
+    const _setMobileOpen = (_open) => {
+      _state._mobileOpen = Boolean(_open);
+      if (_state._mobileOpen) {
+        $app.dataset.sidebarMobile = "open";
+      } else {
+        delete $app.dataset.sidebarMobile;
+      }
+    };
+
+    const _findTool = (_id) => TOOLS.find((_tool) => _tool.id === _id) || null;
+
+    const _ensureToolInitialized = (_id) => {
+      if (_initialized.has(_id)) return;
+      const _module = _tools[_id];
+      if (!_module || typeof _module.init !== "function") return;
+      const $pane = qs(`[data-tool-pane="${_id}"]`);
+      if (!$pane) return;
+      _module.init($pane);
+      _initialized.add(_id);
+    };
+
+    const _activateTool = (_id) => {
+      const _tool = _findTool(_id);
+      const _activeId = _tool ? _tool.id : "welcome";
+      _state._activeId = _activeId;
+      $app.dataset.activeTool = _activeId;
+
+      qsa("[data-tool-id]", $nav).forEach(($button) => {
+        $button.setAttribute("aria-selected", $button.dataset.toolId === _activeId ? "true" : "false");
+      });
+
+      if (_tool) {
+        $topbarEyebrow.textContent = _tool.eyebrow || "Tool";
+        $topbarTitle.textContent = _tool.name;
+        if (_tool.standalone) {
+          $openStandalone.href = _tool.standalone;
+          $openStandalone.hidden = false;
+        } else {
+          $openStandalone.hidden = true;
+        }
+        _ensureToolInitialized(_tool.id);
+      } else {
+        $topbarEyebrow.textContent = "Welcome";
+        $topbarTitle.textContent = "DevToolBox";
+        $openStandalone.hidden = true;
+      }
+
+      _saveKey(STORAGE.ACTIVE, _activeId);
+
+      if (window.matchMedia("(max-width: 720px)").matches) {
+        _setMobileOpen(false);
+      }
+    };
+
+    const _renderNav = () => {
+      $nav.textContent = "";
+      for (const _tool of TOOLS) {
+        const $button = document.createElement("button");
+        $button.type = "button";
+        $button.className = "nav-item";
+        $button.dataset.toolId = _tool.id;
+        $button.setAttribute("role", "tab");
+        $button.setAttribute("aria-selected", "false");
+        $button.title = _tool.name;
+
+        const $icon = document.createElement("span");
+        $icon.className = "material-symbols-rounded nav-item__icon";
+        $icon.setAttribute("aria-hidden", "true");
+        $icon.textContent = _tool.icon;
+
+        const $label = document.createElement("span");
+        $label.className = "nav-item__label";
+        const $name = document.createElement("span");
+        $name.className = "nav-item__name";
+        $name.textContent = _tool.name;
+        const $desc = document.createElement("span");
+        $desc.className = "nav-item__desc";
+        $desc.textContent = _tool.description;
+        $label.append($name, $desc);
+
+        $button.append($icon, $label);
+        $nav.append($button);
+      }
+    };
+
+    const _renderWelcomeGrid = () => {
+      $welcomeGrid.textContent = "";
+      for (const _tool of TOOLS) {
+        const $li = document.createElement("li");
+        const $button = document.createElement("button");
+        $button.type = "button";
+        $button.className = "welcome__card";
+        $button.dataset.toolId = _tool.id;
+
+        const $icon = document.createElement("span");
+        $icon.className = "material-symbols-rounded welcome__card-icon";
+        $icon.setAttribute("aria-hidden", "true");
+        $icon.textContent = _tool.icon;
+
+        const $body = document.createElement("span");
+        $body.className = "welcome__card-body";
+        const $name = document.createElement("span");
+        $name.className = "welcome__card-name";
+        $name.textContent = _tool.name;
+        const $desc = document.createElement("span");
+        $desc.className = "welcome__card-desc";
+        $desc.textContent = _tool.description;
+        $body.append($name, $desc);
+
+        $button.append($icon, $body);
+        $li.append($button);
+        $welcomeGrid.append($li);
+      }
+    };
+
+    const _handleNavClick = (event) => {
+      const $button = event.target.closest("[data-tool-id]");
+      if (!$button) return;
+      _activateTool($button.dataset.toolId);
+    };
+
+    const _handleThemeToggleChange = () => {
+      _setTheme($themeToggle.checked ? THEME_LIGHT : THEME_DARK);
+    };
+
+    const _handleSidebarToggleClick = () => {
+      _setCollapsed(!_state._collapsed);
+    };
+
+    const _handleMenuToggleClick = () => {
+      _setMobileOpen(!_state._mobileOpen);
+    };
+
+    const _handleBackdropClick = () => {
+      _setMobileOpen(false);
+    };
+
+    const _handleHashChange = () => {
+      const _hash = window.location.hash.replace(/^#\/?/, "");
+      if (_hash && _findTool(_hash)) {
+        _activateTool(_hash);
+      }
+    };
+
     /* @insert: tool-textchanger */
     /* @insert: tool-bindsql */
     /* @insert: tool-maskinger */
