@@ -2838,7 +2838,181 @@ UPDATE USER USING VALUES VARIADIC WHEN WHERE WINDOW WITH
       return { init: _init };
     })();
 
-    /* @insert: tool-maskinger */
+    _tools.maskinger = (() => {
+      const CODE_SIGNAL_REGEXES = [
+        /\b(function|const|let|var|class|import|export|def|return|interface|enum)\b/,
+        /=>|\{\s*\n|;\s*\n/,
+        /<\/?[A-Za-z][^>]*>/,
+        /\bSELECT\b.+\bFROM\b/i,
+      ];
+      const SQL_STATEMENT_REGEX =
+        /(SELECT\s+.+\s+FROM|INSERT\s+INTO|UPDATE\s+.+\s+SET|DELETE\s+FROM|CREATE\s+TABLE|DROP\s+TABLE|ALTER\s+TABLE|WITH\s+.+\s+SELECT)/i;
+      const NON_MASKABLE_CONSTANTS = new Set([
+        "TRUE", "FALSE", "NULL", "NONE", "NAN", "INF", "STDIN", "STDOUT", "STDERR", "EOF",
+        "GET", "POST", "PUT", "PATCH", "DELETE", "SELECT", "FROM", "WHERE", "AND", "OR", "NOT",
+      ]);
+      const SECRET_ASSIGNMENT_KEY_PATTERN =
+        "password|passwd|pwd|secret|token|api[_-]?key|access[_-]?(?:token|key)|client[_-]?secret|authorization|auth|session(?:id)?|cookie|bearer|private[_-]?key|ssh[_-]?key|refresh[_-]?token|id[_-]?token|webhook[_-]?secret";
+      const PII_ASSIGNMENT_KEY_PATTERN =
+        "email|mail|phone|tel|mobile|address|ssn|social[_-]?security|passport|license|driver[_-]?license|my[_-]?number|mynumber|card(?:number)?|credit[_-]?card|iban|account(?:_?number)?|routing(?:_?number)?|dob|birth(?:date)?|full[_-]?name|real[_-]?name|employee(?:_?id)?|customer(?:_?id)?|user(?:_?id)?";
+      const NO_MATCH_MESSAGE = "マスキング対象は見つかりませんでした";
+      const COPY_DONE_LABEL = "コピーしました";
+      const COPY_FEEDBACK_DURATION_MS = 1200;
+
+      const _buildAssignmentRegexes = (_keyPattern) => ({
+        _quoted: new RegExp(
+          `((?:["']?(?:${_keyPattern})["']?\\s*[:=]\\s*))(["'\`])([^"'\\\`\\n]{0,400})(\\2)`,
+          "gi"
+        ),
+        _bare: new RegExp(
+          `((?:["']?(?:${_keyPattern})["']?\\s*[:=]\\s*))([^\\s,;\\n"'\\\`]+)`,
+          "gi"
+        ),
+      });
+
+      const SECRET_ASSIGNMENT_REGEXES = _buildAssignmentRegexes(SECRET_ASSIGNMENT_KEY_PATTERN);
+      const PII_ASSIGNMENT_REGEXES = _buildAssignmentRegexes(PII_ASSIGNMENT_KEY_PATTERN);
+
+      let $root;
+      let $input;
+      let $output;
+      let $mapping;
+      let $modal;
+      let $copyOutBtn;
+      let $copyMapBtn;
+      let _maskedMappingLines = [];
+      let _lastFocused = null;
+      const _copyTimers = new WeakMap();
+
+      const _looksLikeCode = (_text) => {
+        if (!_text.trim()) return false;
+        const _lc = _text.split(/\r?\n/).length;
+        const _hit = CODE_SIGNAL_REGEXES.some((_r) => _r.test(_text));
+        const _density = (_text.match(/[{}();=<>]/g) || []).length / Math.max(_text.length, 1);
+        return _hit || (_lc >= 4 && _density > 0.02);
+      };
+
+      const _isHashCommentStart = (_t, _i) => {
+        if (_i === 0) return true;
+        const _p = _t[_i - 1];
+        return _p === " " || _p === "\t" || _p === "\n";
+      };
+
+      const _isDoubleDashCommentStart = (_t, _i) => {
+        if (_i === 0) return true;
+        return /\s/.test(_t[_i - 1]);
+      };
+
+      const _stripComments = (_text) => {
+        let _r = "";
+        let _i = 0;
+        let _inStr = false;
+        let _q = "";
+        while (_i < _text.length) {
+          const _c = _text[_i];
+          const _n = _text[_i + 1];
+          if (_inStr) {
+            _r += _c;
+            if (_c === "\\") {
+              const _e = _text[_i + 1];
+              if (_e) { _r += _e; _i += 2; continue; }
+            }
+            if (_c === _q) { _inStr = false; _q = ""; }
+            _i += 1;
+            continue;
+          }
+          if (_c === "'" || _c === '"' || _c === "`") { _inStr = true; _q = _c; _r += _c; _i += 1; continue; }
+          if (_c === "/" && _n === "/") {
+            _i += 2;
+            while (_i < _text.length && _text[_i] !== "\n") _i += 1;
+            continue;
+          }
+          if (_c === "/" && _n === "*") {
+            _i += 2;
+            while (_i < _text.length) {
+              if (_text[_i] === "*" && _text[_i + 1] === "/") { _i += 2; break; }
+              if (_text[_i] === "\n") _r += "\n";
+              _i += 1;
+            }
+            continue;
+          }
+          if (_c === "-" && _n === "-" && _isDoubleDashCommentStart(_text, _i)) {
+            _i += 2;
+            while (_i < _text.length && _text[_i] !== "\n") _i += 1;
+            continue;
+          }
+          if (_c === "#" && _isHashCommentStart(_text, _i)) {
+            _i += 1;
+            while (_i < _text.length && _text[_i] !== "\n") _i += 1;
+            continue;
+          }
+          _r += _c;
+          _i += 1;
+        }
+        return _r;
+      };
+
+      const _consumeQuotedLiteral = (_text, _start, _q) => {
+        let _i = _start + 1;
+        let _esc = false;
+        while (_i < _text.length) {
+          const _c = _text[_i];
+          if (_esc) { _esc = false; _i += 1; continue; }
+          if (_c === "\\") { _esc = true; _i += 1; continue; }
+          if (_c === _q) { _i += 1; break; }
+          _i += 1;
+        }
+        const _lit = _text.slice(_start, _i);
+        const _closed = _lit.endsWith(_q);
+        const _content = _closed ? _lit.slice(1, -1) : _lit.slice(1);
+        return { _literal: _lit, _content, _nextIndex: _i, _isClosed: _closed };
+      };
+
+      const _isSqlStatement = (_cand) => {
+        const _line = _cand.replace(/\s+/g, " ").trim();
+        if (!_line) return false;
+        return SQL_STATEMENT_REGEX.test(_line.toUpperCase());
+      };
+
+      const _isIdentifierStart = (_c) => /[A-Za-z_]/.test(_c);
+      const _isIdentifierPart = (_c) => /[A-Za-z0-9_]/.test(_c);
+
+      const _isMaskableConstant = (_t) => {
+        if (!/^[A-Z][A-Z0-9_]+$/.test(_t)) return false;
+        if (NON_MASKABLE_CONSTANTS.has(_t)) return false;
+        if (!_t.includes("_") && _t.length < 4) return false;
+        return true;
+      };
+
+      const _escapeRegex = (_v) => _v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+      const _replaceIdentifierEverywhere = (_text, _name, _repl) => {
+        const _re = new RegExp(`\\b${_escapeRegex(_name)}\\b`, "g");
+        return _text.replace(_re, _repl);
+      };
+
+      /* @insert: maskinger-part2 */
+      /* @insert: maskinger-part3 */
+
+      let _maskText;
+      let _renderMaskedOutput;
+      let _bindEvents;
+
+      const _init = ($pane) => {
+        $root = $pane;
+        $input = qs("#mk-input", $pane);
+        $output = qs("#mk-output", $pane);
+        $mapping = qs("#mk-mapping", $pane);
+        $modal = qs("#mk-help-modal");
+        $copyOutBtn = qs('[data-mk-action="copy"]', $pane);
+        $copyMapBtn = qs('[data-mk-action="copy-mapping"]', $pane);
+        if (typeof _bindEvents === "function") _bindEvents($pane);
+        if (typeof _renderMaskedOutput === "function") _renderMaskedOutput();
+      };
+
+      return { init: _init };
+    })();
+
     const _loadState = () => {
       const _storedTheme = _loadKey(STORAGE.THEME);
       _applyTheme(_storedTheme === THEME_LIGHT || _storedTheme === THEME_DARK ? _storedTheme : DEFAULT_THEME);
