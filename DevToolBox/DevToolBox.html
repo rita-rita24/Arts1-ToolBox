@@ -2991,7 +2991,188 @@ UPDATE USER USING VALUES VARIADIC WHEN WHERE WINDOW WITH
         return _text.replace(_re, _repl);
       };
 
-      /* @insert: maskinger-part2 */
+      const _createMaskState = () => ({
+        _counterByLabel: new Map(),
+        _mappings: [],
+      });
+
+      const _nextPlaceholder = (_label, _state, _original = "") => {
+        const _next = (_state._counterByLabel.get(_label) || 0) + 1;
+        _state._counterByLabel.set(_label, _next);
+        const _ph = `[${_label}_${_next}]`;
+        _state._mappings.push({ _original, _masked: _ph });
+        return _ph;
+      };
+
+      const _isPlaceholder = (_v) => /^\[[A-Z]+_\d+\]$/.test(_v);
+
+      const _maskByRegex = (_text, _regex, _label, _state, _validator = null) =>
+        _text.replace(_regex, (_m) => {
+          if (_isPlaceholder(_m)) return _m;
+          if (_validator && !_validator(_m)) return _m;
+          return _nextPlaceholder(_label, _state, _m);
+        });
+
+      const _isLikelyCreditCard = (_cand) => {
+        const _digits = _cand.replace(/\D/g, "");
+        if (_digits.length < 13 || _digits.length > 19) return false;
+        let _sum = 0;
+        let _double = false;
+        for (let _i = _digits.length - 1; _i >= 0; _i -= 1) {
+          let _d = Number(_digits[_i]);
+          if (_double) { _d *= 2; if (_d > 9) _d -= 9; }
+          _sum += _d;
+          _double = !_double;
+        }
+        return _sum % 10 === 0;
+      };
+
+      const _maskAssignmentValues = (_text, _regexes, _label, _state) => {
+        let _r = _text.replace(_regexes._quoted, (_m, _pre, _q, _val, _qSuffix) => {
+          if (_isPlaceholder(_val)) return _m;
+          const _ph = _nextPlaceholder(_label, _state, _val);
+          return `${_pre}${_q}${_ph}${_qSuffix}`;
+        });
+        _r = _r.replace(_regexes._bare, (_m, _pre, _val) => {
+          if (_isPlaceholder(_val)) return _m;
+          const _ph = _nextPlaceholder(_label, _state, _val);
+          return `${_pre}${_ph}`;
+        });
+        return _r;
+      };
+
+      const _maskSqlStrings = (_text, _state) => {
+        let _r = "";
+        let _i = 0;
+        while (_i < _text.length) {
+          const _c = _text[_i];
+          if (_c === "'" || _c === '"' || _c === "`") {
+            const _info = _consumeQuotedLiteral(_text, _i, _c);
+            if (_info._isClosed && _isSqlStatement(_info._content)) {
+              _r += _nextPlaceholder("SQL", _state, _info._literal);
+            } else {
+              _r += _info._literal;
+            }
+            _i = _info._nextIndex;
+            continue;
+          }
+          _r += _c;
+          _i += 1;
+        }
+        return _r;
+      };
+
+      const _maskClassLikeNames = (_text, _state) => {
+        const _by = new Map();
+        const _to = (_n) => {
+          if (!_by.has(_n)) _by.set(_n, _nextPlaceholder("CLASS", _state, _n));
+          return _by.get(_n);
+        };
+        let _r = _text.replace(/\b(class\s+)([A-Z][A-Za-z0-9_]*)\b/g, (_m, _pre, _n) => `${_pre}${_to(_n)}`);
+        _r = _r.replace(/\b((?:interface|enum|type)\s+)([A-Z][A-Za-z0-9_]*)\b/g, (_m, _pre, _n) => `${_pre}${_to(_n)}`);
+        for (const [_n, _ph] of _by) _r = _replaceIdentifierEverywhere(_r, _n, _ph);
+        return _r;
+      };
+
+      const _maskFunctionNames = (_text, _state) => {
+        const _by = new Map();
+        const _skip = new Set([
+          "if", "for", "while", "switch", "catch", "return", "throw", "new",
+          "case", "default", "await", "yield", "typeof", "delete", "constructor",
+        ]);
+        const _shouldSkip = (_n) => _skip.has(_n.toLowerCase()) || _isPlaceholder(_n);
+        const _to = (_n) => {
+          if (_shouldSkip(_n)) return _n;
+          if (!_by.has(_n)) _by.set(_n, _nextPlaceholder("FUNC", _state, _n));
+          return _by.get(_n);
+        };
+        let _r = _text.replace(/\b((?:async\s+)?function\s+)([A-Za-z_][A-Za-z0-9_]*)\b/g, (_m, _pre, _n) => `${_pre}${_to(_n)}`);
+        _r = _r.replace(/\b(def\s+)([A-Za-z_][A-Za-z0-9_]*)\s*(?=\()/g, (_m, _pre, _n) => `${_pre}${_to(_n)}`);
+        _r = _r.replace(/\b(func\s+)([A-Za-z_][A-Za-z0-9_]*)\s*(?=\()/g, (_m, _pre, _n) => `${_pre}${_to(_n)}`);
+        _r = _r.replace(
+          /\b((?:const|let|var)\s+)([A-Za-z_$][A-Za-z0-9_$]*)(\s*=\s*(?:async\s+)?(?:function\b|\([^)\n]*\)\s*=>|[A-Za-z_$][A-Za-z0-9_$]*\s*=>))/g,
+          (_m, _pre, _n, _suf) => `${_pre}${_to(_n)}${_suf}`
+        );
+        _r = _r.replace(
+          /(^|\n)(\s*)([A-Za-z_$][A-Za-z0-9_$]*)\s*(?=\([^)\n]*\)\s*\{)/g,
+          (_m, _br, _ind, _n) => {
+            if (_shouldSkip(_n)) return _m;
+            return `${_br}${_ind}${_to(_n)}`;
+          }
+        );
+        _r = _r.replace(
+          /(^|\n)(\s*(?:@\w+(?:\([^)\n]*\))?\s*)*(?:(?:public|private|protected)\s+)?(?:(?:static|final|synchronized|abstract|native|strictfp)\s+)*(?:<[^>\n]+>\s+)?(?:[A-Za-z_$][A-Za-z0-9_$<>\[\],.?]*\s+)+)([A-Za-z_$][A-Za-z0-9_$]*)\s*(?=\([^)\n]*\)\s*(?:\{|throws\b|;))/g,
+          (_m, _br, _pre, _n) => {
+            const _last = _pre.trim().match(/([A-Za-z_$][A-Za-z0-9_$]*)\s*$/);
+            const _lw = _last ? _last[1].toLowerCase() : "";
+            if (_shouldSkip(_n) || _skip.has(_lw)) return _m;
+            return `${_br}${_pre}${_to(_n)}`;
+          }
+        );
+        for (const [_n, _ph] of _by) _r = _replaceIdentifierEverywhere(_r, _n, _ph);
+        return _r;
+      };
+
+      const _shouldMaskCodeStringLiteral = (_content) => {
+        if (!_content.trim()) return false;
+        if (_isPlaceholder(_content.trim())) return false;
+        return /[A-Za-z0-9一-龠々ぁ-んァ-ヶ]/.test(_content);
+      };
+
+      const _maskCodeStringLiterals = (_text, _state) => {
+        let _r = "";
+        let _i = 0;
+        while (_i < _text.length) {
+          const _c = _text[_i];
+          if (_c === "'" || _c === '"' || _c === "`") {
+            const _info = _consumeQuotedLiteral(_text, _i, _c);
+            if (_info._isClosed && _shouldMaskCodeStringLiteral(_info._content)) {
+              const _ph = _nextPlaceholder("STRING", _state, _info._literal);
+              _r += `${_c}${_ph}${_c}`;
+            } else {
+              _r += _info._literal;
+            }
+            _i = _info._nextIndex;
+            continue;
+          }
+          _r += _c;
+          _i += 1;
+        }
+        return _r;
+      };
+
+      const _maskConstants = (_text, _state) => {
+        let _r = "";
+        let _i = 0;
+        let _inStr = false;
+        let _q = "";
+        while (_i < _text.length) {
+          const _c = _text[_i];
+          if (_inStr) {
+            _r += _c;
+            if (_c === "\\") { const _e = _text[_i + 1]; if (_e) { _r += _e; _i += 2; continue; } }
+            if (_c === _q) { _inStr = false; _q = ""; }
+            _i += 1;
+            continue;
+          }
+          if (_c === "'" || _c === '"' || _c === "`") { _inStr = true; _q = _c; _r += _c; _i += 1; continue; }
+          const _phM = _text.slice(_i).match(/^\[[A-Z]+_\d+\]/);
+          if (_phM) { _r += _phM[0]; _i += _phM[0].length; continue; }
+          if (_isIdentifierStart(_c)) {
+            let _e = _i + 1;
+            while (_e < _text.length && _isIdentifierPart(_text[_e])) _e += 1;
+            const _tok = _text.slice(_i, _e);
+            if (_isMaskableConstant(_tok)) _r += _nextPlaceholder("CONST", _state, _tok);
+            else _r += _tok;
+            _i = _e;
+            continue;
+          }
+          _r += _c;
+          _i += 1;
+        }
+        return _r;
+      };
+
       /* @insert: maskinger-part3 */
 
       let _maskText;
