@@ -1527,6 +1527,11 @@
       width: min(100vw - 1.5rem, 34rem);
     }
 
+    .toast-layer.delete-undo-layer {
+      bottom: 5.35rem;
+      z-index: 5001;
+    }
+
     .toast {
       display: inline-flex;
       align-items: center;
@@ -3576,6 +3581,7 @@
     hidden
   ></div>
   <div id="quickTooltip" class="quick-tooltip" role="tooltip" aria-hidden="true" hidden></div>
+  <div id="deleteUndoToastLayer" class="toast-layer delete-undo-layer" aria-live="assertive" aria-atomic="true"></div>
   <div id="toastLayer" class="toast-layer" aria-live="assertive" aria-atomic="true"></div>
 
   <script>
@@ -3975,6 +3981,8 @@
       let toastHideTimerId = null;
       let _toastSessionId = 0;
       let _toastDismissHandler = null;
+      let _deleteUndoToastHideTimerId = null;
+      let _deleteUndoToastSessionId = 0;
       let organizeMemoSaveTimerId = null;
       const _deleteUndoState = {
         payload: null,
@@ -4110,6 +4118,7 @@
       const celebrationText = $('#celebrationText');
       const confettiCanvas = $('#confettiCanvas');
       const $quickTooltip = $('#quickTooltip');
+      const deleteUndoToastLayer = $('#deleteUndoToastLayer');
       const toastLayer = $('#toastLayer');
       const navButtons = $$('.nav-btn');
 
@@ -4346,12 +4355,75 @@
         showToast(message, { type: 'error', icon: 'error', durationMs: 2200 });
       }
 
+      function _hideDeleteUndoToastBySession(sessionId) {
+        if (!deleteUndoToastLayer || sessionId !== _deleteUndoToastSessionId) return;
+        const toast = qs('.toast', deleteUndoToastLayer);
+        if (!toast) {
+          deleteUndoToastLayer.innerHTML = '';
+          return;
+        }
+        toast.classList.remove('show');
+        window.setTimeout(() => {
+          if (sessionId !== _deleteUndoToastSessionId) return;
+          if (deleteUndoToastLayer.contains(toast)) deleteUndoToastLayer.innerHTML = '';
+        }, 180);
+      }
+
+      function _showDeleteUndoToast(message, undoVersion) {
+        if (!deleteUndoToastLayer) return false;
+        if (_deleteUndoToastHideTimerId) {
+          clearTimeout(_deleteUndoToastHideTimerId);
+          _deleteUndoToastHideTimerId = null;
+        }
+        _deleteUndoToastSessionId += 1;
+        const toastSessionId = _deleteUndoToastSessionId;
+        deleteUndoToastLayer.innerHTML = `
+          <div class="toast success" role="alert">
+            <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+            <span class="toast-message">${escapeHtml(message)}</span>
+            <button type="button" class="toast-action-btn" aria-label="元に戻す">元に戻す</button>
+          </div>
+        `;
+        hydrateMaterialIcons(deleteUndoToastLayer);
+        const toast = qs('.toast', deleteUndoToastLayer);
+        if (!toast) return false;
+        const undoBtn = qs('.toast-action-btn', toast);
+        undoBtn?.addEventListener('click', (event) => {
+          event.preventDefault();
+          if (toastSessionId !== _deleteUndoToastSessionId) return;
+          if (undoVersion !== _deleteUndoState.version) return;
+          if (!_applyDeleteUndoPayload(_deleteUndoState.payload)) return;
+          _deleteUndoState.payload = null;
+          if (_deleteUndoToastHideTimerId) {
+            clearTimeout(_deleteUndoToastHideTimerId);
+            _deleteUndoToastHideTimerId = null;
+          }
+          _hideDeleteUndoToastBySession(toastSessionId);
+          save();
+          render();
+          showToast('削除を元に戻しました', { type: 'success', icon: 'undo' });
+        });
+        requestAnimationFrame(() => {
+          if (toastSessionId !== _deleteUndoToastSessionId) return;
+          toast.classList.add('show');
+        });
+        _deleteUndoToastHideTimerId = window.setTimeout(() => {
+          if (toastSessionId !== _deleteUndoToastSessionId) return;
+          _deleteUndoToastHideTimerId = null;
+          if (undoVersion === _deleteUndoState.version) {
+            _deleteUndoState.payload = null;
+          }
+          _hideDeleteUndoToastBySession(toastSessionId);
+        }, DELETE_UNDO_WINDOW_MS);
+        return true;
+      }
+
       function _registerDeleteUndoToast(message, payload) {
         if (!_isValidDeleteUndoPayload(payload)) return;
         _deleteUndoState.payload = _copyTaskSnapshot(payload);
         _deleteUndoState.version += 1;
         const undoVersion = _deleteUndoState.version;
-
+        if (_showDeleteUndoToast(message, undoVersion)) return;
         showToast(message, {
           type: 'success',
           icon: 'delete',
