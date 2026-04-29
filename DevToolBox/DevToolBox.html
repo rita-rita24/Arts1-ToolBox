@@ -2608,10 +2608,61 @@ UPDATE USER USING VALUES VARIADIC WHEN WHERE WINDOW WITH
         return _restoreSqlProtectedSegments(_norm, _store._segments);
       };
 
-      /* @insert: bindsql-part3c */
+      const _showCopySuccessState = () => {
+        if (!$copyLabel) return;
+        $copyLabel.textContent = "コピーしました";
+        if ($copyButton) $copyButton.classList.add("is-success");
+        window.clearTimeout(_bsState._copyLabelTimer);
+        _bsState._copyLabelTimer = window.setTimeout(() => {
+          $copyLabel.textContent = "コピー";
+          if ($copyButton) $copyButton.classList.remove("is-success");
+        }, COPY_SUCCESS_DURATION_MS);
+      };
 
-      let _bindEvents;
-      let _render;
+      const _copyResult = async () => {
+        if (!_bsState._lastSql) {
+          _showFlash(MESSAGES.copyEmpty, "error");
+          return;
+        }
+        const _ok = await _copyToClipboard(_bsState._lastSql);
+        if (_ok) { _showCopySuccessState(); return; }
+        _showFlash(MESSAGES.copyFailed, "error");
+      };
+
+      const _render = () => {
+        const _raw = $rawInput.value;
+        _syncInputHighlight(_raw);
+        const _input = _splitInputText(_raw);
+        const _binds = _parseBindVariables(_input._bindLines);
+        const _merged = _mergeSqlAndBinds(_input._sqlText, _binds);
+        const _formatted = _formatSql(_merged._sql);
+        if (_merged._issues.length > 0) {
+          _bsState._lastSql = "";
+          $output.textContent = _buildMergeIssueOutput(_merged._issues, _formatted);
+          _showFlash(MESSAGES.mergeError(_merged._issues.join(" ")), "error");
+          return;
+        }
+        _bsState._lastSql = _formatted;
+        _renderOutputHighlight(_formatted);
+      };
+
+      const _handleInputEvent = (event) => {
+        if (event.target === $rawInput) _render();
+      };
+
+      const _handleClickEvent = (event) => {
+        const $action = event.target.closest("[data-bs-action]");
+        if (!$action) return;
+        const _type = $action.dataset.bsAction;
+        if (_type === "clear") { $rawInput.value = ""; _render(); $rawInput.focus(); return; }
+        if (_type === "copy") { void _copyResult(); }
+      };
+
+      const _bindEvents = ($pane) => {
+        $pane.addEventListener("input", _handleInputEvent);
+        $pane.addEventListener("click", _handleClickEvent);
+        $rawInput.addEventListener("scroll", _syncInputHighlightScroll);
+      };
 
       const _init = ($pane) => {
         $rawInput = qs("#bs-input", $pane);
@@ -2619,8 +2670,8 @@ UPDATE USER USING VALUES VARIADIC WHEN WHERE WINDOW WITH
         $output = qs("#bs-output", $pane);
         $copyButton = qs("#bs-copy", $pane);
         $copyLabel = qs("[data-bs-copy-label]", $pane);
-        if (typeof _bindEvents === "function") _bindEvents($pane);
-        if (typeof _render === "function") _render();
+        _bindEvents($pane);
+        _render();
       };
 
       return { init: _init };
