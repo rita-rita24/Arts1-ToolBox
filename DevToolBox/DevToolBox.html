@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DevToolBox — ハイパーアルティメットスーパーウルトラ便利devtool</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%234f46e5'/%3E%3Cpath d='M22 18l-8 14 8 14M42 18l8 14-8 14M36 14l-8 36' stroke='%23eef2ff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,500,0,0&display=swap" rel="stylesheet">
+  <style>
+    @layer reset, base, component, utility;
+
+    /* @insert: layer-reset */
+    /* @insert: layer-base */
+    /* @insert: layer-component */
+    /* @insert: layer-utility */
+  </style>
+</head>
+<body>
+  <div class="app" id="$app" data-active-tool="welcome" data-sidebar-collapsed="false">
+    <aside class="sidebar" id="$sidebar" aria-label="ツール一覧">
+      <div class="sidebar__brand">
+        <span class="material-symbols-rounded sidebar__brand-icon" aria-hidden="true">construction</span>
+        <span class="sidebar__brand-name">DevToolBox</span>
+      </div>
+      <nav class="sidebar__nav" id="$nav" role="tablist" aria-label="ツール選択"></nav>
+      <button type="button" class="sidebar__toggle" id="$sidebarToggle" aria-label="サイドバー折りたたみ" aria-pressed="false">
+        <span class="material-symbols-rounded" aria-hidden="true">chevron_left</span>
+        <span class="sidebar__toggle-label">折りたたむ</span>
+      </button>
+    </aside>
+    <button type="button" class="sidebar-backdrop" id="$sidebarBackdrop" aria-label="サイドバーを閉じる" tabindex="-1"></button>
+
+    <main class="workspace">
+      <header class="topbar">
+        <button type="button" class="icon-btn topbar__menu" id="$menuToggle" aria-label="メニュー">
+          <span class="material-symbols-rounded" aria-hidden="true">menu</span>
+        </button>
+        <div class="topbar__title-wrap">
+          <p class="topbar__eyebrow" id="$topbarEyebrow">Welcome</p>
+          <h1 class="topbar__title" id="$topbarTitle">DevToolBox</h1>
+        </div>
+        <div class="topbar__actions">
+          <a class="icon-btn topbar__external" id="$openStandalone" href="#" target="_blank" rel="noopener" hidden aria-label="単体版を新しいタブで開く">
+            <span class="material-symbols-rounded" aria-hidden="true">open_in_new</span>
+          </a>
+          <label class="switch" for="$themeToggle" title="テーマ切替">
+            <input id="$themeToggle" type="checkbox" role="switch" aria-label="ライト/ダークモード切り替え">
+            <span class="slider">
+              <span class="star star_1"></span>
+              <span class="star star_2"></span>
+              <span class="star star_3"></span>
+              <svg viewBox="0 0 16 16" class="cloud" aria-hidden="true">
+                <path transform="matrix(.77976 0 0 .78395-299.99-418.63)" fill="#fff" d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"></path>
+              </svg>
+            </span>
+          </label>
+        </div>
+      </header>
+
+      <div class="pane-host">
+        <section class="welcome" data-tool-pane="welcome" aria-label="ようこそ">
+          <div class="welcome__hero">
+            <h2 class="welcome__title">DevToolBox へようこそ</h2>
+            <p class="welcome__subtitle">開発まわりの小道具を、ひとつの場所に。サイドバーからツールを選ぶか、下のカードから始めてください。</p>
+          </div>
+          <ul class="welcome__grid" id="$welcomeGrid" role="list"></ul>
+        </section>
+
+        <!-- @insert: pane-textchanger -->
+
+        <!-- @insert: pane-bindsql -->
+
+        <!-- @insert: pane-maskinger -->
+      </div>
+    </main>
+  </div>
+
+  <p class="flash" id="$flash" data-role="flash" aria-live="assertive" role="status"></p>
+
+  <!-- @insert: modal-maskinger-help -->
+
+  <script>
+    "use strict";
+    /* @insert: shell-script */
+    /* @insert: tool-textchanger */
+    /* @insert: tool-bindsql */
+    /* @insert: tool-maskinger */
+    /* @insert: shell-init */
+  </script>
+</body>
+</html>
