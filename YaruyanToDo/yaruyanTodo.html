@@ -7196,6 +7196,16 @@
         emptyStateDescription.textContent = 'フィルタを切り替えて確認してください。';
       }
 
+      function setThemeColor(nextTheme) {
+        if (!nextTheme || !THEME_IDS.has(nextTheme)) return false;
+        if (settings.themeColor === nextTheme) return false;
+        settings.themeColor = nextTheme;
+        applyThemeColor();
+        save();
+        render();
+        return true;
+      }
+
       function renderThemeOptions() {
         if (!themeColorGrid) return;
         themeColorGrid.innerHTML = THEME_PRESETS.map((theme) => `
@@ -7204,6 +7214,7 @@
             type="button"
             role="radio"
             aria-checked="${settings.themeColor === theme.id}"
+            tabindex="${settings.themeColor === theme.id ? '0' : '-1'}"
             data-theme-color="${theme.id}"
             title="${theme.label}"
             aria-label="${theme.label}"
@@ -7560,6 +7571,7 @@
         clearAllBtn.setAttribute('aria-keyshortcuts', 'Alt+Shift+A');
         sidebarCollapseBtn.setAttribute('aria-keyshortcuts', 'Alt+S');
         lightModeToggle.setAttribute('aria-keyshortcuts', 'Alt+L');
+        themeColorGrid?.setAttribute('aria-keyshortcuts', 'ArrowLeft ArrowRight ArrowUp ArrowDown Home End Enter Space');
         saveParentEditBtn.setAttribute('aria-keyshortcuts', 'Meta+S Ctrl+S Meta+Enter Ctrl+Enter');
         saveSubtaskEditBtn.setAttribute('aria-keyshortcuts', 'Meta+S Ctrl+S Meta+Enter Ctrl+Enter');
         focusPauseBtn.setAttribute('aria-keyshortcuts', 'Space');
@@ -8173,13 +8185,61 @@
         if (!themeBtn) return;
 
         const nextTheme = themeBtn.dataset.themeColor;
-        if (!nextTheme || !THEME_IDS.has(nextTheme)) return;
-        if (settings.themeColor === nextTheme) return;
+        if (!nextTheme) return;
+        setThemeColor(nextTheme);
+      });
 
-        settings.themeColor = nextTheme;
-        applyThemeColor();
-        save();
-        render();
+      themeColorGrid?.addEventListener('keydown', (e) => {
+        if (e.isComposing) return;
+        const themeBtn = e.target.closest('.theme-btn');
+        if (!themeBtn || !themeColorGrid.contains(themeBtn)) return;
+        const key = e.key;
+        const isSelectKey = key === 'Enter' || key === ' ' || e.code === 'Space';
+        const isPrevKey = key === 'ArrowLeft' || key === 'ArrowUp';
+        const isNextKey = key === 'ArrowRight' || key === 'ArrowDown';
+        const isHomeEndKey = key === 'Home' || key === 'End';
+        if (!isSelectKey && !isPrevKey && !isNextKey && !isHomeEndKey) return;
+
+        const themeButtons = qsa('.theme-btn', themeColorGrid);
+        if (themeButtons.length <= 0) return;
+        const focusedIndex = themeButtons.indexOf(themeBtn);
+        if (focusedIndex < 0) return;
+
+        if (isSelectKey) {
+          e.preventDefault();
+          const activeTheme = themeBtn.dataset.themeColor;
+          if (!activeTheme) return;
+          const hasChanged = setThemeColor(activeTheme);
+          if (!hasChanged) themeBtn.focus();
+          return;
+        }
+
+        let nextIndex = focusedIndex;
+        if (isPrevKey) {
+          nextIndex = (focusedIndex - 1 + themeButtons.length) % themeButtons.length;
+        } else if (isNextKey) {
+          nextIndex = (focusedIndex + 1) % themeButtons.length;
+        } else if (key === 'Home') {
+          nextIndex = 0;
+        } else if (key === 'End') {
+          nextIndex = themeButtons.length - 1;
+        }
+
+        const nextBtn = themeButtons[nextIndex];
+        if (!nextBtn) return;
+        const nextTheme = nextBtn.dataset.themeColor;
+        if (!nextTheme) return;
+
+        e.preventDefault();
+        const hasChanged = setThemeColor(nextTheme);
+        if (hasChanged) {
+          requestAnimationFrame(() => {
+            const $selectedBtn = qs(`.theme-btn[data-theme-color="${nextTheme}"]`, themeColorGrid);
+            $selectedBtn?.focus();
+          });
+          return;
+        }
+        nextBtn.focus();
       });
 
       soundToggle.addEventListener('change', () => {
