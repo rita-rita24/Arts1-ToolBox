@@ -435,6 +435,106 @@
         max-width: 1100px;
       }
 
+      .tool-pane[data-tool-pane="textchanger"] {
+        padding: var(--space-5);
+        gap: var(--space-4);
+      }
+
+      .tc-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+        gap: var(--space-4);
+        flex: 1;
+        min-height: 0;
+      }
+
+      .tc-grid__output {
+        display: grid;
+        grid-template-rows: repeat(5, minmax(0, 1fr));
+        gap: var(--space-3);
+        min-height: 0;
+      }
+
+      .tc-output-card {
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-elevated);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .tc-output-card__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        padding: var(--space-2) var(--space-3);
+        border-bottom: 1px solid var(--border);
+        background: var(--surface-soft);
+        flex-wrap: wrap;
+      }
+
+      .tc-output-card__title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .tc-output-card__actions {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        flex-shrink: 0;
+      }
+
+      .tc-output-card__textarea {
+        flex: 1;
+        min-height: 0;
+        border: 0;
+        border-radius: 0;
+        padding: var(--space-2) var(--space-3);
+        background: var(--bg-elevated);
+        font-size: 12px;
+        line-height: 1.5;
+
+        &:focus-visible {
+          box-shadow: inset 0 0 0 2px var(--focus-ring);
+        }
+      }
+
+      .tc-pg-table {
+        width: clamp(180px, 24vw, 280px);
+      }
+
+      .tc-num-offset {
+        width: 96px;
+        text-align: right;
+      }
+
+      @media (max-width: 980px) {
+        .tc-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .tc-grid__output {
+          grid-template-rows: none;
+          grid-template-columns: 1fr;
+        }
+
+        .tc-output-card {
+          min-height: 180px;
+        }
+      }
+
       .welcome__card {
         display: flex;
         gap: var(--space-3);
@@ -1008,7 +1108,95 @@
           <ul class="welcome__grid" id="$welcomeGrid" role="list"></ul>
         </section>
 
-        <!-- @insert: pane-textchanger -->
+        <section class="tool-pane" data-tool-pane="textchanger" aria-label="TextChanger">
+          <div class="tc-grid">
+            <article class="card">
+              <header class="card__header">
+                <div class="card__title-wrap">
+                  <p class="card__eyebrow">Input</p>
+                  <h2 class="card__title">入力（1行に1値）</h2>
+                </div>
+              </header>
+              <div class="card__body">
+                <div class="field">
+                  <label class="sr-only" for="tc-input">入力テキスト</label>
+                  <textarea id="tc-input" class="textarea" placeholder="ここに値を入力してください（1行に1つ）&#10;例：&#10;apple&#10;banana&#10;cherry" spellcheck="false"></textarea>
+                </div>
+              </div>
+            </article>
+
+            <div class="tc-grid__output">
+              <article class="tc-output-card" aria-labelledby="tc-out-a5m2-title">
+                <header class="tc-output-card__header">
+                  <h3 class="tc-output-card__title" id="tc-out-a5m2-title">A5M2 Caption 変換</h3>
+                  <div class="tc-output-card__actions">
+                    <button type="button" class="button button--ghost" data-tc-copy="#tc-out-a5m2" aria-label="A5M2の結果をコピー">
+                      <span class="button__icon" aria-hidden="true">content_copy</span>
+                      <span data-tc-label>コピー</span>
+                    </button>
+                  </div>
+                </header>
+                <textarea id="tc-out-a5m2" class="textarea tc-output-card__textarea" readonly aria-label="A5M2 Caption 変換結果" placeholder="変換結果がここに表示されます"></textarea>
+              </article>
+
+              <article class="tc-output-card" aria-labelledby="tc-out-tsv-title">
+                <header class="tc-output-card__header">
+                  <h3 class="tc-output-card__title" id="tc-out-tsv-title">タブ区切り（Excel向け）</h3>
+                  <div class="tc-output-card__actions">
+                    <button type="button" class="button button--ghost" data-tc-copy="#tc-out-tsv" aria-label="TSVの結果をコピー">
+                      <span class="button__icon" aria-hidden="true">content_copy</span>
+                      <span data-tc-label>コピー</span>
+                    </button>
+                  </div>
+                </header>
+                <textarea id="tc-out-tsv" class="textarea tc-output-card__textarea" readonly aria-label="タブ区切り変換結果" placeholder="変換結果がここに表示されます"></textarea>
+              </article>
+
+              <article class="tc-output-card" aria-labelledby="tc-out-sqlin-title">
+                <header class="tc-output-card__header">
+                  <h3 class="tc-output-card__title" id="tc-out-sqlin-title">SQL IN 句</h3>
+                  <div class="tc-output-card__actions">
+                    <button type="button" class="button button--ghost" data-tc-copy="#tc-out-sqlin" aria-label="SQL IN句の結果をコピー">
+                      <span class="button__icon" aria-hidden="true">content_copy</span>
+                      <span data-tc-label>コピー</span>
+                    </button>
+                  </div>
+                </header>
+                <textarea id="tc-out-sqlin" class="textarea tc-output-card__textarea" readonly aria-label="SQL IN句変換結果" placeholder="変換結果がここに表示されます"></textarea>
+              </article>
+
+              <article class="tc-output-card" aria-labelledby="tc-out-pg-title">
+                <header class="tc-output-card__header">
+                  <h3 class="tc-output-card__title" id="tc-out-pg-title">PostgreSQL SELECT + INSERT + DELETE</h3>
+                  <div class="tc-output-card__actions">
+                    <label class="sr-only" for="tc-pg-table">テーブル名</label>
+                    <input id="tc-pg-table" type="text" class="input input--compact tc-pg-table" placeholder="テーブル名" aria-label="PostgreSQL テーブル名" autocomplete="off" spellcheck="false">
+                    <button type="button" class="button button--ghost" data-tc-copy="#tc-out-pg" aria-label="PostgreSQL文の結果をコピー">
+                      <span class="button__icon" aria-hidden="true">content_copy</span>
+                      <span data-tc-label>コピー</span>
+                    </button>
+                  </div>
+                </header>
+                <textarea id="tc-out-pg" class="textarea tc-output-card__textarea" readonly aria-label="PostgreSQL SELECT/INSERT/DELETE 変換結果" placeholder="1行目にヘッダー、2行目以降にタブ区切りデータを貼ると SELECT + INSERT + DELETE を生成します"></textarea>
+              </article>
+
+              <article class="tc-output-card" aria-labelledby="tc-out-num-title">
+                <header class="tc-output-card__header">
+                  <h3 class="tc-output-card__title" id="tc-out-num-title">連番調整</h3>
+                  <div class="tc-output-card__actions">
+                    <label class="sr-only" for="tc-num-offset">増減値</label>
+                    <input id="tc-num-offset" type="number" step="1" class="input input--compact tc-num-offset" placeholder="例: 1" aria-label="連番の増減値" autocomplete="off">
+                    <button type="button" class="button button--ghost" data-tc-copy="#tc-out-num" aria-label="連番調整の結果をコピー">
+                      <span class="button__icon" aria-hidden="true">content_copy</span>
+                      <span data-tc-label>コピー</span>
+                    </button>
+                  </div>
+                </header>
+                <textarea id="tc-out-num" class="textarea tc-output-card__textarea" readonly aria-label="連番調整結果" placeholder="入力テキスト中の数値を増減値ぶん加減算した結果を表示します"></textarea>
+              </article>
+            </div>
+          </div>
+        </section>
 
         <!-- @insert: pane-bindsql -->
 
