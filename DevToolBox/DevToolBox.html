@@ -3173,11 +3173,157 @@ UPDATE USER USING VALUES VARIADIC WHEN WHERE WINDOW WITH
         return _r;
       };
 
-      /* @insert: maskinger-part3 */
+      const _maskText = (_raw) => {
+        const _state = _createMaskState();
+        let _r = _raw;
+        if (_looksLikeCode(_raw)) {
+          _r = _stripComments(_r);
+          _r = _maskSqlStrings(_r, _state);
+          _r = _maskClassLikeNames(_r, _state);
+          _r = _maskFunctionNames(_r, _state);
+          _r = _maskConstants(_r, _state);
+          _r = _maskCodeStringLiterals(_r, _state);
+        }
+        _r = _maskAssignmentValues(_r, SECRET_ASSIGNMENT_REGEXES, "SECRET", _state);
+        _r = _maskAssignmentValues(_r, PII_ASSIGNMENT_REGEXES, "PII", _state);
+        _r = _maskByRegex(_r, /-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bBearer\s+[A-Za-z0-9._\-+/=]{16,}\b/gi, "SECRET", _state);
+        _r = _maskByRegex(_r, /\b(?:postgres(?:ql)?|mysql|mssql|mongodb(?:\+srv)?|redis):\/\/[^\s"'`]+/gi, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bsk-ant-[A-Za-z0-9_-]{10,}\b/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bAIza[0-9A-Za-z_-]{35}\b/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bsk_(?:live|test)_[0-9a-zA-Z]{16,}\b/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bxox[baprs]-[A-Za-z0-9-]{10,}\b/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bAKIA[0-9A-Z]{16}\b/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bASIA[0-9A-Z]{16}\b/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bgh[pousr]_[A-Za-z0-9]{20,}\b/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bsk-[A-Za-z0-9]{20,}\b/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bhttps?:\/\/[^\s"'`<>]+/gi, "URL", _state);
+        _r = _maskByRegex(_r, /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, "EMAIL", _state);
+        _r = _maskByRegex(_r, /\b(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}\b/g, "IP", _state);
+        _r = _maskByRegex(_r, /\b\d{3}-\d{2}-\d{4}\b/g, "PII", _state);
+        _r = _maskByRegex(_r, /〒?\s?\d{3}-\d{4}\b/g, "ADDRESS", _state);
+        _r = _maskByRegex(_r, /\b[A-Z]{2}\d{2}[A-Z0-9]{11,30}\b/g, "ACCOUNT", _state);
+        _r = _maskByRegex(_r, /\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "ID", _state);
+        _r = _maskByRegex(_r, /\b(?:\d[ -]?){13,19}\d\b/g, "CARD", _state, _isLikelyCreditCard);
+        _r = _maskByRegex(_r, /\b\d{4}[-\s]?\d{4}[-\s]?\d{4}\b/g, "PII", _state);
+        _r = _maskByRegex(_r, /\b(?:\+?\d{1,3}[\s-]?)?(?:\d{2,4}[\s-]\d{2,4}[\s-]\d{3,4})\b/g, "PHONE", _state);
+        _r = _maskByRegex(_r, /(?:[A-Za-z]:\\(?:[^\\\s"'`]+\\)*[^\\\s"'`]*|\/(?:Users|home|var|etc|opt|tmp)\/[\w./-]+)/g, "PATH", _state);
+        _r = _maskByRegex(_r, /([一-龠々ぁ-んァ-ヶー]{1,12}(?:\s+[一-龠々ぁ-んァ-ヶー]{1,12})?)\s*(様|さん|氏|殿)/g, "NAME", _state);
+        _r = _maskByRegex(_r, /\b((?:Mr|Ms|Mrs|Dr)\.?\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\b/g, "NAME", _state);
+        _r = _maskByRegex(_r, /\b([A-Z][A-Za-z0-9&.'-]*(?:\s+[A-Z][A-Za-z0-9&.'-]*){0,3}\s(?:Inc\.|LLC|Ltd\.|Corp\.|Corporation|Company))\b/g, "ORG", _state);
+        _r = _maskByRegex(_r, /(?:株式会社|有限会社|合同会社)\s*[^\s、。,.()\n]{1,24}/g, "ORG", _state);
+        return { _maskedText: _r, _mappings: _state._mappings };
+      };
 
-      let _maskText;
-      let _renderMaskedOutput;
-      let _bindEvents;
+      const _normalizeLineValue = (_v) => String(_v).replace(/\r?\n/g, "\\n");
+      const _buildMappingLines = (_mappings) =>
+        _mappings.map((_m) => `${_normalizeLineValue(_m._masked)} = ${_normalizeLineValue(_m._original)}`);
+
+      const _renderMappingList = ($list, _lines, _emptyMessage) => {
+        $list.textContent = "";
+        if (_lines.length === 0) {
+          if (!_emptyMessage) return;
+          const $empty = document.createElement("li");
+          $empty.className = "mk-mapping__empty";
+          $empty.textContent = _emptyMessage;
+          $list.append($empty);
+          return;
+        }
+        for (const _line of _lines) {
+          const $item = document.createElement("li");
+          $item.textContent = _line;
+          $list.append($item);
+        }
+      };
+
+      const _renderMaskedOutput = () => {
+        const _src = $input.value;
+        if (!_src.trim()) {
+          $output.textContent = "";
+          _maskedMappingLines = [];
+          _renderMappingList($mapping, _maskedMappingLines, "");
+          return;
+        }
+        const _result = _maskText(_src);
+        $output.textContent = _result._maskedText;
+        _maskedMappingLines = _buildMappingLines(_result._mappings);
+        _renderMappingList($mapping, _maskedMappingLines, NO_MATCH_MESSAGE);
+      };
+
+      const _showCopyDoneLabel = ($button) => {
+        const $label = qs("[data-mk-copy-label]", $button);
+        const $icon = qs(".button__icon", $button);
+        const _existing = _copyTimers.get($button);
+        if (_existing) clearTimeout(_existing);
+        $button.classList.add("is-success");
+        if ($icon) $icon.textContent = "check";
+        if ($label) $label.textContent = COPY_DONE_LABEL;
+        const _timer = setTimeout(() => {
+          $button.classList.remove("is-success");
+          if ($icon) $icon.textContent = "content_copy";
+          if ($label) $label.textContent = "コピー";
+          _copyTimers.delete($button);
+        }, COPY_FEEDBACK_DURATION_MS);
+        _copyTimers.set($button, _timer);
+      };
+
+      const _openHelpModal = () => {
+        if ($modal.dataset.open === "true") return;
+        _lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        $modal.dataset.open = "true";
+        $modal.setAttribute("aria-hidden", "false");
+        const $closeBtn = qs('[data-mk-action="close-help"]', $modal);
+        if ($closeBtn) $closeBtn.focus();
+      };
+
+      const _closeHelpModal = () => {
+        if ($modal.dataset.open !== "true") return;
+        $modal.dataset.open = "false";
+        $modal.setAttribute("aria-hidden", "true");
+        if (_lastFocused && document.contains(_lastFocused)) _lastFocused.focus();
+      };
+
+      const _handleInputEvent = (event) => {
+        if (event.target === $input) _renderMaskedOutput();
+      };
+
+      const _handleClickEvent = async (event) => {
+        const $button = event.target.closest("[data-mk-action]");
+        if (!$button) return;
+        const _type = $button.dataset.mkAction;
+        if (_type === "help") { _openHelpModal(); return; }
+        if (_type === "close-help") { _closeHelpModal(); return; }
+        if (_type === "clear") { $input.value = ""; _renderMaskedOutput(); $input.focus(); return; }
+        if (_type === "copy") {
+          const _ok = await _copyToClipboard($output.textContent || "");
+          if (_ok) _showCopyDoneLabel($button);
+          return;
+        }
+        if (_type === "copy-mapping") {
+          const _ok = await _copyToClipboard(_maskedMappingLines.join("\n"));
+          if (_ok) _showCopyDoneLabel($button);
+        }
+      };
+
+      const _handleModalClick = (event) => {
+        if (event.target === $modal) _closeHelpModal();
+      };
+
+      const _handleKeydown = (event) => {
+        if (event.key === "Escape") _closeHelpModal();
+      };
+
+      const _bindEvents = ($pane) => {
+        $pane.addEventListener("input", _handleInputEvent);
+        $pane.addEventListener("click", _handleClickEvent);
+        $modal.addEventListener("click", _handleModalClick);
+        $modal.addEventListener("click", (event) => {
+          const $btn = event.target.closest('[data-mk-action="close-help"]');
+          if ($btn) _closeHelpModal();
+        });
+        document.addEventListener("keydown", _handleKeydown);
+      };
 
       const _init = ($pane) => {
         $root = $pane;
@@ -3187,8 +3333,8 @@ UPDATE USER USING VALUES VARIADIC WHEN WHERE WINDOW WITH
         $modal = qs("#mk-help-modal");
         $copyOutBtn = qs('[data-mk-action="copy"]', $pane);
         $copyMapBtn = qs('[data-mk-action="copy-mapping"]', $pane);
-        if (typeof _bindEvents === "function") _bindEvents($pane);
-        if (typeof _renderMaskedOutput === "function") _renderMaskedOutput();
+        _bindEvents($pane);
+        _renderMaskedOutput();
       };
 
       return { init: _init };
