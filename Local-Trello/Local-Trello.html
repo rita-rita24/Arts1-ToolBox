@@ -1477,8 +1477,15 @@ function renderCard(card, list) {
     if (e.target.closest('[data-complete-toggle]')) { e.stopPropagation(); toggleComplete(card); return; }
     if (e.target.closest('[data-label-pill]')) {
       e.stopPropagation();
-      if (!state.showLabelNames) { state.showLabelNames = true; saveState(); renderAll(); }
-      else { state.showLabelNames = false; saveState(); renderAll(); }
+      if (!state.showLabelNames) {
+        state.showLabelNames = true;
+        if (!saveState()) return;
+        renderAll();
+      } else {
+        state.showLabelNames = false;
+        if (!saveState()) return;
+        renderAll();
+      }
       return;
     }
     openCardModal(card);
@@ -1602,7 +1609,7 @@ function relocateCard(cardId, toListId, orderedIds) {
   if (visibleQueue.length) merged.push(...visibleQueue);
   dest.cards = merged;
   card.updatedAt = nowIso();
-  saveState();
+  if (!saveState()) return;
   renderAll();
 }
 
@@ -1613,15 +1620,18 @@ function toggleComplete(card) {
   }
   card.dueComplete = !card.dueComplete;
   card.updatedAt = nowIso();
-  saveState(); renderAll();
+  if (!saveState()) return;
+  renderAll();
 }
 
 function archiveCard(card, list) {
   card.archived = true;
-  saveState(); renderAll();
+  if (!saveState()) return;
+  renderAll();
   showToast('カードをアーカイブしました', () => {
     card.archived = false;
-    saveState(); renderAll();
+    if (!saveState()) return;
+    renderAll();
   }, 5000);
 }
 
@@ -1634,7 +1644,8 @@ function deleteCardPermanent(card, list) {
     undo: () => { list.cards.splice(idx, 0, removed); },
     redo: () => { list.cards.splice(idx, 1); }
   });
-  saveState(); renderAll();
+  if (!saveState()) return;
+  renderAll();
   if (currentModal) closeModal();
   showToast('カードを削除しました', null, 3000);
 }
@@ -1654,7 +1665,8 @@ function copyCard(card, list) {
   }
   const idx = list.cards.findIndex(c => c.id === card.id);
   list.cards.splice(idx + 1, 0, copy);
-  saveState(); renderAll();
+  if (!saveState()) return;
+  renderAll();
   showToast('カードを複製しました', null, 2000);
 }
 
@@ -1668,17 +1680,20 @@ function moveCardTo(card, targetListId, position) {
   const pos = Math.max(0, Math.min(dest.cards.length, position));
   dest.cards.splice(pos, 0, card);
   card.updatedAt = nowIso();
-  saveState(); renderAll();
+  if (!saveState()) return;
+  renderAll();
 }
 
 // ===== List operations =====
 
 function archiveList(list) {
   list.archived = true;
-  saveState(); renderAll();
+  if (!saveState()) return;
+  renderAll();
   showToast('リストをアーカイブしました', () => {
     list.archived = false;
-    saveState(); renderAll();
+    if (!saveState()) return;
+    renderAll();
   }, 5000);
 }
 
@@ -1692,13 +1707,15 @@ function deleteListPermanent(list) {
     undo: () => { board.lists.splice(idx, 0, removed); },
     redo: () => { board.lists.splice(idx, 1); }
   });
-  saveState(); renderAll();
+  if (!saveState()) return;
+  renderAll();
   showToast('リストを削除しました', null, 3000);
 }
 
 function archiveAllCardsInList(list) {
   list.cards.forEach(c => c.archived = true);
-  saveState(); renderAll();
+  if (!saveState()) return;
+  renderAll();
   showToast(`${list.cards.length}件のカードをアーカイブしました`, null, 3000);
 }
 
@@ -1710,7 +1727,8 @@ function copyList(list) {
   copy.cards.forEach(c => { c.id = uid(); });
   const idx = board.lists.findIndex(l => l.id === list.id);
   board.lists.splice(idx + 1, 0, copy);
-  saveState(); renderAll();
+  if (!saveState()) return;
+  renderAll();
 }
 
 function sortList(list, by) {
