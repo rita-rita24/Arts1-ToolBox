@@ -623,6 +623,72 @@
       .sql-token--number  { color: var(--sql-number); }
       .sql-token--comment { color: var(--sql-comment); font-style: italic; font-weight: 500; }
 
+      .tool-pane[data-tool-pane="maskinger"] {
+        padding: var(--space-5);
+        gap: var(--space-4);
+      }
+
+      .mk-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: var(--space-4);
+        flex: 1;
+        min-height: 0;
+      }
+
+      .mk-grid__right {
+        display: grid;
+        grid-template-rows: minmax(0, 1.4fr) minmax(0, 1fr);
+        gap: var(--space-4);
+        min-height: 0;
+      }
+
+      @media (max-width: 980px) {
+        .mk-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .mk-output {
+        flex: 1;
+        min-height: 0;
+        margin: 0;
+        padding: 12px 14px;
+        background: var(--surface-soft);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: 13px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow: auto;
+      }
+
+      .mk-mapping {
+        flex: 1;
+        min-height: 0;
+        margin: 0;
+        padding: 10px 14px 10px 28px;
+        background: var(--surface-soft);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        line-height: 1.6;
+        list-style: disc;
+        overflow: auto;
+      }
+
+      .mk-mapping__empty {
+        list-style: none;
+        margin-left: -16px;
+        color: var(--text-subtle);
+        font-style: italic;
+      }
+
       .welcome__card {
         display: flex;
         gap: var(--space-3);
@@ -1335,14 +1401,109 @@
           </div>
         </section>
 
-        <!-- @insert: pane-maskinger -->
+        <section class="tool-pane" data-tool-pane="maskinger" aria-label="Maskinger">
+          <div class="mk-grid">
+            <article class="card">
+              <header class="card__header">
+                <div class="card__title-wrap">
+                  <p class="card__eyebrow">Input</p>
+                  <h2 class="card__title">マスキング対象テキスト</h2>
+                </div>
+                <div class="card__actions">
+                  <button type="button" class="button button--ghost" data-mk-action="help" aria-label="ヘルプを開く">
+                    <span class="button__icon" aria-hidden="true">help</span>
+                    <span>ヘルプ</span>
+                  </button>
+                  <button type="button" class="button button--ghost" data-mk-action="clear">
+                    <span class="button__icon" aria-hidden="true">backspace</span>
+                    <span>クリア</span>
+                  </button>
+                </div>
+              </header>
+              <div class="card__body">
+                <div class="field">
+                  <label class="sr-only" for="mk-input">入力テキスト</label>
+                  <textarea id="mk-input" class="textarea" spellcheck="false" placeholder="ここにテキストやコードを貼り付けてください。&#10;メール、トークン、IPアドレス、関数名、SQL文字列などを自動でマスクします。"></textarea>
+                </div>
+              </div>
+            </article>
+
+            <div class="mk-grid__right">
+              <article class="card">
+                <header class="card__header">
+                  <div class="card__title-wrap">
+                    <p class="card__eyebrow">Output</p>
+                    <h2 class="card__title">マスク済みテキスト</h2>
+                  </div>
+                  <div class="card__actions">
+                    <button type="button" class="button button--primary" data-mk-action="copy">
+                      <span class="button__icon" aria-hidden="true">content_copy</span>
+                      <span data-mk-copy-label>コピー</span>
+                    </button>
+                  </div>
+                </header>
+                <div class="card__body">
+                  <pre class="mk-output" id="mk-output"></pre>
+                </div>
+              </article>
+
+              <article class="card">
+                <header class="card__header">
+                  <div class="card__title-wrap">
+                    <p class="card__eyebrow">Mapping</p>
+                    <h2 class="card__title">マスク対応一覧</h2>
+                  </div>
+                  <div class="card__actions">
+                    <button type="button" class="button button--ghost" data-mk-action="copy-mapping">
+                      <span class="button__icon" aria-hidden="true">content_copy</span>
+                      <span data-mk-copy-label>コピー</span>
+                    </button>
+                  </div>
+                </header>
+                <div class="card__body">
+                  <ul class="mk-mapping" id="mk-mapping" aria-label="マスク対応一覧"></ul>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
       </div>
     </main>
   </div>
 
   <p class="flash" id="$flash" data-role="flash" aria-live="assertive" role="status"></p>
 
-  <!-- @insert: modal-maskinger-help -->
+  <div class="modal" id="mk-help-modal" role="dialog" aria-modal="true" aria-labelledby="mk-help-title" aria-hidden="true">
+    <section class="modal__dialog">
+      <header class="modal__header">
+        <h2 class="modal__title" id="mk-help-title">Maskinger ヘルプ</h2>
+        <button type="button" class="button button--ghost" data-mk-action="close-help" aria-label="閉じる">
+          <span class="button__icon" aria-hidden="true">close</span>
+          <span>閉じる</span>
+        </button>
+      </header>
+      <div class="modal__body">
+        <p>Maskinger は、AI送信前のテキストをブラウザ内だけでマスキングするツールです。送信前の最終確認を必ず行ってください。</p>
+        <section>
+          <h3>主なマスク対象</h3>
+          <ul>
+            <li>メールアドレス、URL、IPアドレス、電話番号</li>
+            <li>トークン・APIキー・認証情報・秘密鍵</li>
+            <li>カード番号（Luhnチェック済み）、UUID、住所、名前らしき個人情報</li>
+            <li>コード入力時のコメント、クラス名、関数名、定数名、文字列リテラル</li>
+          </ul>
+        </section>
+        <section>
+          <h3>使い方</h3>
+          <ul>
+            <li>左の入力欄にテキストまたはコードを貼り付ける</li>
+            <li>右上でマスク結果、右下で対応一覧を確認する</li>
+            <li>「コピー」ボタンで結果や対応表を取得する</li>
+          </ul>
+        </section>
+      </div>
+    </section>
+  </div>
 
   <script>
     "use strict";
