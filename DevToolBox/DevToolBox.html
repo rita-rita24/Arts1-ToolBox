@@ -2053,7 +2053,210 @@ UPDATE USER USING VALUES VARIADIC WHEN WHERE WINDOW WITH
         return `${_m.groups.key} = ${_quoteParameterValue(_m.groups.value)}`;
       };
 
-      /* @insert: bindsql-part2 */
+      const _readDollarQuotedSegment = (_sql, _start) => {
+        if (_sql[_start] !== "$") return "";
+        const _slice = _sql.slice(_start);
+        const _delim = _slice.startsWith("$$")
+          ? "$$"
+          : (_slice.match(/^\$[A-Za-z_][A-Za-z0-9_]*\$/)?.[0] ?? "");
+        if (!_delim) return "";
+        const _contentStart = _start + _delim.length;
+        const _end = _sql.indexOf(_delim, _contentStart);
+        return _sql.slice(_start, _end === -1 ? _sql.length : _end + _delim.length);
+      };
+
+      const _readSqlProtectedSegment = (_sql, _start) => {
+        const _ch = _sql[_start];
+        const _dollar = _readDollarQuotedSegment(_sql, _start);
+        if (_dollar) return _dollar;
+        if (_ch === "'") {
+          let _i = _start + 1;
+          while (_i < _sql.length) {
+            const _c = _sql[_i];
+            if (_c === "'" && _sql[_i + 1] === "'") { _i += 2; continue; }
+            if (_c === "\\") { _i += 2; continue; }
+            if (_c === "'") { _i += 1; break; }
+            _i += 1;
+          }
+          return _sql.slice(_start, _i);
+        }
+        if (_ch === '"') {
+          let _i = _start + 1;
+          while (_i < _sql.length) {
+            const _c = _sql[_i];
+            if (_c === '"' && _sql[_i + 1] === '"') { _i += 2; continue; }
+            if (_c === "\\") { _i += 2; continue; }
+            if (_c === '"') { _i += 1; break; }
+            _i += 1;
+          }
+          return _sql.slice(_start, _i);
+        }
+        if (_ch === "-" && _sql[_start + 1] === "-") {
+          const _e = _sql.indexOf("\n", _start);
+          return _sql.slice(_start, _e === -1 ? _sql.length : _e);
+        }
+        if (_ch === "/" && _sql[_start + 1] === "*") {
+          const _e = _sql.indexOf("*/", _start + 2);
+          return _sql.slice(_start, _e === -1 ? _sql.length : _e + 2);
+        }
+        if (_ch === "`") {
+          const _e = _sql.indexOf("`", _start + 1);
+          return _sql.slice(_start, _e === -1 ? _sql.length : _e + 1);
+        }
+        if (_ch === "[") {
+          const _e = _sql.indexOf("]", _start + 1);
+          return _sql.slice(_start, _e === -1 ? _sql.length : _e + 1);
+        }
+        return "";
+      };
+
+      const _maskSqlProtectedSegments = (_sql) => {
+        const _segments = [];
+        let _masked = "";
+        let _i = 0;
+        while (_i < _sql.length) {
+          const _seg = _readSqlProtectedSegment(_sql, _i);
+          if (_seg) {
+            const _token = `@@BindSQL_SEGMENT_${_segments.length}@@`;
+            _segments.push(_seg);
+            _masked += _token;
+            _i += _seg.length;
+            continue;
+          }
+          _masked += _sql[_i];
+          _i += 1;
+        }
+        return { _masked, _segments };
+      };
+
+      const _restoreSqlProtectedSegments = (_sql, _segments) =>
+        _sql.replace(/@@BindSQL_SEGMENT_(\d+)@@/g, (_all, _idx) => _segments[Number(_idx)] ?? "");
+
+      const _readQuotedSegment = (_sql, _start, _close, _allowEsc = false) => {
+        let _i = _start + 1;
+        while (_i < _sql.length) {
+          const _c = _sql[_i];
+          if (_allowEsc && _c === "\\") { _i += 2; continue; }
+          if (_c === _close && _allowEsc && _sql[_i + 1] === _close) { _i += 2; continue; }
+          if (_c === _close) { _i += 1; break; }
+          _i += 1;
+        }
+        return _sql.slice(_start, _i);
+      };
+
+      const _readHighlightProtectedSegment = (_sql, _start) => {
+        const _ch = _sql[_start];
+        if (_ch === "-" && _sql[_start + 1] === "-") {
+          const _e = _sql.indexOf("\n", _start);
+          return { _kind: "comment", _text: _sql.slice(_start, _e === -1 ? _sql.length : _e) };
+        }
+        if (_ch === "/" && _sql[_start + 1] === "*") {
+          const _e = _sql.indexOf("*/", _start + 2);
+          return { _kind: "comment", _text: _sql.slice(_start, _e === -1 ? _sql.length : _e + 2) };
+        }
+        const _dollar = _readDollarQuotedSegment(_sql, _start);
+        if (_dollar) return { _kind: "string", _text: _dollar };
+        const _close = HIGHLIGHT_QUOTE_PAIRS[_ch];
+        if (_close) {
+          return {
+            _kind: "string",
+            _text: _readQuotedSegment(_sql, _start, _close, _ch === "'" || _ch === '"'),
+          };
+        }
+        if (_ch === "`") {
+          return { _kind: "plain", _text: _readQuotedSegment(_sql, _start, "`", true) };
+        }
+        if (_ch === "[") {
+          const _e = _sql.indexOf("]", _start + 1);
+          return { _kind: "plain", _text: _sql.slice(_start, _e === -1 ? _sql.length : _e + 1) };
+        }
+        return null;
+      };
+
+      const _readNumberSegment = (_sql, _start) => {
+        const _ch = _sql[_start];
+        const _digitStart = /[0-9]/.test(_ch);
+        const _decimalStart = _ch === "." && /[0-9]/.test(_sql[_start + 1] ?? "");
+        if (!_digitStart && !_decimalStart) return "";
+        if (_isWordCharacter(_sql[_start - 1] ?? "")) return "";
+        let _i = _start;
+        let _hasDot = false;
+        if (_sql[_i] === ".") { _hasDot = true; _i += 1; }
+        while (/[0-9]/.test(_sql[_i] ?? "")) _i += 1;
+        if (_sql[_i] === "." && !_hasDot) {
+          _hasDot = true;
+          _i += 1;
+          while (/[0-9]/.test(_sql[_i] ?? "")) _i += 1;
+        }
+        if (/[A-Za-z_$]/.test(_sql[_i] ?? "")) return "";
+        return _sql.slice(_start, _i);
+      };
+
+      const _readKeywordSegment = (_sql, _start) => {
+        const _prev = _sql[_start - 1] ?? "";
+        if (_isWordCharacter(_prev) || _prev === ":") return "";
+        const _slice = _sql.slice(_start);
+        const _initial = _slice[0]?.toUpperCase() ?? "";
+        if (!_initial || !/[A-Z]/.test(_initial)) return "";
+        const _candidates = SQL_HIGHLIGHT_KEYWORD_PATTERNS_BY_INITIAL[_initial] ?? [];
+        for (const _entry of _candidates) {
+          const _m = _slice.match(_entry._pattern);
+          if (!_m) continue;
+          const _text = _m[0];
+          if (_isWordCharacter(_slice[_text.length] ?? "")) continue;
+          return _text;
+        }
+        return "";
+      };
+
+      const _tokenizeSqlForHighlight = (_sql) => {
+        const _tokens = [];
+        let _buf = "";
+        let _i = 0;
+        const _flush = () => {
+          if (_buf) { _tokens.push({ _kind: "plain", _text: _buf }); _buf = ""; }
+        };
+        while (_i < _sql.length) {
+          const _seg = _readHighlightProtectedSegment(_sql, _i);
+          if (_seg?._text) { _flush(); _tokens.push(_seg); _i += _seg._text.length; continue; }
+          const _num = _readNumberSegment(_sql, _i);
+          if (_num) { _flush(); _tokens.push({ _kind: "number", _text: _num }); _i += _num.length; continue; }
+          const _kw = _readKeywordSegment(_sql, _i);
+          if (_kw) { _flush(); _tokens.push({ _kind: "keyword", _text: _kw }); _i += _kw.length; continue; }
+          _buf += _sql[_i];
+          _i += 1;
+        }
+        _flush();
+        return _tokens;
+      };
+
+      const _buildHighlightedSqlHtml = (_sql) =>
+        _tokenizeSqlForHighlight(_sql)
+          .map((_t) => {
+            const _esc = _escapeHtml(_t._text);
+            if (_t._kind === "plain") return _esc;
+            return `<span class="sql-token sql-token--${_t._kind}">${_esc}</span>`;
+          })
+          .join("");
+
+      const _syncInputHighlightScroll = () => {
+        if (!$rawHighlight) return;
+        $rawHighlight.scrollTop = $rawInput.scrollTop;
+        $rawHighlight.scrollLeft = $rawInput.scrollLeft;
+      };
+
+      const _syncInputHighlight = (_text) => {
+        if (!$rawHighlight) return;
+        $rawHighlight.innerHTML = _buildHighlightedSqlHtml(_text || " ");
+        _syncInputHighlightScroll();
+      };
+
+      const _renderOutputHighlight = (_sql) => {
+        if (!_sql) { $output.textContent = PLACEHOLDER_TEXT; return; }
+        $output.innerHTML = _buildHighlightedSqlHtml(_sql);
+      };
+
+      /* @insert: bindsql-part3 */
       /* @insert: bindsql-part3 */
 
       let _bindEvents;
