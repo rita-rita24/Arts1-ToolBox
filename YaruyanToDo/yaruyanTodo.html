@@ -3977,7 +3977,7 @@
       let _toastDismissHandler = null;
       let organizeMemoSaveTimerId = null;
       const _deleteUndoState = {
-        snapshot: null,
+        payload: null,
         version: 0
       };
       const _tooltipState = {
@@ -4189,6 +4189,61 @@
         return JSON.parse(JSON.stringify(list));
       }
 
+      function _isValidDeleteUndoPayload(payload) {
+        if (!payload || typeof payload !== 'object') return false;
+        const removedParents = Array.isArray(payload.removedParents) ? payload.removedParents : [];
+        const removedSubtasks = Array.isArray(payload.removedSubtasks) ? payload.removedSubtasks : [];
+        return removedParents.length > 0 || removedSubtasks.length > 0;
+      }
+
+      function _applyDeleteUndoPayload(payload) {
+        if (!_isValidDeleteUndoPayload(payload)) return false;
+        let changed = false;
+        const touchedParentIds = new Set();
+
+        const removedParents = Array.isArray(payload.removedParents)
+          ? [...payload.removedParents].sort((a, b) => (a?.index ?? 0) - (b?.index ?? 0))
+          : [];
+
+        removedParents.forEach((entry) => {
+          const parentId = entry?.task?.id;
+          if (!parentId) return;
+          if (tasks.some(task => task.id === parentId)) return;
+          const insertIndex = Number.isInteger(entry.index)
+            ? Math.max(0, Math.min(entry.index, tasks.length))
+            : tasks.length;
+          tasks.splice(insertIndex, 0, _copyTaskSnapshot(entry.task));
+          changed = true;
+        });
+
+        const removedSubtasks = Array.isArray(payload.removedSubtasks)
+          ? [...payload.removedSubtasks].sort((a, b) => (a?.index ?? 0) - (b?.index ?? 0))
+          : [];
+
+        removedSubtasks.forEach((entry) => {
+          const parentId = entry?.parentId;
+          const subtaskId = entry?.subtask?.id;
+          if (!parentId || !subtaskId) return;
+          const parent = getTask(parentId);
+          if (!parent) return;
+          if (!Array.isArray(parent.subtasks)) parent.subtasks = [];
+          if (parent.subtasks.some(sub => sub.id === subtaskId)) return;
+          const insertIndex = Number.isInteger(entry.index)
+            ? Math.max(0, Math.min(entry.index, parent.subtasks.length))
+            : parent.subtasks.length;
+          parent.subtasks.splice(insertIndex, 0, _copyTaskSnapshot(entry.subtask));
+          touchedParentIds.add(parentId);
+          changed = true;
+        });
+
+        touchedParentIds.forEach((parentId) => {
+          const parent = getTask(parentId);
+          if (parent) syncParentStatus(parent);
+        });
+
+        return changed;
+      }
+
       function _runToastDismissHandler() {
         if (typeof _toastDismissHandler !== 'function') {
           _toastDismissHandler = null;
@@ -4291,9 +4346,9 @@
         showToast(message, { type: 'error', icon: 'error', durationMs: 2200 });
       }
 
-      function _registerDeleteUndoToast(message, snapshot) {
-        if (!Array.isArray(snapshot)) return;
-        _deleteUndoState.snapshot = _copyTaskSnapshot(snapshot);
+      function _registerDeleteUndoToast(message, payload) {
+        if (!_isValidDeleteUndoPayload(payload)) return;
+        _deleteUndoState.payload = _copyTaskSnapshot(payload);
         _deleteUndoState.version += 1;
         const undoVersion = _deleteUndoState.version;
 
@@ -4304,16 +4359,15 @@
           actionLabel: '元に戻す',
           onAction: () => {
             if (undoVersion !== _deleteUndoState.version) return;
-            if (!Array.isArray(_deleteUndoState.snapshot)) return;
-            tasks = _copyTaskSnapshot(_deleteUndoState.snapshot);
-            _deleteUndoState.snapshot = null;
+            if (!_applyDeleteUndoPayload(_deleteUndoState.payload)) return;
+            _deleteUndoState.payload = null;
             save();
             render();
             showToast('削除を元に戻しました', { type: 'success', icon: 'undo' });
           },
           onDismiss: () => {
             if (undoVersion !== _deleteUndoState.version) return;
-            _deleteUndoState.snapshot = null;
+            _deleteUndoState.payload = null;
           }
         });
       }
@@ -7088,32 +7142,108 @@
       /* ============================================
          Delete / Clear Actions
       ============================================ */
+      function _createParentDeleteUndoPayload(parentId) {
+        const parentIndex = tasks.findIndex(task => task.id === parentId);
+        if (parentIndex < 0) return null;
+        return {
+          removedParents: [{
+            index: parentIndex,
+            task: _copyTaskSnapshot(tasks[parentIndex])
+          }],
+          removedSubtasks: []
+        };
+      }
+
+      function _createSubtaskDeleteUndoPayload(parentId, subId) {
+        const parent = getTask(parentId);
+        if (!parent) return null;
+        const subtaskIndex = parent.subtasks.findIndex(sub => sub.id === subId);
+        if (subtaskIndex < 0) return null;
+        return {
+          removedParents: [],
+          removedSubtasks: [{
+            parentId,
+            index: subtaskIndex,
+            subtask: _copyTaskSnapshot(parent.subtasks[subtaskIndex])
+          }]
+        };
+      }
+
+      function _createClearCompletedUndoPayload() {
+        const payload = {
+          removedParents: [],
+          removedSubtasks: []
+        };
+
+        tasks.forEach((task, parentIndex) => {
+          if (hasSubtasks(task)) {
+            const completedSubtasks = [];
+            task.subtasks.forEach((sub, subtaskIndex) => {
+              if (!sub.done) return;
+              completedSubtasks.push({
+                parentId: task.id,
+                index: subtaskIndex,
+                subtask: _copyTaskSnapshot(sub)
+              });
+            });
+            if (completedSubtasks.length === 0) return;
+            if (completedSubtasks.length === task.subtasks.length) {
+              payload.removedParents.push({
+                index: parentIndex,
+                task: _copyTaskSnapshot(task)
+              });
+              return;
+            }
+            payload.removedSubtasks.push(...completedSubtasks);
+            return;
+          }
+
+          if (!task.done) return;
+          payload.removedParents.push({
+            index: parentIndex,
+            task: _copyTaskSnapshot(task)
+          });
+        });
+
+        return _isValidDeleteUndoPayload(payload) ? payload : null;
+      }
+
+      function _createClearAllUndoPayload() {
+        if (tasks.length <= 0) return null;
+        return {
+          removedParents: tasks.map((task, index) => ({
+            index,
+            task: _copyTaskSnapshot(task)
+          })),
+          removedSubtasks: []
+        };
+      }
+
       function performDeleteParent(parentId, buttonEl) {
-        const snapshotBeforeDelete = _copyTaskSnapshot(tasks);
         const li = buttonEl?.closest('.task-item') || document.querySelector(`.task-item[data-id="${parentId}"]`);
         if (li) li.classList.add('removing');
 
         playDeleteSound();
 
         setTimeout(() => {
+          const undoPayload = _createParentDeleteUndoPayload(parentId);
           const previousTaskCount = tasks.length;
           tasks = tasks.filter(task => task.id !== parentId);
           if (tasks.length === previousTaskCount) return;
           save();
           render();
-          _registerDeleteUndoToast('タスクを削除しました', snapshotBeforeDelete);
+          _registerDeleteUndoToast('タスクを削除しました', undoPayload);
         }, li ? 220 : 0);
       }
 
       function performDeleteSubtask(parentId, subId, buttonEl) {
-        const snapshotBeforeDelete = _copyTaskSnapshot(tasks);
-
         const li = buttonEl?.closest('.subtask-item');
         if (li) li.classList.add('removing');
 
         playDeleteSound();
 
         setTimeout(() => {
+          const undoPayload = _createSubtaskDeleteUndoPayload(parentId, subId);
           const parent = getTask(parentId);
           if (!parent) return;
           const previousSubtaskCount = parent.subtasks.length;
@@ -7122,7 +7252,7 @@
           syncParentStatus(parent);
           save();
           render();
-          _registerDeleteUndoToast('子タスクを削除しました', snapshotBeforeDelete);
+          _registerDeleteUndoToast('子タスクを削除しました', undoPayload);
 
           if (modalState.parentId === parentId) {
             renderParentModalSubtasks(parent);
@@ -7133,7 +7263,7 @@
       function performClearCompleted() {
         const completedCount = getProgressStats().completed;
         if (completedCount <= 0) return;
-        const snapshotBeforeDelete = _copyTaskSnapshot(tasks);
+        const undoPayload = _createClearCompletedUndoPayload();
         const nextTasks = [];
 
         tasks.forEach(task => {
@@ -7154,16 +7284,16 @@
         tasks = nextTasks;
         save();
         render();
-        _registerDeleteUndoToast(`完了済み${completedCount}件を削除しました`, snapshotBeforeDelete);
+        _registerDeleteUndoToast(`完了済み${completedCount}件を削除しました`, undoPayload);
       }
 
       function performClearAll() {
         if (tasks.length === 0) return;
-        const snapshotBeforeDelete = _copyTaskSnapshot(tasks);
+        const undoPayload = _createClearAllUndoPayload();
         tasks = [];
         save();
         render();
-        _registerDeleteUndoToast('すべてのタスクを削除しました', snapshotBeforeDelete);
+        _registerDeleteUndoToast('すべてのタスクを削除しました', undoPayload);
       }
 
       /* ============================================
