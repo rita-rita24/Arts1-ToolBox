@@ -1186,6 +1186,7 @@ function saveState() {
       console.warn('restore after save failure failed', restoreErr);
     }
     showToast('保存に失敗しました。直前の保存済み状態に戻しました', null, 3500);
+    renderAll();
     return false;
   }
 }
@@ -1265,8 +1266,6 @@ function renderAll() {
     boardEl.appendChild(renderList(list, board));
   }
   boardEl.appendChild(renderAddList());
-
-  saveState();
 }
 
 function renderList(list, board) {
