@@ -6664,7 +6664,6 @@
           if (!parent || hasSubtasks(parent)) return;
           parent.done = false;
           parent.focus.focusState = 'idle';
-          parent.focus.elapsedMs = 0;
           parent.focus.startedAt = null;
           save();
           render();
@@ -6678,7 +6677,6 @@
 
           sub.done = false;
           sub.focus.focusState = 'idle';
-          sub.focus.elapsedMs = 0;
           sub.focus.startedAt = null;
           syncParentStatus(parent);
           save();
