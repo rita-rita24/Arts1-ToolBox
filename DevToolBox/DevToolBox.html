@@ -1,0 +1,3381 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DevToolBox — ハイパーアルティメットスーパーウルトラ便利devtool</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%234f46e5'/%3E%3Cpath d='M22 18l-8 14 8 14M42 18l8 14-8 14M36 14l-8 36' stroke='%23eef2ff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,500,0,0&display=swap" rel="stylesheet">
+  <style>
+    @layer reset, base, component, utility;
+
+    @layer reset {
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html,
+      body,
+      h1,
+      h2,
+      h3,
+      p,
+      pre,
+      ul,
+      li,
+      figure,
+      blockquote,
+      textarea,
+      button,
+      input {
+        margin: 0;
+      }
+
+      ul {
+        padding: 0;
+        list-style: none;
+      }
+
+      button,
+      textarea,
+      input,
+      select {
+        font: inherit;
+        color: inherit;
+      }
+
+      button {
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+      }
+
+      a {
+        color: inherit;
+      }
+    }
+
+    @layer base {
+      :root {
+        --sidebar-w: 248px;
+        --sidebar-w-collapsed: 64px;
+        --topbar-h: 56px;
+        --radius-sm: 6px;
+        --radius-md: 10px;
+        --radius-lg: 14px;
+        --space-1: 4px;
+        --space-2: 8px;
+        --space-3: 12px;
+        --space-4: 16px;
+        --space-5: 20px;
+        --space-6: 24px;
+        --space-7: 32px;
+        --space-8: 40px;
+        --font-sans: "Inter", "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        --font-mono: "SFMono-Regular", "Monaco", "Menlo", "Consolas", "Liberation Mono", monospace;
+        --transition-fast: 120ms ease;
+        --transition: 180ms ease;
+        --mode-switch-track: oklch(0.32 0.02 252);
+        --mode-switch-track-active: oklch(0.46 0.07 233);
+        --mode-switch-moon: oklch(0.95 0.01 245);
+        --mode-switch-sun: oklch(0.86 0.12 90);
+        --mode-switch-star: oklch(0.96 0.01 245);
+        --mode-switch-cloud: oklch(0.99 0.003 245);
+      }
+
+      :root[data-theme="light"] {
+        --bg: oklch(0.98 0.005 250);
+        --bg-elevated: oklch(1 0 0);
+        --surface: oklch(1 0 0);
+        --surface-soft: oklch(0.965 0.005 250);
+        --surface-strong: oklch(0.94 0.008 250);
+        --border: oklch(0.88 0.01 250);
+        --border-strong: oklch(0.78 0.015 250);
+        --text: oklch(0.22 0.02 255);
+        --text-muted: oklch(0.5 0.015 255);
+        --text-subtle: oklch(0.65 0.01 255);
+        --accent: oklch(0.58 0.18 258);
+        --accent-strong: oklch(0.48 0.19 258);
+        --accent-soft: oklch(0.92 0.05 258);
+        --accent-fg: oklch(0.99 0.01 250);
+        --success: oklch(0.66 0.16 150);
+        --warning: oklch(0.75 0.15 70);
+        --danger: oklch(0.62 0.2 25);
+        --focus-ring: oklch(0.58 0.18 258 / 0.36);
+        --shadow-sm: 0 1px 2px oklch(0.2 0.02 250 / 0.08);
+        --shadow-md: 0 8px 24px oklch(0.2 0.02 250 / 0.12);
+        --shadow-lg: 0 20px 48px oklch(0.2 0.02 250 / 0.18);
+        --sql-keyword: oklch(0.53 0.2 260);
+        --sql-string: oklch(0.6 0.18 56);
+        --sql-number: oklch(0.55 0.16 152);
+        --sql-comment: oklch(0.55 0.03 250);
+        color-scheme: light;
+      }
+
+      :root[data-theme="dark"] {
+        --bg: oklch(0.17 0.01 260);
+        --bg-elevated: oklch(0.21 0.012 260);
+        --surface: oklch(0.235 0.012 260);
+        --surface-soft: oklch(0.27 0.013 260);
+        --surface-strong: oklch(0.31 0.013 260);
+        --border: oklch(0.34 0.012 260);
+        --border-strong: oklch(0.42 0.015 260);
+        --text: oklch(0.96 0.008 260);
+        --text-muted: oklch(0.74 0.015 260);
+        --text-subtle: oklch(0.6 0.012 260);
+        --accent: oklch(0.74 0.16 258);
+        --accent-strong: oklch(0.82 0.16 258);
+        --accent-soft: oklch(0.32 0.08 258);
+        --accent-fg: oklch(0.18 0.02 250);
+        --success: oklch(0.78 0.17 150);
+        --warning: oklch(0.82 0.16 80);
+        --danger: oklch(0.74 0.18 25);
+        --focus-ring: oklch(0.74 0.16 258 / 0.4);
+        --shadow-sm: 0 1px 2px oklch(0.05 0.01 260 / 0.5);
+        --shadow-md: 0 10px 30px oklch(0.05 0.01 260 / 0.55);
+        --shadow-lg: 0 22px 56px oklch(0.05 0.01 260 / 0.6);
+        --sql-keyword: oklch(0.78 0.16 261);
+        --sql-string: oklch(0.82 0.15 62);
+        --sql-number: oklch(0.8 0.15 152);
+        --sql-comment: oklch(0.7 0.03 250);
+        color-scheme: dark;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        font-family: var(--font-sans);
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        overflow: hidden;
+      }
+
+      .material-symbols-rounded {
+        font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 20;
+        font-size: 20px;
+        line-height: 1;
+        user-select: none;
+        flex-shrink: 0;
+      }
+    }
+
+    @layer component {
+      .app {
+        display: grid;
+        grid-template-columns: var(--sidebar-w) 1fr;
+        height: 100dvh;
+        background: var(--bg);
+
+        &[data-sidebar-collapsed="true"] {
+          grid-template-columns: var(--sidebar-w-collapsed) 1fr;
+        }
+      }
+
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid var(--border);
+        background: var(--bg-elevated);
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .sidebar__brand {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        padding: var(--space-5) var(--space-4);
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        color: var(--text);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .sidebar__brand-icon {
+        color: var(--accent);
+      }
+
+      .sidebar__brand-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .sidebar__nav {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: var(--space-3) var(--space-2);
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        width: 100%;
+        padding: 10px var(--space-3);
+        border-radius: var(--radius-md);
+        color: var(--text-muted);
+        text-align: left;
+        transition: background-color var(--transition-fast), color var(--transition-fast);
+        white-space: nowrap;
+        overflow: hidden;
+
+        &:hover {
+          background: var(--surface-soft);
+          color: var(--text);
+        }
+
+        &:focus-visible {
+          outline: 2px solid var(--focus-ring);
+          outline-offset: 2px;
+        }
+
+        &[aria-selected="true"] {
+          background: var(--accent-soft);
+          color: var(--accent-strong);
+
+          & .nav-item__icon {
+            color: var(--accent);
+          }
+        }
+      }
+
+      .nav-item__icon {
+        color: var(--text-subtle);
+        flex-shrink: 0;
+      }
+
+      .nav-item__label {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        flex: 1;
+      }
+
+      .nav-item__name {
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .nav-item__desc {
+        font-size: 11px;
+        color: var(--text-subtle);
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .sidebar__toggle {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        padding: var(--space-3) var(--space-4);
+        color: var(--text-muted);
+        border-top: 1px solid var(--border);
+        font-size: 12px;
+        font-weight: 600;
+
+        &:hover {
+          background: var(--surface-soft);
+          color: var(--text);
+        }
+      }
+
+      .sidebar__toggle-label {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .app[data-sidebar-collapsed="true"] {
+        & .sidebar__brand-name,
+        & .nav-item__label,
+        & .sidebar__toggle-label {
+          display: none;
+        }
+
+        & .sidebar__brand,
+        & .nav-item,
+        & .sidebar__toggle {
+          justify-content: center;
+        }
+
+        & .sidebar__toggle .material-symbols-rounded {
+          transform: rotate(180deg);
+        }
+      }
+
+      .sidebar-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: oklch(0 0 0 / 0.45);
+        z-index: 30;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-rows: var(--topbar-h) 1fr;
+        min-width: 0;
+        background: var(--bg);
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        padding: 0 var(--space-5);
+        border-bottom: 1px solid var(--border);
+        background: var(--bg-elevated);
+      }
+
+      .topbar__menu {
+        display: none;
+      }
+
+      .topbar__title-wrap {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        flex: 1;
+      }
+
+      .topbar__eyebrow {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-subtle);
+      }
+
+      .topbar__title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text);
+        line-height: 1.2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .topbar__actions {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+      }
+
+      .pane-host {
+        position: relative;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .welcome,
+      .tool-pane {
+        display: none;
+        height: 100%;
+        min-height: 0;
+        overflow: auto;
+      }
+
+      .app[data-active-tool="welcome"] .welcome,
+      .app[data-active-tool="textchanger"] .tool-pane[data-tool-pane="textchanger"],
+      .app[data-active-tool="bindsql"] .tool-pane[data-tool-pane="bindsql"],
+      .app[data-active-tool="maskinger"] .tool-pane[data-tool-pane="maskinger"] {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .welcome {
+        padding: var(--space-7) var(--space-6);
+        gap: var(--space-7);
+      }
+
+      .welcome__hero {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+        max-width: 720px;
+      }
+
+      .welcome__title {
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .welcome__subtitle {
+        font-size: 15px;
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+
+      .welcome__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: var(--space-4);
+        max-width: 1100px;
+      }
+
+      .tool-pane[data-tool-pane="textchanger"] {
+        padding: var(--space-5);
+        gap: var(--space-4);
+      }
+
+      .tc-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+        gap: var(--space-4);
+        flex: 1;
+        min-height: 0;
+      }
+
+      .tc-grid__output {
+        display: grid;
+        grid-template-rows: repeat(5, minmax(0, 1fr));
+        gap: var(--space-3);
+        min-height: 0;
+      }
+
+      .tc-output-card {
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-elevated);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .tc-output-card__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        padding: var(--space-2) var(--space-3);
+        border-bottom: 1px solid var(--border);
+        background: var(--surface-soft);
+        flex-wrap: wrap;
+      }
+
+      .tc-output-card__title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .tc-output-card__actions {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        flex-shrink: 0;
+      }
+
+      .tc-output-card__textarea {
+        flex: 1;
+        min-height: 0;
+        border: 0;
+        border-radius: 0;
+        padding: var(--space-2) var(--space-3);
+        background: var(--bg-elevated);
+        font-size: 12px;
+        line-height: 1.5;
+
+        &:focus-visible {
+          box-shadow: inset 0 0 0 2px var(--focus-ring);
+        }
+      }
+
+      .tc-pg-table {
+        width: clamp(180px, 24vw, 280px);
+      }
+
+      .tc-num-offset {
+        width: 96px;
+        text-align: right;
+      }
+
+      @media (max-width: 980px) {
+        .tc-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .tc-grid__output {
+          grid-template-rows: none;
+          grid-template-columns: 1fr;
+        }
+
+        .tc-output-card {
+          min-height: 180px;
+        }
+      }
+
+      .tool-pane[data-tool-pane="bindsql"] {
+        padding: var(--space-5);
+        gap: var(--space-4);
+      }
+
+      .bs-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: var(--space-4);
+        flex: 1;
+        min-height: 0;
+      }
+
+      @media (max-width: 980px) {
+        .bs-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .bs-editor {
+        position: relative;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .bs-editor__highlight {
+        position: absolute;
+        inset: 0;
+        margin: 0;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--surface-soft);
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: 13px;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow: auto;
+        pointer-events: none;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+          width: 0;
+          height: 0;
+        }
+      }
+
+      .bs-editor__textarea {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        background: transparent !important;
+        color: transparent;
+        caret-color: var(--text);
+        -webkit-text-fill-color: transparent;
+        border-color: transparent;
+        resize: none;
+
+        &::selection {
+          background: var(--focus-ring);
+        }
+      }
+
+      .bs-output {
+        flex: 1;
+        min-height: 0;
+        margin: 0;
+        padding: 12px 14px;
+        background: var(--surface-soft);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: 13px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow: auto;
+      }
+
+      .sql-token { font-weight: 600; }
+      .sql-token--keyword { color: var(--sql-keyword); }
+      .sql-token--string  { color: var(--sql-string); }
+      .sql-token--number  { color: var(--sql-number); }
+      .sql-token--comment { color: var(--sql-comment); font-style: italic; font-weight: 500; }
+
+      .tool-pane[data-tool-pane="maskinger"] {
+        padding: var(--space-5);
+        gap: var(--space-4);
+      }
+
+      .mk-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: var(--space-4);
+        flex: 1;
+        min-height: 0;
+      }
+
+      .mk-grid__right {
+        display: grid;
+        grid-template-rows: minmax(0, 1.4fr) minmax(0, 1fr);
+        gap: var(--space-4);
+        min-height: 0;
+      }
+
+      @media (max-width: 980px) {
+        .mk-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .mk-output {
+        flex: 1;
+        min-height: 0;
+        margin: 0;
+        padding: 12px 14px;
+        background: var(--surface-soft);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: 13px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow: auto;
+      }
+
+      .mk-mapping {
+        flex: 1;
+        min-height: 0;
+        margin: 0;
+        padding: 10px 14px 10px 28px;
+        background: var(--surface-soft);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        line-height: 1.6;
+        list-style: disc;
+        overflow: auto;
+      }
+
+      .mk-mapping__empty {
+        list-style: none;
+        margin-left: -16px;
+        color: var(--text-subtle);
+        font-style: italic;
+      }
+
+      .welcome__card {
+        display: flex;
+        gap: var(--space-3);
+        padding: var(--space-5);
+        background: var(--bg-elevated);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        text-align: left;
+        transition: border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+
+        &:hover {
+          border-color: var(--accent);
+          box-shadow: var(--shadow-md);
+          transform: translateY(-2px);
+        }
+
+        &:focus-visible {
+          outline: 2px solid var(--focus-ring);
+          outline-offset: 2px;
+        }
+
+        & .welcome__card-icon {
+          color: var(--accent);
+          font-size: 32px;
+          font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 32;
+        }
+
+        & .welcome__card-body {
+          display: flex;
+          flex-direction: column;
+          gap: var(--space-1);
+        }
+
+        & .welcome__card-name {
+          font-size: 16px;
+          font-weight: 700;
+          color: var(--text);
+        }
+
+        & .welcome__card-desc {
+          font-size: 13px;
+          color: var(--text-muted);
+          line-height: 1.5;
+        }
+      }
+    }
+
+    @layer component {
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+        padding: 8px 14px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.2;
+        transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+        white-space: nowrap;
+
+        &:hover {
+          background: var(--surface-soft);
+          border-color: var(--border-strong);
+        }
+
+        &:active {
+          transform: translateY(1px);
+        }
+
+        &:focus-visible {
+          outline: 2px solid var(--focus-ring);
+          outline-offset: 2px;
+        }
+
+        &.is-success {
+          background: var(--success);
+          border-color: var(--success);
+          color: var(--accent-fg);
+        }
+      }
+
+      .button--primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--accent-fg);
+
+        &:hover {
+          background: var(--accent-strong);
+          border-color: var(--accent-strong);
+        }
+      }
+
+      .button--ghost {
+        background: transparent;
+        border-color: var(--border);
+        color: var(--text-muted);
+
+        &:hover {
+          background: var(--surface-soft);
+          color: var(--text);
+        }
+      }
+
+      .button__icon {
+        font-family: "Material Symbols Rounded";
+        font-weight: normal;
+        font-style: normal;
+        font-size: 18px;
+        line-height: 1;
+        font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 20;
+        user-select: none;
+      }
+
+      .icon-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-md);
+        color: var(--text-muted);
+        transition: background-color var(--transition-fast), color var(--transition-fast);
+
+        &:hover {
+          background: var(--surface-soft);
+          color: var(--text);
+        }
+
+        &:focus-visible {
+          outline: 2px solid var(--focus-ring);
+          outline-offset: 2px;
+        }
+      }
+
+      .card {
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-elevated);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        min-height: 0;
+        min-width: 0;
+      }
+
+      .card__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        padding: var(--space-3) var(--space-4);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .card__title-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+      }
+
+      .card__eyebrow {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-subtle);
+      }
+
+      .card__title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text);
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .card__actions {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        flex-shrink: 0;
+      }
+
+      .card__body {
+        flex: 1;
+        min-height: 0;
+        padding: var(--space-3) var(--space-4) var(--space-4);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+        min-height: 0;
+        flex: 1;
+      }
+
+      .field__label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+      }
+
+      .input,
+      .textarea {
+        width: 100%;
+        padding: 10px 12px;
+        background: var(--surface-soft);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: 13px;
+        line-height: 1.55;
+        outline: none;
+        transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+
+        &::placeholder {
+          color: var(--text-subtle);
+        }
+
+        &:focus-visible {
+          border-color: var(--accent);
+          box-shadow: 0 0 0 3px var(--focus-ring);
+        }
+      }
+
+      .textarea {
+        resize: none;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .input--compact {
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+
+      .flash {
+        position: fixed;
+        top: 16px;
+        left: 50%;
+        z-index: 60;
+        max-width: min(92vw, 560px);
+        padding: 10px 14px;
+        background: var(--bg-elevated);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 600;
+        text-align: center;
+        box-shadow: var(--shadow-md);
+        opacity: 0;
+        transform: translate(-50%, -10px);
+        pointer-events: none;
+        transition: opacity var(--transition), transform var(--transition);
+
+        &.is-visible {
+          opacity: 1;
+          transform: translate(-50%, 0);
+        }
+
+        &[data-type="error"] {
+          border-color: var(--danger);
+          color: var(--danger);
+        }
+
+        &[data-type="success"] {
+          border-color: var(--success);
+          color: var(--success);
+        }
+      }
+
+      .modal {
+        position: fixed;
+        inset: 0;
+        z-index: 70;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-4);
+        background: oklch(0 0 0 / 0.5);
+
+        &[data-open="true"] {
+          display: flex;
+        }
+      }
+
+      .modal__dialog {
+        width: 100%;
+        max-width: 640px;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-elevated);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+      }
+
+      .modal__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        padding: var(--space-4) var(--space-5);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .modal__title {
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .modal__body {
+        padding: var(--space-4) var(--space-5);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+        font-size: 13px;
+        line-height: 1.7;
+        color: var(--text);
+
+        & p {
+          color: var(--text-muted);
+        }
+
+        & h3 {
+          font-size: 11px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: var(--text-subtle);
+        }
+
+        & ul {
+          padding-left: var(--space-5);
+          list-style: disc;
+          color: var(--text-muted);
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+      }
+    }
+
+    @layer component {
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 4em;
+        height: 2.2em;
+        border-radius: 30px;
+        font-size: 13px;
+        flex-shrink: 0;
+
+        & input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background-color: var(--mode-switch-track);
+        transition: background-color 0.4s;
+        border-radius: 30px;
+        overflow: hidden;
+
+        &::before {
+          position: absolute;
+          content: "";
+          height: 1.2em;
+          width: 1.2em;
+          border-radius: 20px;
+          left: 0.5em;
+          bottom: 0.5em;
+          transition: transform 0.4s, box-shadow 0.4s;
+          transition-timing-function: cubic-bezier(0.81, -0.04, 0.38, 1.5);
+          box-shadow: inset 8px -4px 0 0 var(--mode-switch-moon);
+        }
+      }
+
+      .switch input:checked + .slider {
+        background-color: var(--mode-switch-track-active);
+
+        &::before {
+          transform: translateX(1.8em);
+          box-shadow: inset 15px -4px 0 15px var(--mode-switch-sun);
+        }
+      }
+
+      .star {
+        background-color: var(--mode-switch-star);
+        border-radius: 50%;
+        position: absolute;
+        width: 5px;
+        height: 5px;
+        transition: opacity 0.4s;
+      }
+
+      .star_1 { left: 2.5em; top: 0.5em; }
+      .star_2 { left: 2.2em; top: 1.2em; }
+      .star_3 { left: 3em; top: 0.9em; }
+
+      .switch input:checked + .slider .star {
+        opacity: 0;
+      }
+
+      .cloud {
+        width: 3.5em;
+        position: absolute;
+        bottom: -1.4em;
+        left: -1.1em;
+        opacity: 0;
+        transition: opacity 0.4s;
+
+        & path {
+          fill: var(--mode-switch-cloud);
+        }
+      }
+
+      .switch input:checked + .slider .cloud {
+        opacity: 1;
+      }
+
+      .switch input:focus-visible + .slider {
+        outline: 2px solid var(--focus-ring);
+        outline-offset: 2px;
+      }
+    }
+
+    @layer utility {
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      .is-hidden {
+        display: none !important;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .app[data-sidebar-collapsed="true"] {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: var(--sidebar-w);
+        z-index: 40;
+        transform: translateX(-100%);
+        transition: transform var(--transition);
+      }
+
+      .app[data-sidebar-mobile="open"] .sidebar {
+        transform: translateX(0);
+      }
+
+      .app[data-sidebar-mobile="open"] .sidebar-backdrop {
+        display: block;
+      }
+
+      .sidebar__toggle {
+        display: none;
+      }
+
+      .topbar__menu {
+        display: inline-flex;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+
+  </style>
+</head>
+<body>
+  <div class="app" id="$app" data-active-tool="welcome" data-sidebar-collapsed="false">
+    <aside class="sidebar" id="$sidebar" aria-label="ツール一覧">
+      <div class="sidebar__brand">
+        <span class="material-symbols-rounded sidebar__brand-icon" aria-hidden="true">construction</span>
+        <span class="sidebar__brand-name">DevToolBox</span>
+      </div>
+      <nav class="sidebar__nav" id="$nav" role="tablist" aria-label="ツール選択"></nav>
+      <button type="button" class="sidebar__toggle" id="$sidebarToggle" aria-label="サイドバー折りたたみ" aria-pressed="false">
+        <span class="material-symbols-rounded" aria-hidden="true">chevron_left</span>
+        <span class="sidebar__toggle-label">折りたたむ</span>
+      </button>
+    </aside>
+    <button type="button" class="sidebar-backdrop" id="$sidebarBackdrop" aria-label="サイドバーを閉じる" tabindex="-1"></button>
+
+    <main class="workspace">
+      <header class="topbar">
+        <button type="button" class="icon-btn topbar__menu" id="$menuToggle" aria-label="メニュー">
+          <span class="material-symbols-rounded" aria-hidden="true">menu</span>
+        </button>
+        <div class="topbar__title-wrap">
+          <p class="topbar__eyebrow" id="$topbarEyebrow">Welcome</p>
+          <h1 class="topbar__title" id="$topbarTitle">DevToolBox</h1>
+        </div>
+        <div class="topbar__actions">
+          <a class="icon-btn topbar__external" id="$openStandalone" href="#" target="_blank" rel="noopener" hidden aria-label="単体版を新しいタブで開く">
+            <span class="material-symbols-rounded" aria-hidden="true">open_in_new</span>
+          </a>
+          <label class="switch" for="$themeToggle" title="テーマ切替">
+            <input id="$themeToggle" type="checkbox" role="switch" aria-label="ライト/ダークモード切り替え">
+            <span class="slider">
+              <span class="star star_1"></span>
+              <span class="star star_2"></span>
+              <span class="star star_3"></span>
+              <svg viewBox="0 0 16 16" class="cloud" aria-hidden="true">
+                <path transform="matrix(.77976 0 0 .78395-299.99-418.63)" fill="#fff" d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"></path>
+              </svg>
+            </span>
+          </label>
+        </div>
+      </header>
+
+      <div class="pane-host">
+        <section class="welcome" data-tool-pane="welcome" aria-label="ようこそ">
+          <div class="welcome__hero">
+            <h2 class="welcome__title">DevToolBox へようこそ</h2>
+            <p class="welcome__subtitle">開発まわりの小道具を、ひとつの場所に。サイドバーからツールを選ぶか、下のカードから始めてください。</p>
+          </div>
+          <ul class="welcome__grid" id="$welcomeGrid" role="list"></ul>
+        </section>
+
+        <section class="tool-pane" data-tool-pane="textchanger" aria-label="TextChanger">
+          <div class="tc-grid">
+            <article class="card">
+              <header class="card__header">
+                <div class="card__title-wrap">
+                  <p class="card__eyebrow">Input</p>
+                  <h2 class="card__title">入力（1行に1値）</h2>
+                </div>
+              </header>
+              <div class="card__body">
+                <div class="field">
+                  <label class="sr-only" for="tc-input">入力テキスト</label>
+                  <textarea id="tc-input" class="textarea" placeholder="ここに値を入力してください（1行に1つ）&#10;例：&#10;apple&#10;banana&#10;cherry" spellcheck="false"></textarea>
+                </div>
+              </div>
+            </article>
+
+            <div class="tc-grid__output">
+              <article class="tc-output-card" aria-labelledby="tc-out-a5m2-title">
+                <header class="tc-output-card__header">
+                  <h3 class="tc-output-card__title" id="tc-out-a5m2-title">A5M2 Caption 変換</h3>
+                  <div class="tc-output-card__actions">
+                    <button type="button" class="button button--ghost" data-tc-copy="#tc-out-a5m2" aria-label="A5M2の結果をコピー">
+                      <span class="button__icon" aria-hidden="true">content_copy</span>
+                      <span data-tc-label>コピー</span>
+                    </button>
+                  </div>
+                </header>
+                <textarea id="tc-out-a5m2" class="textarea tc-output-card__textarea" readonly aria-label="A5M2 Caption 変換結果" placeholder="変換結果がここに表示されます"></textarea>
+              </article>
+
+              <article class="tc-output-card" aria-labelledby="tc-out-tsv-title">
+                <header class="tc-output-card__header">
+                  <h3 class="tc-output-card__title" id="tc-out-tsv-title">タブ区切り（Excel向け）</h3>
+                  <div class="tc-output-card__actions">
+                    <button type="button" class="button button--ghost" data-tc-copy="#tc-out-tsv" aria-label="TSVの結果をコピー">
+                      <span class="button__icon" aria-hidden="true">content_copy</span>
+                      <span data-tc-label>コピー</span>
+                    </button>
+                  </div>
+                </header>
+                <textarea id="tc-out-tsv" class="textarea tc-output-card__textarea" readonly aria-label="タブ区切り変換結果" placeholder="変換結果がここに表示されます"></textarea>
+              </article>
+
+              <article class="tc-output-card" aria-labelledby="tc-out-sqlin-title">
+                <header class="tc-output-card__header">
+                  <h3 class="tc-output-card__title" id="tc-out-sqlin-title">SQL IN 句</h3>
+                  <div class="tc-output-card__actions">
+                    <button type="button" class="button button--ghost" data-tc-copy="#tc-out-sqlin" aria-label="SQL IN句の結果をコピー">
+                      <span class="button__icon" aria-hidden="true">content_copy</span>
+                      <span data-tc-label>コピー</span>
+                    </button>
+                  </div>
+                </header>
+                <textarea id="tc-out-sqlin" class="textarea tc-output-card__textarea" readonly aria-label="SQL IN句変換結果" placeholder="変換結果がここに表示されます"></textarea>
+              </article>
+
+              <article class="tc-output-card" aria-labelledby="tc-out-pg-title">
+                <header class="tc-output-card__header">
+                  <h3 class="tc-output-card__title" id="tc-out-pg-title">PostgreSQL SELECT + INSERT + DELETE</h3>
+                  <div class="tc-output-card__actions">
+                    <label class="sr-only" for="tc-pg-table">テーブル名</label>
+                    <input id="tc-pg-table" type="text" class="input input--compact tc-pg-table" placeholder="テーブル名" aria-label="PostgreSQL テーブル名" autocomplete="off" spellcheck="false">
+                    <button type="button" class="button button--ghost" data-tc-copy="#tc-out-pg" aria-label="PostgreSQL文の結果をコピー">
+                      <span class="button__icon" aria-hidden="true">content_copy</span>
+                      <span data-tc-label>コピー</span>
+                    </button>
+                  </div>
+                </header>
+                <textarea id="tc-out-pg" class="textarea tc-output-card__textarea" readonly aria-label="PostgreSQL SELECT/INSERT/DELETE 変換結果" placeholder="1行目にヘッダー、2行目以降にタブ区切りデータを貼ると SELECT + INSERT + DELETE を生成します"></textarea>
+              </article>
+
+              <article class="tc-output-card" aria-labelledby="tc-out-num-title">
+                <header class="tc-output-card__header">
+                  <h3 class="tc-output-card__title" id="tc-out-num-title">連番調整</h3>
+                  <div class="tc-output-card__actions">
+                    <label class="sr-only" for="tc-num-offset">増減値</label>
+                    <input id="tc-num-offset" type="number" step="1" class="input input--compact tc-num-offset" placeholder="例: 1" aria-label="連番の増減値" autocomplete="off">
+                    <button type="button" class="button button--ghost" data-tc-copy="#tc-out-num" aria-label="連番調整の結果をコピー">
+                      <span class="button__icon" aria-hidden="true">content_copy</span>
+                      <span data-tc-label>コピー</span>
+                    </button>
+                  </div>
+                </header>
+                <textarea id="tc-out-num" class="textarea tc-output-card__textarea" readonly aria-label="連番調整結果" placeholder="入力テキスト中の数値を増減値ぶん加減算した結果を表示します"></textarea>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="tool-pane" data-tool-pane="bindsql" aria-label="BindSQL">
+          <div class="bs-grid">
+            <article class="card">
+              <header class="card__header">
+                <div class="card__title-wrap">
+                  <p class="card__eyebrow">Input</p>
+                  <h2 class="card__title">SQL + バインド変数</h2>
+                </div>
+                <div class="card__actions">
+                  <button type="button" class="button button--ghost" data-bs-action="clear">
+                    <span class="button__icon" aria-hidden="true">backspace</span>
+                    <span>クリア</span>
+                  </button>
+                </div>
+              </header>
+              <div class="card__body">
+                <div class="field">
+                  <label class="field__label" for="bs-input">貼り付け欄</label>
+                  <div class="bs-editor">
+                    <pre class="bs-editor__highlight" id="bs-input-highlight" data-role="bs-highlight" aria-hidden="true"></pre>
+                    <textarea id="bs-input" class="textarea bs-editor__textarea" data-role="bs-input" spellcheck="false" placeholder="SELECT * FROM users WHERE id = :id&#10;:id = 4529"></textarea>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="card">
+              <header class="card__header">
+                <div class="card__title-wrap">
+                  <p class="card__eyebrow">Output</p>
+                  <h2 class="card__title">実行可能 SQL</h2>
+                </div>
+                <div class="card__actions">
+                  <button type="button" class="button button--primary" data-bs-action="copy" id="bs-copy">
+                    <span class="button__icon" aria-hidden="true">content_copy</span>
+                    <span data-bs-copy-label>コピー</span>
+                  </button>
+                </div>
+              </header>
+              <div class="card__body">
+                <div class="field">
+                  <span class="field__label">出力欄</span>
+                  <pre class="bs-output" id="bs-output" data-role="bs-output">-- ここに変換後SQLが表示されます --</pre>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="tool-pane" data-tool-pane="maskinger" aria-label="Maskinger">
+          <div class="mk-grid">
+            <article class="card">
+              <header class="card__header">
+                <div class="card__title-wrap">
+                  <p class="card__eyebrow">Input</p>
+                  <h2 class="card__title">マスキング対象テキスト</h2>
+                </div>
+                <div class="card__actions">
+                  <button type="button" class="button button--ghost" data-mk-action="help" aria-label="ヘルプを開く">
+                    <span class="button__icon" aria-hidden="true">help</span>
+                    <span>ヘルプ</span>
+                  </button>
+                  <button type="button" class="button button--ghost" data-mk-action="clear">
+                    <span class="button__icon" aria-hidden="true">backspace</span>
+                    <span>クリア</span>
+                  </button>
+                </div>
+              </header>
+              <div class="card__body">
+                <div class="field">
+                  <label class="sr-only" for="mk-input">入力テキスト</label>
+                  <textarea id="mk-input" class="textarea" spellcheck="false" placeholder="ここにテキストやコードを貼り付けてください。&#10;メール、トークン、IPアドレス、関数名、SQL文字列などを自動でマスクします。"></textarea>
+                </div>
+              </div>
+            </article>
+
+            <div class="mk-grid__right">
+              <article class="card">
+                <header class="card__header">
+                  <div class="card__title-wrap">
+                    <p class="card__eyebrow">Output</p>
+                    <h2 class="card__title">マスク済みテキスト</h2>
+                  </div>
+                  <div class="card__actions">
+                    <button type="button" class="button button--primary" data-mk-action="copy">
+                      <span class="button__icon" aria-hidden="true">content_copy</span>
+                      <span data-mk-copy-label>コピー</span>
+                    </button>
+                  </div>
+                </header>
+                <div class="card__body">
+                  <pre class="mk-output" id="mk-output"></pre>
+                </div>
+              </article>
+
+              <article class="card">
+                <header class="card__header">
+                  <div class="card__title-wrap">
+                    <p class="card__eyebrow">Mapping</p>
+                    <h2 class="card__title">マスク対応一覧</h2>
+                  </div>
+                  <div class="card__actions">
+                    <button type="button" class="button button--ghost" data-mk-action="copy-mapping">
+                      <span class="button__icon" aria-hidden="true">content_copy</span>
+                      <span data-mk-copy-label>コピー</span>
+                    </button>
+                  </div>
+                </header>
+                <div class="card__body">
+                  <ul class="mk-mapping" id="mk-mapping" aria-label="マスク対応一覧"></ul>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <p class="flash" id="$flash" data-role="flash" aria-live="assertive" role="status"></p>
+
+  <div class="modal" id="mk-help-modal" role="dialog" aria-modal="true" aria-labelledby="mk-help-title" aria-hidden="true">
+    <section class="modal__dialog">
+      <header class="modal__header">
+        <h2 class="modal__title" id="mk-help-title">Maskinger ヘルプ</h2>
+        <button type="button" class="button button--ghost" data-mk-action="close-help" aria-label="閉じる">
+          <span class="button__icon" aria-hidden="true">close</span>
+          <span>閉じる</span>
+        </button>
+      </header>
+      <div class="modal__body">
+        <p>Maskinger は、AI送信前のテキストをブラウザ内だけでマスキングするツールです。送信前の最終確認を必ず行ってください。</p>
+        <section>
+          <h3>主なマスク対象</h3>
+          <ul>
+            <li>メールアドレス、URL、IPアドレス、電話番号</li>
+            <li>トークン・APIキー・認証情報・秘密鍵</li>
+            <li>カード番号（Luhnチェック済み）、UUID、住所、名前らしき個人情報</li>
+            <li>コード入力時のコメント、クラス名、関数名、定数名、文字列リテラル</li>
+          </ul>
+        </section>
+        <section>
+          <h3>使い方</h3>
+          <ul>
+            <li>左の入力欄にテキストまたはコードを貼り付ける</li>
+            <li>右上でマスク結果、右下で対応一覧を確認する</li>
+            <li>「コピー」ボタンで結果や対応表を取得する</li>
+          </ul>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    "use strict";
+    const qs = (sel, root = document) => root.querySelector(sel);
+    const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+    const TOOLS = [
+      {
+        id: "textchanger",
+        name: "TextChanger",
+        description: "行ベーステキストを5形式に同時変換",
+        icon: "swap_horiz",
+        eyebrow: "Text Conversion",
+        standalone: "../TextChanger/TextChanger.html",
+      },
+      {
+        id: "bindsql",
+        name: "BindSQL",
+        description: "SQLとバインド変数を実行可能形式に統合",
+        icon: "database",
+        eyebrow: "SQL Builder",
+        standalone: "../BindSQLforSQLBuilder/BindSQLforSQLBuilder.html",
+      },
+      {
+        id: "maskinger",
+        name: "Maskinger",
+        description: "機密情報を自動マスキング",
+        icon: "visibility_off",
+        eyebrow: "Privacy",
+        standalone: "../Maskinger/Maskinger.html",
+      },
+    ];
+
+    const STORAGE = Object.freeze({
+      ACTIVE: "devtoolbox_active_tool",
+      THEME: "devtoolbox_theme",
+      SIDEBAR: "devtoolbox_sidebar_collapsed",
+    });
+
+    const THEME_LIGHT = "light";
+    const THEME_DARK = "dark";
+    const DEFAULT_THEME = THEME_DARK;
+
+    const _tools = {};
+    const _initialized = new Set();
+
+    const _state = {
+      _activeId: "welcome",
+      _theme: DEFAULT_THEME,
+      _collapsed: false,
+      _mobileOpen: false,
+    };
+
+    const $app = qs("#$app");
+    const $sidebar = qs("#$sidebar");
+    const $sidebarBackdrop = qs("#$sidebarBackdrop");
+    const $sidebarToggle = qs("#$sidebarToggle");
+    const $menuToggle = qs("#$menuToggle");
+    const $nav = qs("#$nav");
+    const $themeToggle = qs("#$themeToggle");
+    const $topbarTitle = qs("#$topbarTitle");
+    const $topbarEyebrow = qs("#$topbarEyebrow");
+    const $openStandalone = qs("#$openStandalone");
+    const $welcomeGrid = qs("#$welcomeGrid");
+    const $flash = qs("#$flash");
+
+    let _flashTimer = 0;
+
+    const _saveKey = (_key, _value) => {
+      try {
+        localStorage.setItem(_key, _value);
+      } catch (_error) {
+        // localStorage unavailable; ignore.
+      }
+    };
+
+    const _loadKey = (_key) => {
+      try {
+        return localStorage.getItem(_key);
+      } catch (_error) {
+        return null;
+      }
+    };
+
+    const _showFlash = (_message, _type = "info", _durationMs = 1600) => {
+      $flash.textContent = _message;
+      $flash.dataset.type = _type;
+      $flash.classList.add("is-visible");
+      window.clearTimeout(_flashTimer);
+      _flashTimer = window.setTimeout(() => {
+        $flash.classList.remove("is-visible");
+      }, _durationMs);
+    };
+
+    const _copyToClipboard = async (_text) => {
+      if (!_text) return false;
+      try {
+        await navigator.clipboard.writeText(_text);
+        return true;
+      } catch (_error) {
+        const $temporary = document.createElement("textarea");
+        $temporary.value = _text;
+        $temporary.setAttribute("readonly", "true");
+        $temporary.style.position = "fixed";
+        $temporary.style.opacity = "0";
+        document.body.append($temporary);
+        $temporary.select();
+        let _copied = false;
+        try {
+          _copied = document.execCommand("copy");
+        } catch (_fallbackError) {
+          _copied = false;
+        }
+        $temporary.remove();
+        return _copied;
+      }
+    };
+
+    const _applyTheme = (_theme) => {
+      const _next = _theme === THEME_LIGHT ? THEME_LIGHT : THEME_DARK;
+      _state._theme = _next;
+      document.documentElement.setAttribute("data-theme", _next);
+      document.documentElement.style.colorScheme = _next;
+      $themeToggle.checked = _next === THEME_LIGHT;
+    };
+
+    const _setTheme = (_theme) => {
+      _applyTheme(_theme);
+      _saveKey(STORAGE.THEME, _state._theme);
+    };
+
+    const _applyCollapsed = (_collapsed) => {
+      _state._collapsed = Boolean(_collapsed);
+      $app.dataset.sidebarCollapsed = _state._collapsed ? "true" : "false";
+      $sidebarToggle.setAttribute("aria-pressed", _state._collapsed ? "true" : "false");
+    };
+
+    const _setCollapsed = (_collapsed) => {
+      _applyCollapsed(_collapsed);
+      _saveKey(STORAGE.SIDEBAR, _state._collapsed ? "true" : "false");
+    };
+
+    const _setMobileOpen = (_open) => {
+      _state._mobileOpen = Boolean(_open);
+      if (_state._mobileOpen) {
+        $app.dataset.sidebarMobile = "open";
+      } else {
+        delete $app.dataset.sidebarMobile;
+      }
+    };
+
+    const _findTool = (_id) => TOOLS.find((_tool) => _tool.id === _id) || null;
+
+    const _ensureToolInitialized = (_id) => {
+      if (_initialized.has(_id)) return;
+      const _module = _tools[_id];
+      if (!_module || typeof _module.init !== "function") return;
+      const $pane = qs(`[data-tool-pane="${_id}"]`);
+      if (!$pane) return;
+      _module.init($pane);
+      _initialized.add(_id);
+    };
+
+    const _activateTool = (_id) => {
+      const _tool = _findTool(_id);
+      const _activeId = _tool ? _tool.id : "welcome";
+      _state._activeId = _activeId;
+      $app.dataset.activeTool = _activeId;
+
+      qsa("[data-tool-id]", $nav).forEach(($button) => {
+        $button.setAttribute("aria-selected", $button.dataset.toolId === _activeId ? "true" : "false");
+      });
+
+      if (_tool) {
+        $topbarEyebrow.textContent = _tool.eyebrow || "Tool";
+        $topbarTitle.textContent = _tool.name;
+        if (_tool.standalone) {
+          $openStandalone.href = _tool.standalone;
+          $openStandalone.hidden = false;
+        } else {
+          $openStandalone.hidden = true;
+        }
+        _ensureToolInitialized(_tool.id);
+      } else {
+        $topbarEyebrow.textContent = "Welcome";
+        $topbarTitle.textContent = "DevToolBox";
+        $openStandalone.hidden = true;
+      }
+
+      _saveKey(STORAGE.ACTIVE, _activeId);
+
+      if (window.matchMedia("(max-width: 720px)").matches) {
+        _setMobileOpen(false);
+      }
+    };
+
+    const _renderNav = () => {
+      $nav.textContent = "";
+      for (const _tool of TOOLS) {
+        const $button = document.createElement("button");
+        $button.type = "button";
+        $button.className = "nav-item";
+        $button.dataset.toolId = _tool.id;
+        $button.setAttribute("role", "tab");
+        $button.setAttribute("aria-selected", "false");
+        $button.title = _tool.name;
+
+        const $icon = document.createElement("span");
+        $icon.className = "material-symbols-rounded nav-item__icon";
+        $icon.setAttribute("aria-hidden", "true");
+        $icon.textContent = _tool.icon;
+
+        const $label = document.createElement("span");
+        $label.className = "nav-item__label";
+        const $name = document.createElement("span");
+        $name.className = "nav-item__name";
+        $name.textContent = _tool.name;
+        const $desc = document.createElement("span");
+        $desc.className = "nav-item__desc";
+        $desc.textContent = _tool.description;
+        $label.append($name, $desc);
+
+        $button.append($icon, $label);
+        $nav.append($button);
+      }
+    };
+
+    const _renderWelcomeGrid = () => {
+      $welcomeGrid.textContent = "";
+      for (const _tool of TOOLS) {
+        const $li = document.createElement("li");
+        const $button = document.createElement("button");
+        $button.type = "button";
+        $button.className = "welcome__card";
+        $button.dataset.toolId = _tool.id;
+
+        const $icon = document.createElement("span");
+        $icon.className = "material-symbols-rounded welcome__card-icon";
+        $icon.setAttribute("aria-hidden", "true");
+        $icon.textContent = _tool.icon;
+
+        const $body = document.createElement("span");
+        $body.className = "welcome__card-body";
+        const $name = document.createElement("span");
+        $name.className = "welcome__card-name";
+        $name.textContent = _tool.name;
+        const $desc = document.createElement("span");
+        $desc.className = "welcome__card-desc";
+        $desc.textContent = _tool.description;
+        $body.append($name, $desc);
+
+        $button.append($icon, $body);
+        $li.append($button);
+        $welcomeGrid.append($li);
+      }
+    };
+
+    const _handleNavClick = (event) => {
+      const $button = event.target.closest("[data-tool-id]");
+      if (!$button) return;
+      _activateTool($button.dataset.toolId);
+    };
+
+    const _handleThemeToggleChange = () => {
+      _setTheme($themeToggle.checked ? THEME_LIGHT : THEME_DARK);
+    };
+
+    const _handleSidebarToggleClick = () => {
+      _setCollapsed(!_state._collapsed);
+    };
+
+    const _handleMenuToggleClick = () => {
+      _setMobileOpen(!_state._mobileOpen);
+    };
+
+    const _handleBackdropClick = () => {
+      _setMobileOpen(false);
+    };
+
+    const _handleHashChange = () => {
+      const _hash = window.location.hash.replace(/^#\/?/, "");
+      if (_hash && _findTool(_hash)) {
+        _activateTool(_hash);
+      }
+    };
+
+    _tools.textchanger = (() => {
+      const STORAGE_KEY = "textChanger_settings";
+      const PG_TABLE_NAME_PLACEHOLDER = "???";
+
+      let $root;
+      let $input;
+      let $pgTable;
+      let $numOffset;
+      let $outA5m2;
+      let $outTsv;
+      let $outSqlIn;
+      let $outPg;
+      let $outNum;
+      let _saveTimer = 0;
+      const _copyTimers = new WeakMap();
+
+      const _getLines = (_text) =>
+        _text.split("\n").map((_line) => _line.trim()).filter((_line) => _line.length > 0);
+
+      const _convertA5m2 = (_lines) => (_lines.length === 0 ? "" : `-- *Captions ${_lines.join(",")}`);
+
+      const _convertTsv = (_lines) => (_lines.length === 0 ? "" : _lines.join("\t"));
+
+      const _convertSqlIn = (_lines) => {
+        if (_lines.length === 0) return "";
+        const _quoted = _lines.map((_value) => `'${_value}'`).join(",");
+        return `in (${_quoted});`;
+      };
+
+      const _getNonEmptyRawLines = (_text) =>
+        _text.split("\n").map((_line) => _line.replace(/\r$/, "")).filter((_line) => _line.trim().length > 0);
+
+      const _parseTabularInput = (_text) => {
+        const _lines = _getNonEmptyRawLines(_text);
+        if (_lines.length < 2) return { _headers: [], _rows: [] };
+        const _headers = _lines[0].split("\t").map((_cell) => _cell.trim());
+        if (_headers.length === 0 || _headers.some((_h) => _h.length === 0)) {
+          return { _headers: [], _rows: [] };
+        }
+        const _rows = _lines.slice(1)
+          .map((_line) => _line.split("\t").map((_cell) => _cell.trim()))
+          .filter((_row) => _row.length === _headers.length);
+        if (_rows.length === 0) return { _headers: [], _rows: [] };
+        return { _headers, _rows };
+      };
+
+      const _escapePgIdentifier = (_value) => String(_value).replaceAll('"', '""');
+      const _escapePgStringLiteral = (_value) => _value.replaceAll("'", "''");
+
+      const _normalizePgValue = (_value) => {
+        const _trimmed = _value.trim();
+        if (_trimmed.length === 0 || _trimmed.toUpperCase() === "NULL") return null;
+        return _trimmed;
+      };
+
+      const _formatPgValue = (_value) => (_value === null ? "NULL" : `'${_escapePgStringLiteral(_value)}'`);
+
+      const _formatPgMatchCondition = (_column, _value) => {
+        const _col = `"${_escapePgIdentifier(_column)}"`;
+        if (_value === null) return `${_col} IS NULL`;
+        return `${_col} = ${_formatPgValue(_value)}`;
+      };
+
+      const _getResolvedPgTableName = (_value) => {
+        const _name = String(_value || "").trim();
+        return _name || PG_TABLE_NAME_PLACEHOLDER;
+      };
+
+      const _convertPostgreSQLBlock = (_text, _tableName) => {
+        const _table = _parseTabularInput(_text);
+        if (_table._headers.length === 0 || _table._rows.length === 0) return "";
+        const _resolvedTable = _getResolvedPgTableName(_tableName);
+        const _quotedColumns = _table._headers.map((_c) => `"${_escapePgIdentifier(_c)}"`);
+        const _columnList = _quotedColumns.join(", ");
+        const _normalizedRows = _table._rows.map((_row) => _row.map(_normalizePgValue));
+        const _rowConditions = _normalizedRows.map((_row) =>
+          _row.map((_value, _index) => _formatPgMatchCondition(_table._headers[_index], _value)).join(" AND ")
+        );
+        const _whereClause = _rowConditions.map((_c) => `(${_c})`).join("\n   OR ");
+        const _selectStatement = `SELECT * FROM ${_resolvedTable}\nWHERE ${_whereClause};`;
+        const _deleteStatement = `DELETE FROM ${_resolvedTable}\nWHERE ${_whereClause};`;
+        const _valuesList = _normalizedRows
+          .map((_row) => `  (${_row.map(_formatPgValue).join(", ")})`)
+          .join(",\n");
+        const _insertStatement = `INSERT INTO ${_resolvedTable} (${_columnList}) VALUES\n${_valuesList};`;
+        return [
+          "-- SELECT文（事前チェック）",
+          _selectStatement,
+          "",
+          "-- INSERT文",
+          "BEGIN;",
+          _insertStatement,
+          "COMMIT;",
+          "",
+          "-- DELETE文",
+          "BEGIN;",
+          _deleteStatement,
+          "COMMIT;",
+        ].join("\n");
+      };
+
+      const _parseNumberOffset = (_value) => {
+        const _trimmed = String(_value ?? "").trim();
+        if (_trimmed.length === 0) return 0;
+        const _parsed = Number.parseInt(_trimmed, 10);
+        return Number.isFinite(_parsed) ? _parsed : 0;
+      };
+
+      const _convertNumberAdjustment = (_text, _offsetValue) => {
+        if (!_text) return "";
+        const _offset = _parseNumberOffset(_offsetValue);
+        if (_offset === 0) return _text;
+        return _text.replace(/\d+/g, (_match) => String(Number.parseInt(_match, 10) + _offset));
+      };
+
+      const _convertAll = () => {
+        const _lines = _getLines($input.value);
+        $outA5m2.value = _convertA5m2(_lines);
+        $outTsv.value = _convertTsv(_lines);
+        $outSqlIn.value = _convertSqlIn(_lines);
+        $outPg.value = _convertPostgreSQLBlock($input.value, $pgTable.value);
+        $outNum.value = _convertNumberAdjustment($input.value, $numOffset.value);
+      };
+
+      const _saveSettings = () => {
+        try {
+          localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({
+              input: $input.value,
+              pgTableName: $pgTable.value,
+              numberOffset: $numOffset.value,
+            })
+          );
+        } catch (_error) {
+          // ignore
+        }
+      };
+
+      const _loadSettings = () => {
+        try {
+          const _raw = localStorage.getItem(STORAGE_KEY);
+          if (!_raw) return;
+          const _data = JSON.parse(_raw);
+          if (typeof _data.input === "string") $input.value = _data.input;
+          if (typeof _data.pgTableName === "string") $pgTable.value = _data.pgTableName;
+          if (typeof _data.numberOffset === "string") $numOffset.value = _data.numberOffset;
+        } catch (_error) {
+          // ignore corrupt data
+        }
+      };
+
+      const _autoSave = () => {
+        clearTimeout(_saveTimer);
+        _saveTimer = setTimeout(_saveSettings, 500);
+      };
+
+      const _showCopiedState = ($button) => {
+        const $label = qs("[data-tc-label]", $button);
+        const $icon = qs(".button__icon", $button);
+        const _existing = _copyTimers.get($button);
+        if (_existing) clearTimeout(_existing);
+        $button.classList.add("is-success");
+        if ($icon) $icon.textContent = "check";
+        if ($label) $label.textContent = "コピーしました";
+        const _timer = setTimeout(() => {
+          $button.classList.remove("is-success");
+          if ($icon) $icon.textContent = "content_copy";
+          if ($label) $label.textContent = "コピー";
+          _copyTimers.delete($button);
+        }, 1600);
+        _copyTimers.set($button, _timer);
+      };
+
+      const _handleCopyClick = async ($button) => {
+        const _selector = $button.dataset.tcCopy;
+        if (!_selector) return;
+        const $target = qs(_selector, $root);
+        if (!$target || !$target.value) return;
+        const _ok = await _copyToClipboard($target.value);
+        if (_ok) _showCopiedState($button);
+      };
+
+      const _handleClick = (event) => {
+        const $button = event.target.closest("[data-tc-copy]");
+        if (!$button) return;
+        _handleCopyClick($button);
+      };
+
+      const _handleInput = (event) => {
+        const $target = event.target;
+        if ($target === $input || $target === $pgTable || $target === $numOffset) {
+          _convertAll();
+          _autoSave();
+        }
+      };
+
+      const _init = ($pane) => {
+        $root = $pane;
+        $input = qs("#tc-input", $pane);
+        $pgTable = qs("#tc-pg-table", $pane);
+        $numOffset = qs("#tc-num-offset", $pane);
+        $outA5m2 = qs("#tc-out-a5m2", $pane);
+        $outTsv = qs("#tc-out-tsv", $pane);
+        $outSqlIn = qs("#tc-out-sqlin", $pane);
+        $outPg = qs("#tc-out-pg", $pane);
+        $outNum = qs("#tc-out-num", $pane);
+
+        _loadSettings();
+        $pane.addEventListener("input", _handleInput);
+        $pane.addEventListener("click", _handleClick);
+        _convertAll();
+      };
+
+      return { init: _init };
+    })();
+
+    _tools.bindsql = (() => {
+      const _splitKeywordBlock = (_block) =>
+        _block.split(/\r?\n/).map((_keyword) => _keyword.trim()).filter(Boolean);
+
+      const _buildKeywordPatternSource = (_keyword) =>
+        _keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
+
+      const CLAUSE_KEYWORDS = [
+        "WITH", "UNION ALL", "UNION", "SELECT", "INSERT INTO", "UPDATE",
+        "DELETE FROM", "FROM", "WHERE", "GROUP BY", "HAVING", "ORDER BY",
+        "LIMIT", "OFFSET", "VALUES", "SET", "INNER JOIN", "LEFT JOIN",
+        "RIGHT JOIN", "FULL JOIN", "CROSS JOIN", "JOIN",
+      ];
+      const INLINE_KEYWORDS = ["ON", "AND", "OR"];
+      const EXPRESSION_KEYWORDS = ["DISTINCT", "CASE", "WHEN", "THEN", "ELSE", "END", "AS", "EXISTS"];
+      const DIALECT_PHRASE_KEYWORDS = _splitKeywordBlock(`
+AT TIME ZONE
+CONNECT BY
+CONNECT_BY_ROOT
+CROSS JOIN
+FETCH FIRST
+FETCH NEXT
+FOR KEY SHARE
+FOR NO KEY UPDATE
+FOR SHARE
+FOR UPDATE
+FULL JOIN
+FULL OUTER JOIN
+GROUP BY
+GROUPING SETS
+INNER JOIN
+IS NOT NULL
+IS NULL
+JSON TABLE
+LATERAL VIEW
+LEFT JOIN
+LEFT OUTER JOIN
+MATCH_RECOGNIZE
+NATURAL JOIN
+NOT EXISTS
+NOT IN
+NULLS FIRST
+NULLS LAST
+ON CONFLICT
+ORDER BY
+ORDER SIBLINGS BY
+PARTITION BY
+RIGHT JOIN
+RIGHT OUTER JOIN
+START WITH
+UNION ALL
+UNION DISTINCT
+USING INDEX
+WHEN MATCHED
+WHEN NOT MATCHED
+WITH RECURSIVE
+WITHIN GROUP
+`);
+      const ORACLE_KEYWORDS = _splitKeywordBlock(`
+ACCESS ADD ALL ALTER AND ANY AS ASC AUDIT BETWEEN BY CHAR CHECK CLUSTER COLUMN
+COMMENT COMPRESS CONNECT CREATE CURRENT DATE DECIMAL DEFAULT DELETE DESC DISTINCT
+DROP ELSE EXCLUSIVE EXISTS FILE FLOAT FOR FROM GRANT GROUP HAVING IDENTIFIED
+IMMEDIATE IN INCREMENT INDEX INITIAL INSERT INTEGER INTERSECT INTO IS LEVEL LIKE
+LOCK LONG MAXEXTENTS MEASURES MERGE MINUS MLSLABEL MODEL MODE MODIFY NOAUDIT
+NOCOMPRESS NOCYCLE NOT NOWAIT NULL NUMBER OF OFFLINE ON ONLINE OPTION OR ORDER
+PARTITION PATTERN PCTFREE PIVOT PRIOR PRIVILEGES PUBLIC QUALIFY RAW RENAME
+RESOURCE RETURNING REVOKE ROW ROWID ROWNUM ROWS SAMPLE SELECT SESSION SET SHARE
+SIZE SMALLINT START SUBPARTITION SUCCESSFUL SYNONYM SYSDATE SYSTIMESTAMP TABLE
+THEN TO TRIGGER UID UNION UNIQUE UNPIVOT UPDATE USER USING VALIDATE VALUES
+VARCHAR VARCHAR2 VIEW WHENEVER WHERE WITH
+`.replace(/\s+/g, "\n"));
+      const POSTGRESQL_KEYWORDS = _splitKeywordBlock(`
+ALL ANALYSE ANALYZE AND ANY ARRAY AS ASC ASYMMETRIC AUTHORIZATION BETWEEN BINARY
+BOTH CASE CAST CHECK COLLATE COLLATION COLUMN CONSTRAINT CREATE CROSS
+CURRENT_CATALOG CURRENT_DATE CURRENT_ROLE CURRENT_SCHEMA CURRENT_TIME
+CURRENT_TIMESTAMP CURRENT_USER DEFAULT DEFERRABLE DESC DISTINCT DO ELSE END EXCEPT
+EXISTS FALSE FETCH FOR FOREIGN FROM FULL GRANT GROUP HAVING ILIKE IN INITIALLY
+INNER INTERSECT INTO IS ISNULL JOIN LATERAL LEADING LEFT LIKE LIMIT LOCALTIME
+LOCALTIMESTAMP MERGE NATURAL NOT NOTNULL NULL OFFSET ON ONLY OR ORDER OUTER OVER
+OVERLAPS PARTITION PLACING PRIMARY RECURSIVE REFERENCES RETURNING RIGHT SELECT
+SESSION_USER SET SIMILAR SOME SYMMETRIC TABLE THEN TO TRAILING TRUE UNION UNIQUE
+UPDATE USER USING VALUES VARIADIC WHEN WHERE WINDOW WITH
+`.replace(/\s+/g, "\n"));
+
+      const SQL_KEYWORD_DICTIONARY = [
+        ...new Set([
+          ...CLAUSE_KEYWORDS,
+          ...INLINE_KEYWORDS,
+          ...EXPRESSION_KEYWORDS,
+          ...DIALECT_PHRASE_KEYWORDS,
+          ...ORACLE_KEYWORDS,
+          ...POSTGRESQL_KEYWORDS,
+        ]),
+      ].sort((_a, _b) => _b.length - _a.length);
+
+      const SQL_HIGHLIGHT_KEYWORD_PATTERNS_BY_INITIAL = SQL_KEYWORD_DICTIONARY.reduce(
+        (_map, _keyword) => {
+          const _entry = {
+            _keyword,
+            _pattern: new RegExp(`^${_buildKeywordPatternSource(_keyword)}\\b`, "i"),
+          };
+          const _initial = _keyword[0]?.toUpperCase() ?? "";
+          if (!_initial) return _map;
+          if (!_map[_initial]) _map[_initial] = [];
+          _map[_initial].push(_entry);
+          return _map;
+        },
+        Object.create(null)
+      );
+
+      const SQL_KEYWORD_CASE_PATTERN = new RegExp(
+        `\\b(?:${SQL_KEYWORD_DICTIONARY.map(_buildKeywordPatternSource).join("|")})\\b`,
+        "gi"
+      );
+
+      const PLACEHOLDER_TEXT = "-- ここに変換後SQLが表示されます --";
+      const NAMED_BIND_PATTERN = /^:?(?<name>[A-Za-z_][A-Za-z0-9_$]*)\s*(?:=>|=|:)\s*(?<value>.+)$/;
+      const NAMED_PLACEHOLDER_PATTERN = /(^|[^:]):(?<name>[A-Za-z_][A-Za-z0-9_$]*)\b/g;
+      const POSITIONAL_BIND_PATTERN = /^(?:\[(?<indexA>\d+)\]|(?<indexB>\d+))\s*(?:=>|=|:)\s*(?<value>.+)$/;
+      const PARAMETER_ENTRY_PATTERN = /^(?<key>:?[A-Za-z_][A-Za-z0-9_$]*|\[\d+\]|\d+)\s*(?:=>|=|:)\s*(?<value>.+)$/;
+      const SQL_PARAMETER_BLOCK_PATTERN = /^\s*sql\s*=\s*\[(?<sql>[\s\S]*?)\]\s*(?:parameters?|params?)\s*=\s*\[(?<parameters>[\s\S]*?)\]\s*$/i;
+      const BIND_HEADER_PATTERN = /^(?:bind(?:\s+variables?)?|params?|parameters?)\s*:?\s*$/i;
+      const SQL_PREFIX_PATTERN = /^\s*sql\s*[:=]\s*(?<sql>.+)$/i;
+      const PARAMETER_QUOTE_PAIRS = Object.freeze({ "'": "'", '"': '"', "“": "”", "‘": "’" });
+      const HIGHLIGHT_QUOTE_PAIRS = Object.freeze({ "'": "'", '"': '"', "“": "”", "‘": "’" });
+      const HTML_ESCAPE_MAP = Object.freeze({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" });
+      const SQL_ASSIGNMENT_NAMES = new Set([
+        "SELECT", "FROM", "WHERE", "AND", "OR", "ORDER", "GROUP", "HAVING", "JOIN",
+        "LEFT", "RIGHT", "INNER", "FULL", "CROSS", "LIMIT", "OFFSET", "INSERT",
+        "UPDATE", "DELETE", "VALUES", "SET", "WITH", "SQL",
+      ]);
+      const COPY_SUCCESS_DURATION_MS = 1500;
+
+      const MESSAGES = Object.freeze({
+        unresolvedNamed: (_list, _count) => `未置換の名前付きバインド (${_list}) が ${_count} 件あります。`,
+        extraNamed: (_list, _count) => `余剰の名前付きバインド (${_list}) が ${_count} 件あります。`,
+        unresolvedPositional: (_count) => `未置換の位置バインド (?) が ${_count} 件あります。`,
+        extraPositional: (_list, _count) => `余剰の位置バインド (${_list}) が ${_count} 件あります。`,
+        copyEmpty: "コピーできるSQLがありません",
+        copyFailed: "コピーに失敗しました",
+        mergeError: (_detail) => `変換エラー: ${_detail}`,
+      });
+
+      let $rawInput;
+      let $rawHighlight;
+      let $output;
+      let $copyButton;
+      let $copyLabel;
+
+      const _bsState = {
+        _lastSql: "",
+        _copyLabelTimer: 0,
+      };
+
+      const _escapeRegExp = (_value) => _value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const _escapeHtml = (_value) =>
+        _value.replace(/[&<>"']/g, (_c) => HTML_ESCAPE_MAP[_c] ?? _c);
+      const _isWordCharacter = (_c) => /[A-Za-z0-9_$]/.test(_c);
+
+      const _isQuotedValue = (_value) =>
+        (_value.startsWith("'") && _value.endsWith("'")) ||
+        (_value.startsWith('"') && _value.endsWith('"')) ||
+        (_value.startsWith("“") && _value.endsWith("”")) ||
+        (_value.startsWith("‘") && _value.endsWith("’"));
+
+      const _isSqlLiteralValue = (_value) =>
+        /^null$/i.test(_value) ||
+        /^(true|false)$/i.test(_value) ||
+        /^[+-]?(?:\d+\.?\d*|\.\d+)$/.test(_value) ||
+        _isQuotedValue(_value);
+
+      const _quoteParameterValue = (_value) => {
+        const _trimmed = _value.trim();
+        if (!_trimmed || _isSqlLiteralValue(_trimmed)) return _trimmed;
+        return `"${_trimmed.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+      };
+
+      const _splitParameterEntries = (_text) => {
+        const _entries = [];
+        let _current = "";
+        let _close = "";
+        let _allowEsc = false;
+        let _esc = false;
+        for (const _ch of _text) {
+          if (_close) {
+            _current += _ch;
+            if (_allowEsc && _ch === "\\" && !_esc) { _esc = true; continue; }
+            if (_ch === _close && !_esc) { _close = ""; _allowEsc = false; }
+            _esc = false;
+            continue;
+          }
+          const _pair = PARAMETER_QUOTE_PAIRS[_ch];
+          if (_pair) { _close = _pair; _allowEsc = _ch === "'" || _ch === '"'; _current += _ch; _esc = false; continue; }
+          if (_ch === ",") { const _e = _current.trim(); if (_e) _entries.push(_e); _current = ""; continue; }
+          _current += _ch;
+        }
+        const _tail = _current.trim();
+        if (_tail) _entries.push(_tail);
+        return _entries;
+      };
+
+      const _normalizeParameterEntry = (_entry) => {
+        const _m = _entry.match(PARAMETER_ENTRY_PATTERN);
+        if (!_m?.groups) return _entry;
+        return `${_m.groups.key} = ${_quoteParameterValue(_m.groups.value)}`;
+      };
+
+      const _readDollarQuotedSegment = (_sql, _start) => {
+        if (_sql[_start] !== "$") return "";
+        const _slice = _sql.slice(_start);
+        const _delim = _slice.startsWith("$$")
+          ? "$$"
+          : (_slice.match(/^\$[A-Za-z_][A-Za-z0-9_]*\$/)?.[0] ?? "");
+        if (!_delim) return "";
+        const _contentStart = _start + _delim.length;
+        const _end = _sql.indexOf(_delim, _contentStart);
+        return _sql.slice(_start, _end === -1 ? _sql.length : _end + _delim.length);
+      };
+
+      const _readSqlProtectedSegment = (_sql, _start) => {
+        const _ch = _sql[_start];
+        const _dollar = _readDollarQuotedSegment(_sql, _start);
+        if (_dollar) return _dollar;
+        if (_ch === "'") {
+          let _i = _start + 1;
+          while (_i < _sql.length) {
+            const _c = _sql[_i];
+            if (_c === "'" && _sql[_i + 1] === "'") { _i += 2; continue; }
+            if (_c === "\\") { _i += 2; continue; }
+            if (_c === "'") { _i += 1; break; }
+            _i += 1;
+          }
+          return _sql.slice(_start, _i);
+        }
+        if (_ch === '"') {
+          let _i = _start + 1;
+          while (_i < _sql.length) {
+            const _c = _sql[_i];
+            if (_c === '"' && _sql[_i + 1] === '"') { _i += 2; continue; }
+            if (_c === "\\") { _i += 2; continue; }
+            if (_c === '"') { _i += 1; break; }
+            _i += 1;
+          }
+          return _sql.slice(_start, _i);
+        }
+        if (_ch === "-" && _sql[_start + 1] === "-") {
+          const _e = _sql.indexOf("\n", _start);
+          return _sql.slice(_start, _e === -1 ? _sql.length : _e);
+        }
+        if (_ch === "/" && _sql[_start + 1] === "*") {
+          const _e = _sql.indexOf("*/", _start + 2);
+          return _sql.slice(_start, _e === -1 ? _sql.length : _e + 2);
+        }
+        if (_ch === "`") {
+          const _e = _sql.indexOf("`", _start + 1);
+          return _sql.slice(_start, _e === -1 ? _sql.length : _e + 1);
+        }
+        if (_ch === "[") {
+          const _e = _sql.indexOf("]", _start + 1);
+          return _sql.slice(_start, _e === -1 ? _sql.length : _e + 1);
+        }
+        return "";
+      };
+
+      const _maskSqlProtectedSegments = (_sql) => {
+        const _segments = [];
+        let _masked = "";
+        let _i = 0;
+        while (_i < _sql.length) {
+          const _seg = _readSqlProtectedSegment(_sql, _i);
+          if (_seg) {
+            const _token = `@@BindSQL_SEGMENT_${_segments.length}@@`;
+            _segments.push(_seg);
+            _masked += _token;
+            _i += _seg.length;
+            continue;
+          }
+          _masked += _sql[_i];
+          _i += 1;
+        }
+        return { _masked, _segments };
+      };
+
+      const _restoreSqlProtectedSegments = (_sql, _segments) =>
+        _sql.replace(/@@BindSQL_SEGMENT_(\d+)@@/g, (_all, _idx) => _segments[Number(_idx)] ?? "");
+
+      const _readQuotedSegment = (_sql, _start, _close, _allowEsc = false) => {
+        let _i = _start + 1;
+        while (_i < _sql.length) {
+          const _c = _sql[_i];
+          if (_allowEsc && _c === "\\") { _i += 2; continue; }
+          if (_c === _close && _allowEsc && _sql[_i + 1] === _close) { _i += 2; continue; }
+          if (_c === _close) { _i += 1; break; }
+          _i += 1;
+        }
+        return _sql.slice(_start, _i);
+      };
+
+      const _readHighlightProtectedSegment = (_sql, _start) => {
+        const _ch = _sql[_start];
+        if (_ch === "-" && _sql[_start + 1] === "-") {
+          const _e = _sql.indexOf("\n", _start);
+          return { _kind: "comment", _text: _sql.slice(_start, _e === -1 ? _sql.length : _e) };
+        }
+        if (_ch === "/" && _sql[_start + 1] === "*") {
+          const _e = _sql.indexOf("*/", _start + 2);
+          return { _kind: "comment", _text: _sql.slice(_start, _e === -1 ? _sql.length : _e + 2) };
+        }
+        const _dollar = _readDollarQuotedSegment(_sql, _start);
+        if (_dollar) return { _kind: "string", _text: _dollar };
+        const _close = HIGHLIGHT_QUOTE_PAIRS[_ch];
+        if (_close) {
+          return {
+            _kind: "string",
+            _text: _readQuotedSegment(_sql, _start, _close, _ch === "'" || _ch === '"'),
+          };
+        }
+        if (_ch === "`") {
+          return { _kind: "plain", _text: _readQuotedSegment(_sql, _start, "`", true) };
+        }
+        if (_ch === "[") {
+          const _e = _sql.indexOf("]", _start + 1);
+          return { _kind: "plain", _text: _sql.slice(_start, _e === -1 ? _sql.length : _e + 1) };
+        }
+        return null;
+      };
+
+      const _readNumberSegment = (_sql, _start) => {
+        const _ch = _sql[_start];
+        const _digitStart = /[0-9]/.test(_ch);
+        const _decimalStart = _ch === "." && /[0-9]/.test(_sql[_start + 1] ?? "");
+        if (!_digitStart && !_decimalStart) return "";
+        if (_isWordCharacter(_sql[_start - 1] ?? "")) return "";
+        let _i = _start;
+        let _hasDot = false;
+        if (_sql[_i] === ".") { _hasDot = true; _i += 1; }
+        while (/[0-9]/.test(_sql[_i] ?? "")) _i += 1;
+        if (_sql[_i] === "." && !_hasDot) {
+          _hasDot = true;
+          _i += 1;
+          while (/[0-9]/.test(_sql[_i] ?? "")) _i += 1;
+        }
+        if (/[A-Za-z_$]/.test(_sql[_i] ?? "")) return "";
+        return _sql.slice(_start, _i);
+      };
+
+      const _readKeywordSegment = (_sql, _start) => {
+        const _prev = _sql[_start - 1] ?? "";
+        if (_isWordCharacter(_prev) || _prev === ":") return "";
+        const _slice = _sql.slice(_start);
+        const _initial = _slice[0]?.toUpperCase() ?? "";
+        if (!_initial || !/[A-Z]/.test(_initial)) return "";
+        const _candidates = SQL_HIGHLIGHT_KEYWORD_PATTERNS_BY_INITIAL[_initial] ?? [];
+        for (const _entry of _candidates) {
+          const _m = _slice.match(_entry._pattern);
+          if (!_m) continue;
+          const _text = _m[0];
+          if (_isWordCharacter(_slice[_text.length] ?? "")) continue;
+          return _text;
+        }
+        return "";
+      };
+
+      const _tokenizeSqlForHighlight = (_sql) => {
+        const _tokens = [];
+        let _buf = "";
+        let _i = 0;
+        const _flush = () => {
+          if (_buf) { _tokens.push({ _kind: "plain", _text: _buf }); _buf = ""; }
+        };
+        while (_i < _sql.length) {
+          const _seg = _readHighlightProtectedSegment(_sql, _i);
+          if (_seg?._text) { _flush(); _tokens.push(_seg); _i += _seg._text.length; continue; }
+          const _num = _readNumberSegment(_sql, _i);
+          if (_num) { _flush(); _tokens.push({ _kind: "number", _text: _num }); _i += _num.length; continue; }
+          const _kw = _readKeywordSegment(_sql, _i);
+          if (_kw) { _flush(); _tokens.push({ _kind: "keyword", _text: _kw }); _i += _kw.length; continue; }
+          _buf += _sql[_i];
+          _i += 1;
+        }
+        _flush();
+        return _tokens;
+      };
+
+      const _buildHighlightedSqlHtml = (_sql) =>
+        _tokenizeSqlForHighlight(_sql)
+          .map((_t) => {
+            const _esc = _escapeHtml(_t._text);
+            if (_t._kind === "plain") return _esc;
+            return `<span class="sql-token sql-token--${_t._kind}">${_esc}</span>`;
+          })
+          .join("");
+
+      const _syncInputHighlightScroll = () => {
+        if (!$rawHighlight) return;
+        $rawHighlight.scrollTop = $rawInput.scrollTop;
+        $rawHighlight.scrollLeft = $rawInput.scrollLeft;
+      };
+
+      const _syncInputHighlight = (_text) => {
+        if (!$rawHighlight) return;
+        $rawHighlight.innerHTML = _buildHighlightedSqlHtml(_text || " ");
+        _syncInputHighlightScroll();
+      };
+
+      const _renderOutputHighlight = (_sql) => {
+        if (!_sql) { $output.textContent = PLACEHOLDER_TEXT; return; }
+        $output.innerHTML = _buildHighlightedSqlHtml(_sql);
+      };
+
+      const _normalizeBindValue = (_raw) => {
+        const _v = _raw.trim();
+        if (!_v) return "";
+        if (
+          (_v.startsWith('"') && _v.endsWith('"')) ||
+          (_v.startsWith("“") && _v.endsWith("”")) ||
+          (_v.startsWith("‘") && _v.endsWith("’"))
+        ) {
+          const _inner = _v.slice(1, -1).replace(/\\"/g, '"').replace(/'/g, "''");
+          return `'${_inner}'`;
+        }
+        if (/^null$/i.test(_v)) return "NULL";
+        if (/^(true|false)$/i.test(_v)) return _v.toUpperCase();
+        return _v;
+      };
+
+      const _isBindDefinitionLine = (_trim, _allowBare = false) => {
+        if (_trim.match(POSITIONAL_BIND_PATTERN)?.groups?.value) return true;
+        const _m = _trim.match(NAMED_BIND_PATTERN);
+        if (!_m?.groups?.name) return false;
+        if (_trim.startsWith(":")) return true;
+        if (!_allowBare) return false;
+        return !SQL_ASSIGNMENT_NAMES.has(_m.groups.name.toUpperCase());
+      };
+
+      const _splitInputText = (_input) => {
+        const _block = _input.match(SQL_PARAMETER_BLOCK_PATTERN);
+        if (_block?.groups) {
+          return {
+            _sqlText: _block.groups.sql.trim(),
+            _bindLines: _splitParameterEntries(_block.groups.parameters).map(_normalizeParameterEntry),
+          };
+        }
+        const _sqlLines = [];
+        const _bindLines = [];
+        let _bindStarted = false;
+        for (const _line of _input.split(/\r?\n/)) {
+          const _trim = _line.trim();
+          if (!_trim) {
+            if (!_bindStarted) _sqlLines.push("");
+            continue;
+          }
+          if (BIND_HEADER_PATTERN.test(_trim)) { _bindStarted = true; continue; }
+          const _pre = _line.match(SQL_PREFIX_PATTERN);
+          if (_pre?.groups?.sql) { _sqlLines.push(_pre.groups.sql.trim()); continue; }
+          if (_isBindDefinitionLine(_trim, _bindStarted)) { _bindLines.push(_trim); _bindStarted = true; continue; }
+          _sqlLines.push(_line);
+        }
+        return { _sqlText: _sqlLines.join("\n").trim(), _bindLines };
+      };
+
+      const _parseBindVariables = (_lines) => {
+        const _named = new Map();
+        const _positional = new Map();
+        for (const _line of _lines) {
+          const _trim = _line.trim();
+          if (!_trim || _trim.startsWith("--") || _trim.startsWith("#")) continue;
+          const _nm = _trim.match(NAMED_BIND_PATTERN);
+          if (_nm?.groups) { _named.set(_nm.groups.name, _normalizeBindValue(_nm.groups.value)); continue; }
+          const _pm = _trim.match(POSITIONAL_BIND_PATTERN);
+          if (_pm?.groups?.value) {
+            const _idx = Number(_pm.groups.indexA ?? _pm.groups.indexB ?? "0");
+            if (_idx > 0) _positional.set(_idx, _normalizeBindValue(_pm.groups.value));
+          }
+        }
+        return { _named, _positional };
+      };
+
+      const _countNamedPlaceholders = (_sql) => {
+        const _counts = new Map();
+        for (const _m of _sql.matchAll(NAMED_PLACEHOLDER_PATTERN)) {
+          const _name = _m.groups?.name ?? "";
+          if (_name) _counts.set(_name, (_counts.get(_name) ?? 0) + 1);
+        }
+        return _counts;
+      };
+
+      const _formatNamedBindList = (_names) => _names.map((_n) => `:${_n}`).join(", ");
+      const _formatPositionalBindList = (_idx) => _idx.map((_i) => `[${_i}]`).join(", ");
+
+      const _replaceNamedBind = (_sql, _name, _value) => {
+        const _re = new RegExp(`(^|[^:]):${_escapeRegExp(_name)}\\b`, "g");
+        let _count = 0;
+        const _next = _sql.replace(_re, (_all, _prefix) => { _count += 1; return `${_prefix}${_value}`; });
+        return { _nextSql: _next, _count };
+      };
+
+      const _mergeSqlAndBinds = (_sql, _binds) => {
+        const _store = _maskSqlProtectedSegments(_sql);
+        let _work = _store._masked;
+        const _issues = [];
+        const _required = _countNamedPlaceholders(_work);
+        const _protect = (_value) => {
+          const _token = `@@BindSQL_SEGMENT_${_store._segments.length}@@`;
+          _store._segments.push(_value);
+          return _token;
+        };
+        for (const [_name, _value] of _binds._named.entries()) {
+          const _r = _replaceNamedBind(_work, _name, _protect(_value));
+          _work = _r._nextSql;
+        }
+        let _pIdx = 0;
+        const _used = new Set();
+        _work = _work.replace(/\?/g, () => {
+          _pIdx += 1;
+          if (!_binds._positional.has(_pIdx)) return "?";
+          const _v = _binds._positional.get(_pIdx);
+          _used.add(_pIdx);
+          return _protect(_v);
+        });
+        const _missing = [..._required.keys()].filter((_n) => !_binds._named.has(_n));
+        const _extra = [..._binds._named.keys()].filter((_n) => !_required.has(_n));
+        const _remaining = (_work.match(/\?/g) ?? []).length;
+        const _extraIdx = [..._binds._positional.keys()]
+          .filter((_i) => !_used.has(_i))
+          .sort((_a, _b) => _a - _b);
+        if (_missing.length) _issues.push(MESSAGES.unresolvedNamed(_formatNamedBindList(_missing), _missing.length));
+        if (_extra.length) _issues.push(MESSAGES.extraNamed(_formatNamedBindList(_extra), _extra.length));
+        if (_remaining) _issues.push(MESSAGES.unresolvedPositional(_remaining));
+        if (_extraIdx.length) _issues.push(MESSAGES.extraPositional(_formatPositionalBindList(_extraIdx), _extraIdx.length));
+        return { _sql: _restoreSqlProtectedSegments(_work, _store._segments), _issues };
+      };
+
+      const _buildMergeIssueOutput = (_issues, _partial) => {
+        const _lines = ["-- 変換は完了していません。"];
+        _issues.forEach((_i) => _lines.push(`-- ${_i}`));
+        if (_partial) { _lines.push(""); _lines.push("-- 参考: 途中結果"); _lines.push(_partial); }
+        return _lines.join("\n");
+      };
+
+      const _upperCaseKeywords = (_sql) => {
+        if (!SQL_KEYWORD_DICTIONARY.length) return _sql;
+        return _sql.replace(SQL_KEYWORD_CASE_PATTERN, (_m, _off, _src) => {
+          const _prev = _src[_off - 1] ?? "";
+          if (_prev === ":" || _prev === "." || _prev === "[" || _prev === "`") return _m;
+          return _m.toUpperCase();
+        });
+      };
+
+      const _addSpaceAroundOperators = (_sql) =>
+        _sql
+          .replace(/\s*\.\s*/g, ".")
+          .replace(/\s*(<>|!=|<=|>=|=|<|>)\s*/g, " $1 ")
+          .replace(/\s*(\+|\/)\s*/g, " $1 ")
+          .replace(/(?<=[0-9A-Za-z_)\]])\s*\*\s*(?=[0-9A-Za-z_(\[])/g, " * ")
+          .replace(/\s*\|\|\s*/g, " || ")
+          .replace(/\s*,\s*/g, ", ")
+          .replace(/\s+/g, " ")
+          .trim();
+
+      const _breakBeforeKeyword = (_sql, _kw, _indent = "") => {
+        const _re = new RegExp(`\\s+${_kw.replace(/\s+/g, "\\s+")}\\b`, "g");
+        return _sql.replace(_re, `\n${_indent}${_kw}`);
+      };
+
+      const _breakBareJoin = (_sql) =>
+        _sql.replace(/\s+JOIN\b/g, (_m, _off, _src) => {
+          const _left = _src.slice(Math.max(0, _off - 8), _off);
+          if (/\b(INNER|LEFT|RIGHT|FULL|CROSS)$/i.test(_left)) return _m;
+          return "\nJOIN";
+        });
+
+      const _stripClausePrefix = (_line, _kw) => {
+        const _re = new RegExp(`^${_kw.replace(/\s+/g, "\\s+")}\\b\\s*`);
+        return _line.replace(_re, "").trim();
+      };
+
+      const _splitTopLevelCommaSeparated = (_text) => {
+        const _items = [];
+        let _cur = "";
+        let _depth = 0;
+        for (const _ch of _text) {
+          if (_ch === "(") { _depth += 1; _cur += _ch; continue; }
+          if (_ch === ")") { _depth = Math.max(0, _depth - 1); _cur += _ch; continue; }
+          if (_ch === "," && _depth === 0) { const _e = _cur.trim(); if (_e) _items.push(_e); _cur = ""; continue; }
+          _cur += _ch;
+        }
+        const _tail = _cur.trim();
+        if (_tail) _items.push(_tail);
+        return _items;
+      };
+
+      const _formatCaseExpressionLines = (_text) => {
+        if (!/\bCASE\b/.test(_text)) return [_text.trim()];
+        const _isSimple = /^\s*CASE\s+(?!WHEN\b)\S+/i.test(_text);
+        const _norm = _text
+          .replace(/\s+\bWHEN\b/g, "\nWHEN")
+          .replace(/\s+\bTHEN\b/g, "\nTHEN")
+          .replace(/\s+\bELSE\b/g, "\nELSE")
+          .replace(/\s+\bEND\b/g, "\nEND");
+        const _lines = _norm.split("\n").map((_l) => _l.trim()).filter(Boolean);
+        if (_isSimple) {
+          const _merged = [];
+          for (let _i = 0; _i < _lines.length; _i += 1) {
+            const _cur = _lines[_i];
+            const _nx = _lines[_i + 1] ?? "";
+            if (/^WHEN\b/.test(_cur) && /^THEN\b/.test(_nx)) { _merged.push(`${_cur} ${_nx}`); _i += 1; continue; }
+            _merged.push(_cur);
+          }
+          return _merged.map((_l) => (/^(WHEN|ELSE)\b/.test(_l) ? `  ${_l}` : _l));
+        }
+        return _lines.map((_l) => (/^(WHEN|THEN|ELSE)\b/.test(_l) ? `  ${_l}` : _l));
+      };
+
+      const _formatCommaSeparatedRemainder = (_rem, _indent = "  ") => {
+        if (!_rem) return [];
+        const _items = _splitTopLevelCommaSeparated(_rem);
+        if (_items.length <= 1) return [`${_indent}${_rem}`];
+        const _out = [];
+        _items.forEach((_it, _i) => {
+          const _pre = _i === 0 ? "" : ", ";
+          _out.push(`${_indent}${_pre}${_it}`);
+        });
+        return _out;
+      };
+
+      const _formatSelectRemainder = (_rem) => {
+        if (!_rem) return [];
+        const _cols = _splitTopLevelCommaSeparated(_rem);
+        if (_cols.length <= 1) return [`  ${_rem}`];
+        const _out = [];
+        _cols.forEach((_col, _i) => {
+          const _cl = _formatCaseExpressionLines(_col);
+          const _pre = _i === 0 ? "  " : "  , ";
+          _out.push(`${_pre}${_cl[0]}`);
+          for (let _j = 1; _j < _cl.length; _j += 1) _out.push(`    ${_cl[_j]}`);
+        });
+        return _out;
+      };
+
+      const _formatStructuredLines = (_sql) => {
+        const _raw = _sql.split("\n").map((_l) => _l.trim()).filter(Boolean);
+        const _out = [];
+        let _ctx = "";
+        for (const _line of _raw) {
+          if (/^WITH\b/.test(_line)) { _ctx = "WITH"; _out.push(_line); continue; }
+          if (/^SELECT\b/.test(_line)) {
+            _ctx = "SELECT";
+            _out.push("SELECT");
+            _out.push(..._formatSelectRemainder(_stripClausePrefix(_line, "SELECT")));
+            continue;
+          }
+          if (/^(INSERT INTO|UPDATE|DELETE FROM|UNION ALL|UNION)\b/.test(_line)) { _ctx = ""; _out.push(_line); continue; }
+          if (/^FROM\b/.test(_line)) {
+            _ctx = "FROM";
+            _out.push("FROM");
+            const _r = _stripClausePrefix(_line, "FROM");
+            if (_r) {
+              if (/^\(SELECT\b/.test(_r)) { _out.push("  ("); _out.push(`  ${_r.slice(1).trim()}`); continue; }
+              _out.push(`  ${_r}`);
+            }
+            continue;
+          }
+          if (/^(INNER JOIN|LEFT JOIN|RIGHT JOIN|FULL JOIN|CROSS JOIN|JOIN)\b/.test(_line)) {
+            _ctx = "ON";
+            const _m = _line.match(/^(INNER JOIN|LEFT JOIN|RIGHT JOIN|FULL JOIN|CROSS JOIN|JOIN)\s+\((SELECT.+)$/);
+            if (_m) { _out.push(`  ${_m[1]} (`); _out.push(`    ${_m[2]}`); continue; }
+            _out.push(`  ${_line}`);
+            continue;
+          }
+          if (/^ON\b/.test(_line)) { _ctx = "ON"; _out.push(`    ${_line}`); continue; }
+          if (/^WHERE\b/.test(_line)) {
+            _ctx = "WHERE"; _out.push("WHERE");
+            const _r = _stripClausePrefix(_line, "WHERE");
+            if (_r) _out.push(`  ${_r}`);
+            continue;
+          }
+          if (/^GROUP BY\b/.test(_line)) {
+            _ctx = "GROUP BY"; _out.push("GROUP BY");
+            _out.push(..._formatCommaSeparatedRemainder(_stripClausePrefix(_line, "GROUP BY")));
+            continue;
+          }
+          if (/^HAVING\b/.test(_line)) {
+            _ctx = "HAVING"; _out.push("HAVING");
+            const _r = _stripClausePrefix(_line, "HAVING");
+            if (_r) _out.push(`  ${_r}`);
+            continue;
+          }
+          if (/^ORDER BY\b/.test(_line)) {
+            _ctx = "ORDER BY"; _out.push("ORDER BY");
+            _out.push(..._formatCommaSeparatedRemainder(_stripClausePrefix(_line, "ORDER BY")));
+            continue;
+          }
+          if (/^SET\b/.test(_line)) {
+            _ctx = "SET"; _out.push("SET");
+            _out.push(..._formatCommaSeparatedRemainder(_stripClausePrefix(_line, "SET")));
+            continue;
+          }
+          if (/^VALUES\b/.test(_line)) {
+            _ctx = "VALUES"; _out.push("VALUES");
+            const _r = _stripClausePrefix(_line, "VALUES");
+            if (_r) _out.push(`  ${_r}`);
+            continue;
+          }
+          if (/^(LIMIT|OFFSET)\b/.test(_line)) { _ctx = ""; _out.push(_line); continue; }
+          if (/^(AND|OR)\b/.test(_line)) {
+            const _ind = _ctx === "ON" ? "    " : "  ";
+            _out.push(`${_ind}${_line}`);
+            continue;
+          }
+          if (/^(WHEN|THEN|ELSE|END)\b/.test(_line)) { _out.push(`    ${_line}`); continue; }
+          const _ind = _ctx === "ON" ? "    " : _ctx ? "  " : "";
+          _out.push(`${_ind}${_line}`);
+        }
+        return _out;
+      };
+
+      const _applyParenthesisIndent = (_lines) => {
+        const _out = [];
+        let _depth = 0;
+        for (const _line of _lines) {
+          const _trim = _line.trim();
+          if (!_trim) continue;
+          const _baseInd = _line.match(/^\s*/)?.[0].length ?? 0;
+          const _leadClose = _trim.match(/^\)+/)?.[0].length ?? 0;
+          const _eff = Math.max(0, _depth - _leadClose);
+          const _minPInd = _eff > 0 ? _eff * 2 + 2 : 0;
+          const _indSize = Math.max(_baseInd, _minPInd);
+          _out.push(`${" ".repeat(_indSize)}${_trim}`);
+          const _open = (_trim.match(/\(/g) ?? []).length;
+          const _close = (_trim.match(/\)/g) ?? []).length;
+          _depth = Math.max(0, _eff + _open - _close);
+        }
+        return _out;
+      };
+
+      const _formatSql = (_sql) => {
+        const _store = _maskSqlProtectedSegments(_sql.replace(/\r\n?/g, "\n"));
+        let _f = _store._masked.replace(/\s+/g, " ").trim();
+        if (!_f) return "";
+        _f = _addSpaceAroundOperators(_f);
+        _f = _upperCaseKeywords(_f);
+        _f = _f.replace(/\bAS(?=[A-Za-z0-9_"`\[@])/g, "AS ");
+        for (const _kw of [
+          "WITH", "UNION ALL", "UNION", "SELECT", "INSERT INTO", "UPDATE",
+          "DELETE FROM", "FROM", "WHERE", "GROUP BY", "HAVING", "ORDER BY",
+          "LIMIT", "OFFSET", "VALUES", "SET", "INNER JOIN", "LEFT JOIN",
+          "RIGHT JOIN", "FULL JOIN", "CROSS JOIN",
+        ]) {
+          _f = _breakBeforeKeyword(_f, _kw);
+        }
+        _f = _breakBareJoin(_f);
+        _f = _breakBeforeKeyword(_f, "ON");
+        _f = _breakBeforeKeyword(_f, "AND");
+        _f = _breakBeforeKeyword(_f, "OR");
+        _f = _f.replace(/\b(AND|OR|ON)\(/g, "$1 (");
+        const _structured = _formatStructuredLines(_f);
+        const _indented = _applyParenthesisIndent(_structured);
+        const _norm = _indented.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+        return _restoreSqlProtectedSegments(_norm, _store._segments);
+      };
+
+      const _showCopySuccessState = () => {
+        if (!$copyLabel) return;
+        $copyLabel.textContent = "コピーしました";
+        if ($copyButton) $copyButton.classList.add("is-success");
+        window.clearTimeout(_bsState._copyLabelTimer);
+        _bsState._copyLabelTimer = window.setTimeout(() => {
+          $copyLabel.textContent = "コピー";
+          if ($copyButton) $copyButton.classList.remove("is-success");
+        }, COPY_SUCCESS_DURATION_MS);
+      };
+
+      const _copyResult = async () => {
+        if (!_bsState._lastSql) {
+          _showFlash(MESSAGES.copyEmpty, "error");
+          return;
+        }
+        const _ok = await _copyToClipboard(_bsState._lastSql);
+        if (_ok) { _showCopySuccessState(); return; }
+        _showFlash(MESSAGES.copyFailed, "error");
+      };
+
+      const _render = () => {
+        const _raw = $rawInput.value;
+        _syncInputHighlight(_raw);
+        const _input = _splitInputText(_raw);
+        const _binds = _parseBindVariables(_input._bindLines);
+        const _merged = _mergeSqlAndBinds(_input._sqlText, _binds);
+        const _formatted = _formatSql(_merged._sql);
+        if (_merged._issues.length > 0) {
+          _bsState._lastSql = "";
+          $output.textContent = _buildMergeIssueOutput(_merged._issues, _formatted);
+          _showFlash(MESSAGES.mergeError(_merged._issues.join(" ")), "error");
+          return;
+        }
+        _bsState._lastSql = _formatted;
+        _renderOutputHighlight(_formatted);
+      };
+
+      const _handleInputEvent = (event) => {
+        if (event.target === $rawInput) _render();
+      };
+
+      const _handleClickEvent = (event) => {
+        const $action = event.target.closest("[data-bs-action]");
+        if (!$action) return;
+        const _type = $action.dataset.bsAction;
+        if (_type === "clear") { $rawInput.value = ""; _render(); $rawInput.focus(); return; }
+        if (_type === "copy") { void _copyResult(); }
+      };
+
+      const _bindEvents = ($pane) => {
+        $pane.addEventListener("input", _handleInputEvent);
+        $pane.addEventListener("click", _handleClickEvent);
+        $rawInput.addEventListener("scroll", _syncInputHighlightScroll);
+      };
+
+      const _init = ($pane) => {
+        $rawInput = qs("#bs-input", $pane);
+        $rawHighlight = qs("#bs-input-highlight", $pane);
+        $output = qs("#bs-output", $pane);
+        $copyButton = qs("#bs-copy", $pane);
+        $copyLabel = qs("[data-bs-copy-label]", $pane);
+        _bindEvents($pane);
+        _render();
+      };
+
+      return { init: _init };
+    })();
+
+    _tools.maskinger = (() => {
+      const CODE_SIGNAL_REGEXES = [
+        /\b(function|const|let|var|class|import|export|def|return|interface|enum)\b/,
+        /=>|\{\s*\n|;\s*\n/,
+        /<\/?[A-Za-z][^>]*>/,
+        /\bSELECT\b.+\bFROM\b/i,
+      ];
+      const SQL_STATEMENT_REGEX =
+        /(SELECT\s+.+\s+FROM|INSERT\s+INTO|UPDATE\s+.+\s+SET|DELETE\s+FROM|CREATE\s+TABLE|DROP\s+TABLE|ALTER\s+TABLE|WITH\s+.+\s+SELECT)/i;
+      const NON_MASKABLE_CONSTANTS = new Set([
+        "TRUE", "FALSE", "NULL", "NONE", "NAN", "INF", "STDIN", "STDOUT", "STDERR", "EOF",
+        "GET", "POST", "PUT", "PATCH", "DELETE", "SELECT", "FROM", "WHERE", "AND", "OR", "NOT",
+      ]);
+      const SECRET_ASSIGNMENT_KEY_PATTERN =
+        "password|passwd|pwd|secret|token|api[_-]?key|access[_-]?(?:token|key)|client[_-]?secret|authorization|auth|session(?:id)?|cookie|bearer|private[_-]?key|ssh[_-]?key|refresh[_-]?token|id[_-]?token|webhook[_-]?secret";
+      const PII_ASSIGNMENT_KEY_PATTERN =
+        "email|mail|phone|tel|mobile|address|ssn|social[_-]?security|passport|license|driver[_-]?license|my[_-]?number|mynumber|card(?:number)?|credit[_-]?card|iban|account(?:_?number)?|routing(?:_?number)?|dob|birth(?:date)?|full[_-]?name|real[_-]?name|employee(?:_?id)?|customer(?:_?id)?|user(?:_?id)?";
+      const NO_MATCH_MESSAGE = "マスキング対象は見つかりませんでした";
+      const COPY_DONE_LABEL = "コピーしました";
+      const COPY_FEEDBACK_DURATION_MS = 1200;
+
+      const _buildAssignmentRegexes = (_keyPattern) => ({
+        _quoted: new RegExp(
+          `((?:["']?(?:${_keyPattern})["']?\\s*[:=]\\s*))(["'\`])([^"'\\\`\\n]{0,400})(\\2)`,
+          "gi"
+        ),
+        _bare: new RegExp(
+          `((?:["']?(?:${_keyPattern})["']?\\s*[:=]\\s*))([^\\s,;\\n"'\\\`]+)`,
+          "gi"
+        ),
+      });
+
+      const SECRET_ASSIGNMENT_REGEXES = _buildAssignmentRegexes(SECRET_ASSIGNMENT_KEY_PATTERN);
+      const PII_ASSIGNMENT_REGEXES = _buildAssignmentRegexes(PII_ASSIGNMENT_KEY_PATTERN);
+
+      let $root;
+      let $input;
+      let $output;
+      let $mapping;
+      let $modal;
+      let $copyOutBtn;
+      let $copyMapBtn;
+      let _maskedMappingLines = [];
+      let _lastFocused = null;
+      const _copyTimers = new WeakMap();
+
+      const _looksLikeCode = (_text) => {
+        if (!_text.trim()) return false;
+        const _lc = _text.split(/\r?\n/).length;
+        const _hit = CODE_SIGNAL_REGEXES.some((_r) => _r.test(_text));
+        const _density = (_text.match(/[{}();=<>]/g) || []).length / Math.max(_text.length, 1);
+        return _hit || (_lc >= 4 && _density > 0.02);
+      };
+
+      const _isHashCommentStart = (_t, _i) => {
+        if (_i === 0) return true;
+        const _p = _t[_i - 1];
+        return _p === " " || _p === "\t" || _p === "\n";
+      };
+
+      const _isDoubleDashCommentStart = (_t, _i) => {
+        if (_i === 0) return true;
+        return /\s/.test(_t[_i - 1]);
+      };
+
+      const _stripComments = (_text) => {
+        let _r = "";
+        let _i = 0;
+        let _inStr = false;
+        let _q = "";
+        while (_i < _text.length) {
+          const _c = _text[_i];
+          const _n = _text[_i + 1];
+          if (_inStr) {
+            _r += _c;
+            if (_c === "\\") {
+              const _e = _text[_i + 1];
+              if (_e) { _r += _e; _i += 2; continue; }
+            }
+            if (_c === _q) { _inStr = false; _q = ""; }
+            _i += 1;
+            continue;
+          }
+          if (_c === "'" || _c === '"' || _c === "`") { _inStr = true; _q = _c; _r += _c; _i += 1; continue; }
+          if (_c === "/" && _n === "/") {
+            _i += 2;
+            while (_i < _text.length && _text[_i] !== "\n") _i += 1;
+            continue;
+          }
+          if (_c === "/" && _n === "*") {
+            _i += 2;
+            while (_i < _text.length) {
+              if (_text[_i] === "*" && _text[_i + 1] === "/") { _i += 2; break; }
+              if (_text[_i] === "\n") _r += "\n";
+              _i += 1;
+            }
+            continue;
+          }
+          if (_c === "-" && _n === "-" && _isDoubleDashCommentStart(_text, _i)) {
+            _i += 2;
+            while (_i < _text.length && _text[_i] !== "\n") _i += 1;
+            continue;
+          }
+          if (_c === "#" && _isHashCommentStart(_text, _i)) {
+            _i += 1;
+            while (_i < _text.length && _text[_i] !== "\n") _i += 1;
+            continue;
+          }
+          _r += _c;
+          _i += 1;
+        }
+        return _r;
+      };
+
+      const _consumeQuotedLiteral = (_text, _start, _q) => {
+        let _i = _start + 1;
+        let _esc = false;
+        while (_i < _text.length) {
+          const _c = _text[_i];
+          if (_esc) { _esc = false; _i += 1; continue; }
+          if (_c === "\\") { _esc = true; _i += 1; continue; }
+          if (_c === _q) { _i += 1; break; }
+          _i += 1;
+        }
+        const _lit = _text.slice(_start, _i);
+        const _closed = _lit.endsWith(_q);
+        const _content = _closed ? _lit.slice(1, -1) : _lit.slice(1);
+        return { _literal: _lit, _content, _nextIndex: _i, _isClosed: _closed };
+      };
+
+      const _isSqlStatement = (_cand) => {
+        const _line = _cand.replace(/\s+/g, " ").trim();
+        if (!_line) return false;
+        return SQL_STATEMENT_REGEX.test(_line.toUpperCase());
+      };
+
+      const _isIdentifierStart = (_c) => /[A-Za-z_]/.test(_c);
+      const _isIdentifierPart = (_c) => /[A-Za-z0-9_]/.test(_c);
+
+      const _isMaskableConstant = (_t) => {
+        if (!/^[A-Z][A-Z0-9_]+$/.test(_t)) return false;
+        if (NON_MASKABLE_CONSTANTS.has(_t)) return false;
+        if (!_t.includes("_") && _t.length < 4) return false;
+        return true;
+      };
+
+      const _escapeRegex = (_v) => _v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+      const _replaceIdentifierEverywhere = (_text, _name, _repl) => {
+        const _re = new RegExp(`\\b${_escapeRegex(_name)}\\b`, "g");
+        return _text.replace(_re, _repl);
+      };
+
+      const _createMaskState = () => ({
+        _counterByLabel: new Map(),
+        _mappings: [],
+      });
+
+      const _nextPlaceholder = (_label, _state, _original = "") => {
+        const _next = (_state._counterByLabel.get(_label) || 0) + 1;
+        _state._counterByLabel.set(_label, _next);
+        const _ph = `[${_label}_${_next}]`;
+        _state._mappings.push({ _original, _masked: _ph });
+        return _ph;
+      };
+
+      const _isPlaceholder = (_v) => /^\[[A-Z]+_\d+\]$/.test(_v);
+
+      const _maskByRegex = (_text, _regex, _label, _state, _validator = null) =>
+        _text.replace(_regex, (_m) => {
+          if (_isPlaceholder(_m)) return _m;
+          if (_validator && !_validator(_m)) return _m;
+          return _nextPlaceholder(_label, _state, _m);
+        });
+
+      const _isLikelyCreditCard = (_cand) => {
+        const _digits = _cand.replace(/\D/g, "");
+        if (_digits.length < 13 || _digits.length > 19) return false;
+        let _sum = 0;
+        let _double = false;
+        for (let _i = _digits.length - 1; _i >= 0; _i -= 1) {
+          let _d = Number(_digits[_i]);
+          if (_double) { _d *= 2; if (_d > 9) _d -= 9; }
+          _sum += _d;
+          _double = !_double;
+        }
+        return _sum % 10 === 0;
+      };
+
+      const _maskAssignmentValues = (_text, _regexes, _label, _state) => {
+        let _r = _text.replace(_regexes._quoted, (_m, _pre, _q, _val, _qSuffix) => {
+          if (_isPlaceholder(_val)) return _m;
+          const _ph = _nextPlaceholder(_label, _state, _val);
+          return `${_pre}${_q}${_ph}${_qSuffix}`;
+        });
+        _r = _r.replace(_regexes._bare, (_m, _pre, _val) => {
+          if (_isPlaceholder(_val)) return _m;
+          const _ph = _nextPlaceholder(_label, _state, _val);
+          return `${_pre}${_ph}`;
+        });
+        return _r;
+      };
+
+      const _maskSqlStrings = (_text, _state) => {
+        let _r = "";
+        let _i = 0;
+        while (_i < _text.length) {
+          const _c = _text[_i];
+          if (_c === "'" || _c === '"' || _c === "`") {
+            const _info = _consumeQuotedLiteral(_text, _i, _c);
+            if (_info._isClosed && _isSqlStatement(_info._content)) {
+              _r += _nextPlaceholder("SQL", _state, _info._literal);
+            } else {
+              _r += _info._literal;
+            }
+            _i = _info._nextIndex;
+            continue;
+          }
+          _r += _c;
+          _i += 1;
+        }
+        return _r;
+      };
+
+      const _maskClassLikeNames = (_text, _state) => {
+        const _by = new Map();
+        const _to = (_n) => {
+          if (!_by.has(_n)) _by.set(_n, _nextPlaceholder("CLASS", _state, _n));
+          return _by.get(_n);
+        };
+        let _r = _text.replace(/\b(class\s+)([A-Z][A-Za-z0-9_]*)\b/g, (_m, _pre, _n) => `${_pre}${_to(_n)}`);
+        _r = _r.replace(/\b((?:interface|enum|type)\s+)([A-Z][A-Za-z0-9_]*)\b/g, (_m, _pre, _n) => `${_pre}${_to(_n)}`);
+        for (const [_n, _ph] of _by) _r = _replaceIdentifierEverywhere(_r, _n, _ph);
+        return _r;
+      };
+
+      const _maskFunctionNames = (_text, _state) => {
+        const _by = new Map();
+        const _skip = new Set([
+          "if", "for", "while", "switch", "catch", "return", "throw", "new",
+          "case", "default", "await", "yield", "typeof", "delete", "constructor",
+        ]);
+        const _shouldSkip = (_n) => _skip.has(_n.toLowerCase()) || _isPlaceholder(_n);
+        const _to = (_n) => {
+          if (_shouldSkip(_n)) return _n;
+          if (!_by.has(_n)) _by.set(_n, _nextPlaceholder("FUNC", _state, _n));
+          return _by.get(_n);
+        };
+        let _r = _text.replace(/\b((?:async\s+)?function\s+)([A-Za-z_][A-Za-z0-9_]*)\b/g, (_m, _pre, _n) => `${_pre}${_to(_n)}`);
+        _r = _r.replace(/\b(def\s+)([A-Za-z_][A-Za-z0-9_]*)\s*(?=\()/g, (_m, _pre, _n) => `${_pre}${_to(_n)}`);
+        _r = _r.replace(/\b(func\s+)([A-Za-z_][A-Za-z0-9_]*)\s*(?=\()/g, (_m, _pre, _n) => `${_pre}${_to(_n)}`);
+        _r = _r.replace(
+          /\b((?:const|let|var)\s+)([A-Za-z_$][A-Za-z0-9_$]*)(\s*=\s*(?:async\s+)?(?:function\b|\([^)\n]*\)\s*=>|[A-Za-z_$][A-Za-z0-9_$]*\s*=>))/g,
+          (_m, _pre, _n, _suf) => `${_pre}${_to(_n)}${_suf}`
+        );
+        _r = _r.replace(
+          /(^|\n)(\s*)([A-Za-z_$][A-Za-z0-9_$]*)\s*(?=\([^)\n]*\)\s*\{)/g,
+          (_m, _br, _ind, _n) => {
+            if (_shouldSkip(_n)) return _m;
+            return `${_br}${_ind}${_to(_n)}`;
+          }
+        );
+        _r = _r.replace(
+          /(^|\n)(\s*(?:@\w+(?:\([^)\n]*\))?\s*)*(?:(?:public|private|protected)\s+)?(?:(?:static|final|synchronized|abstract|native|strictfp)\s+)*(?:<[^>\n]+>\s+)?(?:[A-Za-z_$][A-Za-z0-9_$<>\[\],.?]*\s+)+)([A-Za-z_$][A-Za-z0-9_$]*)\s*(?=\([^)\n]*\)\s*(?:\{|throws\b|;))/g,
+          (_m, _br, _pre, _n) => {
+            const _last = _pre.trim().match(/([A-Za-z_$][A-Za-z0-9_$]*)\s*$/);
+            const _lw = _last ? _last[1].toLowerCase() : "";
+            if (_shouldSkip(_n) || _skip.has(_lw)) return _m;
+            return `${_br}${_pre}${_to(_n)}`;
+          }
+        );
+        for (const [_n, _ph] of _by) _r = _replaceIdentifierEverywhere(_r, _n, _ph);
+        return _r;
+      };
+
+      const _shouldMaskCodeStringLiteral = (_content) => {
+        if (!_content.trim()) return false;
+        if (_isPlaceholder(_content.trim())) return false;
+        return /[A-Za-z0-9一-龠々ぁ-んァ-ヶ]/.test(_content);
+      };
+
+      const _maskCodeStringLiterals = (_text, _state) => {
+        let _r = "";
+        let _i = 0;
+        while (_i < _text.length) {
+          const _c = _text[_i];
+          if (_c === "'" || _c === '"' || _c === "`") {
+            const _info = _consumeQuotedLiteral(_text, _i, _c);
+            if (_info._isClosed && _shouldMaskCodeStringLiteral(_info._content)) {
+              const _ph = _nextPlaceholder("STRING", _state, _info._literal);
+              _r += `${_c}${_ph}${_c}`;
+            } else {
+              _r += _info._literal;
+            }
+            _i = _info._nextIndex;
+            continue;
+          }
+          _r += _c;
+          _i += 1;
+        }
+        return _r;
+      };
+
+      const _maskConstants = (_text, _state) => {
+        let _r = "";
+        let _i = 0;
+        let _inStr = false;
+        let _q = "";
+        while (_i < _text.length) {
+          const _c = _text[_i];
+          if (_inStr) {
+            _r += _c;
+            if (_c === "\\") { const _e = _text[_i + 1]; if (_e) { _r += _e; _i += 2; continue; } }
+            if (_c === _q) { _inStr = false; _q = ""; }
+            _i += 1;
+            continue;
+          }
+          if (_c === "'" || _c === '"' || _c === "`") { _inStr = true; _q = _c; _r += _c; _i += 1; continue; }
+          const _phM = _text.slice(_i).match(/^\[[A-Z]+_\d+\]/);
+          if (_phM) { _r += _phM[0]; _i += _phM[0].length; continue; }
+          if (_isIdentifierStart(_c)) {
+            let _e = _i + 1;
+            while (_e < _text.length && _isIdentifierPart(_text[_e])) _e += 1;
+            const _tok = _text.slice(_i, _e);
+            if (_isMaskableConstant(_tok)) _r += _nextPlaceholder("CONST", _state, _tok);
+            else _r += _tok;
+            _i = _e;
+            continue;
+          }
+          _r += _c;
+          _i += 1;
+        }
+        return _r;
+      };
+
+      const _maskText = (_raw) => {
+        const _state = _createMaskState();
+        let _r = _raw;
+        if (_looksLikeCode(_raw)) {
+          _r = _stripComments(_r);
+          _r = _maskSqlStrings(_r, _state);
+          _r = _maskClassLikeNames(_r, _state);
+          _r = _maskFunctionNames(_r, _state);
+          _r = _maskConstants(_r, _state);
+          _r = _maskCodeStringLiterals(_r, _state);
+        }
+        _r = _maskAssignmentValues(_r, SECRET_ASSIGNMENT_REGEXES, "SECRET", _state);
+        _r = _maskAssignmentValues(_r, PII_ASSIGNMENT_REGEXES, "PII", _state);
+        _r = _maskByRegex(_r, /-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bBearer\s+[A-Za-z0-9._\-+/=]{16,}\b/gi, "SECRET", _state);
+        _r = _maskByRegex(_r, /\b(?:postgres(?:ql)?|mysql|mssql|mongodb(?:\+srv)?|redis):\/\/[^\s"'`]+/gi, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bsk-ant-[A-Za-z0-9_-]{10,}\b/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bAIza[0-9A-Za-z_-]{35}\b/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bsk_(?:live|test)_[0-9a-zA-Z]{16,}\b/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bxox[baprs]-[A-Za-z0-9-]{10,}\b/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bAKIA[0-9A-Z]{16}\b/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bASIA[0-9A-Z]{16}\b/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bgh[pousr]_[A-Za-z0-9]{20,}\b/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bsk-[A-Za-z0-9]{20,}\b/g, "SECRET", _state);
+        _r = _maskByRegex(_r, /\bhttps?:\/\/[^\s"'`<>]+/gi, "URL", _state);
+        _r = _maskByRegex(_r, /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, "EMAIL", _state);
+        _r = _maskByRegex(_r, /\b(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}\b/g, "IP", _state);
+        _r = _maskByRegex(_r, /\b\d{3}-\d{2}-\d{4}\b/g, "PII", _state);
+        _r = _maskByRegex(_r, /〒?\s?\d{3}-\d{4}\b/g, "ADDRESS", _state);
+        _r = _maskByRegex(_r, /\b[A-Z]{2}\d{2}[A-Z0-9]{11,30}\b/g, "ACCOUNT", _state);
+        _r = _maskByRegex(_r, /\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "ID", _state);
+        _r = _maskByRegex(_r, /\b(?:\d[ -]?){13,19}\d\b/g, "CARD", _state, _isLikelyCreditCard);
+        _r = _maskByRegex(_r, /\b\d{4}[-\s]?\d{4}[-\s]?\d{4}\b/g, "PII", _state);
+        _r = _maskByRegex(_r, /\b(?:\+?\d{1,3}[\s-]?)?(?:\d{2,4}[\s-]\d{2,4}[\s-]\d{3,4})\b/g, "PHONE", _state);
+        _r = _maskByRegex(_r, /(?:[A-Za-z]:\\(?:[^\\\s"'`]+\\)*[^\\\s"'`]*|\/(?:Users|home|var|etc|opt|tmp)\/[\w./-]+)/g, "PATH", _state);
+        _r = _maskByRegex(_r, /([一-龠々ぁ-んァ-ヶー]{1,12}(?:\s+[一-龠々ぁ-んァ-ヶー]{1,12})?)\s*(様|さん|氏|殿)/g, "NAME", _state);
+        _r = _maskByRegex(_r, /\b((?:Mr|Ms|Mrs|Dr)\.?\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\b/g, "NAME", _state);
+        _r = _maskByRegex(_r, /\b([A-Z][A-Za-z0-9&.'-]*(?:\s+[A-Z][A-Za-z0-9&.'-]*){0,3}\s(?:Inc\.|LLC|Ltd\.|Corp\.|Corporation|Company))\b/g, "ORG", _state);
+        _r = _maskByRegex(_r, /(?:株式会社|有限会社|合同会社)\s*[^\s、。,.()\n]{1,24}/g, "ORG", _state);
+        return { _maskedText: _r, _mappings: _state._mappings };
+      };
+
+      const _normalizeLineValue = (_v) => String(_v).replace(/\r?\n/g, "\\n");
+      const _buildMappingLines = (_mappings) =>
+        _mappings.map((_m) => `${_normalizeLineValue(_m._masked)} = ${_normalizeLineValue(_m._original)}`);
+
+      const _renderMappingList = ($list, _lines, _emptyMessage) => {
+        $list.textContent = "";
+        if (_lines.length === 0) {
+          if (!_emptyMessage) return;
+          const $empty = document.createElement("li");
+          $empty.className = "mk-mapping__empty";
+          $empty.textContent = _emptyMessage;
+          $list.append($empty);
+          return;
+        }
+        for (const _line of _lines) {
+          const $item = document.createElement("li");
+          $item.textContent = _line;
+          $list.append($item);
+        }
+      };
+
+      const _renderMaskedOutput = () => {
+        const _src = $input.value;
+        if (!_src.trim()) {
+          $output.textContent = "";
+          _maskedMappingLines = [];
+          _renderMappingList($mapping, _maskedMappingLines, "");
+          return;
+        }
+        const _result = _maskText(_src);
+        $output.textContent = _result._maskedText;
+        _maskedMappingLines = _buildMappingLines(_result._mappings);
+        _renderMappingList($mapping, _maskedMappingLines, NO_MATCH_MESSAGE);
+      };
+
+      const _showCopyDoneLabel = ($button) => {
+        const $label = qs("[data-mk-copy-label]", $button);
+        const $icon = qs(".button__icon", $button);
+        const _existing = _copyTimers.get($button);
+        if (_existing) clearTimeout(_existing);
+        $button.classList.add("is-success");
+        if ($icon) $icon.textContent = "check";
+        if ($label) $label.textContent = COPY_DONE_LABEL;
+        const _timer = setTimeout(() => {
+          $button.classList.remove("is-success");
+          if ($icon) $icon.textContent = "content_copy";
+          if ($label) $label.textContent = "コピー";
+          _copyTimers.delete($button);
+        }, COPY_FEEDBACK_DURATION_MS);
+        _copyTimers.set($button, _timer);
+      };
+
+      const _openHelpModal = () => {
+        if ($modal.dataset.open === "true") return;
+        _lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        $modal.dataset.open = "true";
+        $modal.setAttribute("aria-hidden", "false");
+        const $closeBtn = qs('[data-mk-action="close-help"]', $modal);
+        if ($closeBtn) $closeBtn.focus();
+      };
+
+      const _closeHelpModal = () => {
+        if ($modal.dataset.open !== "true") return;
+        $modal.dataset.open = "false";
+        $modal.setAttribute("aria-hidden", "true");
+        if (_lastFocused && document.contains(_lastFocused)) _lastFocused.focus();
+      };
+
+      const _handleInputEvent = (event) => {
+        if (event.target === $input) _renderMaskedOutput();
+      };
+
+      const _handleClickEvent = async (event) => {
+        const $button = event.target.closest("[data-mk-action]");
+        if (!$button) return;
+        const _type = $button.dataset.mkAction;
+        if (_type === "help") { _openHelpModal(); return; }
+        if (_type === "close-help") { _closeHelpModal(); return; }
+        if (_type === "clear") { $input.value = ""; _renderMaskedOutput(); $input.focus(); return; }
+        if (_type === "copy") {
+          const _ok = await _copyToClipboard($output.textContent || "");
+          if (_ok) _showCopyDoneLabel($button);
+          return;
+        }
+        if (_type === "copy-mapping") {
+          const _ok = await _copyToClipboard(_maskedMappingLines.join("\n"));
+          if (_ok) _showCopyDoneLabel($button);
+        }
+      };
+
+      const _handleModalClick = (event) => {
+        if (event.target === $modal) _closeHelpModal();
+      };
+
+      const _handleKeydown = (event) => {
+        if (event.key === "Escape") _closeHelpModal();
+      };
+
+      const _bindEvents = ($pane) => {
+        $pane.addEventListener("input", _handleInputEvent);
+        $pane.addEventListener("click", _handleClickEvent);
+        $modal.addEventListener("click", _handleModalClick);
+        $modal.addEventListener("click", (event) => {
+          const $btn = event.target.closest('[data-mk-action="close-help"]');
+          if ($btn) _closeHelpModal();
+        });
+        document.addEventListener("keydown", _handleKeydown);
+      };
+
+      const _init = ($pane) => {
+        $root = $pane;
+        $input = qs("#mk-input", $pane);
+        $output = qs("#mk-output", $pane);
+        $mapping = qs("#mk-mapping", $pane);
+        $modal = qs("#mk-help-modal");
+        $copyOutBtn = qs('[data-mk-action="copy"]', $pane);
+        $copyMapBtn = qs('[data-mk-action="copy-mapping"]', $pane);
+        _bindEvents($pane);
+        _renderMaskedOutput();
+      };
+
+      return { init: _init };
+    })();
+
+    const _loadState = () => {
+      const _storedTheme = _loadKey(STORAGE.THEME);
+      _applyTheme(_storedTheme === THEME_LIGHT || _storedTheme === THEME_DARK ? _storedTheme : DEFAULT_THEME);
+
+      const _storedCollapsed = _loadKey(STORAGE.SIDEBAR);
+      _applyCollapsed(_storedCollapsed === "true");
+
+      const _hashId = window.location.hash.replace(/^#\/?/, "");
+      const _storedActive = _loadKey(STORAGE.ACTIVE);
+      const _initialId = _findTool(_hashId)
+        ? _hashId
+        : _findTool(_storedActive)
+          ? _storedActive
+          : "welcome";
+      _activateTool(_initialId);
+    };
+
+    const _bindShellEvents = () => {
+      $nav.addEventListener("click", _handleNavClick);
+      $welcomeGrid.addEventListener("click", _handleNavClick);
+      $themeToggle.addEventListener("change", _handleThemeToggleChange);
+      $sidebarToggle.addEventListener("click", _handleSidebarToggleClick);
+      $menuToggle.addEventListener("click", _handleMenuToggleClick);
+      $sidebarBackdrop.addEventListener("click", _handleBackdropClick);
+      window.addEventListener("hashchange", _handleHashChange);
+    };
+
+    const _initShell = () => {
+      _renderNav();
+      _renderWelcomeGrid();
+      _bindShellEvents();
+      _loadState();
+    };
+
+    _initShell();
+
+  </script>
+</body>
+</html>
