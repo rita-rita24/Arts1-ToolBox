@@ -1846,7 +1846,232 @@
       return { init: _init };
     })();
 
-    /* @insert: tool-bindsql */
+    _tools.bindsql = (() => {
+      const _splitKeywordBlock = (_block) =>
+        _block.split(/\r?\n/).map((_keyword) => _keyword.trim()).filter(Boolean);
+
+      const _buildKeywordPatternSource = (_keyword) =>
+        _keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
+
+      const CLAUSE_KEYWORDS = [
+        "WITH", "UNION ALL", "UNION", "SELECT", "INSERT INTO", "UPDATE",
+        "DELETE FROM", "FROM", "WHERE", "GROUP BY", "HAVING", "ORDER BY",
+        "LIMIT", "OFFSET", "VALUES", "SET", "INNER JOIN", "LEFT JOIN",
+        "RIGHT JOIN", "FULL JOIN", "CROSS JOIN", "JOIN",
+      ];
+      const INLINE_KEYWORDS = ["ON", "AND", "OR"];
+      const EXPRESSION_KEYWORDS = ["DISTINCT", "CASE", "WHEN", "THEN", "ELSE", "END", "AS", "EXISTS"];
+      const DIALECT_PHRASE_KEYWORDS = _splitKeywordBlock(`
+AT TIME ZONE
+CONNECT BY
+CONNECT_BY_ROOT
+CROSS JOIN
+FETCH FIRST
+FETCH NEXT
+FOR KEY SHARE
+FOR NO KEY UPDATE
+FOR SHARE
+FOR UPDATE
+FULL JOIN
+FULL OUTER JOIN
+GROUP BY
+GROUPING SETS
+INNER JOIN
+IS NOT NULL
+IS NULL
+JSON TABLE
+LATERAL VIEW
+LEFT JOIN
+LEFT OUTER JOIN
+MATCH_RECOGNIZE
+NATURAL JOIN
+NOT EXISTS
+NOT IN
+NULLS FIRST
+NULLS LAST
+ON CONFLICT
+ORDER BY
+ORDER SIBLINGS BY
+PARTITION BY
+RIGHT JOIN
+RIGHT OUTER JOIN
+START WITH
+UNION ALL
+UNION DISTINCT
+USING INDEX
+WHEN MATCHED
+WHEN NOT MATCHED
+WITH RECURSIVE
+WITHIN GROUP
+`);
+      const ORACLE_KEYWORDS = _splitKeywordBlock(`
+ACCESS ADD ALL ALTER AND ANY AS ASC AUDIT BETWEEN BY CHAR CHECK CLUSTER COLUMN
+COMMENT COMPRESS CONNECT CREATE CURRENT DATE DECIMAL DEFAULT DELETE DESC DISTINCT
+DROP ELSE EXCLUSIVE EXISTS FILE FLOAT FOR FROM GRANT GROUP HAVING IDENTIFIED
+IMMEDIATE IN INCREMENT INDEX INITIAL INSERT INTEGER INTERSECT INTO IS LEVEL LIKE
+LOCK LONG MAXEXTENTS MEASURES MERGE MINUS MLSLABEL MODEL MODE MODIFY NOAUDIT
+NOCOMPRESS NOCYCLE NOT NOWAIT NULL NUMBER OF OFFLINE ON ONLINE OPTION OR ORDER
+PARTITION PATTERN PCTFREE PIVOT PRIOR PRIVILEGES PUBLIC QUALIFY RAW RENAME
+RESOURCE RETURNING REVOKE ROW ROWID ROWNUM ROWS SAMPLE SELECT SESSION SET SHARE
+SIZE SMALLINT START SUBPARTITION SUCCESSFUL SYNONYM SYSDATE SYSTIMESTAMP TABLE
+THEN TO TRIGGER UID UNION UNIQUE UNPIVOT UPDATE USER USING VALIDATE VALUES
+VARCHAR VARCHAR2 VIEW WHENEVER WHERE WITH
+`.replace(/\s+/g, "\n"));
+      const POSTGRESQL_KEYWORDS = _splitKeywordBlock(`
+ALL ANALYSE ANALYZE AND ANY ARRAY AS ASC ASYMMETRIC AUTHORIZATION BETWEEN BINARY
+BOTH CASE CAST CHECK COLLATE COLLATION COLUMN CONSTRAINT CREATE CROSS
+CURRENT_CATALOG CURRENT_DATE CURRENT_ROLE CURRENT_SCHEMA CURRENT_TIME
+CURRENT_TIMESTAMP CURRENT_USER DEFAULT DEFERRABLE DESC DISTINCT DO ELSE END EXCEPT
+EXISTS FALSE FETCH FOR FOREIGN FROM FULL GRANT GROUP HAVING ILIKE IN INITIALLY
+INNER INTERSECT INTO IS ISNULL JOIN LATERAL LEADING LEFT LIKE LIMIT LOCALTIME
+LOCALTIMESTAMP MERGE NATURAL NOT NOTNULL NULL OFFSET ON ONLY OR ORDER OUTER OVER
+OVERLAPS PARTITION PLACING PRIMARY RECURSIVE REFERENCES RETURNING RIGHT SELECT
+SESSION_USER SET SIMILAR SOME SYMMETRIC TABLE THEN TO TRAILING TRUE UNION UNIQUE
+UPDATE USER USING VALUES VARIADIC WHEN WHERE WINDOW WITH
+`.replace(/\s+/g, "\n"));
+
+      const SQL_KEYWORD_DICTIONARY = [
+        ...new Set([
+          ...CLAUSE_KEYWORDS,
+          ...INLINE_KEYWORDS,
+          ...EXPRESSION_KEYWORDS,
+          ...DIALECT_PHRASE_KEYWORDS,
+          ...ORACLE_KEYWORDS,
+          ...POSTGRESQL_KEYWORDS,
+        ]),
+      ].sort((_a, _b) => _b.length - _a.length);
+
+      const SQL_HIGHLIGHT_KEYWORD_PATTERNS_BY_INITIAL = SQL_KEYWORD_DICTIONARY.reduce(
+        (_map, _keyword) => {
+          const _entry = {
+            _keyword,
+            _pattern: new RegExp(`^${_buildKeywordPatternSource(_keyword)}\\b`, "i"),
+          };
+          const _initial = _keyword[0]?.toUpperCase() ?? "";
+          if (!_initial) return _map;
+          if (!_map[_initial]) _map[_initial] = [];
+          _map[_initial].push(_entry);
+          return _map;
+        },
+        Object.create(null)
+      );
+
+      const SQL_KEYWORD_CASE_PATTERN = new RegExp(
+        `\\b(?:${SQL_KEYWORD_DICTIONARY.map(_buildKeywordPatternSource).join("|")})\\b`,
+        "gi"
+      );
+
+      const PLACEHOLDER_TEXT = "-- ここに変換後SQLが表示されます --";
+      const NAMED_BIND_PATTERN = /^:?(?<name>[A-Za-z_][A-Za-z0-9_$]*)\s*(?:=>|=|:)\s*(?<value>.+)$/;
+      const NAMED_PLACEHOLDER_PATTERN = /(^|[^:]):(?<name>[A-Za-z_][A-Za-z0-9_$]*)\b/g;
+      const POSITIONAL_BIND_PATTERN = /^(?:\[(?<indexA>\d+)\]|(?<indexB>\d+))\s*(?:=>|=|:)\s*(?<value>.+)$/;
+      const PARAMETER_ENTRY_PATTERN = /^(?<key>:?[A-Za-z_][A-Za-z0-9_$]*|\[\d+\]|\d+)\s*(?:=>|=|:)\s*(?<value>.+)$/;
+      const SQL_PARAMETER_BLOCK_PATTERN = /^\s*sql\s*=\s*\[(?<sql>[\s\S]*?)\]\s*(?:parameters?|params?)\s*=\s*\[(?<parameters>[\s\S]*?)\]\s*$/i;
+      const BIND_HEADER_PATTERN = /^(?:bind(?:\s+variables?)?|params?|parameters?)\s*:?\s*$/i;
+      const SQL_PREFIX_PATTERN = /^\s*sql\s*[:=]\s*(?<sql>.+)$/i;
+      const PARAMETER_QUOTE_PAIRS = Object.freeze({ "'": "'", '"': '"', "“": "”", "‘": "’" });
+      const HIGHLIGHT_QUOTE_PAIRS = Object.freeze({ "'": "'", '"': '"', "“": "”", "‘": "’" });
+      const HTML_ESCAPE_MAP = Object.freeze({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" });
+      const SQL_ASSIGNMENT_NAMES = new Set([
+        "SELECT", "FROM", "WHERE", "AND", "OR", "ORDER", "GROUP", "HAVING", "JOIN",
+        "LEFT", "RIGHT", "INNER", "FULL", "CROSS", "LIMIT", "OFFSET", "INSERT",
+        "UPDATE", "DELETE", "VALUES", "SET", "WITH", "SQL",
+      ]);
+      const COPY_SUCCESS_DURATION_MS = 1500;
+
+      const MESSAGES = Object.freeze({
+        unresolvedNamed: (_list, _count) => `未置換の名前付きバインド (${_list}) が ${_count} 件あります。`,
+        extraNamed: (_list, _count) => `余剰の名前付きバインド (${_list}) が ${_count} 件あります。`,
+        unresolvedPositional: (_count) => `未置換の位置バインド (?) が ${_count} 件あります。`,
+        extraPositional: (_list, _count) => `余剰の位置バインド (${_list}) が ${_count} 件あります。`,
+        copyEmpty: "コピーできるSQLがありません",
+        copyFailed: "コピーに失敗しました",
+        mergeError: (_detail) => `変換エラー: ${_detail}`,
+      });
+
+      let $rawInput;
+      let $rawHighlight;
+      let $output;
+      let $copyButton;
+      let $copyLabel;
+
+      const _bsState = {
+        _lastSql: "",
+        _copyLabelTimer: 0,
+      };
+
+      const _escapeRegExp = (_value) => _value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const _escapeHtml = (_value) =>
+        _value.replace(/[&<>"']/g, (_c) => HTML_ESCAPE_MAP[_c] ?? _c);
+      const _isWordCharacter = (_c) => /[A-Za-z0-9_$]/.test(_c);
+
+      const _isQuotedValue = (_value) =>
+        (_value.startsWith("'") && _value.endsWith("'")) ||
+        (_value.startsWith('"') && _value.endsWith('"')) ||
+        (_value.startsWith("“") && _value.endsWith("”")) ||
+        (_value.startsWith("‘") && _value.endsWith("’"));
+
+      const _isSqlLiteralValue = (_value) =>
+        /^null$/i.test(_value) ||
+        /^(true|false)$/i.test(_value) ||
+        /^[+-]?(?:\d+\.?\d*|\.\d+)$/.test(_value) ||
+        _isQuotedValue(_value);
+
+      const _quoteParameterValue = (_value) => {
+        const _trimmed = _value.trim();
+        if (!_trimmed || _isSqlLiteralValue(_trimmed)) return _trimmed;
+        return `"${_trimmed.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+      };
+
+      const _splitParameterEntries = (_text) => {
+        const _entries = [];
+        let _current = "";
+        let _close = "";
+        let _allowEsc = false;
+        let _esc = false;
+        for (const _ch of _text) {
+          if (_close) {
+            _current += _ch;
+            if (_allowEsc && _ch === "\\" && !_esc) { _esc = true; continue; }
+            if (_ch === _close && !_esc) { _close = ""; _allowEsc = false; }
+            _esc = false;
+            continue;
+          }
+          const _pair = PARAMETER_QUOTE_PAIRS[_ch];
+          if (_pair) { _close = _pair; _allowEsc = _ch === "'" || _ch === '"'; _current += _ch; _esc = false; continue; }
+          if (_ch === ",") { const _e = _current.trim(); if (_e) _entries.push(_e); _current = ""; continue; }
+          _current += _ch;
+        }
+        const _tail = _current.trim();
+        if (_tail) _entries.push(_tail);
+        return _entries;
+      };
+
+      const _normalizeParameterEntry = (_entry) => {
+        const _m = _entry.match(PARAMETER_ENTRY_PATTERN);
+        if (!_m?.groups) return _entry;
+        return `${_m.groups.key} = ${_quoteParameterValue(_m.groups.value)}`;
+      };
+
+      /* @insert: bindsql-part2 */
+      /* @insert: bindsql-part3 */
+
+      let _bindEvents;
+      let _render;
+
+      const _init = ($pane) => {
+        $rawInput = qs("#bs-input", $pane);
+        $rawHighlight = qs("#bs-input-highlight", $pane);
+        $output = qs("#bs-output", $pane);
+        $copyButton = qs("#bs-copy", $pane);
+        $copyLabel = qs("[data-bs-copy-label]", $pane);
+        if (typeof _bindEvents === "function") _bindEvents($pane);
+        if (typeof _render === "function") _render();
+      };
+
+      return { init: _init };
+    })();
+
     /* @insert: tool-maskinger */
     const _loadState = () => {
       const _storedTheme = _loadKey(STORAGE.THEME);
