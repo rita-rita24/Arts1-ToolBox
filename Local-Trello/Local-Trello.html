@@ -1547,20 +1547,18 @@ function relocateCard(cardId, toListId, orderedIds) {
   const dest = board.lists.find(l => l.id === toListId);
   if (!dest) { src.cards.splice(srcIdx, 0, card); return; }
 
-  // Build new visible-order array per orderedIds
-  const rebuilt = [];
-  for (const id of orderedIds) {
-    if (id === cardId) {
-      rebuilt.push(card);
-    } else {
-      const existing = dest.cards.find(c => c.id === id);
-      if (existing) rebuilt.push(existing);
-    }
+  const visibleOrder = orderedIds.includes(cardId) ? orderedIds : [...orderedIds, cardId];
+  const baseCards = dest.cards.filter(c => c.id !== cardId);
+  const byId = new Map(baseCards.map(c => [c.id, c]));
+  byId.set(cardId, card);
+  const visibleQueue = visibleOrder.map(id => byId.get(id)).filter(Boolean);
+  const merged = [];
+  for (const c of baseCards) {
+    if (!c.archived && matchesFilter(c)) merged.push(visibleQueue.shift() || c);
+    else merged.push(c);
   }
-  // Preserve cards in dest that weren't in the visible drag set (archived/filtered)
-  const visibleIds = new Set(orderedIds);
-  const remaining = dest.cards.filter(c => !visibleIds.has(c.id));
-  dest.cards = rebuilt.concat(remaining);
+  if (visibleQueue.length) merged.push(...visibleQueue);
+  dest.cards = merged;
   card.updatedAt = nowIso();
   saveState();
   renderAll();
@@ -2469,7 +2467,8 @@ document.addEventListener('drop', (e) => {
   const boardEl = document.getElementById('board');
   const ids = [...boardEl.querySelectorAll('.list')].map(n => n.dataset.listId).filter(Boolean);
   const board = currentBoard();
-  board.lists.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+  const visibleQueue = ids.map(id => board.lists.find(l => l.id === id)).filter(Boolean);
+  board.lists = board.lists.map(list => (list.archived ? list : (visibleQueue.shift() || list)));
   saveState();
   renderAll();
 });
