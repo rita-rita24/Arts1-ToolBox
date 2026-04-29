@@ -6755,6 +6755,58 @@
         render();
       }
 
+      function _restoreFocusToTaskRow(type, parentId, subId = null) {
+        requestAnimationFrame(() => {
+          if (type === 'parent') {
+            const $parentRow = qs(`.task-item[data-id="${parentId}"]`);
+            if (!$parentRow) return;
+            const $focusTarget = qs(`.parent-drag-handle[data-id="${parentId}"]`, $parentRow) || qs('button', $parentRow);
+            $focusTarget?.focus();
+            return;
+          }
+          if (type !== 'subtask') return;
+          const $subtaskRow = qs(`.subtask-item[data-parent-id="${parentId}"][data-sub-id="${subId}"]`);
+          if (!$subtaskRow) return;
+          const $focusTarget = qs(`.subtask-drag-handle[data-parent-id="${parentId}"][data-sub-id="${subId}"]`, $subtaskRow) || qs('button', $subtaskRow);
+          $focusTarget?.focus();
+        });
+      }
+
+      function _moveFocusedTaskRowByOffset(offset) {
+        if (!Number.isInteger(offset) || offset === 0) return false;
+        const $activeElement = document.activeElement;
+        if (!($activeElement instanceof HTMLElement)) return false;
+
+        const $subtaskRow = $activeElement.closest('.subtask-item');
+        if ($subtaskRow && taskList.contains($subtaskRow)) {
+          const parentId = $subtaskRow.dataset.parentId;
+          const subId = $subtaskRow.dataset.subId;
+          if (!parentId || !subId) return false;
+          const parent = getTask(parentId);
+          if (!parent || !Array.isArray(parent.subtasks)) return false;
+          const fromIndex = parent.subtasks.findIndex(sub => sub.id === subId);
+          if (fromIndex < 0) return false;
+          if (!moveArrayItem(parent.subtasks, fromIndex, fromIndex + offset)) return false;
+          syncParentStatus(parent);
+          save();
+          render();
+          _restoreFocusToTaskRow('subtask', parentId, subId);
+          return true;
+        }
+
+        const $parentRow = $activeElement.closest('.task-item');
+        if (!$parentRow || !taskList.contains($parentRow)) return false;
+        const parentId = $parentRow.dataset.id;
+        if (!parentId) return false;
+        const fromIndex = tasks.findIndex(task => task.id === parentId);
+        if (fromIndex < 0) return false;
+        if (!moveArrayItem(tasks, fromIndex, fromIndex + offset)) return false;
+        save();
+        render();
+        _restoreFocusToTaskRow('parent', parentId);
+        return true;
+      }
+
       function isPointNearRect(clientX, clientY, rect, padding = 24) {
         if (!Number.isFinite(clientX) || !Number.isFinite(clientY) || !rect) return false;
         return (
@@ -7006,6 +7058,7 @@
               type="button"
               title="ドラッグで並び替え"
               aria-label="親タスクをドラッグで並び替え"
+              aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
             >
               <span class="material-symbols-outlined">drag_indicator</span>
             </button>
@@ -7051,6 +7104,7 @@
                           type="button"
                           title="ドラッグで並び替え"
                           aria-label="子タスクをドラッグで並び替え"
+                          aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
                         >
                           <span class="material-symbols-outlined">drag_indicator</span>
                         </button>
@@ -7400,6 +7454,7 @@
         'Alt+2 整理メモ',
         'Alt+3 設定',
         'Alt+N タスク入力',
+        'Alt+ArrowUp/Down 行を移動',
         'Alt+M メッセージ入力',
         'Alt+S サイドバー',
         'Alt+L ライト/ダーク',
@@ -7589,6 +7644,16 @@
         if (isHelpKey && !e.altKey && !isWithMeta && !isTypingTarget(e.target)) {
           e.preventDefault();
           showShortcutHelpToast();
+          return;
+        }
+
+        if (
+          key === 'ArrowUp' || key === 'ArrowDown'
+        ) {
+          if (e.altKey && !isWithMeta && !e.shiftKey && !isTypingTarget(e.target)) {
+            const didMove = _moveFocusedTaskRowByOffset(key === 'ArrowDown' ? 1 : -1);
+            if (didMove) e.preventDefault();
+          }
           return;
         }
 
