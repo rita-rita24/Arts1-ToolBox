@@ -6178,6 +6178,7 @@
 
         const value = normalizeInputText(parentEditInput.value, MAX_TASK_TEXT_LENGTH);
         if (!value) {
+          showErrorToast('タスク名を入力してください');
           parentEditInput.focus();
           return;
         }
@@ -6238,6 +6239,7 @@
 
         const value = normalizeInputText(subtaskEditInput.value, MAX_SUBTASK_TEXT_LENGTH);
         if (!value) {
+          showErrorToast('子タスク名を入力してください');
           subtaskEditInput.focus();
           return;
         }
