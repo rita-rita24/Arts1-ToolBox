@@ -1494,7 +1494,223 @@
       }
     };
 
-    /* @insert: tool-textchanger */
+    _tools.textchanger = (() => {
+      const STORAGE_KEY = "textChanger_settings";
+      const PG_TABLE_NAME_PLACEHOLDER = "???";
+
+      let $root;
+      let $input;
+      let $pgTable;
+      let $numOffset;
+      let $outA5m2;
+      let $outTsv;
+      let $outSqlIn;
+      let $outPg;
+      let $outNum;
+      let _saveTimer = 0;
+      const _copyTimers = new WeakMap();
+
+      const _getLines = (_text) =>
+        _text.split("\n").map((_line) => _line.trim()).filter((_line) => _line.length > 0);
+
+      const _convertA5m2 = (_lines) => (_lines.length === 0 ? "" : `-- *Captions ${_lines.join(",")}`);
+
+      const _convertTsv = (_lines) => (_lines.length === 0 ? "" : _lines.join("\t"));
+
+      const _convertSqlIn = (_lines) => {
+        if (_lines.length === 0) return "";
+        const _quoted = _lines.map((_value) => `'${_value}'`).join(",");
+        return `in (${_quoted});`;
+      };
+
+      const _getNonEmptyRawLines = (_text) =>
+        _text.split("\n").map((_line) => _line.replace(/\r$/, "")).filter((_line) => _line.trim().length > 0);
+
+      const _parseTabularInput = (_text) => {
+        const _lines = _getNonEmptyRawLines(_text);
+        if (_lines.length < 2) return { _headers: [], _rows: [] };
+        const _headers = _lines[0].split("\t").map((_cell) => _cell.trim());
+        if (_headers.length === 0 || _headers.some((_h) => _h.length === 0)) {
+          return { _headers: [], _rows: [] };
+        }
+        const _rows = _lines.slice(1)
+          .map((_line) => _line.split("\t").map((_cell) => _cell.trim()))
+          .filter((_row) => _row.length === _headers.length);
+        if (_rows.length === 0) return { _headers: [], _rows: [] };
+        return { _headers, _rows };
+      };
+
+      const _escapePgIdentifier = (_value) => String(_value).replaceAll('"', '""');
+      const _escapePgStringLiteral = (_value) => _value.replaceAll("'", "''");
+
+      const _normalizePgValue = (_value) => {
+        const _trimmed = _value.trim();
+        if (_trimmed.length === 0 || _trimmed.toUpperCase() === "NULL") return null;
+        return _trimmed;
+      };
+
+      const _formatPgValue = (_value) => (_value === null ? "NULL" : `'${_escapePgStringLiteral(_value)}'`);
+
+      const _formatPgMatchCondition = (_column, _value) => {
+        const _col = `"${_escapePgIdentifier(_column)}"`;
+        if (_value === null) return `${_col} IS NULL`;
+        return `${_col} = ${_formatPgValue(_value)}`;
+      };
+
+      const _getResolvedPgTableName = (_value) => {
+        const _name = String(_value || "").trim();
+        return _name || PG_TABLE_NAME_PLACEHOLDER;
+      };
+
+      const _convertPostgreSQLBlock = (_text, _tableName) => {
+        const _table = _parseTabularInput(_text);
+        if (_table._headers.length === 0 || _table._rows.length === 0) return "";
+        const _resolvedTable = _getResolvedPgTableName(_tableName);
+        const _quotedColumns = _table._headers.map((_c) => `"${_escapePgIdentifier(_c)}"`);
+        const _columnList = _quotedColumns.join(", ");
+        const _normalizedRows = _table._rows.map((_row) => _row.map(_normalizePgValue));
+        const _rowConditions = _normalizedRows.map((_row) =>
+          _row.map((_value, _index) => _formatPgMatchCondition(_table._headers[_index], _value)).join(" AND ")
+        );
+        const _whereClause = _rowConditions.map((_c) => `(${_c})`).join("\n   OR ");
+        const _selectStatement = `SELECT * FROM ${_resolvedTable}\nWHERE ${_whereClause};`;
+        const _deleteStatement = `DELETE FROM ${_resolvedTable}\nWHERE ${_whereClause};`;
+        const _valuesList = _normalizedRows
+          .map((_row) => `  (${_row.map(_formatPgValue).join(", ")})`)
+          .join(",\n");
+        const _insertStatement = `INSERT INTO ${_resolvedTable} (${_columnList}) VALUES\n${_valuesList};`;
+        return [
+          "-- SELECT文（事前チェック）",
+          _selectStatement,
+          "",
+          "-- INSERT文",
+          "BEGIN;",
+          _insertStatement,
+          "COMMIT;",
+          "",
+          "-- DELETE文",
+          "BEGIN;",
+          _deleteStatement,
+          "COMMIT;",
+        ].join("\n");
+      };
+
+      const _parseNumberOffset = (_value) => {
+        const _trimmed = String(_value ?? "").trim();
+        if (_trimmed.length === 0) return 0;
+        const _parsed = Number.parseInt(_trimmed, 10);
+        return Number.isFinite(_parsed) ? _parsed : 0;
+      };
+
+      const _convertNumberAdjustment = (_text, _offsetValue) => {
+        if (!_text) return "";
+        const _offset = _parseNumberOffset(_offsetValue);
+        if (_offset === 0) return _text;
+        return _text.replace(/\d+/g, (_match) => String(Number.parseInt(_match, 10) + _offset));
+      };
+
+      const _convertAll = () => {
+        const _lines = _getLines($input.value);
+        $outA5m2.value = _convertA5m2(_lines);
+        $outTsv.value = _convertTsv(_lines);
+        $outSqlIn.value = _convertSqlIn(_lines);
+        $outPg.value = _convertPostgreSQLBlock($input.value, $pgTable.value);
+        $outNum.value = _convertNumberAdjustment($input.value, $numOffset.value);
+      };
+
+      const _saveSettings = () => {
+        try {
+          localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({
+              input: $input.value,
+              pgTableName: $pgTable.value,
+              numberOffset: $numOffset.value,
+            })
+          );
+        } catch (_error) {
+          // ignore
+        }
+      };
+
+      const _loadSettings = () => {
+        try {
+          const _raw = localStorage.getItem(STORAGE_KEY);
+          if (!_raw) return;
+          const _data = JSON.parse(_raw);
+          if (typeof _data.input === "string") $input.value = _data.input;
+          if (typeof _data.pgTableName === "string") $pgTable.value = _data.pgTableName;
+          if (typeof _data.numberOffset === "string") $numOffset.value = _data.numberOffset;
+        } catch (_error) {
+          // ignore corrupt data
+        }
+      };
+
+      const _autoSave = () => {
+        clearTimeout(_saveTimer);
+        _saveTimer = setTimeout(_saveSettings, 500);
+      };
+
+      const _showCopiedState = ($button) => {
+        const $label = qs("[data-tc-label]", $button);
+        const $icon = qs(".button__icon", $button);
+        const _existing = _copyTimers.get($button);
+        if (_existing) clearTimeout(_existing);
+        $button.classList.add("is-success");
+        if ($icon) $icon.textContent = "check";
+        if ($label) $label.textContent = "コピーしました";
+        const _timer = setTimeout(() => {
+          $button.classList.remove("is-success");
+          if ($icon) $icon.textContent = "content_copy";
+          if ($label) $label.textContent = "コピー";
+          _copyTimers.delete($button);
+        }, 1600);
+        _copyTimers.set($button, _timer);
+      };
+
+      const _handleCopyClick = async ($button) => {
+        const _selector = $button.dataset.tcCopy;
+        if (!_selector) return;
+        const $target = qs(_selector, $root);
+        if (!$target || !$target.value) return;
+        const _ok = await _copyToClipboard($target.value);
+        if (_ok) _showCopiedState($button);
+      };
+
+      const _handleClick = (event) => {
+        const $button = event.target.closest("[data-tc-copy]");
+        if (!$button) return;
+        _handleCopyClick($button);
+      };
+
+      const _handleInput = (event) => {
+        const $target = event.target;
+        if ($target === $input || $target === $pgTable || $target === $numOffset) {
+          _convertAll();
+          _autoSave();
+        }
+      };
+
+      const _init = ($pane) => {
+        $root = $pane;
+        $input = qs("#tc-input", $pane);
+        $pgTable = qs("#tc-pg-table", $pane);
+        $numOffset = qs("#tc-num-offset", $pane);
+        $outA5m2 = qs("#tc-out-a5m2", $pane);
+        $outTsv = qs("#tc-out-tsv", $pane);
+        $outSqlIn = qs("#tc-out-sqlin", $pane);
+        $outPg = qs("#tc-out-pg", $pane);
+        $outNum = qs("#tc-out-num", $pane);
+
+        _loadSettings();
+        $pane.addEventListener("input", _handleInput);
+        $pane.addEventListener("click", _handleClick);
+        _convertAll();
+      };
+
+      return { init: _init };
+    })();
+
     /* @insert: tool-bindsql */
     /* @insert: tool-maskinger */
     const _loadState = () => {
