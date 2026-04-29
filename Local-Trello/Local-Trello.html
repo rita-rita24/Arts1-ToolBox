@@ -1567,6 +1567,10 @@ function relocateCard(cardId, toListId, orderedIds) {
 }
 
 function toggleComplete(card) {
+  if (!card.dueDate) {
+    showToast('期限日があるカードのみ完了にできます', null, 2000);
+    return;
+  }
   card.dueComplete = !card.dueComplete;
   card.updatedAt = nowIso();
   saveState(); renderAll();
@@ -1864,10 +1868,10 @@ function renderCardModal(card, list, modalEl) {
     <button class="qa-btn" data-qa-labels><span class="material-symbols-outlined">label</span>ラベル</button>
     <button class="qa-btn" data-qa-dates><span class="material-symbols-outlined">schedule</span>日付</button>
     <button class="qa-btn" data-qa-checklist><span class="material-symbols-outlined">checklist</span>チェックリスト</button>
-    <button class="qa-btn" data-qa-complete>
+    ${card.dueDate ? `<button class="qa-btn" data-qa-complete>
       <span class="material-symbols-outlined">${card.dueComplete ? 'check_circle' : 'radio_button_unchecked'}</span>
-      ${card.dueComplete ? '完了済み' : '未完了にする'}
-    </button>
+      ${card.dueComplete ? '未完了に戻す' : '完了にする'}
+    </button>` : ''}
   `;
 
   // Title
@@ -2279,7 +2283,7 @@ function openDatesPopover(card, anchor, onChange) {
           <input type="time" id="due-time" value="${formatTime(due)}" ${due ? '' : 'disabled'}>
         </div>
         <label style="display:flex;gap:6px;align-items:center;margin:8px 0;">
-          <input type="checkbox" id="chk-complete" ${card.dueComplete ? 'checked' : ''}>
+          <input type="checkbox" id="chk-complete" ${card.dueComplete ? 'checked' : ''} ${due ? '' : 'disabled'}>
           完了としてマーク
         </label>
         <div style="display:flex;gap:6px;margin-top:8px;">
@@ -2292,17 +2296,26 @@ function openDatesPopover(card, anchor, onChange) {
       const sd = wrap.querySelector('#start-date');
       const dd = wrap.querySelector('#due-date');
       const dt = wrap.querySelector('#due-time');
+      const chkComplete = wrap.querySelector('#chk-complete');
       chkStart.addEventListener('change', (e) => sd.disabled = !e.target.checked);
-      chkDue.addEventListener('change', (e) => { dd.disabled = !e.target.checked; dt.disabled = !e.target.checked; });
+      const syncComplete = () => {
+        chkComplete.disabled = !chkDue.checked;
+        if (!chkDue.checked) chkComplete.checked = false;
+      };
+      chkDue.addEventListener('change', (e) => {
+        dd.disabled = !e.target.checked;
+        dt.disabled = !e.target.checked;
+        syncComplete();
+      });
+      syncComplete();
       wrap.querySelector('[data-save]').addEventListener('click', () => {
         card.startDate = chkStart.checked && sd.value ? new Date(sd.value + 'T00:00:00').toISOString() : null;
+        let nextDueDate = null;
         if (chkDue.checked && dd.value) {
-          const iso = new Date(`${dd.value}T${dt.value || '23:59'}:00`).toISOString();
-          card.dueDate = iso;
-        } else {
-          card.dueDate = null;
+          nextDueDate = new Date(`${dd.value}T${dt.value || '23:59'}:00`).toISOString();
         }
-        card.dueComplete = !!wrap.querySelector('#chk-complete').checked;
+        card.dueDate = nextDueDate;
+        card.dueComplete = !!nextDueDate && !!chkComplete.checked;
         card.updatedAt = nowIso();
         saveState(); closePopover(); if (onChange) onChange(); renderAll();
       });
