@@ -2256,8 +2256,189 @@ UPDATE USER USING VALUES VARIADIC WHEN WHERE WINDOW WITH
         $output.innerHTML = _buildHighlightedSqlHtml(_sql);
       };
 
-      /* @insert: bindsql-part3 */
-      /* @insert: bindsql-part3 */
+      const _normalizeBindValue = (_raw) => {
+        const _v = _raw.trim();
+        if (!_v) return "";
+        if (
+          (_v.startsWith('"') && _v.endsWith('"')) ||
+          (_v.startsWith("“") && _v.endsWith("”")) ||
+          (_v.startsWith("‘") && _v.endsWith("’"))
+        ) {
+          const _inner = _v.slice(1, -1).replace(/\\"/g, '"').replace(/'/g, "''");
+          return `'${_inner}'`;
+        }
+        if (/^null$/i.test(_v)) return "NULL";
+        if (/^(true|false)$/i.test(_v)) return _v.toUpperCase();
+        return _v;
+      };
+
+      const _isBindDefinitionLine = (_trim, _allowBare = false) => {
+        if (_trim.match(POSITIONAL_BIND_PATTERN)?.groups?.value) return true;
+        const _m = _trim.match(NAMED_BIND_PATTERN);
+        if (!_m?.groups?.name) return false;
+        if (_trim.startsWith(":")) return true;
+        if (!_allowBare) return false;
+        return !SQL_ASSIGNMENT_NAMES.has(_m.groups.name.toUpperCase());
+      };
+
+      const _splitInputText = (_input) => {
+        const _block = _input.match(SQL_PARAMETER_BLOCK_PATTERN);
+        if (_block?.groups) {
+          return {
+            _sqlText: _block.groups.sql.trim(),
+            _bindLines: _splitParameterEntries(_block.groups.parameters).map(_normalizeParameterEntry),
+          };
+        }
+        const _sqlLines = [];
+        const _bindLines = [];
+        let _bindStarted = false;
+        for (const _line of _input.split(/\r?\n/)) {
+          const _trim = _line.trim();
+          if (!_trim) {
+            if (!_bindStarted) _sqlLines.push("");
+            continue;
+          }
+          if (BIND_HEADER_PATTERN.test(_trim)) { _bindStarted = true; continue; }
+          const _pre = _line.match(SQL_PREFIX_PATTERN);
+          if (_pre?.groups?.sql) { _sqlLines.push(_pre.groups.sql.trim()); continue; }
+          if (_isBindDefinitionLine(_trim, _bindStarted)) { _bindLines.push(_trim); _bindStarted = true; continue; }
+          _sqlLines.push(_line);
+        }
+        return { _sqlText: _sqlLines.join("\n").trim(), _bindLines };
+      };
+
+      const _parseBindVariables = (_lines) => {
+        const _named = new Map();
+        const _positional = new Map();
+        for (const _line of _lines) {
+          const _trim = _line.trim();
+          if (!_trim || _trim.startsWith("--") || _trim.startsWith("#")) continue;
+          const _nm = _trim.match(NAMED_BIND_PATTERN);
+          if (_nm?.groups) { _named.set(_nm.groups.name, _normalizeBindValue(_nm.groups.value)); continue; }
+          const _pm = _trim.match(POSITIONAL_BIND_PATTERN);
+          if (_pm?.groups?.value) {
+            const _idx = Number(_pm.groups.indexA ?? _pm.groups.indexB ?? "0");
+            if (_idx > 0) _positional.set(_idx, _normalizeBindValue(_pm.groups.value));
+          }
+        }
+        return { _named, _positional };
+      };
+
+      const _countNamedPlaceholders = (_sql) => {
+        const _counts = new Map();
+        for (const _m of _sql.matchAll(NAMED_PLACEHOLDER_PATTERN)) {
+          const _name = _m.groups?.name ?? "";
+          if (_name) _counts.set(_name, (_counts.get(_name) ?? 0) + 1);
+        }
+        return _counts;
+      };
+
+      const _formatNamedBindList = (_names) => _names.map((_n) => `:${_n}`).join(", ");
+      const _formatPositionalBindList = (_idx) => _idx.map((_i) => `[${_i}]`).join(", ");
+
+      const _replaceNamedBind = (_sql, _name, _value) => {
+        const _re = new RegExp(`(^|[^:]):${_escapeRegExp(_name)}\\b`, "g");
+        let _count = 0;
+        const _next = _sql.replace(_re, (_all, _prefix) => { _count += 1; return `${_prefix}${_value}`; });
+        return { _nextSql: _next, _count };
+      };
+
+      const _mergeSqlAndBinds = (_sql, _binds) => {
+        const _store = _maskSqlProtectedSegments(_sql);
+        let _work = _store._masked;
+        const _issues = [];
+        const _required = _countNamedPlaceholders(_work);
+        const _protect = (_value) => {
+          const _token = `@@BindSQL_SEGMENT_${_store._segments.length}@@`;
+          _store._segments.push(_value);
+          return _token;
+        };
+        for (const [_name, _value] of _binds._named.entries()) {
+          const _r = _replaceNamedBind(_work, _name, _protect(_value));
+          _work = _r._nextSql;
+        }
+        let _pIdx = 0;
+        const _used = new Set();
+        _work = _work.replace(/\?/g, () => {
+          _pIdx += 1;
+          if (!_binds._positional.has(_pIdx)) return "?";
+          const _v = _binds._positional.get(_pIdx);
+          _used.add(_pIdx);
+          return _protect(_v);
+        });
+        const _missing = [..._required.keys()].filter((_n) => !_binds._named.has(_n));
+        const _extra = [..._binds._named.keys()].filter((_n) => !_required.has(_n));
+        const _remaining = (_work.match(/\?/g) ?? []).length;
+        const _extraIdx = [..._binds._positional.keys()]
+          .filter((_i) => !_used.has(_i))
+          .sort((_a, _b) => _a - _b);
+        if (_missing.length) _issues.push(MESSAGES.unresolvedNamed(_formatNamedBindList(_missing), _missing.length));
+        if (_extra.length) _issues.push(MESSAGES.extraNamed(_formatNamedBindList(_extra), _extra.length));
+        if (_remaining) _issues.push(MESSAGES.unresolvedPositional(_remaining));
+        if (_extraIdx.length) _issues.push(MESSAGES.extraPositional(_formatPositionalBindList(_extraIdx), _extraIdx.length));
+        return { _sql: _restoreSqlProtectedSegments(_work, _store._segments), _issues };
+      };
+
+      const _buildMergeIssueOutput = (_issues, _partial) => {
+        const _lines = ["-- 変換は完了していません。"];
+        _issues.forEach((_i) => _lines.push(`-- ${_i}`));
+        if (_partial) { _lines.push(""); _lines.push("-- 参考: 途中結果"); _lines.push(_partial); }
+        return _lines.join("\n");
+      };
+
+      const _upperCaseKeywords = (_sql) => {
+        if (!SQL_KEYWORD_DICTIONARY.length) return _sql;
+        return _sql.replace(SQL_KEYWORD_CASE_PATTERN, (_m, _off, _src) => {
+          const _prev = _src[_off - 1] ?? "";
+          if (_prev === ":" || _prev === "." || _prev === "[" || _prev === "`") return _m;
+          return _m.toUpperCase();
+        });
+      };
+
+      const _addSpaceAroundOperators = (_sql) =>
+        _sql
+          .replace(/\s*\.\s*/g, ".")
+          .replace(/\s*(<>|!=|<=|>=|=|<|>)\s*/g, " $1 ")
+          .replace(/\s*(\+|\/)\s*/g, " $1 ")
+          .replace(/(?<=[0-9A-Za-z_)\]])\s*\*\s*(?=[0-9A-Za-z_(\[])/g, " * ")
+          .replace(/\s*\|\|\s*/g, " || ")
+          .replace(/\s*,\s*/g, ", ")
+          .replace(/\s+/g, " ")
+          .trim();
+
+      const _breakBeforeKeyword = (_sql, _kw, _indent = "") => {
+        const _re = new RegExp(`\\s+${_kw.replace(/\s+/g, "\\s+")}\\b`, "g");
+        return _sql.replace(_re, `\n${_indent}${_kw}`);
+      };
+
+      const _breakBareJoin = (_sql) =>
+        _sql.replace(/\s+JOIN\b/g, (_m, _off, _src) => {
+          const _left = _src.slice(Math.max(0, _off - 8), _off);
+          if (/\b(INNER|LEFT|RIGHT|FULL|CROSS)$/i.test(_left)) return _m;
+          return "\nJOIN";
+        });
+
+      const _stripClausePrefix = (_line, _kw) => {
+        const _re = new RegExp(`^${_kw.replace(/\s+/g, "\\s+")}\\b\\s*`);
+        return _line.replace(_re, "").trim();
+      };
+
+      const _splitTopLevelCommaSeparated = (_text) => {
+        const _items = [];
+        let _cur = "";
+        let _depth = 0;
+        for (const _ch of _text) {
+          if (_ch === "(") { _depth += 1; _cur += _ch; continue; }
+          if (_ch === ")") { _depth = Math.max(0, _depth - 1); _cur += _ch; continue; }
+          if (_ch === "," && _depth === 0) { const _e = _cur.trim(); if (_e) _items.push(_e); _cur = ""; continue; }
+          _cur += _ch;
+        }
+        const _tail = _cur.trim();
+        if (_tail) _items.push(_tail);
+        return _items;
+      };
+
+      /* @insert: bindsql-part3b */
 
       let _bindEvents;
       let _render;
