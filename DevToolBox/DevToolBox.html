@@ -2438,7 +2438,177 @@ UPDATE USER USING VALUES VARIADIC WHEN WHERE WINDOW WITH
         return _items;
       };
 
-      /* @insert: bindsql-part3b */
+      const _formatCaseExpressionLines = (_text) => {
+        if (!/\bCASE\b/.test(_text)) return [_text.trim()];
+        const _isSimple = /^\s*CASE\s+(?!WHEN\b)\S+/i.test(_text);
+        const _norm = _text
+          .replace(/\s+\bWHEN\b/g, "\nWHEN")
+          .replace(/\s+\bTHEN\b/g, "\nTHEN")
+          .replace(/\s+\bELSE\b/g, "\nELSE")
+          .replace(/\s+\bEND\b/g, "\nEND");
+        const _lines = _norm.split("\n").map((_l) => _l.trim()).filter(Boolean);
+        if (_isSimple) {
+          const _merged = [];
+          for (let _i = 0; _i < _lines.length; _i += 1) {
+            const _cur = _lines[_i];
+            const _nx = _lines[_i + 1] ?? "";
+            if (/^WHEN\b/.test(_cur) && /^THEN\b/.test(_nx)) { _merged.push(`${_cur} ${_nx}`); _i += 1; continue; }
+            _merged.push(_cur);
+          }
+          return _merged.map((_l) => (/^(WHEN|ELSE)\b/.test(_l) ? `  ${_l}` : _l));
+        }
+        return _lines.map((_l) => (/^(WHEN|THEN|ELSE)\b/.test(_l) ? `  ${_l}` : _l));
+      };
+
+      const _formatCommaSeparatedRemainder = (_rem, _indent = "  ") => {
+        if (!_rem) return [];
+        const _items = _splitTopLevelCommaSeparated(_rem);
+        if (_items.length <= 1) return [`${_indent}${_rem}`];
+        const _out = [];
+        _items.forEach((_it, _i) => {
+          const _pre = _i === 0 ? "" : ", ";
+          _out.push(`${_indent}${_pre}${_it}`);
+        });
+        return _out;
+      };
+
+      const _formatSelectRemainder = (_rem) => {
+        if (!_rem) return [];
+        const _cols = _splitTopLevelCommaSeparated(_rem);
+        if (_cols.length <= 1) return [`  ${_rem}`];
+        const _out = [];
+        _cols.forEach((_col, _i) => {
+          const _cl = _formatCaseExpressionLines(_col);
+          const _pre = _i === 0 ? "  " : "  , ";
+          _out.push(`${_pre}${_cl[0]}`);
+          for (let _j = 1; _j < _cl.length; _j += 1) _out.push(`    ${_cl[_j]}`);
+        });
+        return _out;
+      };
+
+      const _formatStructuredLines = (_sql) => {
+        const _raw = _sql.split("\n").map((_l) => _l.trim()).filter(Boolean);
+        const _out = [];
+        let _ctx = "";
+        for (const _line of _raw) {
+          if (/^WITH\b/.test(_line)) { _ctx = "WITH"; _out.push(_line); continue; }
+          if (/^SELECT\b/.test(_line)) {
+            _ctx = "SELECT";
+            _out.push("SELECT");
+            _out.push(..._formatSelectRemainder(_stripClausePrefix(_line, "SELECT")));
+            continue;
+          }
+          if (/^(INSERT INTO|UPDATE|DELETE FROM|UNION ALL|UNION)\b/.test(_line)) { _ctx = ""; _out.push(_line); continue; }
+          if (/^FROM\b/.test(_line)) {
+            _ctx = "FROM";
+            _out.push("FROM");
+            const _r = _stripClausePrefix(_line, "FROM");
+            if (_r) {
+              if (/^\(SELECT\b/.test(_r)) { _out.push("  ("); _out.push(`  ${_r.slice(1).trim()}`); continue; }
+              _out.push(`  ${_r}`);
+            }
+            continue;
+          }
+          if (/^(INNER JOIN|LEFT JOIN|RIGHT JOIN|FULL JOIN|CROSS JOIN|JOIN)\b/.test(_line)) {
+            _ctx = "ON";
+            const _m = _line.match(/^(INNER JOIN|LEFT JOIN|RIGHT JOIN|FULL JOIN|CROSS JOIN|JOIN)\s+\((SELECT.+)$/);
+            if (_m) { _out.push(`  ${_m[1]} (`); _out.push(`    ${_m[2]}`); continue; }
+            _out.push(`  ${_line}`);
+            continue;
+          }
+          if (/^ON\b/.test(_line)) { _ctx = "ON"; _out.push(`    ${_line}`); continue; }
+          if (/^WHERE\b/.test(_line)) {
+            _ctx = "WHERE"; _out.push("WHERE");
+            const _r = _stripClausePrefix(_line, "WHERE");
+            if (_r) _out.push(`  ${_r}`);
+            continue;
+          }
+          if (/^GROUP BY\b/.test(_line)) {
+            _ctx = "GROUP BY"; _out.push("GROUP BY");
+            _out.push(..._formatCommaSeparatedRemainder(_stripClausePrefix(_line, "GROUP BY")));
+            continue;
+          }
+          if (/^HAVING\b/.test(_line)) {
+            _ctx = "HAVING"; _out.push("HAVING");
+            const _r = _stripClausePrefix(_line, "HAVING");
+            if (_r) _out.push(`  ${_r}`);
+            continue;
+          }
+          if (/^ORDER BY\b/.test(_line)) {
+            _ctx = "ORDER BY"; _out.push("ORDER BY");
+            _out.push(..._formatCommaSeparatedRemainder(_stripClausePrefix(_line, "ORDER BY")));
+            continue;
+          }
+          if (/^SET\b/.test(_line)) {
+            _ctx = "SET"; _out.push("SET");
+            _out.push(..._formatCommaSeparatedRemainder(_stripClausePrefix(_line, "SET")));
+            continue;
+          }
+          if (/^VALUES\b/.test(_line)) {
+            _ctx = "VALUES"; _out.push("VALUES");
+            const _r = _stripClausePrefix(_line, "VALUES");
+            if (_r) _out.push(`  ${_r}`);
+            continue;
+          }
+          if (/^(LIMIT|OFFSET)\b/.test(_line)) { _ctx = ""; _out.push(_line); continue; }
+          if (/^(AND|OR)\b/.test(_line)) {
+            const _ind = _ctx === "ON" ? "    " : "  ";
+            _out.push(`${_ind}${_line}`);
+            continue;
+          }
+          if (/^(WHEN|THEN|ELSE|END)\b/.test(_line)) { _out.push(`    ${_line}`); continue; }
+          const _ind = _ctx === "ON" ? "    " : _ctx ? "  " : "";
+          _out.push(`${_ind}${_line}`);
+        }
+        return _out;
+      };
+
+      const _applyParenthesisIndent = (_lines) => {
+        const _out = [];
+        let _depth = 0;
+        for (const _line of _lines) {
+          const _trim = _line.trim();
+          if (!_trim) continue;
+          const _baseInd = _line.match(/^\s*/)?.[0].length ?? 0;
+          const _leadClose = _trim.match(/^\)+/)?.[0].length ?? 0;
+          const _eff = Math.max(0, _depth - _leadClose);
+          const _minPInd = _eff > 0 ? _eff * 2 + 2 : 0;
+          const _indSize = Math.max(_baseInd, _minPInd);
+          _out.push(`${" ".repeat(_indSize)}${_trim}`);
+          const _open = (_trim.match(/\(/g) ?? []).length;
+          const _close = (_trim.match(/\)/g) ?? []).length;
+          _depth = Math.max(0, _eff + _open - _close);
+        }
+        return _out;
+      };
+
+      const _formatSql = (_sql) => {
+        const _store = _maskSqlProtectedSegments(_sql.replace(/\r\n?/g, "\n"));
+        let _f = _store._masked.replace(/\s+/g, " ").trim();
+        if (!_f) return "";
+        _f = _addSpaceAroundOperators(_f);
+        _f = _upperCaseKeywords(_f);
+        _f = _f.replace(/\bAS(?=[A-Za-z0-9_"`\[@])/g, "AS ");
+        for (const _kw of [
+          "WITH", "UNION ALL", "UNION", "SELECT", "INSERT INTO", "UPDATE",
+          "DELETE FROM", "FROM", "WHERE", "GROUP BY", "HAVING", "ORDER BY",
+          "LIMIT", "OFFSET", "VALUES", "SET", "INNER JOIN", "LEFT JOIN",
+          "RIGHT JOIN", "FULL JOIN", "CROSS JOIN",
+        ]) {
+          _f = _breakBeforeKeyword(_f, _kw);
+        }
+        _f = _breakBareJoin(_f);
+        _f = _breakBeforeKeyword(_f, "ON");
+        _f = _breakBeforeKeyword(_f, "AND");
+        _f = _breakBeforeKeyword(_f, "OR");
+        _f = _f.replace(/\b(AND|OR|ON)\(/g, "$1 (");
+        const _structured = _formatStructuredLines(_f);
+        const _indented = _applyParenthesisIndent(_structured);
+        const _norm = _indented.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+        return _restoreSqlProtectedSegments(_norm, _store._segments);
+      };
+
+      /* @insert: bindsql-part3c */
 
       let _bindEvents;
       let _render;
