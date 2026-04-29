@@ -150,8 +150,10 @@
   .tb-board-title {
     font-weight: 700; font-size: 18px; padding: 4px 10px; border-radius: var(--radius);
     cursor: pointer; max-width: 40vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    background: transparent; border: none; color: #FFF; font-family: inherit;
   }
   .tb-board-title:hover { background: rgba(255, 255, 255, 0.2); }
+  .tb-board-title:focus-visible { outline: 2px solid rgba(255,255,255,0.92); outline-offset: 2px; }
 
   .tb-search {
     background: rgba(255, 255, 255, 0.24);
@@ -833,21 +835,21 @@
 <body>
 
 <div id="topbar">
-  <button class="tb-icon-btn" id="btn-boards" title="ボードメニュー (B)">
+  <button class="tb-icon-btn" id="btn-boards" title="ボードメニュー (B)" aria-label="ボードメニュー">
     <span class="material-symbols-outlined msi-lg">dashboard</span>
   </button>
   <div class="tb-logo">
     <span class="material-symbols-outlined">view_kanban</span>
     Boards
   </div>
-  <button class="tb-btn" id="btn-home" title="ボード一覧">
+  <button class="tb-btn" id="btn-home" title="ボード一覧" aria-label="ボード一覧を開く">
     <span class="material-symbols-outlined msi-md">home</span>
     ボード
   </button>
 
   <div class="tb-spacer"></div>
 
-  <div class="tb-board-title" id="current-board-title">—</div>
+  <button type="button" class="tb-board-title" id="current-board-title" aria-label="現在のボード名を編集">—</button>
 
   <div class="tb-spacer"></div>
 
@@ -855,19 +857,19 @@
     <span class="material-symbols-outlined tb-search-icon">search</span>
     <input type="search" class="tb-search" id="search-input" placeholder="検索..." aria-label="検索">
   </div>
-  <button class="tb-icon-btn" id="btn-filter" title="フィルター (F)">
+  <button class="tb-icon-btn" id="btn-filter" title="フィルター (F)" aria-label="フィルターを開く">
     <span class="material-symbols-outlined msi-lg">filter_list</span>
   </button>
-  <button class="tb-icon-btn" id="btn-label-names" title="ラベル名の表示切替 (;)">
+  <button class="tb-icon-btn" id="btn-label-names" title="ラベル名の表示切替 (;)" aria-label="ラベル名の表示を切り替える">
     <span class="material-symbols-outlined msi-lg">label</span>
   </button>
-  <button class="tb-icon-btn" id="btn-theme" title="テーマ切替">
+  <button class="tb-icon-btn" id="btn-theme" title="テーマ切替" aria-label="テーマを切り替える">
     <span class="material-symbols-outlined msi-lg" id="theme-icon">dark_mode</span>
   </button>
-  <button class="tb-icon-btn" id="btn-shortcuts" title="キーボードショートカット (?)">
+  <button class="tb-icon-btn" id="btn-shortcuts" title="キーボードショートカット (?)" aria-label="キーボードショートカットを表示">
     <span class="material-symbols-outlined msi-lg">keyboard</span>
   </button>
-  <button class="tb-icon-btn" id="btn-settings" title="ボード設定 (W)">
+  <button class="tb-icon-btn" id="btn-settings" title="ボード設定 (W)" aria-label="ボード設定を開く">
     <span class="material-symbols-outlined msi-lg">more_horiz</span>
   </button>
 </div>
@@ -965,6 +967,43 @@ function formatRelative(iso) {
   const days = Math.floor(hrs / 24);
   if (days < 7) return `${days}日前`;
   return formatDateShort(iso);
+}
+
+function toLocalDateInputValue(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function toLocalTimeInputValue(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  return `${hh}:${mm}`;
+}
+
+function localDateToIso(dateValue) {
+  if (!dateValue) return null;
+  const [y, m, d] = dateValue.split('-').map(Number);
+  if (!y || !m || !d) return null;
+  return new Date(y, m - 1, d, 0, 0, 0, 0).toISOString();
+}
+
+function localDateTimeToIso(dateValue, timeValue) {
+  if (!dateValue) return null;
+  const [y, m, d] = dateValue.split('-').map(Number);
+  if (!y || !m || !d) return null;
+  const [hhRaw, mmRaw] = (timeValue || '23:59').split(':');
+  const hh = Number(hhRaw);
+  const mm = Number(mmRaw);
+  if (Number.isNaN(hh) || Number.isNaN(mm)) return null;
+  return new Date(y, m - 1, d, hh, mm, 0, 0).toISOString();
 }
 
 /**
@@ -1419,6 +1458,9 @@ function renderCard(card, list) {
   el.className = 'card';
   el.dataset.cardId = card.id;
   el.draggable = true;
+  el.tabIndex = 0;
+  el.setAttribute('role', 'button');
+  el.setAttribute('aria-label', card.title ? `カード: ${card.title}` : 'カード');
 
   const status = dueStatus(card.dueDate, card.dueComplete);
   const board = currentBoard();
@@ -2268,8 +2310,8 @@ function openDatesPopover(card, anchor, onChange) {
       const wrap = document.createElement('div');
       const start = card.startDate ? new Date(card.startDate) : null;
       const due = card.dueDate ? new Date(card.dueDate) : null;
-      const formatDate = (d) => d ? d.toISOString().slice(0, 10) : '';
-      const formatTime = (d) => d ? d.toTimeString().slice(0, 5) : '';
+      const formatDate = (d) => d ? toLocalDateInputValue(d.toISOString()) : '';
+      const formatTime = (d) => d ? toLocalTimeInputValue(d.toISOString()) : '';
       wrap.innerHTML = `
         <div class="date-row">
           <label><input type="checkbox" id="chk-start" ${start ? 'checked' : ''}> 開始日</label>
@@ -2307,10 +2349,10 @@ function openDatesPopover(card, anchor, onChange) {
       });
       syncComplete();
       wrap.querySelector('[data-save]').addEventListener('click', () => {
-        card.startDate = chkStart.checked && sd.value ? new Date(sd.value + 'T00:00:00').toISOString() : null;
+        card.startDate = chkStart.checked && sd.value ? localDateToIso(sd.value) : null;
         let nextDueDate = null;
         if (chkDue.checked && dd.value) {
-          nextDueDate = new Date(`${dd.value}T${dt.value || '23:59'}:00`).toISOString();
+          nextDueDate = localDateTimeToIso(dd.value, dt.value || '23:59');
         }
         card.dueDate = nextDueDate;
         card.dueComplete = !!nextDueDate && !!chkComplete.checked;
@@ -2724,13 +2766,13 @@ function openShortcutsModal() {
         <div class="shortcut-row"><kbd>W</kbd><span>ボード設定</span></div>
         <div class="shortcut-row"><kbd>F</kbd><span>フィルターを開く</span></div>
         <div class="shortcut-row"><kbd>X</kbd><span>フィルターをクリア</span></div>
-        <div class="shortcut-row"><kbd>N</kbd><span>新規カード(カードにホバー中)</span></div>
-        <div class="shortcut-row"><kbd>Enter</kbd><span>カードを開く(ホバー中)</span></div>
-        <div class="shortcut-row"><kbd>E</kbd><span>クイック編集(ホバー中)</span></div>
-        <div class="shortcut-row"><kbd>T</kbd><span>タイトル編集(ホバー中)</span></div>
-        <div class="shortcut-row"><kbd>C</kbd><span>カードをアーカイブ(ホバー中)</span></div>
-        <div class="shortcut-row"><kbd>D</kbd><span>期限日(ホバー中)</span></div>
-        <div class="shortcut-row"><kbd>L</kbd><span>ラベルメニュー(ホバー中)</span></div>
+        <div class="shortcut-row"><kbd>N</kbd><span>新規カード(カードにフォーカス/ホバー中)</span></div>
+        <div class="shortcut-row"><kbd>Enter</kbd><span>カードを開く(フォーカス/ホバー中)</span></div>
+        <div class="shortcut-row"><kbd>E</kbd><span>クイック編集(フォーカス/ホバー中)</span></div>
+        <div class="shortcut-row"><kbd>T</kbd><span>タイトル編集(フォーカス/ホバー中)</span></div>
+        <div class="shortcut-row"><kbd>C</kbd><span>カードをアーカイブ(フォーカス/ホバー中)</span></div>
+        <div class="shortcut-row"><kbd>D</kbd><span>期限日(フォーカス/ホバー中)</span></div>
+        <div class="shortcut-row"><kbd>L</kbd><span>ラベルメニュー(フォーカス/ホバー中)</span></div>
         <div class="shortcut-row"><kbd>;</kbd><span>ラベル名の表示切替</span></div>
         <div class="shortcut-row"><kbd>0</kbd>–<kbd>9</kbd><span>色番号でラベルを付与</span></div>
         <div class="shortcut-row"><kbd>,</kbd> <kbd>.</kbd><span>カードを隣のリストへ移動</span></div>
@@ -2755,6 +2797,13 @@ document.addEventListener('mouseover', (e) => {
   hoveredCardId = card ? card.dataset.cardId : null;
 });
 document.addEventListener('mouseout', (e) => {
+  if (!e.relatedTarget || !e.relatedTarget.closest?.('.card')) hoveredCardId = null;
+});
+document.addEventListener('focusin', (e) => {
+  const card = e.target.closest('.card');
+  if (card) hoveredCardId = card.dataset.cardId;
+});
+document.addEventListener('focusout', (e) => {
   if (!e.relatedTarget || !e.relatedTarget.closest?.('.card')) hoveredCardId = null;
 });
 
