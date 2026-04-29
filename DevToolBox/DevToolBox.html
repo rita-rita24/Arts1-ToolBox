@@ -1309,7 +1309,42 @@
     /* @insert: tool-textchanger */
     /* @insert: tool-bindsql */
     /* @insert: tool-maskinger */
-    /* @insert: shell-init */
+    const _loadState = () => {
+      const _storedTheme = _loadKey(STORAGE.THEME);
+      _applyTheme(_storedTheme === THEME_LIGHT || _storedTheme === THEME_DARK ? _storedTheme : DEFAULT_THEME);
+
+      const _storedCollapsed = _loadKey(STORAGE.SIDEBAR);
+      _applyCollapsed(_storedCollapsed === "true");
+
+      const _hashId = window.location.hash.replace(/^#\/?/, "");
+      const _storedActive = _loadKey(STORAGE.ACTIVE);
+      const _initialId = _findTool(_hashId)
+        ? _hashId
+        : _findTool(_storedActive)
+          ? _storedActive
+          : "welcome";
+      _activateTool(_initialId);
+    };
+
+    const _bindShellEvents = () => {
+      $nav.addEventListener("click", _handleNavClick);
+      $welcomeGrid.addEventListener("click", _handleNavClick);
+      $themeToggle.addEventListener("change", _handleThemeToggleChange);
+      $sidebarToggle.addEventListener("click", _handleSidebarToggleClick);
+      $menuToggle.addEventListener("click", _handleMenuToggleClick);
+      $sidebarBackdrop.addEventListener("click", _handleBackdropClick);
+      window.addEventListener("hashchange", _handleHashChange);
+    };
+
+    const _initShell = () => {
+      _renderNav();
+      _renderWelcomeGrid();
+      _bindShellEvents();
+      _loadState();
+    };
+
+    _initShell();
+
   </script>
 </body>
 </html>
