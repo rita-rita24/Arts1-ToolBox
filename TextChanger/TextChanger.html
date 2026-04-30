@@ -733,7 +733,7 @@
 
   function _isPgNullToken(value) {
     const _trimmed = String(value ?? '').trim();
-    return _trimmed.toUpperCase() === 'NULL' || /^<+\s*NULL\s*>+$/i.test(_trimmed);
+    return _trimmed.toUpperCase() === 'NULL' || /^[<«]+\s*NULL\s*[>»]+$/i.test(_trimmed);
   }
 
   function _normalizePgWhereValue(value) {

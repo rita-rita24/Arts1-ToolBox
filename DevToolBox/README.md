@@ -21,8 +21,8 @@ open DevToolBox/DevToolBox.html
 | **BindSQL** | Eclipse 等のデバッグ出力（SQL + バインド変数）を実行可能 SQL に統合 + A5:SQL Mk-2 風整形 + シンタックスハイライト |
 | **Maskinger** | AI 送信前のテキスト/コードに含まれる機密情報・PII を自動マスキング（メール・トークン・IP・電話番号・カード番号・関数名・Javaのpackage名・SQL文字列など 25+ パターン） |
 
-TextChanger の PostgreSQL 変換では、`NULL` / `< NULL >` / `<< NULL >>` のセル値は `SELECT`・`DELETE` の `WHERE` 条件に含めません。
-`INSERT` では `NULL` / `< NULL >` / `<< NULL >>` を `NULL` として扱い、空文字セルは半角スペース1つ（`' '`）として出力します。
+TextChanger の PostgreSQL 変換では、`NULL` / `< NULL >` / `<< NULL >>` / `« NULL »` のセル値は `SELECT`・`DELETE` の `WHERE` 条件に含めません。
+`INSERT` では `NULL` / `< NULL >` / `<< NULL >>` / `« NULL »` を `NULL` として扱い、空文字セルは半角スペース1つ（`' '`）として出力します。
 生成される PostgreSQL 文では、文末の `;` は単独行で左寄せになります。
 
 ## 操作

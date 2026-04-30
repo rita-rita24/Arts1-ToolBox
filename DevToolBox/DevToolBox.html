@@ -1841,7 +1841,7 @@
 
       const _isPgNullToken = (_value) => {
         const _trimmed = String(_value ?? "").trim();
-        return _trimmed.toUpperCase() === "NULL" || /^<{1,2}\s*null\s*>{1,2}$/i.test(_trimmed);
+        return _trimmed.toUpperCase() === "NULL" || /^[<«]{1,2}\s*null\s*[>»]{1,2}$/i.test(_trimmed);
       };
 
       const _normalizePgWhereValue = (_value) => {
