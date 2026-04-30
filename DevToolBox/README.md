@@ -19,7 +19,7 @@ open DevToolBox/DevToolBox.html
 |---|---|
 | **TextChanger** | 1行1値の入力を、A5M2 Caption / TSV / SQL IN句 / PostgreSQL SELECT+INSERT+DELETE / 連番調整 の5形式に同時変換 |
 | **BindSQL** | Eclipse 等のデバッグ出力（SQL + バインド変数）を実行可能 SQL に統合 + A5:SQL Mk-2 風整形 + シンタックスハイライト |
-| **Maskinger** | AI 送信前のテキスト/コードに含まれる機密情報・PII を自動マスキング（メール・トークン・IP・電話番号・カード番号・関数名・SQL文字列など 25+ パターン） |
+| **Maskinger** | AI 送信前のテキスト/コードに含まれる機密情報・PII を自動マスキング（メール・トークン・IP・電話番号・カード番号・関数名・Javaのpackage名・SQL文字列など 25+ パターン） |
 
 TextChanger の PostgreSQL 変換では、`NULL` および `<< NULL >>` のセル値は `WHERE` 条件に含めません。
 生成される PostgreSQL 文では、文末の `;` は単独行で左寄せになります。

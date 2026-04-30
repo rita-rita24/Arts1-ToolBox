@@ -613,6 +613,25 @@
           return _result;
         };
 
+        const _maskJavaPackageNames = (_text, _state) => {
+          const _placeholderByName = new Map();
+          const _toPlaceholder = (_name) => {
+            if (!_placeholderByName.has(_name)) {
+              _placeholderByName.set(
+                _name,
+                _nextPlaceholder("PACKAGE", _state, _name),
+              );
+            }
+            return _placeholderByName.get(_name);
+          };
+
+          return _text.replace(
+            /(^|\n)(\s*package\s+)([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*)(\s*;)/g,
+            (_match, _lineBreak, _prefix, _packageName, _suffix) =>
+              `${_lineBreak}${_prefix}${_toPlaceholder(_packageName)}${_suffix}`,
+          );
+        };
+
         const _maskFunctionNames = (_text, _state) => {
           const _placeholderByName = new Map();
           const _skipNameSet = new Set([
@@ -901,6 +920,7 @@
           if (_looksLikeCode(_rawText)) {
             _result = _stripComments(_result);
             _result = _maskSqlStrings(_result, _state);
+            _result = _maskJavaPackageNames(_result, _state);
             _result = _maskClassLikeNames(_result, _state);
             _result = _maskFunctionNames(_result, _state);
             _result = _maskConstants(_result, _state);

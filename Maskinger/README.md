@@ -29,6 +29,7 @@ AIに入力する前のテキストを、ブラウザ内で自動マスキング
 - コードらしい入力の場合は追加で自動処理
   - コメントを削除 (`//`, `/* */`, `#`, `--`)
   - SQL文に見える文字列リテラルを `[SQL_n]` に置換
+  - Javaの `package` 宣言のパッケージ名を `[PACKAGE_n]` に置換
   - クラス名 / 型名（`class`, `interface`, `enum`, `type`）を `[CLASS_n]` に置換
   - 関数名（`function` / `def` / `func` 宣言、`const|let|var` への関数代入、Java系メソッド宣言、クラス/オブジェクトメソッド）を `[FUNC_n]` に置換
   - 定数名（`UPPER_SNAKE_CASE` など）を `[CONST_n]` に置換

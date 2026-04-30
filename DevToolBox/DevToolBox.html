@@ -3180,11 +3180,18 @@ UPDATE USER USING VALUES VARIADIC WHEN WHERE WINDOW WITH
         return _r;
       };
 
+      const _maskJavaPackageNames = (_text, _state) =>
+        _text.replace(
+          /(^|\n)(\s*package\s+)([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+)(\s*;?)/g,
+          (_m, _br, _pre, _pkg, _suf) => `${_br}${_pre}${_nextPlaceholder("PACKAGE", _state, _pkg)}${_suf}`
+        );
+
       const _maskText = (_raw) => {
         const _state = _createMaskState();
         let _r = _raw;
         if (_looksLikeCode(_raw)) {
           _r = _stripComments(_r);
+          _r = _maskJavaPackageNames(_r, _state);
           _r = _maskSqlStrings(_r, _state);
           _r = _maskClassLikeNames(_r, _state);
           _r = _maskFunctionNames(_r, _state);
