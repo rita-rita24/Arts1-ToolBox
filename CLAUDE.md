@@ -6,22 +6,13 @@
 
 Arts1-ToolBoxは、Vanilla JavaScriptで構築されたシングルファイルSPAのツールボックスです。各アプリケーションは独立したHTMLファイルとして動作し、ビルドプロセスを必要としません。
 
-### アプリケーション構成
-
-| ファイル | 説明 |
-|---------|------|
-| `simple-todo.html` | タスク管理アプリ |
-| `csv-tsv-editor.html` | CSV/TSVエディタ |
-| `keep-plus.html` | Google Keepライクなノートアプリ |
-
 ## 技術スタック
 
 - **言語**: Vanilla JavaScript（フレームワーク不使用）
 - **マークアップ**: HTML5
 - **スタイリング**: CSS3（CSS変数によるテーマ管理）
-- **アイコン**: Material Icons / Material Symbols Outlined
-- **データ永続化**: localStorage / sessionStorage
-- **デプロイ**: スタンドアロンHTML（ビルド不要）
+- **アイコン**: Material Symbols Outlined
+- **データ永続化**: localStorage / indexedDB
 
 ## アーキテクチャ原則
 
@@ -41,7 +32,7 @@ app.html
 ### 設計ルール
 
 1. **外部依存の最小化**: CDN経由のフォント・アイコンのみ許可
-2. **オフラインファースト**: localStorageで自動保存
+2. **オフラインファースト**: localStorage or indexedDBで自動保存
 3. **プログレッシブエンハンスメント**: JavaScript無効でも基本表示
 4. **レスポンシブデザイン**: モバイル・デスクトップ対応
 

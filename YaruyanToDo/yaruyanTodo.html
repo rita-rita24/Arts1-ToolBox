@@ -768,11 +768,6 @@
       animation: burstFade 780ms var(--ease-smooth) forwards;
     }
 
-    .task-item.removing,
-    .subtask-item.removing {
-      animation: itemOut 220ms var(--ease-smooth) forwards;
-    }
-
     @keyframes itemIn {
       from {
         opacity: 0;
@@ -781,13 +776,6 @@
       to {
         opacity: 1;
         transform: translateY(0) scale(1);
-      }
-    }
-
-    @keyframes itemOut {
-      to {
-        opacity: 0;
-        transform: translateX(24px) scale(0.97);
       }
     }
 
@@ -1274,31 +1262,15 @@
 
     .modal-overlay.show {
       display: flex;
-      animation: fadeIn 180ms ease;
+      animation: none;
+    }
+
+    .modal-overlay.show .modal {
+      animation: none;
     }
 
     .modal-overlay.over-focus {
       z-index: 4100;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes modalIn {
-      from {
-        opacity: 0;
-        transform: translateY(14px) scale(0.975);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    .modal-overlay.show .modal {
-      animation: modalIn 240ms var(--ease-spring);
     }
 
     .modal {
@@ -1622,7 +1594,7 @@
 
     .focus-overlay.show {
       display: flex;
-      animation: fadeIn 180ms ease;
+      animation: none;
     }
 
     .focus-modal {
@@ -2219,6 +2191,10 @@
       letter-spacing: 0;
     }
 
+    .material-symbols-outlined[data-icon="undo"] > svg {
+      transform: translateY(-1px);
+    }
+
     :focus-visible {
       outline: 1px solid var(--primary);
     }
@@ -2377,6 +2353,19 @@
 
     #page-tasks {
       gap: 1.25rem;
+    }
+
+    #page-memo .card {
+      display: flex;
+      min-height: clamp(24rem, calc(100vh - 13.5rem), 62rem);
+    }
+
+    #organizeMemoInput {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      resize: vertical;
+      line-height: 1.65;
     }
 
     .tasks-layout {
@@ -3309,7 +3298,6 @@
               class="text-input"
               placeholder="考えの整理や、あとでやることの下書きに使ってください"
               rows="16"
-              style="width:100%; min-height: 22rem; resize: vertical; line-height: 1.65;"
             ></textarea>
           </div>
         </section>
@@ -3343,7 +3331,6 @@
             </div>
 
             <div class="card">
-              <h2>テーマカラー</h2>
               <div class="theme-grid" id="themeColorGrid" role="radiogroup" aria-label="テーマカラー"></div>
             </div>
 
@@ -4628,10 +4615,17 @@
         delete $quickTooltip.dataset.placement;
       }
 
+      function _isTooltipAnchorActive($anchor) {
+        if (!($anchor instanceof HTMLElement)) return false;
+        if (!$anchor.isConnected) return false;
+        if ($anchor.matches(':hover')) return true;
+        return $anchor.matches(':focus-visible');
+      }
+
       function _positionQuickTooltip() {
         if (!$quickTooltip || !_tooltipState.anchorEl) return;
         const $anchor = _tooltipState.anchorEl;
-        if (!$anchor.isConnected) {
+        if (!_isTooltipAnchorActive($anchor)) {
           _hideQuickTooltip();
           return;
         }
@@ -4727,6 +4721,7 @@
       function handleTooltipFocusIn(event) {
         const $target = _resolveTooltipTarget(event.target);
         if (!$target) return;
+        if (!$target.matches(':focus-visible')) return;
         _showQuickTooltip($target);
       }
 
@@ -7356,45 +7351,35 @@
         };
       }
 
-      function performDeleteParent(parentId, buttonEl) {
-        const li = buttonEl?.closest('.task-item') || document.querySelector(`.task-item[data-id="${parentId}"]`);
-        if (li) li.classList.add('removing');
-
+      function performDeleteParent(parentId) {
         playDeleteSound();
 
-        setTimeout(() => {
-          const undoPayload = _createParentDeleteUndoPayload(parentId);
-          const previousTaskCount = tasks.length;
-          tasks = tasks.filter(task => task.id !== parentId);
-          if (tasks.length === previousTaskCount) return;
-          save();
-          render();
-          _registerDeleteUndoToast('タスクを削除しました', undoPayload);
-        }, li ? 220 : 0);
+        const undoPayload = _createParentDeleteUndoPayload(parentId);
+        const previousTaskCount = tasks.length;
+        tasks = tasks.filter(task => task.id !== parentId);
+        if (tasks.length === previousTaskCount) return;
+        save();
+        render();
+        _registerDeleteUndoToast('タスクを削除しました', undoPayload);
       }
 
-      function performDeleteSubtask(parentId, subId, buttonEl) {
-        const li = buttonEl?.closest('.subtask-item');
-        if (li) li.classList.add('removing');
-
+      function performDeleteSubtask(parentId, subId) {
         playDeleteSound();
 
-        setTimeout(() => {
-          const undoPayload = _createSubtaskDeleteUndoPayload(parentId, subId);
-          const parent = getTask(parentId);
-          if (!parent) return;
-          const previousSubtaskCount = parent.subtasks.length;
-          parent.subtasks = parent.subtasks.filter(sub => sub.id !== subId);
-          if (parent.subtasks.length === previousSubtaskCount) return;
-          syncParentStatus(parent);
-          save();
-          render();
-          _registerDeleteUndoToast('子タスクを削除しました', undoPayload);
+        const undoPayload = _createSubtaskDeleteUndoPayload(parentId, subId);
+        const parent = getTask(parentId);
+        if (!parent) return;
+        const previousSubtaskCount = parent.subtasks.length;
+        parent.subtasks = parent.subtasks.filter(sub => sub.id !== subId);
+        if (parent.subtasks.length === previousSubtaskCount) return;
+        syncParentStatus(parent);
+        save();
+        render();
+        _registerDeleteUndoToast('子タスクを削除しました', undoPayload);
 
-          if (modalState.parentId === parentId) {
-            renderParentModalSubtasks(parent);
-          }
-        }, li ? 220 : 0);
+        if (modalState.parentId === parentId) {
+          renderParentModalSubtasks(parent);
+        }
       }
 
       function performClearCompleted() {

@@ -283,43 +283,15 @@
         text-overflow: ellipsis;
       }
 
-      .sidebar__toggle {
-        display: flex;
-        align-items: center;
-        gap: var(--space-3);
-        padding: var(--space-3) var(--space-4);
-        color: var(--text-muted);
-        border-top: 1px solid var(--border);
-        font-size: 12px;
-        font-weight: 600;
-
-        &:hover {
-          background: var(--surface-soft);
-          color: var(--text);
-        }
-      }
-
-      .sidebar__toggle-label {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
       .app[data-sidebar-collapsed="true"] {
         & .sidebar__brand-name,
-        & .nav-item__label,
-        & .sidebar__toggle-label {
+        & .nav-item__label {
           display: none;
         }
 
         & .sidebar__brand,
-        & .nav-item,
-        & .sidebar__toggle {
+        & .nav-item {
           justify-content: center;
-        }
-
-        & .sidebar__toggle .material-symbols-rounded {
-          transform: rotate(180deg);
         }
       }
 
@@ -347,15 +319,23 @@
         background: var(--bg-elevated);
       }
 
-      .topbar__menu {
-        display: none;
-      }
-
       .topbar__title-wrap {
         display: flex;
         flex-direction: column;
+        gap: 2px;
         min-width: 0;
         flex: 1;
+      }
+
+      .topbar__title-row {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        min-width: 0;
+      }
+
+      .topbar__menu {
+        flex-shrink: 0;
       }
 
       .topbar__eyebrow {
@@ -371,6 +351,8 @@
         font-weight: 700;
         color: var(--text);
         line-height: 1.2;
+        flex: 1;
+        min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -772,6 +754,14 @@
           border-color: var(--success);
           color: var(--accent-fg);
         }
+
+        &.is-success:hover,
+        &.is-success:active,
+        &.is-success:focus-visible {
+          background: var(--success);
+          border-color: var(--success);
+          color: var(--accent-fg);
+        }
       }
 
       .button--primary {
@@ -793,6 +783,20 @@
         &:hover {
           background: var(--surface-soft);
           color: var(--text);
+        }
+      }
+
+      .button--copy {
+        min-inline-size: 116px;
+        padding-inline: 12px;
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--accent-fg);
+
+        &:hover {
+          background: var(--accent-strong);
+          border-color: var(--accent-strong);
+          color: var(--accent-fg);
         }
       }
 
@@ -1189,13 +1193,6 @@
         display: block;
       }
 
-      .sidebar__toggle {
-        display: none;
-      }
-
-      .topbar__menu {
-        display: inline-flex;
-      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1219,26 +1216,21 @@
         <span class="sidebar__brand-name">DevToolBox</span>
       </div>
       <nav class="sidebar__nav" id="$nav" role="tablist" aria-label="ツール選択"></nav>
-      <button type="button" class="sidebar__toggle" id="$sidebarToggle" aria-label="サイドバー折りたたみ" aria-pressed="false">
-        <span class="material-symbols-rounded" aria-hidden="true">chevron_left</span>
-        <span class="sidebar__toggle-label">折りたたむ</span>
-      </button>
     </aside>
     <button type="button" class="sidebar-backdrop" id="$sidebarBackdrop" aria-label="サイドバーを閉じる" tabindex="-1"></button>
 
     <main class="workspace">
       <header class="topbar">
-        <button type="button" class="icon-btn topbar__menu" id="$menuToggle" aria-label="メニュー">
-          <span class="material-symbols-rounded" aria-hidden="true">menu</span>
-        </button>
         <div class="topbar__title-wrap">
           <p class="topbar__eyebrow" id="$topbarEyebrow">Welcome</p>
-          <h1 class="topbar__title" id="$topbarTitle">DevToolBox</h1>
+          <div class="topbar__title-row">
+            <h1 class="topbar__title" id="$topbarTitle">DevToolBox</h1>
+            <button type="button" class="icon-btn topbar__menu" id="$menuToggle" aria-label="サイドバーを折りたたむ" aria-pressed="false">
+              <span class="material-symbols-rounded" aria-hidden="true">menu</span>
+            </button>
+          </div>
         </div>
         <div class="topbar__actions">
-          <a class="icon-btn topbar__external" id="$openStandalone" href="#" target="_blank" rel="noopener" hidden aria-label="単体版を新しいタブで開く">
-            <span class="material-symbols-rounded" aria-hidden="true">open_in_new</span>
-          </a>
           <label class="switch" for="$themeToggle" title="テーマ切替">
             <input id="$themeToggle" type="checkbox" role="switch" aria-label="ライト/ダークモード切り替え">
             <span class="slider">
@@ -1284,7 +1276,7 @@
                 <header class="tc-output-card__header">
                   <h3 class="tc-output-card__title" id="tc-out-a5m2-title">A5M2 Caption 変換</h3>
                   <div class="tc-output-card__actions">
-                    <button type="button" class="button button--ghost" data-tc-copy="#tc-out-a5m2" aria-label="A5M2の結果をコピー">
+                    <button type="button" class="button button--ghost button--copy" data-tc-copy="#tc-out-a5m2" aria-label="A5M2の結果をコピー">
                       <span class="button__icon" aria-hidden="true">content_copy</span>
                       <span data-tc-label>コピー</span>
                     </button>
@@ -1297,7 +1289,7 @@
                 <header class="tc-output-card__header">
                   <h3 class="tc-output-card__title" id="tc-out-tsv-title">タブ区切り（Excel向け）</h3>
                   <div class="tc-output-card__actions">
-                    <button type="button" class="button button--ghost" data-tc-copy="#tc-out-tsv" aria-label="TSVの結果をコピー">
+                    <button type="button" class="button button--ghost button--copy" data-tc-copy="#tc-out-tsv" aria-label="TSVの結果をコピー">
                       <span class="button__icon" aria-hidden="true">content_copy</span>
                       <span data-tc-label>コピー</span>
                     </button>
@@ -1310,7 +1302,7 @@
                 <header class="tc-output-card__header">
                   <h3 class="tc-output-card__title" id="tc-out-sqlin-title">SQL IN 句</h3>
                   <div class="tc-output-card__actions">
-                    <button type="button" class="button button--ghost" data-tc-copy="#tc-out-sqlin" aria-label="SQL IN句の結果をコピー">
+                    <button type="button" class="button button--ghost button--copy" data-tc-copy="#tc-out-sqlin" aria-label="SQL IN句の結果をコピー">
                       <span class="button__icon" aria-hidden="true">content_copy</span>
                       <span data-tc-label>コピー</span>
                     </button>
@@ -1325,7 +1317,7 @@
                   <div class="tc-output-card__actions">
                     <label class="sr-only" for="tc-pg-table">テーブル名</label>
                     <input id="tc-pg-table" type="text" class="input input--compact tc-pg-table" placeholder="テーブル名" aria-label="PostgreSQL テーブル名" autocomplete="off" spellcheck="false">
-                    <button type="button" class="button button--ghost" data-tc-copy="#tc-out-pg" aria-label="PostgreSQL文の結果をコピー">
+                    <button type="button" class="button button--ghost button--copy" data-tc-copy="#tc-out-pg" aria-label="PostgreSQL文の結果をコピー">
                       <span class="button__icon" aria-hidden="true">content_copy</span>
                       <span data-tc-label>コピー</span>
                     </button>
@@ -1340,7 +1332,7 @@
                   <div class="tc-output-card__actions">
                     <label class="sr-only" for="tc-num-offset">増減値</label>
                     <input id="tc-num-offset" type="number" step="1" class="input input--compact tc-num-offset" placeholder="例: 1" aria-label="連番の増減値" autocomplete="off">
-                    <button type="button" class="button button--ghost" data-tc-copy="#tc-out-num" aria-label="連番調整の結果をコピー">
+                    <button type="button" class="button button--ghost button--copy" data-tc-copy="#tc-out-num" aria-label="連番調整の結果をコピー">
                       <span class="button__icon" aria-hidden="true">content_copy</span>
                       <span data-tc-label>コピー</span>
                     </button>
@@ -1385,7 +1377,7 @@
                   <h2 class="card__title">実行可能 SQL</h2>
                 </div>
                 <div class="card__actions">
-                  <button type="button" class="button button--primary" data-bs-action="copy" id="bs-copy">
+                  <button type="button" class="button button--primary button--copy" data-bs-action="copy" id="bs-copy">
                     <span class="button__icon" aria-hidden="true">content_copy</span>
                     <span data-bs-copy-label>コピー</span>
                   </button>
@@ -1436,7 +1428,7 @@
                     <h2 class="card__title">マスク済みテキスト</h2>
                   </div>
                   <div class="card__actions">
-                    <button type="button" class="button button--primary" data-mk-action="copy">
+                    <button type="button" class="button button--primary button--copy" data-mk-action="copy">
                       <span class="button__icon" aria-hidden="true">content_copy</span>
                       <span data-mk-copy-label>コピー</span>
                     </button>
@@ -1454,7 +1446,7 @@
                     <h2 class="card__title">マスク対応一覧</h2>
                   </div>
                   <div class="card__actions">
-                    <button type="button" class="button button--ghost" data-mk-action="copy-mapping">
+                    <button type="button" class="button button--ghost button--copy" data-mk-action="copy-mapping">
                       <span class="button__icon" aria-hidden="true">content_copy</span>
                       <span data-mk-copy-label>コピー</span>
                     </button>
@@ -1516,24 +1508,21 @@
         name: "TextChanger",
         description: "行ベーステキストを5形式に同時変換",
         icon: "swap_horiz",
-        eyebrow: "Text Conversion",
-        standalone: "../TextChanger/TextChanger.html",
+        eyebrow: "Text Conversion"
       },
       {
         id: "bindsql",
         name: "BindSQL",
         description: "SQLとバインド変数を実行可能形式に統合",
         icon: "database",
-        eyebrow: "SQL Builder",
-        standalone: "../BindSQLforSQLBuilder/BindSQLforSQLBuilder.html",
+        eyebrow: "SQL Builder"
       },
       {
         id: "maskinger",
         name: "Maskinger",
         description: "機密情報を自動マスキング",
         icon: "visibility_off",
-        eyebrow: "Privacy",
-        standalone: "../Maskinger/Maskinger.html",
+        eyebrow: "Privacy"
       },
     ];
 
@@ -1558,15 +1547,12 @@
     };
 
     const $app = document.getElementById("$app");
-    const $sidebar = document.getElementById("$sidebar");
     const $sidebarBackdrop = document.getElementById("$sidebarBackdrop");
-    const $sidebarToggle = document.getElementById("$sidebarToggle");
     const $menuToggle = document.getElementById("$menuToggle");
     const $nav = document.getElementById("$nav");
     const $themeToggle = document.getElementById("$themeToggle");
     const $topbarTitle = document.getElementById("$topbarTitle");
     const $topbarEyebrow = document.getElementById("$topbarEyebrow");
-    const $openStandalone = document.getElementById("$openStandalone");
     const $welcomeGrid = document.getElementById("$welcomeGrid");
     const $flash = document.getElementById("$flash");
 
@@ -1635,10 +1621,22 @@
       _saveKey(STORAGE.THEME, _state._theme);
     };
 
+    const _isMobileViewport = () => window.matchMedia("(max-width: 720px)").matches;
+
+    const _syncMenuToggleState = () => {
+      if (_isMobileViewport()) {
+        $menuToggle.setAttribute("aria-label", _state._mobileOpen ? "メニューを閉じる" : "メニューを開く");
+        $menuToggle.setAttribute("aria-pressed", _state._mobileOpen ? "true" : "false");
+      } else {
+        $menuToggle.setAttribute("aria-label", _state._collapsed ? "サイドバーを展開" : "サイドバーを折りたたむ");
+        $menuToggle.setAttribute("aria-pressed", _state._collapsed ? "true" : "false");
+      }
+    };
+
     const _applyCollapsed = (_collapsed) => {
       _state._collapsed = Boolean(_collapsed);
       $app.dataset.sidebarCollapsed = _state._collapsed ? "true" : "false";
-      $sidebarToggle.setAttribute("aria-pressed", _state._collapsed ? "true" : "false");
+      _syncMenuToggleState();
     };
 
     const _setCollapsed = (_collapsed) => {
@@ -1653,6 +1651,7 @@
       } else {
         delete $app.dataset.sidebarMobile;
       }
+      _syncMenuToggleState();
     };
 
     const _findTool = (_id) => TOOLS.find((_tool) => _tool.id === _id) || null;
@@ -1680,17 +1679,10 @@
       if (_tool) {
         $topbarEyebrow.textContent = _tool.eyebrow || "Tool";
         $topbarTitle.textContent = _tool.name;
-        if (_tool.standalone) {
-          $openStandalone.href = _tool.standalone;
-          $openStandalone.hidden = false;
-        } else {
-          $openStandalone.hidden = true;
-        }
         _ensureToolInitialized(_tool.id);
       } else {
         $topbarEyebrow.textContent = "Welcome";
         $topbarTitle.textContent = "DevToolBox";
-        $openStandalone.hidden = true;
       }
 
       _saveKey(STORAGE.ACTIVE, _activeId);
@@ -1771,16 +1763,24 @@
       _setTheme($themeToggle.checked ? THEME_LIGHT : THEME_DARK);
     };
 
-    const _handleSidebarToggleClick = () => {
-      _setCollapsed(!_state._collapsed);
-    };
-
     const _handleMenuToggleClick = () => {
-      _setMobileOpen(!_state._mobileOpen);
+      if (_isMobileViewport()) {
+        _setMobileOpen(!_state._mobileOpen);
+      } else {
+        _setCollapsed(!_state._collapsed);
+      }
     };
 
     const _handleBackdropClick = () => {
       _setMobileOpen(false);
+    };
+
+    const _handleResize = () => {
+      if (!_isMobileViewport() && _state._mobileOpen) {
+        _setMobileOpen(false);
+        return;
+      }
+      _syncMenuToggleState();
     };
 
     const _handleHashChange = () => {
@@ -1841,7 +1841,11 @@
 
       const _normalizePgValue = (_value) => {
         const _trimmed = _value.trim();
-        if (_trimmed.length === 0 || _trimmed.toUpperCase() === "NULL") return null;
+        if (
+          _trimmed.length === 0
+          || _trimmed.toUpperCase() === "NULL"
+          || /^<<\s*null\s*>>$/i.test(_trimmed)
+        ) return null;
         return _trimmed;
       };
 
@@ -1849,7 +1853,6 @@
 
       const _formatPgMatchCondition = (_column, _value) => {
         const _col = `"${_escapePgIdentifier(_column)}"`;
-        if (_value === null) return `${_col} IS NULL`;
         return `${_col} = ${_formatPgValue(_value)}`;
       };
 
@@ -1865,16 +1868,20 @@
         const _quotedColumns = _table._headers.map((_c) => `"${_escapePgIdentifier(_c)}"`);
         const _columnList = _quotedColumns.join(", ");
         const _normalizedRows = _table._rows.map((_row) => _row.map(_normalizePgValue));
-        const _rowConditions = _normalizedRows.map((_row) =>
-          _row.map((_value, _index) => _formatPgMatchCondition(_table._headers[_index], _value)).join(" AND ")
-        );
-        const _whereClause = _rowConditions.map((_c) => `(${_c})`).join("\n   OR ");
-        const _selectStatement = `SELECT * FROM ${_resolvedTable}\nWHERE ${_whereClause};`;
-        const _deleteStatement = `DELETE FROM ${_resolvedTable}\nWHERE ${_whereClause};`;
+        const _rowConditions = _normalizedRows.map((_row) => {
+          const _conditions = _row
+            .map((_value, _index) => (_value === null ? null : _formatPgMatchCondition(_table._headers[_index], _value)))
+            .filter(Boolean);
+          if (_conditions.length === 0) return null;
+          return `(${_conditions.join(" AND ")})`;
+        }).filter(Boolean);
+        const _whereClause = _rowConditions.length === 0 ? "FALSE" : _rowConditions.join("\n   OR ");
+        const _selectStatement = `SELECT * FROM ${_resolvedTable}\nWHERE ${_whereClause}\n;`;
+        const _deleteStatement = `DELETE FROM ${_resolvedTable}\nWHERE ${_whereClause}\n;`;
         const _valuesList = _normalizedRows
           .map((_row) => `  (${_row.map(_formatPgValue).join(", ")})`)
           .join(",\n");
-        const _insertStatement = `INSERT INTO ${_resolvedTable} (${_columnList}) VALUES\n${_valuesList};`;
+        const _insertStatement = `INSERT INTO ${_resolvedTable} (${_columnList}) VALUES\n${_valuesList}\n;`;
         return [
           "-- SELECT文（事前チェック）",
           _selectStatement,
@@ -1954,7 +1961,7 @@
         if (_existing) clearTimeout(_existing);
         $button.classList.add("is-success");
         if ($icon) $icon.textContent = "check";
-        if ($label) $label.textContent = "コピーしました";
+        if ($label) $label.textContent = "コピー完了";
         const _timer = setTimeout(() => {
           $button.classList.remove("is-success");
           if ($icon) $icon.textContent = "content_copy";
@@ -2771,7 +2778,7 @@ UPDATE USER USING VALUES VARIADIC WHEN WHERE WINDOW WITH
 
       const _showCopySuccessState = () => {
         if (!$copyLabel) return;
-        $copyLabel.textContent = "コピーしました";
+        $copyLabel.textContent = "コピー完了";
         if ($copyButton) $copyButton.classList.add("is-success");
         window.clearTimeout(_bsState._copyLabelTimer);
         _bsState._copyLabelTimer = window.setTimeout(() => {
@@ -2856,7 +2863,7 @@ UPDATE USER USING VALUES VARIADIC WHEN WHERE WINDOW WITH
       const PII_ASSIGNMENT_KEY_PATTERN =
         "email|mail|phone|tel|mobile|address|ssn|social[_-]?security|passport|license|driver[_-]?license|my[_-]?number|mynumber|card(?:number)?|credit[_-]?card|iban|account(?:_?number)?|routing(?:_?number)?|dob|birth(?:date)?|full[_-]?name|real[_-]?name|employee(?:_?id)?|customer(?:_?id)?|user(?:_?id)?";
       const NO_MATCH_MESSAGE = "マスキング対象は見つかりませんでした";
-      const COPY_DONE_LABEL = "コピーしました";
+      const COPY_DONE_LABEL = "コピー完了";
       const COPY_FEEDBACK_DURATION_MS = 1200;
 
       const _buildAssignmentRegexes = (_keyPattern) => ({
@@ -3361,10 +3368,10 @@ UPDATE USER USING VALUES VARIADIC WHEN WHERE WINDOW WITH
       $nav.addEventListener("click", _handleNavClick);
       $welcomeGrid.addEventListener("click", _handleNavClick);
       $themeToggle.addEventListener("change", _handleThemeToggleChange);
-      $sidebarToggle.addEventListener("click", _handleSidebarToggleClick);
       $menuToggle.addEventListener("click", _handleMenuToggleClick);
       $sidebarBackdrop.addEventListener("click", _handleBackdropClick);
       window.addEventListener("hashchange", _handleHashChange);
+      window.addEventListener("resize", _handleResize);
     };
 
     const _initShell = () => {

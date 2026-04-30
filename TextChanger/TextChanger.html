@@ -733,7 +733,8 @@
 
   function _normalizePgValue(value) {
     const _trimmed = value.trim();
-    if (_trimmed.length === 0 || _trimmed.toUpperCase() === 'NULL') {
+    const _isNullToken = /^<<\s*NULL\s*>>$/i.test(_trimmed);
+    if (_trimmed.length === 0 || _trimmed.toUpperCase() === 'NULL' || _isNullToken) {
       return null;
     }
     return _trimmed;
@@ -770,19 +771,29 @@
     const _columnList = _quotedColumns.join(', ');
     const _normalizedRows = _table.rows.map(row => row.map(_normalizePgValue));
 
-    const _rowConditions = _normalizedRows.map(row => row
-      .map((value, index) => _formatPgMatchCondition(_table.headers[index], value))
-      .join(' AND ')
-    );
+    const _rowConditions = _normalizedRows
+      .map(row => row
+        .map((value, index) => {
+          if (value === null) {
+            return '';
+          }
+          return _formatPgMatchCondition(_table.headers[index], value);
+        })
+        .filter(_condition => _condition.length > 0)
+        .join(' AND ')
+      )
+      .filter(_condition => _condition.length > 0);
 
-    const _whereClause = _rowConditions.map(_condition => `(${_condition})`).join('\n   OR ');
-    const _selectStatement = `SELECT * FROM ${_tableName}\nWHERE ${_whereClause};`;
-    const _deleteStatement = `DELETE FROM ${_tableName}\nWHERE ${_whereClause};`;
+    const _whereClause = _rowConditions.length > 0
+      ? _rowConditions.map(_condition => `(${_condition})`).join('\n   OR ')
+      : '1 = 0';
+    const _selectStatement = `SELECT * FROM ${_tableName}\nWHERE ${_whereClause}\n;`;
+    const _deleteStatement = `DELETE FROM ${_tableName}\nWHERE ${_whereClause}\n;`;
 
     const _valuesList = _normalizedRows
       .map(row => `  (${row.map(_formatPgValue).join(', ')})`)
       .join(',\n');
-    const _insertStatement = `INSERT INTO ${_tableName} (${_columnList}) VALUES\n${_valuesList};`;
+    const _insertStatement = `INSERT INTO ${_tableName} (${_columnList}) VALUES\n${_valuesList}\n;`;
 
     return [
       '-- SELECT文（事前チェック）',

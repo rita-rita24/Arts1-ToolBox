@@ -911,8 +911,65 @@ const BG_COLORS = [
   { key: 'grey',   value: 'linear-gradient(135deg, #838C91, #4F5A65)' }
 ];
 
+const DEFAULT_LABEL_NAME_BY_COLOR = Object.freeze({
+  red: 'Do First (緊急×重要)',
+  orange: 'Schedule (重要)',
+  yellow: '期限あり',
+  green: 'Quick Win (短時間)',
+  blue: 'Deep Work (集中作業)',
+  sky: 'Waiting For (依頼・返答待ち)',
+  purple: 'Review / Approval',
+  lime: 'Next Action',
+  pink: 'Someday / Maybe',
+  black: 'Blocker'
+});
+
+const DEFAULT_LIST_TEMPLATES = Object.freeze([
+  {
+    title: 'Inbox',
+    cards: [
+      {
+        title: 'このボードの使い方を確認する',
+        description: '1. まずは Inbox に思いついたタスクを全部入れる\n2. 次アクション化できたら「Next Actions」へ移動\n3. 実作業に入ったら「In Progress」へ移動\n4. 待ちが発生したら「Waiting For」へ移動\n5. 完了したら「Done」へ移動',
+        labelColors: ['lime', 'blue']
+      },
+      {
+        title: '今週やることを3件書き出す',
+        description: '',
+        labelColors: ['orange']
+      }
+    ]
+  },
+  {
+    title: 'Next Actions',
+    cards: [
+      {
+        title: '次に実行する具体アクションを1件作る',
+        description: '例: 「請求書フォーマットを更新して送付」など、次に取る行動が明確な形で記入',
+        labelColors: ['lime']
+      }
+    ]
+  },
+  {
+    title: 'In Progress',
+    cards: []
+  },
+  {
+    title: 'Waiting For',
+    cards: []
+  },
+  {
+    title: 'Someday / Maybe',
+    cards: []
+  },
+  {
+    title: 'Done',
+    cards: []
+  }
+]);
+
 const DEFAULT_LABELS = () => LABEL_COLORS.map(c => ({
-  id: uid(), color: c.key, name: ''
+  id: uid(), color: c.key, name: DEFAULT_LABEL_NAME_BY_COLOR[c.key] || ''
 }));
 
 const STORAGE_KEY = 'trello-clone-data-v2';
@@ -1035,40 +1092,40 @@ let activePopover = null;
 let filterCriteria = { text: '', labelIds: [], due: '' };
 
 function defaultState() {
-  const boardId = uid();
-  const labels = DEFAULT_LABELS();
+  const board = createDefaultBoard('ようこそボード');
   return {
-    boards: [{
-      id: boardId,
-      name: 'ようこそボード',
-      background: 'blue',
-      labels,
-      lists: [
-        {
-          id: uid(), title: 'To Do', archived: false, cards: [
-            {
-              ...newCardTemplate(),
-              title: 'このアプリの使い方を確認する',
-              description: '• 左上のダッシュボードアイコンからボード一覧を開けます\n• リストやカードはドラッグで並べ替えできます\n• キーボードショートカット "?" で一覧を表示します\n• カードをクリックすると詳細(裏面)が開きます',
-              labelIds: [labels[0].id, labels[1].id]
-            },
-            { ...newCardTemplate(), title: 'ラベルを設定する (L)' },
-            { ...newCardTemplate(), title: '期限をつける (D)' }
-          ]
-        },
-        {
-          id: uid(), title: 'Doing', archived: false, cards: [
-            { ...newCardTemplate(), title: 'サンプルタスクを作る' }
-          ]
-        },
-        {
-          id: uid(), title: 'Done', archived: false, cards: []
-        }
-      ]
-    }],
-    currentBoardId: boardId,
+    boards: [board],
+    currentBoardId: board.id,
     theme: 'light',
     showLabelNames: false
+  };
+}
+
+function createDefaultLists(labels) {
+  const labelIdByColor = Object.fromEntries(labels.map(label => [label.color, label.id]));
+  return DEFAULT_LIST_TEMPLATES.map((template) => ({
+    id: uid(),
+    title: template.title,
+    archived: false,
+    cards: template.cards.map((templateCard) => ({
+      ...newCardTemplate(),
+      title: templateCard.title,
+      description: templateCard.description,
+      labelIds: (templateCard.labelColors || [])
+        .map(colorKey => labelIdByColor[colorKey])
+        .filter(Boolean)
+    }))
+  }));
+}
+
+function createDefaultBoard(name) {
+  const labels = DEFAULT_LABELS();
+  return {
+    id: uid(),
+    name,
+    background: 'blue',
+    labels,
+    lists: createDefaultLists(labels)
   };
 }
 
@@ -2582,7 +2639,9 @@ function openBoardsDrawer() {
   drawer.querySelector('#drawer-new').addEventListener('click', () => {
     const name = prompt('新しいボード名を入力してください', '新しいボード');
     if (!name) return;
-    const b = { id: uid(), name: name.trim(), background: 'blue', labels: DEFAULT_LABELS(), lists: [] };
+    const boardName = name.trim();
+    if (!boardName) return;
+    const b = createDefaultBoard(boardName);
     state.boards.push(b);
     state.currentBoardId = b.id;
     saveState(); renderAll();
