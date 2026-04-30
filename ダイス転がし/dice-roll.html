@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ダイス転がし | チンチロ風 3Dダイス</title>
+  <meta name="description" content="three.jsとcannon-esで作った3Dダイス転がしツール。どんぶりにサイコロを落としてワクワクする出目を楽しめます。">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-top: #1a1410;
+      --bg-bot: #2a1f18;
+      --gold: #d4a04a;
+      --gold-dark: #a87731;
+      --ivory: #f5f1e8;
+      --ink: #1a1410;
+    }
+
+    html,
+    body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+      color: var(--ivory);
+      background: radial-gradient(ellipse at center top, #2a1f18 0%, #15100c 100%);
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    #canvas-container {
+      position: absolute;
+      inset: 0;
+      cursor: grab;
+    }
+
+    #canvas-container:active {
+      cursor: grabbing;
+    }
+
+    #title {
+      position: absolute;
+      top: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.3rem;
+      font-weight: 300;
+      letter-spacing: 0.5em;
+      padding-left: 0.5em;
+      color: var(--gold);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+      z-index: 10;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    #subtitle {
+      position: absolute;
+      top: 64px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      color: rgba(245, 241, 232, 0.5);
+      z-index: 10;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    #ui {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      z-index: 10;
+    }
+
+    #roll-button {
+      padding: 16px 56px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 0.4em;
+      padding-left: calc(56px + 0.4em);
+      background: linear-gradient(180deg, #e8b85e 0%, #b07e2a 100%);
+      color: var(--ink);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow:
+        0 6px 24px rgba(212, 160, 74, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    }
+
+    #roll-button:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 10px 28px rgba(212, 160, 74, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    }
+
+    #roll-button:active {
+      transform: translateY(0);
+    }
+
+    #roll-button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    #hint {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      color: rgba(245, 241, 232, 0.45);
+    }
+
+    #result {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 20;
+      text-align: center;
+    }
+
+    #result.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    #result .label {
+      font-size: 0.75rem;
+      font-weight: 300;
+      letter-spacing: 0.5em;
+      padding-left: 0.5em;
+      color: var(--gold);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+    }
+
+    #result .pips {
+      display: flex;
+      gap: 14px;
+    }
+
+    #result .pip {
+      width: 56px;
+      height: 56px;
+      background: var(--ivory);
+      color: var(--ink);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 700;
+      box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.6),
+        inset 0 -3px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    #result .total {
+      font-size: 0.95rem;
+      font-weight: 300;
+      letter-spacing: 0.3em;
+      color: rgba(245, 241, 232, 0.85);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+      margin-top: 4px;
+    }
+
+    #result .total b {
+      color: var(--gold);
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin: 0 4px;
+    }
+
+    #flash {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(255, 240, 200, 0.18) 0%, transparent 60%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 5;
+      transition: opacity 0.4s ease;
+    }
+
+    #flash.on {
+      opacity: 1;
+    }
+
+    @media (max-width: 600px) {
+      #title { font-size: 1rem; letter-spacing: 0.4em; }
+      #subtitle { top: 54px; font-size: 0.6rem; }
+      #roll-button { padding: 14px 44px; font-size: 1rem; padding-left: calc(44px + 0.4em); }
+      #result .pip { width: 44px; height: 44px; font-size: 1.5rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="canvas-container"></div>
+  <div id="flash"></div>
+
+  <div id="title">ダイス転がし</div>
+  <div id="subtitle">CHINCHIRO STYLE</div>
+
+  <div id="result">
+    <span class="label">出　目</span>
+    <div class="pips"></div>
+    <span class="total">合計 <b></b> ピップ</span>
+  </div>
+
+  <div id="ui">
+    <button id="roll-button">ふ　る</button>
+    <span id="hint">ボタン または 画面をタップで投擲</span>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "cannon-es": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/+esm"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import * as CANNON from 'cannon-es';
+
+    // ============================================================
+    //  Constants
+    // ============================================================
+    const DICE_COUNT = 3;
+    const DICE_SIZE = 0.9;
+    const BOWL_INNER_RADIUS_TOP = 4.2;
+    const BOWL_INNER_RADIUS_BOTTOM = 2.6;
+    const BOWL_DEPTH = 2.2;
+    const BOWL_WALL_THICKNESS = 0.35;
+    const BOWL_SEGMENTS = 32;
+
+    const CAMERA_DEFAULT = new THREE.Vector3(0, 9.5, 7.2);
+    const CAMERA_ZOOMED = new THREE.Vector3(0, 5.5, 3.6);
+    const LOOK_DEFAULT = new THREE.Vector3(0, 0.5, 0);
+    const LOOK_ZOOMED = new THREE.Vector3(0, 0.4, 0);
+
+    const PHYSICS_FIXED_STEP = 1 / 60;
+
+    // ============================================================
+    //  Three.js scene
+    // ============================================================
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.background = null;
+    scene.fog = new THREE.Fog(0x15100c, 14, 28);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.copy(CAMERA_DEFAULT);
+    camera.lookAt(LOOK_DEFAULT);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+    container.appendChild(renderer.domElement);
+
+    // Lighting
+    const hemi = new THREE.HemisphereLight(0xffe6b8, 0x2a1810, 0.5);
+    scene.add(hemi);
+
+    const keyLight = new THREE.DirectionalLight(0xfff2d6, 1.4);
+    keyLight.position.set(4, 10, 5);
+    keyLight.castShadow = true;
+    keyLight.shadow.mapSize.set(2048, 2048);
+    keyLight.shadow.camera.near = 1;
+    keyLight.shadow.camera.far = 30;
+    keyLight.shadow.camera.left = -8;
+    keyLight.shadow.camera.right = 8;
+    keyLight.shadow.camera.top = 8;
+    keyLight.shadow.camera.bottom = -8;
+    keyLight.shadow.bias = -0.0005;
+    scene.add(keyLight);
+
+    const rimLight = new THREE.DirectionalLight(0xc8a868, 0.4);
+    rimLight.position.set(-6, 4, -4);
+    scene.add(rimLight);
+
+    // Floor (under bowl) - decorative wood-tone surface
+    const floorGeo = new THREE.CircleGeometry(20, 64);
+    const floorMat = new THREE.MeshStandardMaterial({
+      color: 0x2a1710,
+      roughness: 0.95,
+      metalness: 0.0
+    });
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -0.01;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    // ============================================================
+    //  Cannon-es physics world
+    // ============================================================
+    const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -28, 0) });
+    world.broadphase = new CANNON.SAPBroadphase(world);
+    world.allowSleep = true;
+    world.defaultContactMaterial.friction = 0.35;
+    world.defaultContactMaterial.restitution = 0.35;
+
+    const diceMaterial = new CANNON.Material('dice');
+    const bowlMaterial = new CANNON.Material('bowl');
+    world.addContactMaterial(new CANNON.ContactMaterial(diceMaterial, bowlMaterial, {
+      friction: 0.4,
+      restitution: 0.45
+    }));
+    world.addContactMaterial(new CANNON.ContactMaterial(diceMaterial, diceMaterial, {
+      friction: 0.25,
+      restitution: 0.3
+    }));
+
+    // ============================================================
+    //  Bowl  (visual: lathe geometry / physics: ring of tilted boxes + disk)
+    // ============================================================
+    function buildBowl() {
+      const group = new THREE.Group();
+
+      // Profile from inner-bottom upwards then over the rim & down outside
+      const profile = [];
+      const bowlSeg = 24;
+      // inner curve
+      for (let i = 0; i <= bowlSeg; i++) {
+        const t = i / bowlSeg;
+        const angle = t * Math.PI * 0.5;
+        const r = BOWL_INNER_RADIUS_BOTTOM + (BOWL_INNER_RADIUS_TOP - BOWL_INNER_RADIUS_BOTTOM) * Math.sin(angle);
+        const y = BOWL_DEPTH * (1 - Math.cos(angle));
+        profile.push(new THREE.Vector2(r, y));
+      }
+      // top rim - move outward
+      const rimOuter = BOWL_INNER_RADIUS_TOP + BOWL_WALL_THICKNESS;
+      profile.push(new THREE.Vector2(rimOuter, BOWL_DEPTH + 0.05));
+      // outer curve (down)
+      for (let i = 0; i <= bowlSeg; i++) {
+        const t = i / bowlSeg;
+        const angle = t * Math.PI * 0.5;
+        const r = (BOWL_INNER_RADIUS_BOTTOM + 0.4) + (rimOuter - (BOWL_INNER_RADIUS_BOTTOM + 0.4)) * Math.cos(angle);
+        const y = (BOWL_DEPTH + 0.05) * (1 - Math.sin(angle));
+        profile.push(new THREE.Vector2(r, y));
+      }
+      // outer-bottom to center
+      profile.push(new THREE.Vector2(BOWL_INNER_RADIUS_BOTTOM + 0.3, -0.15));
+      profile.push(new THREE.Vector2(0.5, -0.15));
+
+      const bowlGeo = new THREE.LatheGeometry(profile, BOWL_SEGMENTS);
+      bowlGeo.computeVertexNormals();
+
+      const outsideMat = new THREE.MeshStandardMaterial({
+        color: 0x6b4628,
+        roughness: 0.6,
+        metalness: 0.15,
+        side: THREE.DoubleSide
+      });
+      const bowlMesh = new THREE.Mesh(bowlGeo, outsideMat);
+      bowlMesh.castShadow = true;
+      bowlMesh.receiveShadow = true;
+      group.add(bowlMesh);
+
+      // Inner highlight rim
+      const rimGeo = new THREE.TorusGeometry(BOWL_INNER_RADIUS_TOP + BOWL_WALL_THICKNESS / 2, 0.04, 8, BOWL_SEGMENTS);
+      const rimMat = new THREE.MeshStandardMaterial({ color: 0xd4a04a, metalness: 0.7, roughness: 0.3 });
+      const rim = new THREE.Mesh(rimGeo, rimMat);
+      rim.position.y = BOWL_DEPTH + 0.07;
+      rim.rotation.x = Math.PI / 2;
+      group.add(rim);
+
+      // Inner glow disk on the bottom for accent
+      const innerDiskGeo = new THREE.CircleGeometry(BOWL_INNER_RADIUS_BOTTOM * 0.95, 48);
+      const innerDiskMat = new THREE.MeshStandardMaterial({
+        color: 0x4a2a18,
+        roughness: 0.8,
+        metalness: 0.05,
+        side: THREE.DoubleSide
+      });
+      const innerDisk = new THREE.Mesh(innerDiskGeo, innerDiskMat);
+      innerDisk.rotation.x = -Math.PI / 2;
+      innerDisk.position.y = 0.02;
+      innerDisk.receiveShadow = true;
+      group.add(innerDisk);
+
+      scene.add(group);
+
+      // ----- physics: flat bottom + ring of tilted walls -----
+      // Bottom (thin cylinder). cannon-es Cylinder axis = local Z, so rotate 90° around X
+      // to lay it flat on the XZ plane.
+      const bottomShape = new CANNON.Cylinder(BOWL_INNER_RADIUS_BOTTOM, BOWL_INNER_RADIUS_BOTTOM, 0.2, 32);
+      const bottomBody = new CANNON.Body({ mass: 0, material: bowlMaterial });
+      bottomBody.addShape(bottomShape);
+      bottomBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI / 2);
+      bottomBody.position.set(0, -0.1, 0);
+      world.addBody(bottomBody);
+
+      // Wall ring: tilted boxes around the circle, forming the bowl wall
+      const wallSegments = 24;
+      const wallHeight = Math.sqrt(BOWL_DEPTH * BOWL_DEPTH + (BOWL_INNER_RADIUS_TOP - BOWL_INNER_RADIUS_BOTTOM) ** 2) + 0.4;
+      const wallTilt = Math.atan2(BOWL_INNER_RADIUS_TOP - BOWL_INNER_RADIUS_BOTTOM, BOWL_DEPTH);
+      const midRadius = (BOWL_INNER_RADIUS_BOTTOM + BOWL_INNER_RADIUS_TOP) / 2;
+      const segCircumference = 2 * Math.PI * midRadius / wallSegments;
+      const wallWidth = segCircumference * 1.2; // slight overlap so corners seal
+
+      const wallShape = new CANNON.Box(new CANNON.Vec3(wallWidth / 2, wallHeight / 2, BOWL_WALL_THICKNESS / 2));
+      const tempObj = new THREE.Object3D();
+      const centerLook = new THREE.Vector3();
+      for (let i = 0; i < wallSegments; i++) {
+        const angle = (i / wallSegments) * Math.PI * 2;
+        const cx = Math.cos(angle) * midRadius;
+        const cz = Math.sin(angle) * midRadius;
+        const cy = BOWL_DEPTH / 2;
+
+        // Use Three's lookAt to face the bowl center, then tilt outward at top.
+        tempObj.position.set(cx, cy, cz);
+        centerLook.set(0, cy, 0);
+        tempObj.lookAt(centerLook);            // local -Z now points to bowl center
+        tempObj.rotateX(wallTilt);             // tilt top edge away from center
+        tempObj.updateMatrixWorld();
+
+        const wallBody = new CANNON.Body({ mass: 0, material: bowlMaterial });
+        wallBody.addShape(wallShape);
+        wallBody.position.set(cx, cy, cz);
+        wallBody.quaternion.set(
+          tempObj.quaternion.x,
+          tempObj.quaternion.y,
+          tempObj.quaternion.z,
+          tempObj.quaternion.w
+        );
+
+        world.addBody(wallBody);
+      }
+    }
+    buildBowl();
+
+    // ============================================================
+    //  Dice
+    // ============================================================
+    const PIP_LAYOUT = {
+      1: [[0.5, 0.5]],
+      2: [[0.27, 0.27], [0.73, 0.73]],
+      3: [[0.25, 0.25], [0.5, 0.5], [0.75, 0.75]],
+      4: [[0.27, 0.27], [0.73, 0.27], [0.27, 0.73], [0.73, 0.73]],
+      5: [[0.25, 0.25], [0.75, 0.25], [0.5, 0.5], [0.25, 0.75], [0.75, 0.75]],
+      6: [[0.27, 0.22], [0.73, 0.22], [0.27, 0.5], [0.73, 0.5], [0.27, 0.78], [0.73, 0.78]]
+    };
+
+    function createFaceTexture(value) {
+      const size = 256;
+      const c = document.createElement('canvas');
+      c.width = c.height = size;
+      const ctx = c.getContext('2d');
+
+      // Ivory face
+      const grad = ctx.createRadialGradient(size / 2, size / 2, size * 0.1, size / 2, size / 2, size * 0.7);
+      grad.addColorStop(0, '#ffffff');
+      grad.addColorStop(1, '#ece4d2');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, size, size);
+
+      // Subtle inner border
+      ctx.strokeStyle = 'rgba(120,90,60,0.18)';
+      ctx.lineWidth = 6;
+      ctx.strokeRect(8, 8, size - 16, size - 16);
+
+      // Pips
+      const pipColor = value === 1 ? '#c92424' : '#1a1410';
+      ctx.fillStyle = pipColor;
+      const pipR = size * 0.085;
+      for (const [px, py] of PIP_LAYOUT[value]) {
+        ctx.beginPath();
+        ctx.arc(px * size, py * size, pipR, 0, Math.PI * 2);
+        ctx.fill();
+        // little inner shine
+        ctx.fillStyle = 'rgba(255,255,255,0.12)';
+        ctx.beginPath();
+        ctx.arc(px * size - pipR * 0.3, py * size - pipR * 0.3, pipR * 0.35, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = pipColor;
+      }
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = 8;
+      return tex;
+    }
+
+    // Material order in BoxGeometry: [+X, -X, +Y, -Y, +Z, -Z]
+    // We want opposite faces to sum to 7.
+    const FACE_VALUE = { px: 3, nx: 4, py: 1, ny: 6, pz: 2, nz: 5 };
+
+    function createDiceMesh() {
+      const geo = new THREE.BoxGeometry(DICE_SIZE, DICE_SIZE, DICE_SIZE);
+      // round edges visually with bevel? Skip - keep simple but add slight chamfer using EdgesGeometry overlay
+      const mats = [
+        new THREE.MeshStandardMaterial({ map: createFaceTexture(FACE_VALUE.px), roughness: 0.35, metalness: 0.05 }),
+        new THREE.MeshStandardMaterial({ map: createFaceTexture(FACE_VALUE.nx), roughness: 0.35, metalness: 0.05 }),
+        new THREE.MeshStandardMaterial({ map: createFaceTexture(FACE_VALUE.py), roughness: 0.35, metalness: 0.05 }),
+        new THREE.MeshStandardMaterial({ map: createFaceTexture(FACE_VALUE.ny), roughness: 0.35, metalness: 0.05 }),
+        new THREE.MeshStandardMaterial({ map: createFaceTexture(FACE_VALUE.pz), roughness: 0.35, metalness: 0.05 }),
+        new THREE.MeshStandardMaterial({ map: createFaceTexture(FACE_VALUE.nz), roughness: 0.35, metalness: 0.05 })
+      ];
+      const mesh = new THREE.Mesh(geo, mats);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      return mesh;
+    }
+
+    const FACE_NORMALS = [
+      { axis: new THREE.Vector3(1, 0, 0), value: FACE_VALUE.px },
+      { axis: new THREE.Vector3(-1, 0, 0), value: FACE_VALUE.nx },
+      { axis: new THREE.Vector3(0, 1, 0), value: FACE_VALUE.py },
+      { axis: new THREE.Vector3(0, -1, 0), value: FACE_VALUE.ny },
+      { axis: new THREE.Vector3(0, 0, 1), value: FACE_VALUE.pz },
+      { axis: new THREE.Vector3(0, 0, -1), value: FACE_VALUE.nz }
+    ];
+
+    function getDiceTopFaceValue(quat) {
+      let bestY = -Infinity;
+      let value = 0;
+      const v = new THREE.Vector3();
+      for (const f of FACE_NORMALS) {
+        v.copy(f.axis).applyQuaternion(quat);
+        if (v.y > bestY) { bestY = v.y; value = f.value; }
+      }
+      return value;
+    }
+
+    const dice = [];
+    for (let i = 0; i < DICE_COUNT; i++) {
+      const mesh = createDiceMesh();
+      scene.add(mesh);
+
+      const half = DICE_SIZE / 2;
+      const shape = new CANNON.Box(new CANNON.Vec3(half, half, half));
+      const body = new CANNON.Body({
+        mass: 1,
+        material: diceMaterial,
+        linearDamping: 0.08,
+        angularDamping: 0.08,
+        allowSleep: true,
+        sleepSpeedLimit: 0.15,
+        sleepTimeLimit: 0.4
+      });
+      body.addShape(shape);
+      world.addBody(body);
+
+      dice.push({ mesh, body });
+    }
+
+    // ============================================================
+    //  Roll logic, slow-mo & camera zoom state machine
+    // ============================================================
+    const STATE = {
+      IDLE: 'idle',
+      ROLLING: 'rolling',
+      SLOWMO: 'slowmo',
+      SETTLED: 'settled'
+    };
+
+    const ui = {
+      button: document.getElementById('roll-button'),
+      result: document.getElementById('result'),
+      pips: document.querySelector('#result .pips'),
+      total: document.querySelector('#result .total b'),
+      flash: document.getElementById('flash')
+    };
+
+    let state = STATE.IDLE;
+    let timeScale = 1.0;
+    let timeScaleTarget = 1.0;
+    let cameraTargetPos = CAMERA_DEFAULT.clone();
+    let cameraTargetLook = LOOK_DEFAULT.clone();
+    let currentLook = LOOK_DEFAULT.clone();
+    let slowmoArmed = false;
+    let settleTimer = 0;
+
+    function placeDiceForRoll() {
+      const angles = [];
+      for (let i = 0; i < DICE_COUNT; i++) angles.push((i / DICE_COUNT) * Math.PI * 2 + Math.random() * 0.5);
+
+      dice.forEach((d, i) => {
+        const a = angles[i];
+        const r = 0.9;
+        const x = Math.cos(a) * r;
+        const z = Math.sin(a) * r;
+        const y = 5.5 + i * 0.7 + Math.random() * 0.6;
+
+        d.body.wakeUp();
+        d.body.position.set(x, y, z);
+
+        // random tumbling rotation
+        const q = new CANNON.Quaternion();
+        q.setFromEuler(Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2);
+        d.body.quaternion.copy(q);
+
+        // gentle horizontal toss + downward push
+        const vx = -Math.cos(a) * (1.2 + Math.random()) + (Math.random() - 0.5) * 0.8;
+        const vz = -Math.sin(a) * (1.2 + Math.random()) + (Math.random() - 0.5) * 0.8;
+        d.body.velocity.set(vx, -2 - Math.random() * 1.5, vz);
+
+        d.body.angularVelocity.set(
+          (Math.random() - 0.5) * 18,
+          (Math.random() - 0.5) * 18,
+          (Math.random() - 0.5) * 18
+        );
+      });
+    }
+
+    function roll() {
+      if (state === STATE.ROLLING || state === STATE.SLOWMO) return;
+      ui.button.disabled = true;
+      ui.result.classList.remove('show');
+      placeDiceForRoll();
+      state = STATE.ROLLING;
+      timeScale = 1.0;
+      timeScaleTarget = 1.0;
+      cameraTargetPos = CAMERA_DEFAULT.clone();
+      cameraTargetLook = LOOK_DEFAULT.clone();
+      slowmoArmed = false;
+      settleTimer = 0;
+    }
+
+    function totalSpeed() {
+      let lin = 0, ang = 0;
+      for (const d of dice) {
+        lin += d.body.velocity.length();
+        ang += d.body.angularVelocity.length();
+      }
+      return { lin, ang };
+    }
+
+    function showResult() {
+      const values = dice.map(d => {
+        const q = new THREE.Quaternion(d.body.quaternion.x, d.body.quaternion.y, d.body.quaternion.z, d.body.quaternion.w);
+        return getDiceTopFaceValue(q);
+      });
+      const sum = values.reduce((a, b) => a + b, 0);
+
+      ui.pips.innerHTML = '';
+      values.forEach(v => {
+        const span = document.createElement('span');
+        span.className = 'pip';
+        span.textContent = v;
+        ui.pips.appendChild(span);
+      });
+      ui.total.textContent = sum;
+      ui.result.classList.add('show');
+
+      // bright flash effect
+      ui.flash.classList.add('on');
+      setTimeout(() => ui.flash.classList.remove('on'), 350);
+
+      ui.button.disabled = false;
+    }
+
+    // ============================================================
+    //  Render loop
+    // ============================================================
+    const clock = new THREE.Clock();
+
+    function update() {
+      requestAnimationFrame(update);
+      const dt = Math.min(clock.getDelta(), 0.05);
+
+      // smooth time scale
+      timeScale += (timeScaleTarget - timeScale) * Math.min(1, dt * 4);
+      world.step(PHYSICS_FIXED_STEP, dt * timeScale, 3);
+
+      // sync visuals
+      for (const d of dice) {
+        d.mesh.position.copy(d.body.position);
+        d.mesh.quaternion.copy(d.body.quaternion);
+      }
+
+      // state transitions
+      if (state === STATE.ROLLING) {
+        const { lin, ang } = totalSpeed();
+        // arm slow-mo when dice have already bounced and energy drops
+        if (!slowmoArmed && (lin + ang * 0.4) < 6 && (lin + ang * 0.4) > 0.6) {
+          slowmoArmed = true;
+          state = STATE.SLOWMO;
+          timeScaleTarget = 0.22;
+          cameraTargetPos = CAMERA_ZOOMED.clone();
+          cameraTargetLook = LOOK_ZOOMED.clone();
+        }
+      } else if (state === STATE.SLOWMO) {
+        const { lin, ang } = totalSpeed();
+        if (lin < 0.06 && ang < 0.08) {
+          settleTimer += dt;
+          if (settleTimer > 0.35) {
+            state = STATE.SETTLED;
+            timeScaleTarget = 1.0;
+            cameraTargetPos = CAMERA_DEFAULT.clone();
+            cameraTargetLook = LOOK_DEFAULT.clone();
+            showResult();
+          }
+        } else {
+          settleTimer = 0;
+        }
+      }
+
+      // camera lerp
+      camera.position.lerp(cameraTargetPos, Math.min(1, dt * 2.5));
+      currentLook.lerp(cameraTargetLook, Math.min(1, dt * 2.5));
+      camera.lookAt(currentLook);
+
+      renderer.render(scene, camera);
+    }
+
+    // Initial gentle spin (idle state)
+    function initIdle() {
+      // place dice resting in bowl as a preview
+      dice.forEach((d, i) => {
+        const a = (i / DICE_COUNT) * Math.PI * 2;
+        const r = 1.4;
+        d.body.position.set(Math.cos(a) * r, 0.5 + i * 0.05, Math.sin(a) * r);
+        d.body.velocity.set(0, 0, 0);
+        d.body.angularVelocity.set(0, 0, 0);
+        const q = new CANNON.Quaternion();
+        q.setFromEuler(0, a, 0);
+        d.body.quaternion.copy(q);
+        d.mesh.position.copy(d.body.position);
+        d.mesh.quaternion.copy(d.body.quaternion);
+      });
+    }
+    initIdle();
+    update();
+
+    // ============================================================
+    //  Interactions
+    // ============================================================
+    ui.button.addEventListener('click', roll);
+
+    container.addEventListener('pointerdown', (e) => {
+      if (e.target === renderer.domElement && state !== STATE.SLOWMO) roll();
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.code === 'Enter') {
+        e.preventDefault();
+        roll();
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+
+</html>
