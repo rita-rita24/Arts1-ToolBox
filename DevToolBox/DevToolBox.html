@@ -1839,13 +1839,21 @@
       const _escapePgIdentifier = (_value) => String(_value).replaceAll('"', '""');
       const _escapePgStringLiteral = (_value) => _value.replaceAll("'", "''");
 
-      const _normalizePgValue = (_value) => {
-        const _trimmed = _value.trim();
-        if (
-          _trimmed.length === 0
-          || _trimmed.toUpperCase() === "NULL"
-          || /^<<\s*null\s*>>$/i.test(_trimmed)
-        ) return null;
+      const _isPgNullToken = (_value) => {
+        const _trimmed = String(_value ?? "").trim();
+        return _trimmed.toUpperCase() === "NULL" || /^<{1,2}\s*null\s*>{1,2}$/i.test(_trimmed);
+      };
+
+      const _normalizePgWhereValue = (_value) => {
+        const _trimmed = String(_value ?? "").trim();
+        if (_trimmed.length === 0 || _isPgNullToken(_trimmed)) return null;
+        return _trimmed;
+      };
+
+      const _normalizePgInsertValue = (_value) => {
+        const _trimmed = String(_value ?? "").trim();
+        if (_isPgNullToken(_trimmed)) return null;
+        if (_trimmed.length === 0) return " ";
         return _trimmed;
       };
 
@@ -1867,8 +1875,9 @@
         const _resolvedTable = _getResolvedPgTableName(_tableName);
         const _quotedColumns = _table._headers.map((_c) => `"${_escapePgIdentifier(_c)}"`);
         const _columnList = _quotedColumns.join(", ");
-        const _normalizedRows = _table._rows.map((_row) => _row.map(_normalizePgValue));
-        const _rowConditions = _normalizedRows.map((_row) => {
+        const _whereRows = _table._rows.map((_row) => _row.map(_normalizePgWhereValue));
+        const _insertRows = _table._rows.map((_row) => _row.map(_normalizePgInsertValue));
+        const _rowConditions = _whereRows.map((_row) => {
           const _conditions = _row
             .map((_value, _index) => (_value === null ? null : _formatPgMatchCondition(_table._headers[_index], _value)))
             .filter(Boolean);
@@ -1878,7 +1887,7 @@
         const _whereClause = _rowConditions.length === 0 ? "FALSE" : _rowConditions.join("\n   OR ");
         const _selectStatement = `SELECT * FROM ${_resolvedTable}\nWHERE ${_whereClause}\n;`;
         const _deleteStatement = `DELETE FROM ${_resolvedTable}\nWHERE ${_whereClause}\n;`;
-        const _valuesList = _normalizedRows
+        const _valuesList = _insertRows
           .map((_row) => `  (${_row.map(_formatPgValue).join(", ")})`)
           .join(",\n");
         const _insertStatement = `INSERT INTO ${_resolvedTable} (${_columnList}) VALUES\n${_valuesList}\n;`;

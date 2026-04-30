@@ -731,11 +731,26 @@
     return value.replaceAll("'", "''");
   }
 
-  function _normalizePgValue(value) {
-    const _trimmed = value.trim();
-    const _isNullToken = /^<<\s*NULL\s*>>$/i.test(_trimmed);
-    if (_trimmed.length === 0 || _trimmed.toUpperCase() === 'NULL' || _isNullToken) {
+  function _isPgNullToken(value) {
+    const _trimmed = String(value ?? '').trim();
+    return _trimmed.toUpperCase() === 'NULL' || /^<+\s*NULL\s*>+$/i.test(_trimmed);
+  }
+
+  function _normalizePgWhereValue(value) {
+    const _trimmed = String(value ?? '').trim();
+    if (_trimmed.length === 0 || _isPgNullToken(_trimmed)) {
       return null;
+    }
+    return _trimmed;
+  }
+
+  function _normalizePgInsertValue(value) {
+    const _trimmed = String(value ?? '').trim();
+    if (_isPgNullToken(_trimmed)) {
+      return null;
+    }
+    if (_trimmed.length === 0) {
+      return ' ';
     }
     return _trimmed;
   }
@@ -769,9 +784,10 @@
     const _tableName = _getResolvedPgTableName(tableName);
     const _quotedColumns = _table.headers.map(column => `"${_escapePgIdentifier(column)}"`);
     const _columnList = _quotedColumns.join(', ');
-    const _normalizedRows = _table.rows.map(row => row.map(_normalizePgValue));
+    const _normalizedWhereRows = _table.rows.map(row => row.map(_normalizePgWhereValue));
+    const _normalizedInsertRows = _table.rows.map(row => row.map(_normalizePgInsertValue));
 
-    const _rowConditions = _normalizedRows
+    const _rowConditions = _normalizedWhereRows
       .map(row => row
         .map((value, index) => {
           if (value === null) {
@@ -790,7 +806,7 @@
     const _selectStatement = `SELECT * FROM ${_tableName}\nWHERE ${_whereClause}\n;`;
     const _deleteStatement = `DELETE FROM ${_tableName}\nWHERE ${_whereClause}\n;`;
 
-    const _valuesList = _normalizedRows
+    const _valuesList = _normalizedInsertRows
       .map(row => `  (${row.map(_formatPgValue).join(', ')})`)
       .join(',\n');
     const _insertStatement = `INSERT INTO ${_tableName} (${_columnList}) VALUES\n${_valuesList}\n;`;
