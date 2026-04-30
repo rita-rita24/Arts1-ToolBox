@@ -236,36 +236,36 @@
     <span id="hint">ボタン または 画面をタップで投擲</span>
   </div>
 
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "cannon-es": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/+esm"
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cannon@0.6.2/build/cannon.min.js"></script>
+
+  <script>
+    (function () {
+      if (typeof THREE === 'undefined' || typeof CANNON === 'undefined') {
+        const msg = document.createElement('div');
+        msg.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1410;color:#f5f1e8;padding:24px;border:1px solid #d4a04a;border-radius:8px;font-size:0.9rem;z-index:9999;text-align:center;max-width:80%;';
+        msg.innerHTML = 'ライブラリの読み込みに失敗しました。<br>インターネット接続を確認してください。';
+        document.body.appendChild(msg);
+        return;
       }
-    }
-  </script>
 
-  <script type="module">
-    import * as THREE from 'three';
-    import * as CANNON from 'cannon-es';
+      // ============================================================
+      //  Constants
+      // ============================================================
+      const DICE_COUNT = 3;
+      const DICE_SIZE = 0.9;
+      const BOWL_INNER_RADIUS_TOP = 4.2;
+      const BOWL_INNER_RADIUS_BOTTOM = 2.6;
+      const BOWL_DEPTH = 2.2;
+      const BOWL_WALL_THICKNESS = 0.35;
+      const BOWL_SEGMENTS = 32;
 
-    // ============================================================
-    //  Constants
-    // ============================================================
-    const DICE_COUNT = 3;
-    const DICE_SIZE = 0.9;
-    const BOWL_INNER_RADIUS_TOP = 4.2;
-    const BOWL_INNER_RADIUS_BOTTOM = 2.6;
-    const BOWL_DEPTH = 2.2;
-    const BOWL_WALL_THICKNESS = 0.35;
-    const BOWL_SEGMENTS = 32;
+      const CAMERA_DEFAULT = new THREE.Vector3(0, 9.5, 7.2);
+      const CAMERA_ZOOMED = new THREE.Vector3(0, 5.5, 3.6);
+      const LOOK_DEFAULT = new THREE.Vector3(0, 0.5, 0);
+      const LOOK_ZOOMED = new THREE.Vector3(0, 0.4, 0);
 
-    const CAMERA_DEFAULT = new THREE.Vector3(0, 9.5, 7.2);
-    const CAMERA_ZOOMED = new THREE.Vector3(0, 5.5, 3.6);
-    const LOOK_DEFAULT = new THREE.Vector3(0, 0.5, 0);
-    const LOOK_ZOOMED = new THREE.Vector3(0, 0.4, 0);
-
-    const PHYSICS_FIXED_STEP = 1 / 60;
+      const PHYSICS_FIXED_STEP = 1 / 60;
 
     // ============================================================
     //  Three.js scene
@@ -284,6 +284,7 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05;
     container.appendChild(renderer.domElement);
@@ -323,11 +324,13 @@
     scene.add(floor);
 
     // ============================================================
-    //  Cannon-es physics world
+    //  Cannon physics world
     // ============================================================
-    const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -28, 0) });
+    const world = new CANNON.World();
+    world.gravity.set(0, -28, 0);
     world.broadphase = new CANNON.SAPBroadphase(world);
     world.allowSleep = true;
+    world.solver.iterations = 12;
     world.defaultContactMaterial.friction = 0.35;
     world.defaultContactMaterial.restitution = 0.35;
 
@@ -412,15 +415,13 @@
 
       scene.add(group);
 
-      // ----- physics: flat bottom + ring of tilted walls -----
-      // Bottom (thin cylinder). cannon-es Cylinder axis = local Z, so rotate 90° around X
-      // to lay it flat on the XZ plane.
-      const bottomShape = new CANNON.Cylinder(BOWL_INNER_RADIUS_BOTTOM, BOWL_INNER_RADIUS_BOTTOM, 0.2, 32);
-      const bottomBody = new CANNON.Body({ mass: 0, material: bowlMaterial });
-      bottomBody.addShape(bottomShape);
-      bottomBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI / 2);
-      bottomBody.position.set(0, -0.1, 0);
-      world.addBody(bottomBody);
+      // ----- physics: infinite plane floor + ring of tilted walls -----
+      // Plane normal defaults to +Z; rotate 90° around X so it points +Y (horizontal floor).
+      const floorBody = new CANNON.Body({ mass: 0, material: bowlMaterial });
+      floorBody.addShape(new CANNON.Plane());
+      floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
+      floorBody.position.set(0, 0, 0);
+      world.addBody(floorBody);
 
       // Wall ring: tilted boxes around the circle, forming the bowl wall
       const wallSegments = 24;
@@ -508,7 +509,7 @@
       }
 
       const tex = new THREE.CanvasTexture(c);
-      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.encoding = THREE.sRGBEncoding;
       tex.anisotropy = 8;
       return tex;
     }
@@ -776,6 +777,7 @@
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
+    })();
   </script>
 </body>
 
