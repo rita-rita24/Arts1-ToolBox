@@ -65,13 +65,49 @@
   --az-color-bg-page: #1A1814;
   --az-color-bg-surface: #252721;
   --az-color-bg-soft: #2D2D26;
-  --az-color-bg-azraku: #2D2D26;
+  --az-color-bg-azraku: #2A2620;
   --az-color-border-default: #3D3D33;
-  --az-color-border-strong: #4D4D43;
+  --az-color-border-strong: #5A5345;
   --az-color-text-primary: #F5F1EB;
   --az-color-text-body: #D0C2B9;
-  --az-color-text-subtle: #B7B3B3;
-  --az-color-text-inverse: #252721;
+  --az-color-text-subtle: #9D9080;
+  --az-color-text-inverse: #FFFFFF; /* coral/limeなど色付き面に置く文字。両モードで白を維持 */
+}
+
+/* === ダークモード用のコンポーネント補正 ===
+   light primitive (warm-gray-50/100) を直接使っている場所を、暗背景で潰れないように上書きする */
+:root[data-theme="dark"] .quiz-progress {
+  background: #3D3D33;
+}
+:root[data-theme="dark"] .choice-num {
+  background: #3D3D33;
+  color: var(--az-color-text-body);
+}
+:root[data-theme="dark"] .cat-row.selected {
+  background: rgba(255, 255, 255, 0.06);
+}
+:root[data-theme="dark"] .feedback {
+  background: var(--az-color-bg-soft);
+  border-color: var(--az-color-border-default);
+}
+:root[data-theme="dark"] .feedback.correct {
+  background: rgba(170, 206, 56, 0.18);
+}
+:root[data-theme="dark"] .feedback.incorrect {
+  background: rgba(235, 109, 85, 0.18);
+}
+:root[data-theme="dark"] .choice.correct {
+  background: rgba(170, 206, 56, 0.16);
+}
+:root[data-theme="dark"] .choice.incorrect {
+  background: rgba(235, 109, 85, 0.16);
+}
+:root[data-theme="dark"] .wb-toolbar input[type="search"]::placeholder {
+  color: #6E665A;
+}
+:root[data-theme="dark"] .kbd {
+  background: var(--az-color-bg-soft);
+  color: var(--az-color-text-body);
 }
 
 * { box-sizing: border-box; }
@@ -132,6 +168,25 @@ body {
 }
 .link-btn:hover { color: var(--az-color-action-primary); }
 .link-btn.active { color: var(--az-color-text-primary); font-weight: 700; }
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: var(--az-color-text-subtle);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+.icon-btn:hover { color: var(--az-color-action-primary); background: var(--az-color-bg-soft); }
+.icon-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--az-color-focus-ring); }
+.theme-icon { display: inline-flex; align-items: center; justify-content: center; }
+.theme-icon svg { display: block; }
 
 /* ブロック */
 .block {
@@ -694,7 +749,7 @@ body {
     <div class="app-actions">
       <button class="link-btn" id="nav-home" type="button">演習</button>
       <button class="link-btn" id="nav-wordbook" type="button">単語帳</button>
-      <button class="link-btn" id="theme-toggle" type="button"><span id="theme-label">明るい</span></button>
+      <button class="icon-btn" id="theme-toggle" type="button" title="テーマを切り替え" aria-label="テーマを切り替え"><span class="theme-icon" id="theme-icon" aria-hidden="true"></span></button>
     </div>
   </header>
 
@@ -2274,10 +2329,22 @@ function renderResult() {
 // ============================================================
 // テーマ
 // ============================================================
+// サン / ムーンの SVG アイコン。クリックで切り替わる先を視覚化する:
+// - 現在 light → 月アイコン（クリックで dark に切り替え）
+// - 現在 dark  → 太陽アイコン（クリックで light に切り替え）
+const SUN_ICON_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M4.93 19.07l1.41-1.41"/><path d="M17.66 6.34l1.41-1.41"/></svg>';
+const MOON_ICON_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+
 function applyThemeUI(theme) {
   document.documentElement.setAttribute("data-theme", theme);
-  const lab = document.getElementById("theme-label");
-  if (lab) lab.textContent = theme === "dark" ? "暗い" : "明るい";
+  const icon = document.getElementById("theme-icon");
+  if (icon) icon.innerHTML = theme === "dark" ? SUN_ICON_SVG : MOON_ICON_SVG;
+  const btn = document.getElementById("theme-toggle");
+  if (btn) {
+    const next = theme === "dark" ? "ライトモード" : "ダークモード";
+    btn.setAttribute("title", next + "に切り替え");
+    btn.setAttribute("aria-label", next + "に切り替え");
+  }
 }
 
 function applyTheme(theme) {
