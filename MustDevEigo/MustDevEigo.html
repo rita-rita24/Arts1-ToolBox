@@ -1758,16 +1758,15 @@ function fmtDate(ts) {
 }
 
 // ============================================================
-// CSV エクスポート
+// HTML エクスポート（印刷・閲覧・共有が容易な形式）
 // ============================================================
-function csvEscape(v) {
-  const s = String(v == null ? "" : v);
-  if (/[",\r\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
-  return s;
-}
-function csvFromRows(rows) {
-  // BOM 付きで Excel が UTF-8 を正しく扱えるようにする
-  return "﻿" + rows.map(row => row.map(csvEscape).join(",")).join("\r\n");
+function htmlEscape(v) {
+  return String(v == null ? "" : v)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 function downloadFile(filename, content, mime) {
   const blob = new Blob([content], { type: (mime || "text/plain") + ";charset=utf-8" });
@@ -1796,62 +1795,130 @@ function kindLabel(kind) {
   return "意味";
 }
 
-// 演習1セッションをCSVで保存
-function exportSessionCSV() {
+// HTMLレポートで使う共通スタイル（インライン埋め込み）
+const REPORT_STYLE = `
+  body { font-family: "Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif; background:#F5F1EB; color:#252721; margin:0; padding:32px 16px; }
+  .doc { max-width:760px; margin:0 auto; background:#fff; border:1px solid #E6E8EA; border-radius:16px; padding:32px; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
+  h1 { font-size:24px; margin:0 0 4px; color:#252721; }
+  .sub { color:#7D8281; font-size:13px; margin:0 0 24px; }
+  .meta { display:grid; grid-template-columns: 100px 1fr; gap:6px 16px; font-size:14px; padding:14px 18px; background:#F9F8F0; border-radius:10px; border:1px solid #E6E8EA; margin-bottom:24px; }
+  .meta dt { color:#7D8281; margin:0; font-weight:500; }
+  .meta dd { color:#252721; margin:0; font-weight:700; font-variant-numeric:tabular-nums; }
+  .rate-big { font-family: Inter,Arial,sans-serif; font-size:40px; font-weight:700; color:#EB6D55; line-height:1; margin:0; font-variant-numeric:tabular-nums; }
+  table { border-collapse:collapse; width:100%; font-size:13px; }
+  th, td { padding:8px 10px; border-bottom:1px solid #E6E8EA; text-align:left; vertical-align:top; }
+  th { background:#FAF9F7; color:#545A59; font-weight:700; font-size:12px; }
+  td.num { font-variant-numeric:tabular-nums; color:#7D8281; }
+  td.word { font-family: Inter,Arial,monospace; font-weight:700; }
+  td.result { text-align:center; font-weight:700; font-size:14px; }
+  td.result.ok { color:#8FB82E; }
+  td.result.ng { color:#D95C47; }
+  td.picked { color:#7D8281; font-size:12px; }
+  footer { margin-top:24px; color:#7D8281; font-size:11px; text-align:center; }
+  @media print { body { background:#fff; padding:0; } .doc { box-shadow:none; border:none; max-width:100%; } }
+`;
+
+// 演習1セッションをHTMLで保存
+function exportSessionHTML() {
   if (!state.answers.length) return;
   const cat = getCategoryById(state.selectedCategory);
   const total = state.answers.length;
   const correct = state.correctCount;
   const rate = Math.round(correct / total * 100);
   const ts = Date.now();
-  const rows = [
-    ["MustDevEigo セッション結果"],
-    ["日時", fmtDateTime(ts)],
-    ["分野", cat.label],
-    ["問題数", String(total)],
-    ["正解数", String(correct)],
-    ["正答率", rate + "%"],
-    [],
-    ["問題番号", "単語", "種別", "正解", "選択した答え", "結果"],
-  ];
-  state.answers.forEach((a, i) => {
+  const tsStr = fmtDateTime(ts);
+  const rows = state.answers.map((a, i) => {
     const q = state.questions[i];
-    rows.push([
-      i + 1,
-      a.word,
-      kindLabel(q && q.kind),
-      a.answer,
-      a.choices[a.picked] || "",
-      a.isCorrect ? "○" : "×",
-    ]);
-  });
-  const filename = `MustDevEigo_${cat.id}_${fmtFileStamp(ts)}.csv`;
-  downloadFile(filename, csvFromRows(rows), "text/csv");
+    return `<tr>
+      <td class="num">${i + 1}</td>
+      <td class="word">${htmlEscape(a.word)}</td>
+      <td>${htmlEscape(kindLabel(q && q.kind))}</td>
+      <td>${htmlEscape(a.answer)}</td>
+      <td>${htmlEscape(a.choices[a.picked] || "—")}</td>
+      <td class="result ${a.isCorrect ? "ok" : "ng"}">${a.isCorrect ? "○" : "×"}</td>
+    </tr>`;
+  }).join("");
+  const html = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>MustDevEigo セッション結果 ${htmlEscape(cat.label)} ${tsStr}</title>
+<style>${REPORT_STYLE}</style>
+</head>
+<body>
+<div class="doc">
+  <h1>MustDevEigo セッション結果</h1>
+  <p class="sub">${htmlEscape(tsStr)} に出題</p>
+  <p class="rate-big">${rate}%</p>
+  <dl class="meta">
+    <dt>分野</dt><dd>${htmlEscape(cat.label)}</dd>
+    <dt>問題数</dt><dd>${total}</dd>
+    <dt>正解数</dt><dd>${correct}</dd>
+    <dt>誤答数</dt><dd>${total - correct}</dd>
+  </dl>
+  <table>
+    <thead>
+      <tr><th style="width:40px;">No.</th><th>単語</th><th style="width:60px;">種別</th><th>正解</th><th>選択した答え</th><th style="width:36px;">結果</th></tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <footer>MustDevEigo · 端末内で生成 · ${htmlEscape(tsStr)}</footer>
+</div>
+</body>
+</html>`;
+  const filename = `MustDevEigo_${cat.id}_${fmtFileStamp(ts)}.html`;
+  downloadFile(filename, html, "text/html");
 }
 
-// 全履歴をCSVで保存
-function exportHistoryCSV() {
+// 全履歴をHTMLで保存
+function exportHistoryHTML() {
   if (!dataCache.history.length) return;
-  const rows = [
-    ["MustDevEigo 学習履歴"],
-    ["出力日時", fmtDateTime(Date.now())],
-    ["セッション数", String(dataCache.history.length)],
-    [],
-    ["日時", "分野", "問題数", "正解数", "正答率"],
-  ];
-  // 古い順に並べる
-  dataCache.history.slice().sort((a, b) => a.timestamp - b.timestamp).forEach(s => {
+  const ts = Date.now();
+  const tsStr = fmtDateTime(ts);
+  const sorted = dataCache.history.slice().sort((a, b) => a.timestamp - b.timestamp);
+  const totalQuestions = sorted.reduce((s, x) => s + x.total, 0);
+  const totalCorrect   = sorted.reduce((s, x) => s + x.correct, 0);
+  const avgRate = totalQuestions ? Math.round(totalCorrect / totalQuestions * 100) : 0;
+  const rows = sorted.map(s => {
     const rate = Math.round(s.correct / s.total * 100);
-    rows.push([
-      fmtDateTime(s.timestamp),
-      s.categoryLabel,
-      String(s.total),
-      String(s.correct),
-      rate + "%",
-    ]);
-  });
-  const filename = `MustDevEigo_history_${fmtFileStamp(Date.now())}.csv`;
-  downloadFile(filename, csvFromRows(rows), "text/csv");
+    return `<tr>
+      <td>${htmlEscape(fmtDateTime(s.timestamp))}</td>
+      <td>${htmlEscape(s.categoryLabel)}</td>
+      <td class="num">${s.total}</td>
+      <td class="num">${s.correct}</td>
+      <td class="num">${rate}%</td>
+    </tr>`;
+  }).join("");
+  const html = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>MustDevEigo 学習履歴 ${tsStr}</title>
+<style>${REPORT_STYLE}</style>
+</head>
+<body>
+<div class="doc">
+  <h1>MustDevEigo 学習履歴</h1>
+  <p class="sub">${htmlEscape(tsStr)} 時点</p>
+  <p class="rate-big">${avgRate}%</p>
+  <dl class="meta">
+    <dt>セッション数</dt><dd>${sorted.length}</dd>
+    <dt>累計問題数</dt><dd>${totalQuestions}</dd>
+    <dt>累計正解数</dt><dd>${totalCorrect}</dd>
+    <dt>平均正答率</dt><dd>${avgRate}%</dd>
+  </dl>
+  <table>
+    <thead>
+      <tr><th>日時</th><th>分野</th><th style="width:80px;">問題数</th><th style="width:80px;">正解数</th><th style="width:80px;">正答率</th></tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <footer>MustDevEigo · 端末内で生成 · ${htmlEscape(tsStr)}</footer>
+</div>
+</body>
+</html>`;
+  const filename = `MustDevEigo_history_${fmtFileStamp(ts)}.html`;
+  downloadFile(filename, html, "text/html");
 }
 
 function getCategoryById(id) {
@@ -1983,9 +2050,9 @@ function renderHome() {
   }
 
   // データアクション（保存・削除）
-  const exportHist = el("button", { class: "btn-link", type: "button" }, "履歴をCSVで保存");
+  const exportHist = el("button", { class: "btn-link", type: "button" }, "履歴をHTMLで保存");
   exportHist.disabled = !dataCache.history.length;
-  exportHist.addEventListener("click", exportHistoryCSV);
+  exportHist.addEventListener("click", exportHistoryHTML);
   const delHistory = el("button", { class: "btn-link", type: "button" }, "履歴を削除");
   delHistory.disabled = !dataCache.history.length;
   delHistory.addEventListener("click", async () => {
@@ -2313,8 +2380,8 @@ function renderResult() {
   // 補助リンク
   const subActions = el("div", { class: "sub-actions" }, [
     (() => {
-      const b = el("button", { class: "btn-link", type: "button" }, "結果をCSVで保存");
-      b.addEventListener("click", exportSessionCSV);
+      const b = el("button", { class: "btn-link", type: "button" }, "結果をHTMLで保存");
+      b.addEventListener("click", exportSessionHTML);
       return b;
     })(),
     (() => {
