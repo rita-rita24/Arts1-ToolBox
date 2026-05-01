@@ -334,6 +334,17 @@ footer {
   <section id="screen-stats" class="card">
     <h2>学習履歴</h2>
     <div id="history-summary" class="muted">まだ履歴はありません。</div>
+    <div id="data-management" style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <span class="muted" style="margin-right:auto;">保存データの管理:</span>
+      <button class="btn btn-secondary" id="clear-history-btn">
+        <span class="material-symbols-outlined" style="vertical-align:middle;font-size:18px;">delete_sweep</span>
+        履歴を削除
+      </button>
+      <button class="btn btn-secondary" id="clear-all-btn">
+        <span class="material-symbols-outlined" style="vertical-align:middle;font-size:18px;">delete_forever</span>
+        保存データをすべて削除
+      </button>
+    </div>
   </section>
 
   <section id="screen-quiz" class="card hidden">
@@ -1102,7 +1113,13 @@ const CATEGORIES = [
   { id: "all",      label: "全分野",     desc: "全カテゴリーから出題",    source: "all",      type: "mixed" },
 ];
 
-const STORAGE_KEY = "codeeigodojo_state_v1";
+const LEGACY_LS_KEY = "codeeigodojo_state_v1";
+const DB_NAME = "CodeEigoDojo";
+const DB_VERSION = 1;
+const STORE_NAME = "kv";
+
+// メモリキャッシュ: IDBは非同期のためレンダー関数を同期に保つ目的で起動時に1度ロードする
+const dataCache = { theme: null, history: [] };
 
 // ============================================================
 // ユーティリティー
@@ -1195,31 +1212,119 @@ const state = {
   awaitingNext: false,
 };
 
-function loadPersisted() {
+// ============================================================
+// IndexedDB ラッパー（外部ライブラリ不使用）
+// ============================================================
+function openDB() {
+  return new Promise((resolve, reject) => {
+    if (typeof indexedDB === "undefined") {
+      reject(new Error("IndexedDB is unavailable"));
+      return;
+    }
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: "key" });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function idbGet(key) {
+  return openDB().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readonly");
+    const req = tx.objectStore(STORE_NAME).get(key);
+    req.onsuccess = () => resolve(req.result ? req.result.value : undefined);
+    req.onerror = () => reject(req.error);
+  }));
+}
+
+function idbSet(key, value) {
+  return openDB().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    const req = tx.objectStore(STORE_NAME).put({ key, value });
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  }));
+}
+
+function idbDelete(key) {
+  return openDB().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    const req = tx.objectStore(STORE_NAME).delete(key);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  }));
+}
+
+function idbClear() {
+  return openDB().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    const req = tx.objectStore(STORE_NAME).clear();
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  }));
+}
+
+// 旧 localStorage 形式が残っている場合の一度きりの引き継ぎ
+async function migrateFromLocalStorage() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
+    const raw = localStorage.getItem(LEGACY_LS_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object") {
+      if (parsed.theme) await idbSet("theme", parsed.theme);
+      if (Array.isArray(parsed.history)) await idbSet("history", parsed.history);
+    }
+    localStorage.removeItem(LEGACY_LS_KEY);
   } catch (e) {
-    return null;
+    console.warn("Legacy migration skipped:", e);
   }
 }
 
-function savePersisted(data) {
+async function loadAllFromIDB() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    const theme = await idbGet("theme");
+    const history = await idbGet("history");
+    dataCache.theme = theme || null;
+    dataCache.history = Array.isArray(history) ? history : [];
   } catch (e) {
-    // 無視（保存できない環境）
+    console.warn("IndexedDB load failed; running without persistence:", e);
+    dataCache.theme = null;
+    dataCache.history = [];
   }
 }
 
-function recordHistorySession(session) {
-  const persisted = loadPersisted() || {};
-  const history = persisted.history || [];
-  history.unshift(session);
-  if (history.length > 30) history.length = 30;
-  persisted.history = history;
-  savePersisted(persisted);
+async function recordHistorySession(session) {
+  dataCache.history.unshift(session);
+  if (dataCache.history.length > 30) dataCache.history.length = 30;
+  try {
+    await idbSet("history", dataCache.history);
+  } catch (e) {
+    console.warn("Failed to persist history:", e);
+  }
+}
+
+async function clearHistoryData() {
+  dataCache.history = [];
+  try {
+    await idbDelete("history");
+  } catch (e) {
+    console.warn("Failed to clear history:", e);
+  }
+}
+
+async function clearAllData() {
+  dataCache.theme = null;
+  dataCache.history = [];
+  try {
+    await idbClear();
+  } catch (e) {
+    console.warn("Failed to clear all data:", e);
+  }
 }
 
 // ============================================================
@@ -1259,14 +1364,24 @@ function renderCategoryGrid() {
 // ============================================================
 // 履歴サマリー
 // ============================================================
+// 削除ボタンの活性/非活性を保存状態に合わせて切り替える
+function updateDataActionButtons() {
+  const clearHistoryBtn = document.getElementById("clear-history-btn");
+  const clearAllBtn = document.getElementById("clear-all-btn");
+  const hasHistory = dataCache.history && dataCache.history.length > 0;
+  const hasTheme = !!dataCache.theme;
+  if (clearHistoryBtn) clearHistoryBtn.disabled = !hasHistory;
+  if (clearAllBtn) clearAllBtn.disabled = !(hasHistory || hasTheme);
+}
+
 function renderHistorySummary() {
-  const persisted = loadPersisted();
   const box = document.getElementById("history-summary");
-  if (!persisted || !persisted.history || persisted.history.length === 0) {
+  const h = dataCache.history;
+  updateDataActionButtons();
+  if (!h || h.length === 0) {
     box.innerHTML = `<span class="muted">まだ履歴はありません。</span>`;
     return;
   }
-  const h = persisted.history;
   const recent = h.slice(0, 5);
   const totalSessions = h.length;
   const avg = Math.round(
@@ -1419,7 +1534,7 @@ function finishQuiz() {
     reviewList.appendChild(row);
   });
 
-  // 履歴保存
+  // 履歴保存（fire-and-forget。失敗してもUIは進む）
   const cat = CATEGORIES.find(c => c.id === state.selectedCategory);
   recordHistorySession({
     timestamp: Date.now(),
@@ -1435,12 +1550,17 @@ function finishQuiz() {
 // ============================================================
 // テーマ
 // ============================================================
-function applyTheme(theme) {
+// data-themeとアイコンだけを変更（永続化なし）。起動初期のフラッシュ抑制用にも使う
+function applyThemeUI(theme) {
   document.documentElement.setAttribute("data-theme", theme);
   document.getElementById("theme-icon").textContent = theme === "dark" ? "light_mode" : "dark_mode";
-  const persisted = loadPersisted() || {};
-  persisted.theme = theme;
-  savePersisted(persisted);
+}
+
+function applyTheme(theme) {
+  applyThemeUI(theme);
+  dataCache.theme = theme;
+  // IDB書き込みは非同期だが、待たずにレスポンス性を優先
+  idbSet("theme", theme).catch(e => console.warn("Failed to persist theme:", e));
 }
 
 function toggleTheme() {
@@ -1451,11 +1571,18 @@ function toggleTheme() {
 // ============================================================
 // 初期化
 // ============================================================
-function init() {
-  // テーマ復元
-  const persisted = loadPersisted();
-  const theme = (persisted && persisted.theme) || (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  applyTheme(theme);
+async function init() {
+  // 1. ちらつき防止のため、まずOS設定で仮テーマを当てる
+  const sysTheme = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+  applyThemeUI(sysTheme);
+
+  // 2. 旧localStorageからの引き継ぎ → IDB読み込み
+  await migrateFromLocalStorage();
+  await loadAllFromIDB();
+
+  // 3. 保存テーマがあれば上書き適用
+  const finalTheme = dataCache.theme || sysTheme;
+  applyThemeUI(finalTheme);
 
   renderCategoryGrid();
   renderHistorySummary();
@@ -1478,6 +1605,22 @@ function init() {
   document.getElementById("back-home-btn").addEventListener("click", () => {
     renderHistorySummary();
     showScreen("home");
+  });
+
+  // データ削除
+  document.getElementById("clear-history-btn").addEventListener("click", async () => {
+    if (!dataCache.history.length) return;
+    if (!confirm("学習履歴をすべて削除します。よろしいですか？")) return;
+    await clearHistoryData();
+    renderHistorySummary();
+  });
+  document.getElementById("clear-all-btn").addEventListener("click", async () => {
+    if (!confirm("テーマ設定と学習履歴を含む、保存データをすべて削除します。よろしいですか？")) return;
+    await clearAllData();
+    // テーマを端末既定へ戻す
+    const sysTheme = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+    applyThemeUI(sysTheme);
+    renderHistorySummary();
   });
 
   // キーボードショートカット
