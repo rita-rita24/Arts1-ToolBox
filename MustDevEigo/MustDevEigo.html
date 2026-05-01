@@ -458,7 +458,6 @@ body {
 
 .data-actions { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
 
-.foot-link { text-align: center; margin-top: 8px; }
 
 /* 出題画面 */
 .quiz-progress {
@@ -774,16 +773,6 @@ body {
   flex-wrap: wrap;
 }
 
-/* フッター */
-.app-footer {
-  text-align: center;
-  font-size: 11px;
-  color: var(--az-color-text-subtle);
-  margin-top: 12px;
-  padding-top: 8px;
-  border-top: 1px solid var(--az-color-border-default);
-}
-.app-footer p { margin: 0; }
 
 .hidden { display: none !important; }
 
@@ -821,10 +810,6 @@ body {
       <div id="result-content"></div>
     </section>
   </main>
-
-  <footer class="app-footer">
-    <p>MustDevEigo · データはお使いの端末の中だけに保存されます</p>
-  </footer>
 </div>
 
 <script>
@@ -2189,10 +2174,6 @@ function renderHome() {
   histCard.appendChild(el("div", { class: "data-actions" }, [exportHist, delHistory, delAll]));
   root.appendChild(histCard);
 
-  // 単語帳への導線
-  const goWb = el("button", { class: "btn-link", type: "button" }, "単語帳で一覧を見る →");
-  goWb.addEventListener("click", () => showScreen("wordbook"));
-  root.appendChild(el("div", { class: "foot-link" }, [goWb]));
 }
 
 // ============================================================
