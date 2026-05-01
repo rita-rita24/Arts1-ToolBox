@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MustDevEigo — エンジニア必須英単語</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%23EB6D55%22%2F%3E%3Cpath%20d%3D%22M7%2023.5V8.5h3.4l4.6%208.6%204.6-8.6h3.4v15h-2.9V13.4l-3.6%206.7h-2.9l-3.6-6.7v10.1z%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fsvg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -193,6 +194,89 @@ body {
 .icon-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--az-color-focus-ring); }
 .theme-icon { display: inline-flex; align-items: center; justify-content: center; line-height: 0; }
 .theme-icon svg { display: block; }
+
+/* ユーザー名ボタン（ヘッダー内） */
+.user-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 10px;
+  background: transparent;
+  border: 1px solid var(--az-color-border-default);
+  border-radius: 14px;
+  color: var(--az-color-text-body);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.user-btn:hover { background: var(--az-color-bg-soft); border-color: var(--az-color-border-strong); color: var(--az-color-text-primary); }
+.user-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--az-color-focus-ring); }
+
+/* モーダル */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 20, 20, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+}
+:root[data-theme="dark"] .modal-backdrop { background: rgba(0, 0, 0, 0.6); }
+.modal {
+  background: var(--az-color-bg-surface);
+  border: 1px solid var(--az-color-border-default);
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+.modal-title {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--az-color-text-primary);
+}
+.modal-desc {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--az-color-text-body);
+  line-height: 1.6;
+}
+.modal-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--az-color-border-default);
+  border-radius: 8px;
+  background: var(--az-color-bg-surface);
+  color: var(--az-color-text-primary);
+  font-family: inherit;
+  font-size: 16px;
+  margin-bottom: 18px;
+}
+.modal-input:focus {
+  outline: none;
+  border-color: var(--az-color-action-primary);
+  box-shadow: 0 0 0 3px var(--az-color-focus-ring);
+}
+.modal-input::placeholder { color: var(--az-color-warm-gray-400); }
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.modal-actions .btn { min-height: 40px; padding: 0 18px; }
+.modal-actions .btn[hidden] { display: none; }
 
 /* 発音ボタン（TTS） */
 .speak-btn {
@@ -458,7 +542,6 @@ body {
 
 .data-actions { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
 
-.foot-link { text-align: center; margin-top: 8px; }
 
 /* 出題画面 */
 .quiz-progress {
@@ -774,16 +857,6 @@ body {
   flex-wrap: wrap;
 }
 
-/* フッター */
-.app-footer {
-  text-align: center;
-  font-size: 11px;
-  color: var(--az-color-text-subtle);
-  margin-top: 12px;
-  padding-top: 8px;
-  border-top: 1px solid var(--az-color-border-default);
-}
-.app-footer p { margin: 0; }
 
 .hidden { display: none !important; }
 
@@ -803,6 +876,7 @@ body {
     <div class="app-actions">
       <button class="link-btn" id="nav-home" type="button">演習</button>
       <button class="link-btn" id="nav-wordbook" type="button">単語帳</button>
+      <button class="user-btn hidden" id="user-btn" type="button" title="お名前を変更"><span id="user-btn-name"></span></button>
       <button class="icon-btn" id="theme-toggle" type="button" title="テーマを切り替え" aria-label="テーマを切り替え"><span class="theme-icon" id="theme-icon" aria-hidden="true"></span></button>
     </div>
   </header>
@@ -821,10 +895,18 @@ body {
       <div id="result-content"></div>
     </section>
   </main>
+</div>
 
-  <footer class="app-footer">
-    <p>MustDevEigo · データはお使いの端末の中だけに保存されます</p>
-  </footer>
+<div class="modal-backdrop hidden" id="user-modal" role="dialog" aria-modal="true" aria-labelledby="user-modal-title">
+  <div class="modal" role="document">
+    <h2 id="user-modal-title" class="modal-title">ようこそ</h2>
+    <p class="modal-desc" id="user-modal-desc">演習結果の出力に使うお名前を教えてください。<br>後から変更できます。</p>
+    <input id="user-name-input" class="modal-input" type="text" maxlength="30" placeholder="例: 田中" autocomplete="off" inputmode="text">
+    <div class="modal-actions">
+      <button class="btn" id="user-modal-cancel" type="button">キャンセル</button>
+      <button class="btn btn-primary" id="user-modal-save" type="button">保存</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1550,7 +1632,15 @@ const DB_VERSION = 1;
 const STORE_NAME = "kv";
 
 // メモリキャッシュ: IDBは非同期のためレンダー関数を同期に保つ目的で起動時に1度ロードする
-const dataCache = { theme: null, history: [], lastSelection: null, wordStats: {} };
+const dataCache = { theme: null, history: [], lastSelection: null, wordStats: {}, userName: null, lastActivityAt: null };
+
+// IDBに保存したデータの有効期間（2週間）。最終アクティビティから過ぎていたら自動破棄する
+const IDB_TTL_MS = 14 * 24 * 60 * 60 * 1000;
+
+async function touchActivity() {
+  dataCache.lastActivityAt = Date.now();
+  try { await idbSet("lastActivityAt", dataCache.lastActivityAt); } catch (e) {}
+}
 
 // ============================================================
 // ユーティリティー
@@ -1718,21 +1808,51 @@ async function migrateFromLocalStorage() {
 
 async function loadAllFromIDB() {
   try {
+    const lastActivityAt = await idbGet("lastActivityAt");
+    // 2週間経過していたらすべて破棄してから読み込む
+    if (typeof lastActivityAt === "number" && Date.now() - lastActivityAt > IDB_TTL_MS) {
+      console.info("[MustDevEigo] data older than 14 days; auto-clearing");
+      try { await idbClear(); } catch (e) {}
+      dataCache.theme = null;
+      dataCache.history = [];
+      dataCache.lastSelection = null;
+      dataCache.wordStats = {};
+      dataCache.userName = null;
+      dataCache.lastActivityAt = null;
+      return;
+    }
     const theme = await idbGet("theme");
     const history = await idbGet("history");
     const selection = await idbGet("selection");
     const wordStats = await idbGet("wordStats");
+    const userName = await idbGet("userName");
     dataCache.theme = theme || null;
     dataCache.history = Array.isArray(history) ? history : [];
     dataCache.lastSelection = (selection && typeof selection === "object") ? selection : null;
     dataCache.wordStats = (wordStats && typeof wordStats === "object" && !Array.isArray(wordStats)) ? wordStats : {};
+    dataCache.userName = (typeof userName === "string" && userName.trim()) ? userName : null;
+    dataCache.lastActivityAt = (typeof lastActivityAt === "number") ? lastActivityAt : null;
   } catch (e) {
     console.warn("IndexedDB load failed; running without persistence:", e);
     dataCache.theme = null;
     dataCache.history = [];
     dataCache.lastSelection = null;
     dataCache.wordStats = {};
+    dataCache.userName = null;
+    dataCache.lastActivityAt = null;
   }
+}
+
+async function saveUserName(name) {
+  const trimmed = String(name || "").trim().slice(0, 30);
+  dataCache.userName = trimmed || null;
+  try {
+    if (dataCache.userName) await idbSet("userName", dataCache.userName);
+    else await idbDelete("userName");
+  } catch (e) {
+    console.warn("Failed to persist userName:", e);
+  }
+  await touchActivity();
 }
 
 async function recordHistorySession(session) {
@@ -1743,6 +1863,7 @@ async function recordHistorySession(session) {
   } catch (e) {
     console.warn("Failed to persist history:", e);
   }
+  touchActivity();
 }
 
 async function persistWordStats() {
@@ -1751,6 +1872,7 @@ async function persistWordStats() {
   } catch (e) {
     console.warn("Failed to persist wordStats:", e);
   }
+  touchActivity();
 }
 
 async function clearHistoryData() {
@@ -1762,12 +1884,16 @@ async function clearHistoryData() {
   } catch (e) {
     console.warn("Failed to clear history:", e);
   }
+  touchActivity();
 }
 
 async function clearAllData() {
   dataCache.theme = null;
   dataCache.history = [];
   dataCache.wordStats = {};
+  dataCache.userName = null;
+  dataCache.lastActivityAt = null;
+  dataCache.lastSelection = null;
   try {
     await idbClear();
   } catch (e) {
@@ -1943,10 +2069,11 @@ function exportSessionHTML() {
 </head>
 <body>
 <div class="doc">
-  <h1>MustDevEigo セッション結果</h1>
+  <h1>${dataCache.userName ? htmlEscape(dataCache.userName) + " さんの " : ""}MustDevEigo セッション結果</h1>
   <p class="sub">${htmlEscape(tsStr)} に出題</p>
   <p class="rate-big">${rate}%</p>
   <dl class="meta">
+    ${dataCache.userName ? `<dt>受験者</dt><dd>${htmlEscape(dataCache.userName)} さん</dd>` : ""}
     <dt>分野</dt><dd>${htmlEscape(cat.label)}</dd>
     <dt>問題数</dt><dd>${total}</dd>
     <dt>正解数</dt><dd>${correct}</dd>
@@ -1958,7 +2085,7 @@ function exportSessionHTML() {
     </thead>
     <tbody>${rows}</tbody>
   </table>
-  <footer>MustDevEigo · 端末内で生成 · ${htmlEscape(tsStr)}</footer>
+  <footer>MustDevEigo · ${htmlEscape(tsStr)}</footer>
 </div>
 </body>
 </html>`;
@@ -1994,10 +2121,11 @@ function exportHistoryHTML() {
 </head>
 <body>
 <div class="doc">
-  <h1>MustDevEigo 学習履歴</h1>
+  <h1>${dataCache.userName ? htmlEscape(dataCache.userName) + " さんの " : ""}MustDevEigo 学習履歴</h1>
   <p class="sub">${htmlEscape(tsStr)} 時点</p>
   <p class="rate-big">${avgRate}%</p>
   <dl class="meta">
+    ${dataCache.userName ? `<dt>受験者</dt><dd>${htmlEscape(dataCache.userName)} さん</dd>` : ""}
     <dt>セッション数</dt><dd>${sorted.length}</dd>
     <dt>累計問題数</dt><dd>${totalQuestions}</dd>
     <dt>累計正解数</dt><dd>${totalCorrect}</dd>
@@ -2009,7 +2137,7 @@ function exportHistoryHTML() {
     </thead>
     <tbody>${rows}</tbody>
   </table>
-  <footer>MustDevEigo · 端末内で生成 · ${htmlEscape(tsStr)}</footer>
+  <footer>MustDevEigo · ${htmlEscape(tsStr)}</footer>
 </div>
 </body>
 </html>`;
@@ -2029,6 +2157,7 @@ function getLastSelection() {
 function saveLastSelection(sel) {
   dataCache.lastSelection = sel;
   idbSet("selection", sel).catch(e => console.warn("Failed to persist selection:", e));
+  touchActivity();
 }
 
 // 単語帳ビューの状態
@@ -2189,10 +2318,6 @@ function renderHome() {
   histCard.appendChild(el("div", { class: "data-actions" }, [exportHist, delHistory, delAll]));
   root.appendChild(histCard);
 
-  // 単語帳への導線
-  const goWb = el("button", { class: "btn-link", type: "button" }, "単語帳で一覧を見る →");
-  goWb.addEventListener("click", () => showScreen("wordbook"));
-  root.appendChild(el("div", { class: "foot-link" }, [goWb]));
 }
 
 // ============================================================
@@ -2572,12 +2697,69 @@ const SPEAKER_ICON_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="
 
 const ttsAvailable = typeof window !== "undefined" && "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
 
+// 利用可能な英語音声から最も自然なものを選ぶ。
+// 音声は OS / ブラウザ依存で品質に大きく差があり、espeak のような合成は非自然なため、
+// より自然な Google / Apple / Microsoft の声を優先して選択する。
+let selectedVoice = null;
+
+function pickBestVoice() {
+  if (!ttsAvailable) return null;
+  const voices = window.speechSynthesis.getVoices() || [];
+  if (!voices.length) return null;
+
+  // 優先順（上から順に最初に見つかったものを採用）
+  const preferences = [
+    v => v.name === "Google US English",
+    v => v.name === "Google UK English Female",
+    v => v.name === "Google UK English Male",
+    v => /^Google /.test(v.name) && /^en/i.test(v.lang),
+    v => v.name === "Samantha" && /^en/i.test(v.lang),
+    v => v.name === "Alex" && /^en/i.test(v.lang),
+    v => v.name === "Daniel" && /^en/i.test(v.lang),
+    v => v.name === "Karen" && /^en/i.test(v.lang),
+    v => /Microsoft.*(Aria|Jenny|Guy|Davis|Tony|Nancy)/i.test(v.name) && /^en/i.test(v.lang),
+    v => /Microsoft.*(Zira|David|Mark|Hazel)/i.test(v.name) && /^en/i.test(v.lang),
+    v => /^en-US/i.test(v.lang) && v.localService === false,   // クラウド合成（高品質寄り）
+    v => /^en/i.test(v.lang) && v.localService === false,
+    v => /^en-US/i.test(v.lang),
+    v => /^en-GB/i.test(v.lang),
+    v => /^en/i.test(v.lang),
+  ];
+
+  for (const pred of preferences) {
+    const match = voices.find(pred);
+    if (match) return match;
+  }
+  return null;
+}
+
+function refreshSelectedVoice() {
+  selectedVoice = pickBestVoice();
+  if (selectedVoice) {
+    console.info("[MustDevEigo] TTS voice:", selectedVoice.name, "(" + selectedVoice.lang + ")");
+  }
+}
+
+// 音声リストは非同期で読み込まれることがあるため、voiceschanged で再選択する
+if (ttsAvailable) {
+  refreshSelectedVoice();
+  if ("onvoiceschanged" in window.speechSynthesis) {
+    window.speechSynthesis.addEventListener("voiceschanged", refreshSelectedVoice);
+  }
+}
+
 function speakWord(word) {
   if (!ttsAvailable || !word) return;
   try {
     window.speechSynthesis.cancel();
+    if (!selectedVoice) refreshSelectedVoice();
     const u = new SpeechSynthesisUtterance(word);
-    u.lang = "en-US";
+    if (selectedVoice) {
+      u.voice = selectedVoice;
+      u.lang = selectedVoice.lang;
+    } else {
+      u.lang = "en-US";
+    }
     u.rate = 0.95;
     u.pitch = 1.0;
     u.volume = 1.0;
@@ -2632,6 +2814,49 @@ function toggleTheme() {
 // ============================================================
 // 初期化
 // ============================================================
+// ============================================================
+// ユーザー名モーダル
+// ============================================================
+function refreshUserBtn() {
+  const btn = document.getElementById("user-btn");
+  const nameEl = document.getElementById("user-btn-name");
+  if (!btn || !nameEl) return;
+  if (dataCache.userName) {
+    btn.classList.remove("hidden");
+    nameEl.textContent = dataCache.userName + " さん";
+  } else {
+    btn.classList.add("hidden");
+    nameEl.textContent = "";
+  }
+}
+
+// 初回時の強制入力モード or 編集モードでモーダルを開く
+function openUserModal(opts) {
+  const required = !!(opts && opts.required);
+  const modal = document.getElementById("user-modal");
+  const input = document.getElementById("user-name-input");
+  const cancelBtn = document.getElementById("user-modal-cancel");
+  const title = document.getElementById("user-modal-title");
+  const desc = document.getElementById("user-modal-desc");
+  if (!modal || !input) return;
+  input.value = dataCache.userName || "";
+  if (required) {
+    title.textContent = "ようこそ";
+    desc.innerHTML = "演習結果の出力に使うお名前を教えてください。<br>後から変更できます。";
+    cancelBtn.hidden = true;
+  } else {
+    title.textContent = "お名前の変更";
+    desc.innerHTML = "演習結果の出力で使うお名前を変更します。";
+    cancelBtn.hidden = false;
+  }
+  modal.classList.remove("hidden");
+  setTimeout(() => input.focus(), 30);
+}
+function closeUserModal() {
+  const modal = document.getElementById("user-modal");
+  if (modal) modal.classList.add("hidden");
+}
+
 async function init() {
   const sysTheme = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
   applyThemeUI(sysTheme);
@@ -2642,10 +2867,46 @@ async function init() {
   applyThemeUI(dataCache.theme || sysTheme);
 
   showScreen("home");
+  refreshUserBtn();
+
+  // 初回または2週間経過でリセットされた場合 → 強制でユーザー名入力モーダル
+  if (!dataCache.userName) {
+    openUserModal({ required: true });
+  }
 
   document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
   document.getElementById("nav-home").addEventListener("click", () => showScreen("home"));
   document.getElementById("nav-wordbook").addEventListener("click", () => showScreen("wordbook"));
+
+  // ユーザー名ボタン → 編集モーダル
+  document.getElementById("user-btn").addEventListener("click", () => openUserModal({ required: false }));
+
+  // モーダル: 保存
+  document.getElementById("user-modal-save").addEventListener("click", async () => {
+    const input = document.getElementById("user-name-input");
+    const value = (input && input.value || "").trim();
+    if (!value) {
+      input.focus();
+      return;
+    }
+    await saveUserName(value);
+    refreshUserBtn();
+    closeUserModal();
+  });
+  // モーダル: キャンセル
+  document.getElementById("user-modal-cancel").addEventListener("click", () => {
+    if (!dataCache.userName) return; // 初回はキャンセル不可
+    closeUserModal();
+  });
+  // モーダル: Enterで保存
+  document.getElementById("user-name-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      document.getElementById("user-modal-save").click();
+    } else if (e.key === "Escape") {
+      if (dataCache.userName) closeUserModal();
+    }
+  });
 
   document.addEventListener("keydown", (e) => {
     const quizVisible = !document.getElementById("screen-quiz").classList.contains("hidden");
