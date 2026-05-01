@@ -131,7 +131,7 @@ body {
 /* ヘッダー */
 .app-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
   flex-wrap: wrap;
@@ -154,19 +154,24 @@ body {
   font-size: 11px;
   margin-left: 6px;
 }
-.app-actions { display: inline-flex; gap: 12px; align-items: baseline; }
+.app-actions { display: inline-flex; gap: 4px; align-items: center; }
 .link-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
   background: transparent;
   border: 0;
   color: var(--az-color-text-subtle);
   font-family: inherit;
   font-size: 12px;
-  padding: 2px 0;
+  padding: 0 8px;
   cursor: pointer;
   font-weight: 500;
   white-space: nowrap;
+  border-radius: 6px;
+  line-height: 1;
 }
-.link-btn:hover { color: var(--az-color-action-primary); }
+.link-btn:hover { color: var(--az-color-action-primary); background: var(--az-color-bg-soft); }
 .link-btn.active { color: var(--az-color-text-primary); font-weight: 700; }
 
 .icon-btn {
@@ -182,10 +187,11 @@ body {
   color: var(--az-color-text-subtle);
   cursor: pointer;
   transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
 }
 .icon-btn:hover { color: var(--az-color-action-primary); background: var(--az-color-bg-soft); }
 .icon-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--az-color-focus-ring); }
-.theme-icon { display: inline-flex; align-items: center; justify-content: center; }
+.theme-icon { display: inline-flex; align-items: center; justify-content: center; line-height: 0; }
 .theme-icon svg { display: block; }
 
 /* ブロック */
