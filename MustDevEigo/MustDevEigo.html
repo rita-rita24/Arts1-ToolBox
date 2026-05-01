@@ -1809,15 +1809,22 @@ async function migrateFromLocalStorage() {
 async function loadAllFromIDB() {
   try {
     const lastActivityAt = await idbGet("lastActivityAt");
-    // 2週間経過していたらすべて破棄してから読み込む
+    // 2週間経過していたらユーザー名以外を破棄
     if (typeof lastActivityAt === "number" && Date.now() - lastActivityAt > IDB_TTL_MS) {
-      console.info("[MustDevEigo] data older than 14 days; auto-clearing");
-      try { await idbClear(); } catch (e) {}
+      console.info("[MustDevEigo] data older than 14 days; auto-clearing (userName preserved)");
+      const preservedUserName = await idbGet("userName");
+      try {
+        await idbDelete("theme");
+        await idbDelete("history");
+        await idbDelete("selection");
+        await idbDelete("wordStats");
+        await idbDelete("lastActivityAt");
+      } catch (e) {}
       dataCache.theme = null;
       dataCache.history = [];
       dataCache.lastSelection = null;
       dataCache.wordStats = {};
-      dataCache.userName = null;
+      dataCache.userName = (typeof preservedUserName === "string" && preservedUserName.trim()) ? preservedUserName : null;
       dataCache.lastActivityAt = null;
       return;
     }
@@ -1888,17 +1895,27 @@ async function clearHistoryData() {
 }
 
 async function clearAllData() {
+  // ユーザー名はあえて保持する（再入力を強制しない）
+  const preservedUserName = dataCache.userName;
   dataCache.theme = null;
   dataCache.history = [];
   dataCache.wordStats = {};
-  dataCache.userName = null;
   dataCache.lastActivityAt = null;
   dataCache.lastSelection = null;
   try {
-    await idbClear();
+    // 個別の鍵だけ削除し、userName は idbClear せずに残す
+    await idbDelete("theme");
+    await idbDelete("history");
+    await idbDelete("wordStats");
+    await idbDelete("selection");
+    await idbDelete("lastActivityAt");
   } catch (e) {
     console.warn("Failed to clear all data:", e);
   }
+  // ユーザー名はキャッシュ側でも保持
+  dataCache.userName = preservedUserName;
+  // 直近のアクティビティ時刻は更新しておく（TTLクロックをリセット）
+  await touchActivity();
 }
 
 // ============================================================
@@ -2306,13 +2323,11 @@ function renderHome() {
     renderHome();
   });
   const delAll = el("button", { class: "btn-link", type: "button" }, "すべての保存データを削除");
-  delAll.disabled = !(dataCache.history.length || dataCache.theme || dataCache.lastSelection);
+  delAll.disabled = !(dataCache.history.length || dataCache.theme || dataCache.lastSelection || Object.keys(dataCache.wordStats || {}).length);
   delAll.addEventListener("click", async () => {
-    if (!confirm("テーマ・履歴・直近の選択を含む保存データをすべて削除します。よろしいですか？")) return;
+    if (!confirm("テーマ・履歴・苦手記録・直近の選択を含む保存データを削除します。\n（お名前は引き続き保持されます）\nよろしいですか？")) return;
     await clearAllData();
-    dataCache.lastSelection = null;
-    const sys = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
-    applyThemeUI(sys);
+    applyThemeUI("light");
     renderHome();
   });
   histCard.appendChild(el("div", { class: "data-actions" }, [exportHist, delHistory, delAll]));
@@ -2858,13 +2873,13 @@ function closeUserModal() {
 }
 
 async function init() {
-  const sysTheme = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
-  applyThemeUI(sysTheme);
+  // デフォルトはライト固定。OS設定は採用せず、利用者が切替を保存した場合のみその設定を適用する。
+  applyThemeUI("light");
 
   await migrateFromLocalStorage();
   await loadAllFromIDB();
 
-  applyThemeUI(dataCache.theme || sysTheme);
+  applyThemeUI(dataCache.theme || "light");
 
   showScreen("home");
   refreshUserBtn();
