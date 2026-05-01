@@ -1997,6 +1997,7 @@ function renderQuestion() {
   const q = state.questions[state.currentIdx];
   const root = document.getElementById("quiz-content");
   root.innerHTML = "";
+  state.awaitingNext = false;
 
   const pct = (state.currentIdx / state.questions.length) * 100;
   const card = el("div", { class: "block" }, [
