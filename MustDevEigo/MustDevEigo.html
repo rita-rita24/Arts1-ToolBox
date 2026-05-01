@@ -3,56 +3,54 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CodeEigoDojo — A Vocabulary for Engineers</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Spectral+SC:wght@500;600&display=swap" rel="stylesheet">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CodeEigoDojo — エンジニア英単語の道場</title>
+<title>MustDevEigo — エンジニア必須英単語</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root, :root[data-theme="light"] {
-  --bg: #fafaf9;
+  --bg: #f7f7f8;
   --bg-card: #ffffff;
-  --bg-soft: #f4f4f5;
-  --bg-soft-2: #ececec;
-  --text: #1f2328;
-  --text-sub: #52525b;
-  --text-mute: #a1a1aa;
-  --border: #e4e4e7;
-  --border-strong: #d4d4d8;
-  --accent: #d8453a;
-  --accent-h: #b83a30;
-  --accent-soft: #fde6e2;
+  --bg-soft: #f1f1f3;
+  --bg-soft-2: #e5e7eb;
+  --text: #111827;
+  --text-sub: #4b5563;
+  --text-mute: #9ca3af;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+  --accent: #4f46e5;
+  --accent-h: #4338ca;
+  --accent-soft: #eef2ff;
+  --accent-text: #312e81;
   --success: #16a34a;
   --success-bg: #dcfce7;
-  --success-strong: #15803d;
+  --success-text: #14532d;
   --danger: #dc2626;
   --danger-bg: #fee2e2;
-  --shadow-card: 0 1px 3px rgba(20, 20, 20, 0.04), 0 0 0 1px rgba(20, 20, 20, 0.02);
+  --danger-text: #7f1d1d;
+  --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02);
 }
 :root[data-theme="dark"] {
-  --bg: #18181b;
-  --bg-card: #27272a;
-  --bg-soft: #3f3f46;
-  --bg-soft-2: #52525b;
-  --text: #fafafa;
-  --text-sub: #d4d4d8;
-  --text-mute: #a1a1aa;
-  --border: #3f3f46;
-  --border-strong: #52525b;
-  --accent: #ef5440;
-  --accent-h: #f87171;
-  --accent-soft: #4a1f1c;
+  --bg: #0f172a;
+  --bg-card: #1e293b;
+  --bg-soft: #1e293b;
+  --bg-soft-2: #334155;
+  --text: #f1f5f9;
+  --text-sub: #cbd5e1;
+  --text-mute: #94a3b8;
+  --border: #334155;
+  --border-strong: #475569;
+  --accent: #818cf8;
+  --accent-h: #a5b4fc;
+  --accent-soft: #1e1b4b;
+  --accent-text: #c7d2fe;
   --success: #4ade80;
   --success-bg: #14532d;
-  --success-strong: #86efac;
+  --success-text: #bbf7d0;
   --danger: #f87171;
   --danger-bg: #4a1f1c;
-  --shadow-card: none;
+  --danger-text: #fca5a5;
+  --shadow: 0 1px 2px rgba(0,0,0,0.4);
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
@@ -70,7 +68,7 @@ body {
 .app {
   max-width: 720px;
   margin: 0 auto;
-  padding: 16px 16px 60px;
+  padding: 16px 16px 64px;
 }
 
 /* ヘッダー */
@@ -78,36 +76,21 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 4px 18px;
+  padding: 8px 4px 20px;
 }
 .brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
   margin: 0;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.01em;
 }
-.brand-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--accent);
-  color: #fff;
-  font-weight: 700;
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  padding: 4px 8px;
-  border-radius: 4px;
-  line-height: 1;
-}
-.brand-name { color: var(--text); letter-spacing: 0.01em; }
-.brand-name em {
+.brand em {
   font-style: normal;
   color: var(--text-mute);
   font-weight: 500;
-  font-size: 13px;
-  margin-left: 6px;
+  font-size: 12px;
+  margin-left: 8px;
 }
 .app-actions { display: inline-flex; gap: 4px; }
 .link-btn {
@@ -122,112 +105,59 @@ body {
   transition: background 0.15s, color 0.15s;
 }
 .link-btn:hover { background: var(--bg-soft); color: var(--text); }
+.link-btn.active { background: var(--accent-soft); color: var(--accent-text); }
 
 /* カード */
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 18px 20px;
   margin-bottom: 14px;
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow);
 }
-.card-row { display: flex; gap: 12px; margin-bottom: 14px; }
-.card-row > .card { margin-bottom: 0; flex: 1; min-width: 0; }
-@media (max-width: 540px) {
-  .card-row { flex-direction: column; }
-}
+.card-flat { box-shadow: none; }
 
 .section-title {
-  margin: 0 0 10px;
-  font-size: 14px;
+  margin: 0 0 12px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--text-sub);
-  display: flex;
-  align-items: center;
-  gap: 8px;
   letter-spacing: 0.02em;
 }
-.section-title .label-tag {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 700;
-  background: var(--accent-soft);
-  color: var(--accent);
-  padding: 2px 8px;
-  border-radius: 4px;
-  letter-spacing: 0.04em;
-}
-
-/* 段位カード */
-.belt-card { display: flex; align-items: center; gap: 18px; }
-.belt-emblem {
-  width: 64px;
-  height: 64px;
-  border-radius: 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 18px;
-  color: #1a1a1a;
-  background: #e4e4e7;
-  border: 2px solid rgba(0,0,0,0.08);
-  flex-shrink: 0;
-  letter-spacing: 0.02em;
-}
-.belt-emblem.belt-yellow { background: #facc15; color: #422006; }
-.belt-emblem.belt-green  { background: #16a34a; color: #f0fdf4; }
-.belt-emblem.belt-brown  { background: #92400e; color: #fef3c7; }
-.belt-emblem.belt-black  { background: #18181b; color: #fafafa; border-color: #fafafa30; }
-
-.belt-info { flex: 1; min-width: 0; }
-.belt-rank { font-size: 18px; font-weight: 700; margin: 0; }
-.belt-rank .total {
-  margin-left: 10px;
-  font-size: 13px;
-  color: var(--text-mute);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums lining-nums;
-}
-.belt-progress {
-  margin-top: 8px;
-  height: 8px;
-  background: var(--bg-soft);
-  border-radius: 999px;
-  overflow: hidden;
-}
-.belt-progress > .fill {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 999px;
-  transition: width 0.4s ease;
-}
-.belt-next {
-  margin-top: 6px;
-  font-size: 12px;
-  color: var(--text-mute);
-  font-variant-numeric: tabular-nums lining-nums;
-}
-.belt-next strong { color: var(--text-sub); font-weight: 500; }
-
-/* 連続記録 */
-.streak-card { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
-.streak-headline {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--accent);
-  font-variant-numeric: tabular-nums lining-nums;
-}
-.streak-headline .unit { font-size: 14px; color: var(--text-sub); margin-left: 4px; font-weight: 500; }
-.streak-meta { font-size: 12px; color: var(--text-mute); text-align: right; }
+.muted { color: var(--text-mute); font-size: 13px; margin: 0; }
 
 /* CTA */
-.cta-card { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-.cta-info { flex: 1; min-width: 200px; }
-.cta-eyebrow { font-size: 12px; color: var(--text-mute); margin: 0 0 4px; letter-spacing: 0.04em; }
-.cta-summary { margin: 0; font-size: 16px; font-weight: 700; }
-.cta-summary .sep { color: var(--text-mute); margin: 0 6px; font-weight: 500; }
+.cta-card {
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.cta-info { flex: 1; min-width: 220px; }
+.cta-eyebrow {
+  font-size: 12px;
+  color: var(--accent-text);
+  margin: 0 0 6px;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
+.cta-summary {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+.cta-summary .sep {
+  color: var(--text-mute);
+  font-weight: 500;
+  margin: 0 8px;
+}
 
 /* ボタン */
 .btn {
@@ -240,10 +170,9 @@ body {
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
-  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.05s;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 .btn:hover { background: var(--bg-soft); }
-.btn:active { transform: translateY(1px); }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .btn-primary {
   background: var(--accent);
@@ -256,77 +185,64 @@ body {
   font-size: 15px;
   border-radius: 10px;
 }
-.btn-block {
-  display: block;
-  width: 100%;
-  text-align: center;
-}
 .btn-link {
   background: transparent;
   border: 0;
-  color: var(--text-sub);
+  color: var(--accent);
   font-size: 13px;
   padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
   font-family: inherit;
+  font-weight: 500;
 }
-.btn-link:hover { background: var(--bg-soft); color: var(--accent); }
+.btn-link:hover { background: var(--accent-soft); }
 .btn-link:disabled { color: var(--text-mute); cursor: not-allowed; opacity: 0.5; }
 
-/* 分野アコーディオン */
-.field-toggle {
-  background: transparent;
-  border: 0;
+/* カテゴリーリスト（ホーム） */
+.cat-list { display: grid; gap: 0; }
+.cat-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+  align-items: baseline;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.cat-row:first-child { border-top: 0; }
+.cat-row:hover { background: var(--bg-soft); }
+.cat-row.selected { background: var(--accent-soft); }
+.cat-row .cat-name { font-weight: 700; font-size: 15px; padding-left: 6px; }
+.cat-row .cat-name .desc { color: var(--text-mute); font-size: 12px; font-weight: 500; margin-left: 8px; }
+.cat-row .cat-count {
   color: var(--text-sub);
   font-size: 13px;
-  cursor: pointer;
-  padding: 6px 0;
-  font-family: inherit;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  font-variant-numeric: tabular-nums lining-nums;
+  white-space: nowrap;
+  padding-right: 6px;
 }
-.field-toggle:hover { color: var(--accent); }
-.field-toggle .arrow { transition: transform 0.2s; display: inline-block; }
-.field-toggle[aria-expanded="true"] .arrow { transform: rotate(90deg); }
+.cat-row .cat-mark {
+  display: inline-block;
+  width: 18px;
+  text-align: center;
+  color: var(--accent);
+  font-weight: 700;
+}
 
-.field-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 8px;
-  margin-top: 10px;
-}
-.field-item {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
-  cursor: pointer;
-  background: var(--bg-card);
-  text-align: left;
-  font-family: inherit;
-  color: var(--text);
-  transition: border-color 0.15s, background 0.15s;
-}
-.field-item:hover { border-color: var(--accent); }
-.field-item.selected {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-}
-.field-item-name { font-weight: 700; font-size: 14px; }
-.field-item-count { color: var(--text-mute); font-size: 12px; margin-top: 2px; font-variant-numeric: tabular-nums lining-nums; }
-
-.field-options {
-  margin-top: 14px;
+/* オプション行 */
+.options-row {
   display: flex;
   gap: 14px;
   flex-wrap: wrap;
   align-items: center;
-  padding-top: 14px;
+  margin-top: 12px;
+  padding-top: 12px;
   border-top: 1px solid var(--border);
 }
-.field-options label { font-size: 13px; color: var(--text-sub); display: inline-flex; align-items: center; gap: 6px; }
-.field-options select {
+.options-row label { font-size: 13px; color: var(--text-sub); display: inline-flex; align-items: center; gap: 6px; }
+.options-row select {
   background: var(--bg-card);
   color: var(--text);
   border: 1px solid var(--border-strong);
@@ -335,10 +251,10 @@ body {
   font-family: inherit;
   font-size: 13px;
 }
-.field-options input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
+.options-row input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
 
 /* 履歴 */
-.history-list { margin: 6px 0 0; }
+.history-list { margin: 0; }
 .history-row {
   display: grid;
   grid-template-columns: 88px 1fr auto;
@@ -361,13 +277,18 @@ body {
 
 .data-actions { margin-top: 10px; display: flex; gap: 4px; justify-content: flex-end; flex-wrap: wrap; }
 
+.foot-link {
+  text-align: center;
+  margin: 14px 0 0;
+}
+
 /* 出題画面 */
 .quiz-progress {
   height: 4px;
-  background: var(--bg-soft);
+  background: var(--bg-soft-2);
   border-radius: 999px;
   overflow: hidden;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .quiz-progress > .fill {
   height: 100%;
@@ -387,12 +308,12 @@ body {
 .quiz-meta .score { color: var(--text-sub); font-weight: 500; }
 .headword {
   text-align: center;
-  font-size: 48px;
+  font-size: 44px;
   font-weight: 700;
-  margin: 24px 0 6px;
+  margin: 18px 0 4px;
   letter-spacing: -0.005em;
   word-break: break-word;
-  line-height: 1.1;
+  line-height: 1.15;
 }
 .headword-prompt {
   text-align: center;
@@ -427,7 +348,7 @@ body {
   width: 28px;
   height: 28px;
   border-radius: 6px;
-  background: var(--bg-soft);
+  background: var(--bg-soft-2);
   color: var(--text-sub);
   font-weight: 700;
   font-size: 13px;
@@ -452,10 +373,9 @@ body {
   font-size: 14px;
 }
 .feedback.show { display: block; }
-.feedback.correct { background: var(--success-bg); color: var(--success-strong); }
-.feedback.incorrect { background: var(--danger-bg); color: var(--danger); }
+.feedback.correct { background: var(--success-bg); color: var(--success-text); }
+.feedback.incorrect { background: var(--danger-bg); color: var(--danger-text); }
 .feedback strong { font-weight: 700; }
-.feedback .answer { color: var(--text); margin-left: 6px; }
 
 .quiz-actions {
   display: flex;
@@ -489,16 +409,17 @@ body {
 /* 結果画面 */
 .result-headline {
   text-align: center;
-  font-size: 18px;
-  font-weight: 700;
-  margin: 4px 0 6px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-sub);
+  margin: 4px 0 4px;
 }
 .result-rate {
   text-align: center;
-  font-size: 64px;
+  font-size: 56px;
   font-weight: 700;
   color: var(--accent);
-  margin: 8px 0 0;
+  margin: 4px 0 0;
   font-variant-numeric: tabular-nums lining-nums;
   line-height: 1;
 }
@@ -506,24 +427,13 @@ body {
   text-align: center;
   font-size: 14px;
   color: var(--text-sub);
-  margin: 4px 0 14px;
+  margin: 8px 0 4px;
   font-variant-numeric: tabular-nums lining-nums;
-}
-.celebration {
-  background: var(--accent-soft);
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  padding: 12px 16px;
-  border-radius: 10px;
-  text-align: center;
-  font-weight: 700;
-  margin-bottom: 12px;
-  font-size: 14px;
 }
 .review-list { margin: 6px 0 0; }
 .review-row {
   display: grid;
-  grid-template-columns: 28px 1fr;
+  grid-template-columns: 28px 1fr auto;
   gap: 10px;
   padding: 8px 0;
   border-top: 1px solid var(--border);
@@ -534,10 +444,7 @@ body {
 .review-mark { font-weight: 700; text-align: center; }
 .review-mark.ok { color: var(--success); }
 .review-mark.ng { color: var(--danger); }
-.review-headword {
-  font-weight: 700;
-  margin-right: 8px;
-}
+.review-headword { font-weight: 700; margin-right: 8px; }
 .review-meaning { color: var(--text-sub); }
 .review-picked {
   display: block;
@@ -549,28 +456,102 @@ body {
 
 .result-actions { display: flex; gap: 10px; justify-content: space-between; margin-top: 18px; flex-wrap: wrap; }
 
+/* 単語帳 */
+.wb-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.wb-toolbar select,
+.wb-toolbar input[type="search"] {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 14px;
+}
+.wb-toolbar input[type="search"] { flex: 1; min-width: 180px; }
+.wb-toolbar select { font-size: 13px; }
+
+.wb-summary {
+  font-size: 13px;
+  color: var(--text-mute);
+  margin: 4px 0 12px;
+}
+.wb-summary strong { color: var(--text); font-weight: 700; }
+
+.wb-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+.wb-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 200px) 1fr;
+  gap: 16px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+  align-items: baseline;
+}
+.wb-row:first-child { border-top: 0; }
+.wb-row .wb-word {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+  word-break: break-word;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.wb-row .wb-meaning {
+  color: var(--text-sub);
+  font-size: 14px;
+}
+.wb-empty {
+  text-align: center;
+  color: var(--text-mute);
+  font-size: 13px;
+  padding: 24px;
+}
+
+.wb-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
 /* フッター */
 .app-footer {
   text-align: center;
   font-size: 11px;
   color: var(--text-mute);
-  margin-top: 24px;
+  margin-top: 28px;
   letter-spacing: 0.04em;
 }
-.app-footer p { margin: 4px 0; }
+.app-footer p { margin: 0; }
 
 .hidden { display: none !important; }
+
+@media (max-width: 540px) {
+  .headword { font-size: 36px; }
+  .result-rate { font-size: 48px; }
+  .wb-row { grid-template-columns: 1fr; gap: 4px; }
+}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="app-header">
-    <h1 class="brand">
-      <span class="brand-mark">道場</span>
-      <span class="brand-name">CodeEigoDojo<em>エンジニア英単語の稽古</em></span>
-    </h1>
+    <h1 class="brand">MustDevEigo<em>エンジニア必須英単語の演習</em></h1>
     <div class="app-actions">
-      <button class="link-btn" id="home-btn" type="button">ホーム</button>
+      <button class="link-btn" id="nav-home" type="button">演習</button>
+      <button class="link-btn" id="nav-wordbook" type="button">単語帳</button>
       <button class="link-btn" id="theme-toggle" type="button"><span id="theme-label">明るい</span></button>
     </div>
   </header>
@@ -578,6 +559,9 @@ body {
   <main>
     <section id="screen-home" class="screen">
       <div id="home-content"></div>
+    </section>
+    <section id="screen-wordbook" class="screen hidden">
+      <div id="wordbook-content"></div>
     </section>
     <section id="screen-quiz" class="screen hidden">
       <div id="quiz-content"></div>
@@ -588,7 +572,7 @@ body {
   </main>
 
   <footer class="app-footer">
-    <p>CodeEigoDojo · データはお使いの端末の中だけに保存されます</p>
+    <p>MustDevEigo · データはお使いの端末の中だけに保存されます</p>
   </footer>
 </div>
 
@@ -1310,7 +1294,7 @@ const CATEGORIES = [
 ];
 
 const LEGACY_LS_KEY = "codeeigodojo_state_v1";
-const DB_NAME = "CodeEigoDojo";
+const DB_NAME = "MustDevEigo";
 const DB_VERSION = 1;
 const STORE_NAME = "kv";
 
@@ -1570,75 +1554,11 @@ function fmtDate(ts) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-// 同日判定（ローカルタイム）
-function sameLocalDay(t1, t2) {
-  const a = new Date(t1), b = new Date(t2);
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-}
-function dayDiff(t1, t2) {
-  const a = new Date(t1), b = new Date(t2);
-  const aDay = new Date(a.getFullYear(), a.getMonth(), a.getDate()).getTime();
-  const bDay = new Date(b.getFullYear(), b.getMonth(), b.getDate()).getTime();
-  return Math.round((aDay - bDay) / 86400000);
+function getCategoryById(id) {
+  return CATEGORIES.find(c => c.id === id) || CATEGORIES.find(c => c.id === "basic");
 }
 
-// ============================================================
-// 段位・連続記録
-// ============================================================
-const BELTS = [
-  { name: "白帯", min: 0,    max: 49,   cls: "" },
-  { name: "黄帯", min: 50,   max: 199,  cls: "belt-yellow" },
-  { name: "緑帯", min: 200,  max: 499,  cls: "belt-green"  },
-  { name: "茶帯", min: 500,  max: 999,  cls: "belt-brown"  },
-  { name: "黒帯", min: 1000, max: Infinity, cls: "belt-black" },
-];
-
-function calcBelt(totalCorrect) {
-  for (let i = 0; i < BELTS.length; i++) {
-    const b = BELTS[i];
-    if (totalCorrect >= b.min && totalCorrect <= b.max) {
-      const next = BELTS[i + 1] || null;
-      const remaining = next ? (next.min - totalCorrect) : 0;
-      const within = next ? (totalCorrect - b.min) / (next.min - b.min) : 1;
-      return { name: b.name, cls: b.cls, min: b.min, max: b.max, next, remaining, ratio: Math.max(0, Math.min(1, within)) };
-    }
-  }
-  return { name: BELTS[0].name, cls: BELTS[0].cls, min: 0, max: 49, next: BELTS[1], remaining: 50, ratio: 0 };
-}
-
-function totalCorrect() {
-  return dataCache.history.reduce((s, h) => s + (h.correct || 0), 0);
-}
-
-// 連続日数: 当日（または前日）に最後のセッションがあれば、そこから連続している日数
-function calcStreak(history) {
-  if (!history.length) return { days: 0, lastDate: null, isToday: false, daysSince: null };
-  const sorted = history.slice().sort((a, b) => b.timestamp - a.timestamp);
-  const now = Date.now();
-  const lastTs = sorted[0].timestamp;
-  const isToday = sameLocalDay(lastTs, now);
-  const daysSince = dayDiff(now, lastTs);
-  if (daysSince > 1) {
-    return { days: 0, lastDate: lastTs, isToday: false, daysSince };
-  }
-  // count consecutive days backwards from the last session day
-  let cursor = new Date(lastTs);
-  cursor = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate());
-  let count = 0;
-  const seenDays = new Set(sorted.map(s => {
-    const d = new Date(s.timestamp);
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-  }));
-  while (seenDays.has(cursor.getTime())) {
-    count++;
-    cursor = new Date(cursor.getTime() - 86400000);
-  }
-  return { days: count, lastDate: lastTs, isToday, daysSince };
-}
-
-// ============================================================
-// 直近選択の保存・取得
-// ============================================================
+// 直近選択
 function getLastSelection() {
   if (dataCache.lastSelection) return dataCache.lastSelection;
   return { catId: "basic", count: "20", shuffle: true };
@@ -1648,137 +1568,78 @@ function saveLastSelection(sel) {
   idbSet("selection", sel).catch(e => console.warn("Failed to persist selection:", e));
 }
 
-// ============================================================
-// 共通
-// ============================================================
-function getCategoryById(id) {
-  return CATEGORIES.find(c => c.id === id) || CATEGORIES.find(c => c.id === "basic");
-}
-
-// 新形式: 完了直後に祝う情報
+// 単語帳ビューの状態
+const wbState = { catId: "all", search: "" };
 let lastFinishedInfo = null;
 
 // ============================================================
 // 画面切り替え
 // ============================================================
 function showScreen(name) {
-  document.getElementById("screen-home").classList.toggle("hidden", name !== "home");
-  document.getElementById("screen-quiz").classList.toggle("hidden", name !== "quiz");
-  document.getElementById("screen-result").classList.toggle("hidden", name !== "result");
+  ["screen-home", "screen-wordbook", "screen-quiz", "screen-result"].forEach(id => {
+    document.getElementById(id).classList.toggle("hidden", id !== "screen-" + name);
+  });
+  document.getElementById("nav-home").classList.toggle("active", name === "home" || name === "quiz" || name === "result");
+  document.getElementById("nav-wordbook").classList.toggle("active", name === "wordbook");
   if (name === "home") renderHome();
+  if (name === "wordbook") renderWordbook();
 }
 
 // ============================================================
-// ホーム
+// ホーム（演習中心）
 // ============================================================
 function renderHome() {
   const root = document.getElementById("home-content");
   root.innerHTML = "";
-  const total = totalCorrect();
-  const belt = calcBelt(total);
-  const streak = calcStreak(dataCache.history);
   const sel = getLastSelection();
   const cat = getCategoryById(sel.catId);
 
-  // 段位カード
-  const beltCard = el("div", { class: "card" }, [
-    el("div", { class: "belt-card" }, [
-      el("div", { class: "belt-emblem " + belt.cls }, belt.name),
-      el("div", { class: "belt-info" }, [
-        el("p", { class: "belt-rank" }, [
-          belt.name,
-          el("span", { class: "total" }, "通算 " + total + " 問正解"),
-        ]),
-        el("div", { class: "belt-progress" }, [
-          el("div", { class: "fill", style: { width: Math.round(belt.ratio * 100) + "%" } }),
-        ]),
-        el("p", { class: "belt-next" },
-          belt.next ? [
-            "次は ", el("strong", null, belt.next.name),
-            " — あと ", el("strong", null, String(belt.remaining)), " 問正解で昇段",
-          ] : "黒帯を保持中。引き続き磨きをかけよう。",
-        ),
-      ]),
-    ]),
-  ]);
-  root.appendChild(beltCard);
-
-  // 連続記録カード
-  const streakCard = el("div", { class: "card streak-card" }, [
-    el("div", null, [
-      el("p", { class: "section-title" }, "連続記録"),
-      el("p", { class: "streak-headline" }, [
-        String(streak.days),
-        el("span", { class: "unit" }, "日連続"),
-      ]),
-    ]),
-    el("p", { class: "streak-meta" },
-      streak.lastDate
-        ? (streak.isToday ? "今日も稽古しました" : (streak.daysSince === 1 ? "昨日の稽古から1日" : "最後の稽古から " + streak.daysSince + " 日"))
-        : "まだ一度も稽古していません",
-    ),
-  ]);
-  root.appendChild(streakCard);
-
-  // CTA: 続きから稽古する
-  const startBtn = el("button", { class: "btn btn-primary btn-large", id: "start-btn", type: "button" }, "稽古をはじめる →");
+  // 大きなCTA
+  const startBtn = el("button", { class: "btn btn-primary btn-large", id: "start-btn", type: "button" }, "演習を始める →");
   startBtn.addEventListener("click", () => startQuiz());
-  const ctaCard = el("div", { class: "card cta-card" }, [
+  const cta = el("div", { class: "cta-card" }, [
     el("div", { class: "cta-info" }, [
-      el("p", { class: "cta-eyebrow" }, "今日のメニュー"),
+      el("p", { class: "cta-eyebrow" }, "今日の演習"),
       el("p", { class: "cta-summary" }, [
         cat.label,
-        el("span", { class: "sep" }, "/"),
+        el("span", { class: "sep" }, "·"),
         sel.count === "all" ? "全問" : (sel.count + "問"),
-        el("span", { class: "sep" }, "/"),
-        sel.shuffle ? "シャッフル" : "順番どおり",
+        el("span", { class: "sep" }, "·"),
+        sel.shuffle ? "シャッフル" : "順番",
       ]),
     ]),
     startBtn,
   ]);
-  root.appendChild(ctaCard);
+  root.appendChild(cta);
 
-  // 分野・設定（折りたたみ）
-  const fieldsCard = el("div", { class: "card" });
-  const fieldToggle = el("button", { class: "field-toggle", type: "button", "aria-expanded": "false" }, [
-    el("span", { class: "arrow" }, "▶"),
-    " 分野・設定を変える",
+  // カテゴリー選択 + 設定
+  const catCard = el("div", { class: "card" }, [
+    el("p", { class: "section-title" }, "出題する分野を選ぶ"),
   ]);
-  const fieldPanel = el("div", { class: "hidden", style: { marginTop: "10px" } });
-  fieldToggle.addEventListener("click", () => {
-    const exp = fieldToggle.getAttribute("aria-expanded") === "true";
-    fieldToggle.setAttribute("aria-expanded", String(!exp));
-    fieldPanel.classList.toggle("hidden", exp);
-  });
-  fieldsCard.appendChild(fieldToggle);
-
-  const fieldList = el("div", { class: "field-list" });
+  const catList = el("div", { class: "cat-list" });
   CATEGORIES.forEach(c => {
     const items = getCategorySource(c.id);
-    const item = el("button", {
-      class: "field-item" + (c.id === sel.catId ? " selected" : ""),
-      type: "button",
+    const isSel = c.id === sel.catId;
+    const row = el("div", {
+      class: "cat-row" + (isSel ? " selected" : ""),
       dataset: { catId: c.id },
     }, [
-      el("div", { class: "field-item-name" }, c.label),
-      el("div", { class: "field-item-count" }, items.length + "語 · " + c.desc),
+      el("span", { class: "cat-name" }, [
+        c.label,
+        el("span", { class: "desc" }, c.desc),
+      ]),
+      el("span", { class: "cat-count" }, items.length + "語"),
+      el("span", { class: "cat-mark" }, isSel ? "✓" : ""),
     ]);
-    item.addEventListener("click", () => {
-      sel.catId = c.id;
-      saveLastSelection({ catId: sel.catId, count: sel.count, shuffle: sel.shuffle });
+    row.addEventListener("click", () => {
+      saveLastSelection({ catId: c.id, count: sel.count, shuffle: sel.shuffle });
       renderHome();
-      // 分野パネルを開いた状態を維持
-      const ft = document.querySelector(".field-toggle");
-      const fp = ft && ft.nextElementSibling;
-      if (ft && fp) {
-        ft.setAttribute("aria-expanded", "true");
-        fp.classList.remove("hidden");
-      }
     });
-    fieldList.appendChild(item);
+    catList.appendChild(row);
   });
-  fieldPanel.appendChild(fieldList);
+  catCard.appendChild(catList);
 
+  // オプション
   const qcountSelect = el("select", { id: "qcount-select" }, [
     el("option", { value: "10" }, "10問"),
     el("option", { value: "20" }, "20問"),
@@ -1790,33 +1651,24 @@ function renderHome() {
   qcountSelect.addEventListener("change", () => {
     saveLastSelection({ catId: sel.catId, count: qcountSelect.value, shuffle: sel.shuffle });
     renderHome();
-    // 開いた状態を保つ
-    const ft = document.querySelector(".field-toggle");
-    const fp = ft && ft.nextElementSibling;
-    if (ft && fp) { ft.setAttribute("aria-expanded", "true"); fp.classList.remove("hidden"); }
   });
   const shuffleCheck = el("input", { type: "checkbox", id: "shuffle-check", checked: sel.shuffle });
   shuffleCheck.addEventListener("change", () => {
     saveLastSelection({ catId: sel.catId, count: sel.count, shuffle: shuffleCheck.checked });
     renderHome();
-    const ft = document.querySelector(".field-toggle");
-    const fp = ft && ft.nextElementSibling;
-    if (ft && fp) { ft.setAttribute("aria-expanded", "true"); fp.classList.remove("hidden"); }
   });
-  const opts = el("div", { class: "field-options" }, [
+  catCard.appendChild(el("div", { class: "options-row" }, [
     el("label", null, ["出題数 ", qcountSelect]),
     el("label", null, [shuffleCheck, " 順番をシャッフル"]),
-  ]);
-  fieldPanel.appendChild(opts);
-  fieldsCard.appendChild(fieldPanel);
-  root.appendChild(fieldsCard);
+  ]));
+  root.appendChild(catCard);
 
-  // 直近の記録
+  // 履歴
   const histCard = el("div", { class: "card" }, [
     el("p", { class: "section-title" }, "直近の記録"),
   ]);
   if (!dataCache.history.length) {
-    histCard.appendChild(el("p", { class: "history-empty" }, "まだ記録がありません。今日から始めましょう。"));
+    histCard.appendChild(el("p", { class: "history-empty" }, "まだ記録がありません。"));
   } else {
     const list = el("div", { class: "history-list" });
     dataCache.history.slice(0, 5).forEach(s => {
@@ -1839,10 +1691,10 @@ function renderHome() {
     await clearHistoryData();
     renderHome();
   });
-  const delAll = el("button", { class: "btn-link", type: "button" }, "保存データをすべて削除");
+  const delAll = el("button", { class: "btn-link", type: "button" }, "すべての保存データを削除");
   delAll.disabled = !(dataCache.history.length || dataCache.theme || dataCache.lastSelection);
   delAll.addEventListener("click", async () => {
-    if (!confirm("テーマ設定・履歴・最後の選択を含む保存データをすべて削除します。よろしいですか？")) return;
+    if (!confirm("テーマ・履歴・直近の選択を含む保存データをすべて削除します。よろしいですか？")) return;
     await clearAllData();
     dataCache.lastSelection = null;
     const sys = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
@@ -1851,6 +1703,114 @@ function renderHome() {
   });
   histCard.appendChild(el("div", { class: "data-actions" }, [delHistory, delAll]));
   root.appendChild(histCard);
+
+  // 単語帳への導線
+  const goWb = el("button", { class: "btn-link", type: "button" }, "単語帳で一覧を見る →");
+  goWb.addEventListener("click", () => showScreen("wordbook"));
+  root.appendChild(el("div", { class: "foot-link" }, [goWb]));
+}
+
+// ============================================================
+// 単語帳（副画面）
+// ============================================================
+function renderWordbook() {
+  const root = document.getElementById("wordbook-content");
+  root.innerHTML = "";
+
+  // ツールバー: カテゴリー + 検索
+  const catSelect = el("select", { id: "wb-cat" }, [
+    el("option", { value: "all" }, "全分野"),
+    ...CATEGORIES.filter(c => c.id !== "all").map(c => el("option", { value: c.id }, c.label)),
+  ]);
+  catSelect.value = wbState.catId;
+  catSelect.addEventListener("change", () => {
+    wbState.catId = catSelect.value;
+    renderWordbookList();
+  });
+  const search = el("input", {
+    type: "search",
+    id: "wb-search",
+    placeholder: "英単語または意味で検索",
+    value: wbState.search,
+  });
+  search.addEventListener("input", () => {
+    wbState.search = search.value;
+    renderWordbookList();
+  });
+
+  const card = el("div", { class: "card" }, [
+    el("div", { class: "wb-toolbar" }, [
+      el("label", { style: { fontSize: "13px", color: "var(--text-sub)" } }, ["分野: ", catSelect]),
+      search,
+    ]),
+    el("p", { class: "wb-summary", id: "wb-summary" }, ""),
+    el("div", { class: "wb-list", id: "wb-list" }),
+    el("div", { class: "wb-actions" }, [
+      (() => {
+        const b = el("button", { class: "btn", type: "button" }, "← 演習に戻る");
+        b.addEventListener("click", () => showScreen("home"));
+        return b;
+      })(),
+      (() => {
+        const b = el("button", { class: "btn btn-primary", type: "button" }, "この分野で演習する →");
+        b.addEventListener("click", () => {
+          const sel = getLastSelection();
+          const targetId = wbState.catId === "all" ? "all" : wbState.catId;
+          saveLastSelection({ catId: targetId, count: sel.count, shuffle: sel.shuffle });
+          startQuiz({ catId: targetId, count: sel.count, shuffle: sel.shuffle });
+        });
+        return b;
+      })(),
+    ]),
+  ]);
+  root.appendChild(card);
+
+  renderWordbookList();
+}
+
+function renderWordbookList() {
+  const listEl = document.getElementById("wb-list");
+  const sumEl = document.getElementById("wb-summary");
+  if (!listEl || !sumEl) return;
+  listEl.innerHTML = "";
+
+  const source = getCategorySource(wbState.catId);
+  // 表示用の (word, displayMeaning) を作る
+  const rows = source.map(item => {
+    let display;
+    if (item._kind === "abbr") display = item.full + "（の略）";
+    else if (item._kind === "acronym") display = item.full;
+    else display = item.meaning;
+    return { word: item.word, display };
+  });
+
+  // 検索フィルタ
+  const q = wbState.search.trim().toLowerCase();
+  const filtered = q ? rows.filter(r =>
+    r.word.toLowerCase().includes(q) || r.display.toLowerCase().includes(q)
+  ) : rows;
+
+  // 単語アルファベット順にソート
+  filtered.sort((a, b) => a.word.localeCompare(b.word));
+
+  sumEl.innerHTML = "";
+  sumEl.appendChild(document.createTextNode("表示中: "));
+  sumEl.appendChild(el("strong", null, String(filtered.length)));
+  sumEl.appendChild(document.createTextNode(" / 全 "));
+  sumEl.appendChild(el("strong", null, String(rows.length)));
+  sumEl.appendChild(document.createTextNode(" 語"));
+
+  if (filtered.length === 0) {
+    listEl.appendChild(el("div", { class: "wb-empty" }, "該当する単語が見つかりません。"));
+    return;
+  }
+
+  filtered.forEach(r => {
+    listEl.appendChild(el("div", { class: "wb-row" }, [
+      el("div", { class: "wb-word" }, r.word),
+      el("div", { class: "wb-meaning" }, r.display),
+    ]));
+  });
 }
 
 // ============================================================
@@ -1875,9 +1835,7 @@ function startQuiz(override) {
   state.selectedCategory = sel.catId;
   saveLastSelection({ catId: sel.catId, count: sel.count, shuffle: sel.shuffle });
 
-  document.getElementById("screen-home").classList.add("hidden");
-  document.getElementById("screen-result").classList.add("hidden");
-  document.getElementById("screen-quiz").classList.remove("hidden");
+  showScreen("quiz");
   renderQuestion();
 }
 
@@ -1889,9 +1847,8 @@ function renderQuestion() {
   const root = document.getElementById("quiz-content");
   root.innerHTML = "";
 
-  // 進捗バー
   const pct = (state.currentIdx / state.questions.length) * 100;
-  const bar = el("div", { class: "card" }, [
+  const card = el("div", { class: "card" }, [
     el("div", { class: "quiz-progress" }, [
       el("div", { class: "fill", style: { width: pct + "%" } }),
     ]),
@@ -1899,7 +1856,7 @@ function renderQuestion() {
       el("span", null, `第 ${state.currentIdx + 1} 問 / 全 ${state.questions.length} 問`),
       el("span", { class: "score" }, `正解 ${state.correctCount} / ${state.answers.length}`),
     ]),
-    el("div", { class: "headword", id: "qw" }, q.word),
+    el("div", { class: "headword" }, q.word),
     el("p", { class: "headword-prompt" }, q.prompt),
     (() => {
       const choices = el("div", { class: "choices" });
@@ -1934,12 +1891,12 @@ function renderQuestion() {
       el("span", { class: "kbd" }, "1"),
       "〜",
       el("span", { class: "kbd" }, "4"),
-      "で選択 ／ ",
+      "で選択 / ",
       el("span", { class: "kbd" }, "Enter"),
       "で次へ",
     ]),
   ]);
-  root.appendChild(bar);
+  root.appendChild(card);
 }
 
 // ============================================================
@@ -1963,11 +1920,11 @@ function handleChoice(idx) {
   if (fb) {
     fb.innerHTML = "";
     fb.classList.add("show", isCorrect ? "correct" : "incorrect");
-    fb.appendChild(el("strong", null, isCorrect ? "正解！" : "不正解"));
-    fb.appendChild(el("span", { class: "answer" }, "  " + q.word + " ＝ " + q.answer));
+    fb.appendChild(el("strong", null, isCorrect ? "正解" : "不正解"));
+    fb.appendChild(document.createTextNode("  "));
+    fb.appendChild(document.createTextNode(q.word + " ＝ " + q.answer));
   }
 
-  // 進捗のスコア表示更新
   const meta = document.querySelector("#quiz-content .quiz-meta .score");
   if (meta) meta.textContent = `正解 ${state.correctCount} / ${state.answers.length}`;
 
@@ -1994,11 +1951,6 @@ async function finishQuiz() {
   const rate = total > 0 ? Math.round(correct / total * 100) : 0;
   const cat = getCategoryById(state.selectedCategory);
 
-  // 完了前のスナップショット
-  const beltBefore = calcBelt(totalCorrect());
-  const streakBefore = calcStreak(dataCache.history);
-
-  // 履歴を保存して、その上で昇段判定
   await recordHistorySession({
     timestamp: Date.now(),
     categoryId: state.selectedCategory,
@@ -2006,16 +1958,8 @@ async function finishQuiz() {
     total,
     correct,
   });
-  const beltAfter = calcBelt(totalCorrect());
-  const streakAfter = calcStreak(dataCache.history);
 
-  lastFinishedInfo = {
-    total, correct, rate, cat,
-    promoted: beltAfter.name !== beltBefore.name ? beltAfter : null,
-    streakUpdated: (streakAfter.days > streakBefore.days),
-    streakDays: streakAfter.days,
-  };
-
+  lastFinishedInfo = { total, correct, rate, cat };
   renderResult();
 }
 
@@ -2024,25 +1968,13 @@ function renderResult() {
   root.innerHTML = "";
   const info = lastFinishedInfo;
 
-  // ヘッドライン
   const summary = el("div", { class: "card" }, [
-    el("p", { class: "result-headline" }, "お疲れさまでした"),
+    el("p", { class: "result-headline" }, info.cat.label + " の結果"),
     el("p", { class: "result-rate" }, info.rate + "%"),
-    el("p", { class: "result-correct" }, `${info.correct} / ${info.total} 問 正解 · ${info.cat.label}`),
+    el("p", { class: "result-correct" }, `${info.correct} / ${info.total} 問 正解`),
   ]);
   root.appendChild(summary);
 
-  // 祝辞（昇段・連続記録）
-  if (info.promoted) {
-    root.appendChild(el("div", { class: "celebration" },
-      "昇段！ " + info.promoted.name + " になりました"
-    ));
-  }
-  if (info.streakUpdated && info.streakDays >= 2) {
-    root.appendChild(el("div", { class: "celebration" }, info.streakDays + "日連続で稽古できています"));
-  }
-
-  // 振り返り
   const reviewCard = el("div", { class: "card" }, [
     el("p", { class: "section-title" }, "振り返り"),
   ]);
@@ -2055,29 +1987,36 @@ function renderResult() {
         el("span", { class: "review-meaning" }, "＝ " + a.answer),
         a.isCorrect ? null : el("span", { class: "review-picked" }, a.choices[a.picked] || "—"),
       ]),
+      el("span", null),
     ]));
   });
   reviewCard.appendChild(list);
   root.appendChild(reviewCard);
 
-  // 操作
   const actions = el("div", { class: "result-actions" }, [
     (() => {
-      const b = el("button", { class: "btn", id: "back-home-btn", type: "button" }, "← ホームに戻る");
+      const b = el("button", { class: "btn", type: "button" }, "← ホームに戻る");
       b.addEventListener("click", () => showScreen("home"));
       return b;
     })(),
     (() => {
-      const b = el("button", { class: "btn btn-primary", id: "retry-btn", type: "button" }, "もう一度 →");
+      const b = el("button", { class: "btn", type: "button" }, "単語帳で確認");
+      b.addEventListener("click", () => {
+        wbState.catId = state.selectedCategory;
+        wbState.search = "";
+        showScreen("wordbook");
+      });
+      return b;
+    })(),
+    (() => {
+      const b = el("button", { class: "btn btn-primary", type: "button" }, "もう一度 →");
       b.addEventListener("click", () => startQuiz());
       return b;
     })(),
   ]);
   root.appendChild(actions);
 
-  document.getElementById("screen-quiz").classList.add("hidden");
-  document.getElementById("screen-home").classList.add("hidden");
-  document.getElementById("screen-result").classList.remove("hidden");
+  showScreen("result");
 }
 
 // ============================================================
@@ -2115,7 +2054,8 @@ async function init() {
   showScreen("home");
 
   document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
-  document.getElementById("home-btn").addEventListener("click", () => showScreen("home"));
+  document.getElementById("nav-home").addEventListener("click", () => showScreen("home"));
+  document.getElementById("nav-wordbook").addEventListener("click", () => showScreen("wordbook"));
 
   document.addEventListener("keydown", (e) => {
     const quizVisible = !document.getElementById("screen-quiz").classList.contains("hidden");
