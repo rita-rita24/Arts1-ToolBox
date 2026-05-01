@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeEigoDojo - 開発者向け英単語4択道場</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #f7f7f9;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #eef0f4;
+  --text-primary: #1a1a1a;
+  --text-secondary: #555;
+  --text-muted: #888;
+  --border: #e1e4e8;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --success: #16a34a;
+  --success-bg: #dcfce7;
+  --danger: #dc2626;
+  --danger-bg: #fee2e2;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --radius: 10px;
+}
+[data-theme="dark"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border: #334155;
+  --accent: #60a5fa;
+  --accent-hover: #3b82f6;
+  --success: #4ade80;
+  --success-bg: #14532d;
+  --danger: #f87171;
+  --danger-bg: #7f1d1d;
+  --shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+header {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.app-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.app-title .material-symbols-outlined { color: var(--accent); }
+.header-actions { display: flex; gap: 6px; }
+.icon-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 38px;
+  height: 38px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  transition: background 0.15s;
+}
+.icon-btn:hover { background: var(--bg-tertiary); }
+main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+}
+.card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+h2 { margin: 0 0 12px; font-size: 18px; }
+.muted { color: var(--text-muted); font-size: 13px; }
+.btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn:hover { background: var(--accent-hover); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+.btn-secondary:hover { background: var(--border); }
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.category-card {
+  background: var(--bg-tertiary);
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 14px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: var(--text-primary);
+  transition: border-color 0.15s, transform 0.15s;
+}
+.category-card:hover { transform: translateY(-2px); }
+.category-card.selected {
+  border-color: var(--accent);
+  background: var(--bg-secondary);
+}
+.category-card .cat-name { font-weight: 700; margin-bottom: 4px; }
+.category-card .cat-count { color: var(--text-muted); font-size: 12px; }
+.progress-bar {
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s;
+}
+.quiz-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.question-word {
+  font-size: 32px;
+  font-weight: 700;
+  text-align: center;
+  margin: 24px 0 8px;
+  word-break: break-all;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+}
+.question-prompt {
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+.choices {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+@media (min-width: 560px) {
+  .choices { grid-template-columns: 1fr 1fr; }
+}
+.choice {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--text-primary);
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.choice:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--bg-tertiary);
+}
+.choice:disabled { cursor: not-allowed; }
+.choice.correct {
+  border-color: var(--success);
+  background: var(--success-bg);
+}
+.choice.incorrect {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+}
+.choice-num {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+}
+.choice.correct .choice-num { background: var(--success); color: white; }
+.choice.incorrect .choice-num { background: var(--danger); color: white; }
+.feedback {
+  padding: 14px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  display: none;
+}
+.feedback.show { display: block; }
+.feedback.correct { background: var(--success-bg); border: 1px solid var(--success); }
+.feedback.incorrect { background: var(--danger-bg); border: 1px solid var(--danger); }
+.feedback-title { font-weight: 700; margin-bottom: 4px; }
+.feedback-detail { font-size: 14px; color: var(--text-secondary); }
+.action-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.result-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 16px 0;
+}
+.stat-box {
+  background: var(--bg-tertiary);
+  padding: 14px;
+  border-radius: 8px;
+  text-align: center;
+}
+.stat-value { font-size: 26px; font-weight: 700; color: var(--accent); }
+.stat-label { font-size: 12px; color: var(--text-muted); }
+.review-list { max-height: 360px; overflow-y: auto; }
+.review-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+.review-item:last-child { border-bottom: none; }
+.review-word { font-family: monospace; font-weight: 600; }
+.review-meta { font-size: 13px; color: var(--text-muted); text-align: right; }
+.review-mark { font-weight: 700; }
+.review-mark.ok { color: var(--success); }
+.review-mark.ng { color: var(--danger); }
+footer {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.hidden { display: none !important; }
+.kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+}
+</style>
+</head>
+<body>
+<header>
+  <h1 class="app-title">
+    <span class="material-symbols-outlined">school</span>
+    CodeEigoDojo
+  </h1>
+  <div class="header-actions">
+    <button class="icon-btn" id="theme-toggle" title="テーマ切り替え" aria-label="テーマ切り替え">
+      <span class="material-symbols-outlined" id="theme-icon">dark_mode</span>
+    </button>
+    <button class="icon-btn" id="home-btn" title="トップへ" aria-label="トップへ">
+      <span class="material-symbols-outlined">home</span>
+    </button>
+  </div>
+</header>
+
+<main>
+  <section id="screen-home" class="card">
+    <h2>カテゴリを選んで開始</h2>
+    <p class="muted">エンジニアが業務で目にする英単語を4択で演習します。選択肢は意味（漢字・ひらがな中心）で出題されるため、感覚ではなく確実な理解が試されます。</p>
+    <div class="category-grid" id="category-grid"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <label class="muted" style="display:flex;gap:6px;align-items:center;">
+        出題数:
+        <select id="qcount-select" style="padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);">
+          <option value="10">10問</option>
+          <option value="20" selected>20問</option>
+          <option value="30">30問</option>
+          <option value="50">50問</option>
+          <option value="all">全問</option>
+        </select>
+      </label>
+      <label class="muted" style="display:flex;gap:6px;align-items:center;">
+        <input type="checkbox" id="shuffle-check" checked> シャッフル
+      </label>
+      <div style="flex:1"></div>
+      <button class="btn" id="start-btn">
+        <span class="material-symbols-outlined" style="vertical-align:middle;font-size:18px;">play_arrow</span>
+        開始
+      </button>
+    </div>
+  </section>
+
+  <section id="screen-stats" class="card">
+    <h2>学習履歴</h2>
+    <div id="history-summary" class="muted">まだ履歴はありません。</div>
+  </section>
+
+  <section id="screen-quiz" class="card hidden">
+    <div class="quiz-meta">
+      <span id="quiz-progress">問題 1 / 20</span>
+      <span id="quiz-score">正解 0 / 0</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="question-prompt" id="question-prompt">次の単語の意味として最も適切なものは？</div>
+    <div class="question-word" id="question-word">―</div>
+    <div class="choices" id="choices"></div>
+    <div class="feedback" id="feedback">
+      <div class="feedback-title" id="feedback-title"></div>
+      <div class="feedback-detail" id="feedback-detail"></div>
+    </div>
+    <div class="action-bar">
+      <button class="btn btn-secondary" id="quit-btn">中断</button>
+      <button class="btn" id="next-btn" disabled>次へ</button>
+    </div>
+    <p class="muted" style="margin-top:12px;text-align:center;">
+      キーボード: <span class="kbd">1</span>〜<span class="kbd">4</span> で選択 / <span class="kbd">Enter</span> で次へ
+    </p>
+  </section>
+
+  <section id="screen-result" class="card hidden">
+    <h2>結果</h2>
+    <div class="result-stats">
+      <div class="stat-box">
+        <div class="stat-value" id="result-correct">0</div>
+        <div class="stat-label">正解</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="result-total">0</div>
+        <div class="stat-label">問題数</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="result-rate">0%</div>
+        <div class="stat-label">正答率</div>
+      </div>
+    </div>
+    <h3 style="font-size:15px;margin:16px 0 8px;">回答一覧</h3>
+    <div class="review-list" id="review-list"></div>
+    <div class="action-bar" style="margin-top:16px;">
+      <button class="btn btn-secondary" id="back-home-btn">トップへ戻る</button>
+      <button class="btn" id="retry-btn">もう一度</button>
+    </div>
+  </section>
+</main>
+
+<footer>CodeEigoDojo · ローカル完結 · データはお使いの端末にのみ保存されます</footer>
+
+<script>
+// ============================================================
+// データセット
+// ----------------------------------------------------------
+// 設計方針:
+// - meaning は漢字・ひらがな中心で記述し、純カタカナのみの語は不採用
+// - abbr / acronym は英語の正式名称を答えとして出題
+// ============================================================
+
+const DATA = {};
+
+// 前提（入門）
+DATA.prereq = [
+  { word: "action", meaning: "操作・動作" },
+  { word: "activity", meaning: "活動" },
+  { word: "add", meaning: "追加する" },
+  { word: "address", meaning: "住所・宛先" },
+  { word: "agree", meaning: "同意する" },
+  { word: "area", meaning: "領域" },
+  { word: "below", meaning: "下記に" },
+  { word: "body", meaning: "本体・本文" },
+  { word: "break", meaning: "中断する" },
+  { word: "build", meaning: "構築する" },
+  { word: "call", meaning: "呼び出す" },
+  { word: "change", meaning: "変更する" },
+  { word: "check", meaning: "確認する" },
+  { word: "child", meaning: "子（要素）" },
+  { word: "choose", meaning: "選択する" },
+  { word: "clean", meaning: "きれいにする" },
+  { word: "close", meaning: "閉じる" },
+  { word: "compare", meaning: "比較する" },
+  { word: "complete", meaning: "完了する" },
+  { word: "correct", meaning: "正確な・訂正する" },
+  { word: "create", meaning: "作成する" },
+  { word: "describe", meaning: "説明する" },
+  { word: "description", meaning: "説明" },
+  { word: "detail", meaning: "詳細" },
+  { word: "event", meaning: "出来事・契機" },
+  { word: "example", meaning: "例" },
+  { word: "extra", meaning: "余分な・追加の" },
+  { word: "false", meaning: "誤りの・偽の" },
+  { word: "final", meaning: "最終の" },
+  { word: "find", meaning: "検索する・見つける" },
+  { word: "finish", meaning: "終了する" },
+  { word: "follow", meaning: "従う" },
+  { word: "free", meaning: "空きの・無料の" },
+  { word: "get", meaning: "取得する" },
+  { word: "health", meaning: "正常性" },
+  { word: "improve", meaning: "改善する" },
+  { word: "include", meaning: "含む" },
+  { word: "information", meaning: "情報" },
+  { word: "introduce", meaning: "導入する" },
+  { word: "join", meaning: "結合する" },
+  { word: "language", meaning: "言語" },
+  { word: "later", meaning: "後で" },
+  { word: "line", meaning: "行・線" },
+  { word: "list", meaning: "一覧・一覧表示する" },
+  { word: "make", meaning: "作成する" },
+  { word: "match", meaning: "一致する" },
+  { word: "model", meaning: "型・模型" },
+  { word: "move", meaning: "移動する" },
+  { word: "name", meaning: "名前" },
+  { word: "next", meaning: "次の" },
+  { word: "number", meaning: "数" },
+  { word: "object", meaning: "対象・物体" },
+  { word: "open", meaning: "開く" },
+  { word: "parent", meaning: "親（要素）" },
+  { word: "play", meaning: "再生する" },
+  { word: "post", meaning: "書き込む・投稿" },
+  { word: "prepare", meaning: "準備する" },
+  { word: "problem", meaning: "問題" },
+  { word: "product", meaning: "製品" },
+  { word: "read", meaning: "読み取る" },
+  { word: "return", meaning: "戻す・返す" },
+  { word: "rule", meaning: "規則" },
+  { word: "run", meaning: "実行する" },
+  { word: "section", meaning: "部分・節" },
+  { word: "see", meaning: "参照する・見る" },
+  { word: "send", meaning: "送信する" },
+  { word: "set", meaning: "設定する" },
+  { word: "show", meaning: "表示する" },
+  { word: "size", meaning: "大きさ" },
+  { word: "space", meaning: "空白・領域" },
+  { word: "start", meaning: "開始する" },
+  { word: "statement", meaning: "文・命令文" },
+  { word: "stop", meaning: "停止する" },
+  { word: "traffic", meaning: "通信量" },
+  { word: "tree", meaning: "木構造" },
+  { word: "true", meaning: "正しい・真の" },
+  { word: "use", meaning: "使う・使用" },
+  { word: "useful", meaning: "便利な" },
+  { word: "visit", meaning: "訪問する" },
+  { word: "wait", meaning: "待機する" },
+  { word: "write", meaning: "書き込む" },
+  { word: "you", meaning: "あなた・利用者" },
+  { word: "your", meaning: "あなたの・利用者の" },
+];
+
+// ベーシック
+DATA.basic = [
+  { word: "accept", meaning: "受諾する・受け入れる" },
+  { word: "access", meaning: "利用する・入手する" },
+  { word: "account", meaning: "口座・利用権" },
+  { word: "allow", meaning: "可能にする・許可する" },
+  { word: "alternative", meaning: "代替の" },
+  { word: "apply", meaning: "適用する" },
+  { word: "argument", meaning: "引数・実引数" },
+  { word: "array", meaning: "配列" },
+  { word: "attribute", meaning: "属性" },
+  { word: "audio", meaning: "音声" },
+  { word: "author", meaning: "作成者" },
+  { word: "available", meaning: "利用可能な・入手可能な" },
+  { word: "avoid", meaning: "回避する" },
+  { word: "based", meaning: "〜に基づく" },
+  { word: "blank", meaning: "空白の" },
+  { word: "branch", meaning: "分岐" },
+  { word: "cancel", meaning: "取り消す" },
+  { word: "capacity", meaning: "容量" },
+  { word: "case", meaning: "場合・大文字小文字の区別" },
+  { word: "character", meaning: "文字" },
+  { word: "choice", meaning: "選択" },
+  { word: "clear", meaning: "消去する" },
+  { word: "collection", meaning: "収集・集合" },
+  { word: "column", meaning: "列" },
+  { word: "command", meaning: "命令" },
+  { word: "commit", meaning: "確定する・反映する" },
+  { word: "communication", meaning: "通信" },
+  { word: "component", meaning: "部品・構成要素" },
+  { word: "condition", meaning: "条件" },
+  { word: "configuration", meaning: "構成" },
+  { word: "connect", meaning: "接続する" },
+  { word: "connection", meaning: "接続" },
+  { word: "constant", meaning: "定数・一定の" },
+  { word: "contain", meaning: "含む" },
+  { word: "content", meaning: "内容" },
+  { word: "context", meaning: "文脈・前後関係" },
+  { word: "continue", meaning: "続行する" },
+  { word: "control", meaning: "制御する" },
+  { word: "core", meaning: "中核・最重要の" },
+  { word: "correctly", meaning: "正しく・正常に" },
+  { word: "count", meaning: "数える・回数" },
+  { word: "current", meaning: "現在の" },
+  { word: "custom", meaning: "利用者設定の" },
+  { word: "customize", meaning: "利用者設定にする" },
+  { word: "damage", meaning: "損害" },
+  { word: "default", meaning: "既定値" },
+  { word: "define", meaning: "定義する" },
+  { word: "delete", meaning: "削除する" },
+  { word: "destroy", meaning: "破棄する" },
+  { word: "determine", meaning: "判別する・決定する" },
+  { word: "developer", meaning: "開発者" },
+  { word: "development", meaning: "開発" },
+  { word: "device", meaning: "機器" },
+  { word: "document", meaning: "文書・記録する" },
+  { word: "documentation", meaning: "資料" },
+  { word: "edit", meaning: "編集する" },
+  { word: "element", meaning: "要素" },
+  { word: "empty", meaning: "空の" },
+  { word: "enter", meaning: "入力する" },
+  { word: "entry", meaning: "入力・項目" },
+  { word: "environment", meaning: "環境" },
+  { word: "equal", meaning: "等しい" },
+  { word: "except", meaning: "〜を除く" },
+  { word: "exception", meaning: "例外" },
+  { word: "exist", meaning: "存在する" },
+  { word: "exit", meaning: "終了する" },
+  { word: "expand", meaning: "拡大する・展開する" },
+  { word: "expected", meaning: "期待された・想定された" },
+  { word: "export", meaning: "書き出し・書き出す" },
+  { word: "express", meaning: "表現する・明示された" },
+  { word: "expression", meaning: "表現・式" },
+  { word: "fail", meaning: "失敗する" },
+  { word: "feature", meaning: "機能・特徴" },
+  { word: "field", meaning: "領域・欄" },
+  { word: "filter", meaning: "絞り込む" },
+  { word: "fix", meaning: "修正する・解決する" },
+  { word: "flag", meaning: "印・標識" },
+  { word: "following", meaning: "次に述べる" },
+  { word: "force", meaning: "強制する" },
+  { word: "format", meaning: "書式・初期化する" },
+  { word: "function", meaning: "機能・関数" },
+  { word: "general", meaning: "全般の" },
+  { word: "generate", meaning: "生成する" },
+  { word: "global", meaning: "大域の・全域の" },
+  { word: "graphic", meaning: "画像" },
+  { word: "guide", meaning: "案内" },
+  { word: "height", meaning: "高さ" },
+  { word: "hide", meaning: "隠す・非表示にする" },
+  { word: "highlight", meaning: "強調表示する" },
+  { word: "ignore", meaning: "無視する" },
+  { word: "image", meaning: "画像・像" },
+  { word: "import", meaning: "取り込む" },
+  { word: "including", meaning: "〜を含めて" },
+  { word: "index", meaning: "索引・添字" },
+  { word: "indicate", meaning: "示す" },
+  { word: "input", meaning: "入力" },
+  { word: "install", meaning: "導入する" },
+  { word: "instance", meaning: "実例・実体" },
+  { word: "instruction", meaning: "指示" },
+  { word: "integer", meaning: "整数" },
+  { word: "issue", meaning: "問題点" },
+  { word: "item", meaning: "項目" },
+  { word: "label", meaning: "札・付箋" },
+  { word: "latest", meaning: "最近の・最新の" },
+  { word: "layer", meaning: "層" },
+  { word: "layout", meaning: "配置" },
+  { word: "length", meaning: "長さ" },
+  { word: "level", meaning: "水準" },
+  { word: "license", meaning: "使用許可" },
+  { word: "limit", meaning: "制限する・制限" },
+  { word: "link", meaning: "連結・連結する" },
+  { word: "local", meaning: "局所の" },
+  { word: "location", meaning: "位置・場所" },
+  { word: "lock", meaning: "施錠する・施錠" },
+  { word: "log", meaning: "記録" },
+  { word: "manage", meaning: "管理する" },
+  { word: "manager", meaning: "管理者" },
+  { word: "media", meaning: "媒体" },
+  { word: "memory", meaning: "記憶域" },
+  { word: "merge", meaning: "統合する" },
+  { word: "method", meaning: "方法・手続き" },
+  { word: "missing", meaning: "見つからない・欠落している" },
+  { word: "module", meaning: "構成単位" },
+  { word: "none", meaning: "一つもなし" },
+  { word: "normal", meaning: "標準の" },
+  { word: "note", meaning: "注意・覚書" },
+  { word: "notice", meaning: "通知・注意" },
+  { word: "null", meaning: "空の・無効値" },
+  { word: "occur", meaning: "発生する" },
+  { word: "operation", meaning: "操作・処理" },
+  { word: "option", meaning: "選択肢" },
+  { word: "optional", meaning: "任意の" },
+  { word: "output", meaning: "出力" },
+  { word: "override", meaning: "優先する・上書きする" },
+  { word: "owner", meaning: "所有者" },
+  { word: "parameter", meaning: "仮引数" },
+  { word: "pass", meaning: "渡す" },
+  { word: "patch", meaning: "修正プログラム" },
+  { word: "path", meaning: "経路" },
+  { word: "perform", meaning: "実行する" },
+  { word: "performance", meaning: "性能" },
+  { word: "permission", meaning: "許可" },
+  { word: "physical", meaning: "物理的な" },
+  { word: "position", meaning: "位置" },
+  { word: "press", meaning: "押す" },
+  { word: "previous", meaning: "前の" },
+  { word: "print", meaning: "印刷する・出力する" },
+  { word: "process", meaning: "処理・処理する" },
+  { word: "properly", meaning: "適切に・正常に" },
+  { word: "property", meaning: "特性・属性" },
+  { word: "protect", meaning: "保護する" },
+  { word: "provide", meaning: "提供する" },
+  { word: "public", meaning: "公開の" },
+  { word: "publish", meaning: "公開する" },
+  { word: "pull", meaning: "取得する・引く" },
+  { word: "push", meaning: "押す・送り込む" },
+  { word: "query", meaning: "問い合わせ" },
+  { word: "range", meaning: "範囲" },
+  { word: "real-time", meaning: "即時の" },
+  { word: "receive", meaning: "受信する" },
+  { word: "recommend", meaning: "推奨する" },
+  { word: "record", meaning: "記録する・記録" },
+  { word: "refactor", meaning: "内部構造を再構成する" },
+  { word: "refer", meaning: "参照する" },
+  { word: "reference", meaning: "参照" },
+  { word: "release", meaning: "公開する・解放する" },
+  { word: "remove", meaning: "削除する" },
+  { word: "rename", meaning: "名前を変更する" },
+  { word: "replace", meaning: "置換する" },
+  { word: "report", meaning: "報告する" },
+  { word: "request", meaning: "要求・要求する" },
+  { word: "require", meaning: "必要とする" },
+  { word: "reset", meaning: "初期状態に戻す" },
+  { word: "resource", meaning: "資源" },
+  { word: "respond", meaning: "応答する・返信する" },
+  { word: "response", meaning: "応答" },
+  { word: "restart", meaning: "再起動する" },
+  { word: "result", meaning: "結果" },
+  { word: "role", meaning: "役割" },
+  { word: "root", meaning: "最上位・根" },
+  { word: "route", meaning: "経路" },
+  { word: "row", meaning: "行" },
+  { word: "save", meaning: "保存する" },
+  { word: "scan", meaning: "走査する" },
+  { word: "schedule", meaning: "予定" },
+  { word: "screen", meaning: "画面" },
+  { word: "search", meaning: "検索する" },
+  { word: "security", meaning: "安全性" },
+  { word: "select", meaning: "選択する" },
+  { word: "setting", meaning: "設定" },
+  { word: "shape", meaning: "形状" },
+  { word: "share", meaning: "共有する" },
+  { word: "shortcut", meaning: "近道" },
+  { word: "sign", meaning: "記号・符号" },
+  { word: "skip", meaning: "とばす" },
+  { word: "sort", meaning: "並び替える" },
+  { word: "source", meaning: "送信元・原本" },
+  { word: "specific", meaning: "特定の" },
+  { word: "specify", meaning: "指定する" },
+  { word: "state", meaning: "状態" },
+  { word: "status", meaning: "状態・状況" },
+  { word: "step", meaning: "手順" },
+  { word: "store", meaning: "格納する・保存する" },
+  { word: "string", meaning: "文字列" },
+  { word: "submit", meaning: "提出する・送信する" },
+  { word: "successful", meaning: "成功した" },
+  { word: "supply", meaning: "供給する" },
+  { word: "support", meaning: "支援する" },
+  { word: "switch", meaning: "切り替える" },
+  { word: "table", meaning: "表" },
+  { word: "target", meaning: "対象・〜先" },
+  { word: "temporary", meaning: "一時的な" },
+  { word: "throw", meaning: "投げる・例外を出す" },
+  { word: "timeout", meaning: "時間切れ" },
+  { word: "touch", meaning: "触れる" },
+  { word: "translate", meaning: "変換する・翻訳する" },
+  { word: "type", meaning: "型・種類" },
+  { word: "unable", meaning: "不可能な" },
+  { word: "undo", meaning: "元に戻す" },
+  { word: "uninstall", meaning: "解除する・取り外す" },
+  { word: "unit", meaning: "単位" },
+  { word: "unused", meaning: "未使用の" },
+  { word: "update", meaning: "更新する" },
+  { word: "upgrade", meaning: "格上げする" },
+  { word: "value", meaning: "値" },
+  { word: "variable", meaning: "変数" },
+  { word: "version", meaning: "版" },
+  { word: "view", meaning: "表示する・表示" },
+  { word: "warn", meaning: "警告する" },
+  { word: "warning", meaning: "警告" },
+  { word: "width", meaning: "幅" },
+];
+
+// アドバンスト
+DATA.advanced = [
+  { word: "abstract", meaning: "抽象的な・抽象の" },
+  { word: "accessibility", meaning: "利用しやすさ・到達性" },
+  { word: "accessible", meaning: "利用可能な・到達可能な" },
+  { word: "activate", meaning: "有効にする" },
+  { word: "active", meaning: "有効な・活動中の" },
+  { word: "additional", meaning: "追加の" },
+  { word: "adjust", meaning: "調整する" },
+  { word: "administrator", meaning: "管理者" },
+  { word: "aggregate", meaning: "集約する" },
+  { word: "alias", meaning: "別名" },
+  { word: "allocation", meaning: "割り当て" },
+  { word: "annotation", meaning: "注釈" },
+  { word: "anonymous", meaning: "無名の・匿名の" },
+  { word: "append", meaning: "末尾に追加する" },
+  { word: "applicable", meaning: "該当する・適用可能な" },
+  { word: "archive", meaning: "保管・保管する" },
+  { word: "assert", meaning: "表明する" },
+  { word: "asset", meaning: "資産" },
+  { word: "assign", meaning: "割り当てる・代入する" },
+  { word: "assignment", meaning: "割り当て・代入" },
+  { word: "associate", meaning: "関連づける" },
+  { word: "attach", meaning: "接続する・添付する" },
+  { word: "authentication", meaning: "認証" },
+  { word: "authorize", meaning: "権限を与える" },
+  { word: "automatic", meaning: "自動の" },
+  { word: "automatically", meaning: "自動で・自動的に" },
+  { word: "availability", meaning: "可用性" },
+  { word: "binary", meaning: "二進法の・二値の" },
+  { word: "bind", meaning: "束縛する・結びつける" },
+  { word: "boot", meaning: "起動する・起動" },
+  { word: "brace", meaning: "波かっこ" },
+  { word: "bracket", meaning: "角かっこ" },
+  { word: "breakpoint", meaning: "中断点" },
+  { word: "browse", meaning: "閲覧する・参照する" },
+  { word: "bump", meaning: "版を一つ上げる" },
+  { word: "calculate", meaning: "計算する" },
+  { word: "capability", meaning: "機能・能力" },
+  { word: "capture", meaning: "取り込む" },
+  { word: "caret", meaning: "文字入力位置" },
+  { word: "cast", meaning: "型変換する" },
+  { word: "certificate", meaning: "証明書" },
+  { word: "clarify", meaning: "明確にする" },
+  { word: "cleanup", meaning: "整理・後始末" },
+  { word: "clone", meaning: "複製する" },
+  { word: "collapse", meaning: "折りたたむ・非表示にする" },
+  { word: "compatibility", meaning: "互換性" },
+  { word: "compile", meaning: "翻訳する・実行可能形式に変換する" },
+  { word: "completion", meaning: "補完・完了" },
+  { word: "compress", meaning: "圧縮する" },
+  { word: "compute", meaning: "計算する" },
+  { word: "conditional", meaning: "条件つきの" },
+  { word: "configure", meaning: "構成する・設定する" },
+  { word: "confirm", meaning: "確認する・確定する" },
+  { word: "conflict", meaning: "競合する・競合" },
+  { word: "constraint", meaning: "制約" },
+  { word: "construct", meaning: "生成する・組み立てる" },
+  { word: "contact", meaning: "連絡する・連絡先" },
+  { word: "contribute", meaning: "貢献する" },
+  { word: "convert", meaning: "変換する" },
+  { word: "coordinate", meaning: "座標" },
+  { word: "copyright", meaning: "著作権" },
+  { word: "credential", meaning: "資格情報・認証情報" },
+  { word: "decimal", meaning: "小数の・十進法の" },
+  { word: "declaration", meaning: "宣言" },
+  { word: "declare", meaning: "宣言する" },
+  { word: "decode", meaning: "復号する" },
+  { word: "dedicated", meaning: "専用の" },
+  { word: "delay", meaning: "遅延" },
+  { word: "dependency", meaning: "依存関係" },
+  { word: "deploy", meaning: "配備する" },
+  { word: "deployment", meaning: "配備" },
+  { word: "deprecated", meaning: "非推奨の" },
+  { word: "deprecation", meaning: "非推奨化" },
+  { word: "descriptor", meaning: "記述子" },
+  { word: "destination", meaning: "目的地・〜先" },
+  { word: "detect", meaning: "検出する" },
+  { word: "digit", meaning: "数字・桁" },
+  { word: "disable", meaning: "無効にする" },
+  { word: "display", meaning: "表示する・表示" },
+  { word: "distribute", meaning: "分散する・配布する" },
+  { word: "duplicate", meaning: "重複する・複製する" },
+  { word: "duration", meaning: "期間" },
+  { word: "dynamic", meaning: "動的な" },
+  { word: "dynamically", meaning: "動的に" },
+  { word: "emit", meaning: "発する・生成する" },
+  { word: "enable", meaning: "可能にする・有効にする" },
+  { word: "encode", meaning: "符号化する" },
+  { word: "encoding", meaning: "符号化" },
+  { word: "encounter", meaning: "遭遇する" },
+  { word: "encryption", meaning: "暗号化" },
+  { word: "endpoint", meaning: "端点・接続先" },
+  { word: "ensure", meaning: "確実にする" },
+  { word: "entity", meaning: "実体" },
+  { word: "enumeration", meaning: "列挙" },
+  { word: "escape", meaning: "特殊文字を逃がす・回避する" },
+  { word: "exclude", meaning: "除外する" },
+  { word: "executable", meaning: "実行可能な・実行可能ファイル" },
+  { word: "execute", meaning: "実行する" },
+  { word: "execution", meaning: "実行" },
+  { word: "existing", meaning: "既存の" },
+  { word: "extend", meaning: "拡張する" },
+  { word: "extension", meaning: "拡張・拡張子" },
+  { word: "external", meaning: "外部の" },
+  { word: "extract", meaning: "抽出する" },
+  { word: "failure", meaning: "失敗・故障" },
+  { word: "fallback", meaning: "代替手段・退避" },
+  { word: "fetch", meaning: "取得する" },
+  { word: "fire", meaning: "発火する・始動する" },
+  { word: "framework", meaning: "枠組み・骨組み" },
+  { word: "functionality", meaning: "機能" },
+  { word: "generation", meaning: "生成・世代" },
+  { word: "generic", meaning: "汎用の・総称の" },
+  { word: "handle", meaning: "処理する・取っ手" },
+  { word: "hierarchy", meaning: "階層" },
+  { word: "identifier", meaning: "識別子" },
+  { word: "implement", meaning: "実装する" },
+  { word: "implementation", meaning: "実装" },
+  { word: "incompatible", meaning: "互換性がない" },
+  { word: "increment", meaning: "増分・増分させる" },
+  { word: "indentation", meaning: "字下げ" },
+  { word: "initial", meaning: "初期の・最初の" },
+  { word: "initialization", meaning: "初期化" },
+  { word: "initialize", meaning: "初期化する" },
+  { word: "inner", meaning: "内部の・内側の" },
+  { word: "insert", meaning: "挿入する" },
+  { word: "inspect", meaning: "検査する" },
+  { word: "inspection", meaning: "検査" },
+  { word: "installation", meaning: "導入" },
+  { word: "interact", meaning: "対話する・相互作用する" },
+  { word: "internal", meaning: "内部の" },
+  { word: "interval", meaning: "間隔" },
+  { word: "invalid", meaning: "無効な" },
+  { word: "invoke", meaning: "呼び出す" },
+  { word: "iterate", meaning: "反復する・繰り返す" },
+  { word: "latency", meaning: "待ち時間・遅延時間" },
+  { word: "launch", meaning: "起動する・開始する" },
+  { word: "load", meaning: "読み込む" },
+  { word: "logic", meaning: "論理" },
+  { word: "lookup", meaning: "検索・参照" },
+  { word: "manual", meaning: "手動の・手引書" },
+  { word: "manually", meaning: "手動で" },
+  { word: "matching", meaning: "一致する" },
+  { word: "maximum", meaning: "最大の" },
+  { word: "metadata", meaning: "属性情報・補助情報" },
+  { word: "migration", meaning: "移行" },
+  { word: "millisecond", meaning: "千分の一秒" },
+  { word: "minimum", meaning: "最小の" },
+  { word: "minor", meaning: "小さな・軽微な" },
+  { word: "mock", meaning: "模造の・代用の" },
+  { word: "modification", meaning: "修正・変更" },
+  { word: "modifier", meaning: "修飾子" },
+  { word: "modify", meaning: "修正する・変更する" },
+  { word: "monitor", meaning: "監視する" },
+  { word: "multiple", meaning: "複数の" },
+  { word: "namespace", meaning: "名前空間" },
+  { word: "navigate", meaning: "移動する" },
+  { word: "navigation", meaning: "移動・案内" },
+  { word: "nested", meaning: "入れ子の" },
+  { word: "normalize", meaning: "標準化する・正規化する" },
+  { word: "notification", meaning: "通知" },
+  { word: "notify", meaning: "通知する" },
+  { word: "numeric", meaning: "数値の" },
+  { word: "obtain", meaning: "取得する" },
+  { word: "occurrence", meaning: "出現・発生" },
+  { word: "optimize", meaning: "最適化する" },
+  { word: "otherwise", meaning: "そうでなければ" },
+  { word: "overview", meaning: "概要" },
+  { word: "overwrite", meaning: "上書きする" },
+  { word: "parenthesis", meaning: "丸かっこ" },
+  { word: "parse", meaning: "解析する・構文解析する" },
+  { word: "permit", meaning: "許可する" },
+  { word: "persistence", meaning: "永続化" },
+  { word: "populate", meaning: "自動的に値を入れる" },
+  { word: "preferred", meaning: "優先の" },
+  { word: "prefix", meaning: "接頭辞" },
+  { word: "priority", meaning: "優先順位" },
+  { word: "private", meaning: "非公開の" },
+  { word: "progress", meaning: "進行状況" },
+  { word: "raw", meaning: "生の・未加工の" },
+  { word: "redirect", meaning: "転送する" },
+  { word: "redundant", meaning: "冗長な" },
+  { word: "refresh", meaning: "更新する" },
+  { word: "register", meaning: "登録する" },
+  { word: "registration", meaning: "登録" },
+  { word: "reload", meaning: "再読み込みする" },
+  { word: "remote", meaning: "遠隔の・離れた" },
+  { word: "removal", meaning: "削除・除去" },
+  { word: "render", meaning: "描画する" },
+  { word: "represent", meaning: "表す" },
+  { word: "representation", meaning: "表現・表記" },
+  { word: "reserve", meaning: "予約する・確保する" },
+  { word: "resize", meaning: "大きさを変更する" },
+  { word: "resolution", meaning: "解像度・解決" },
+  { word: "resolve", meaning: "解決する" },
+  { word: "restore", meaning: "復元する" },
+  { word: "restriction", meaning: "制限" },
+  { word: "retrieve", meaning: "取得する" },
+  { word: "revert", meaning: "前の状態に戻す" },
+  { word: "revision", meaning: "改訂・版" },
+  { word: "runtime", meaning: "実行時" },
+  { word: "sanitize", meaning: "無害化する" },
+  { word: "scale", meaning: "大きさを変える・規模を調整する" },
+  { word: "schema", meaning: "構造定義" },
+  { word: "scope", meaning: "範囲・有効範囲" },
+  { word: "secure", meaning: "安全な" },
+  { word: "separator", meaning: "区切り" },
+  { word: "sequence", meaning: "並び・順列" },
+  { word: "serialize", meaning: "直列化する" },
+  { word: "session", meaning: "通信の一連の流れ" },
+  { word: "setup", meaning: "設定・構成" },
+  { word: "shutdown", meaning: "停止・終了" },
+  { word: "signature", meaning: "署名" },
+  { word: "simplify", meaning: "簡素化する" },
+  { word: "snapshot", meaning: "ある時点の状態の写し" },
+  { word: "specification", meaning: "仕様" },
+  { word: "split", meaning: "分割する" },
+  { word: "stack", meaning: "積み重ね・スタック構造" },
+  { word: "standalone", meaning: "単独動作の" },
+  { word: "startup", meaning: "起動・立ち上げ" },
+  { word: "static", meaning: "静的な" },
+  { word: "storage", meaning: "保存領域" },
+  { word: "successfully", meaning: "正常に" },
+  { word: "suffix", meaning: "接尾辞" },
+  { word: "suppress", meaning: "表示しない・抑制する" },
+  { word: "synchronize", meaning: "同期する" },
+  { word: "syntax", meaning: "構文" },
+  { word: "terminate", meaning: "終了する" },
+  { word: "termination", meaning: "終了" },
+  { word: "terms", meaning: "利用条件" },
+  { word: "third party", meaning: "第三者" },
+  { word: "thread", meaning: "並行処理の流れ" },
+  { word: "timestamp", meaning: "日時印" },
+  { word: "todo", meaning: "するべきこと" },
+  { word: "toggle", meaning: "切り替える" },
+  { word: "transaction", meaning: "一連の処理単位" },
+  { word: "transfer", meaning: "転送する" },
+  { word: "transform", meaning: "変換する" },
+  { word: "transition", meaning: "遷移" },
+  { word: "trigger", meaning: "引き金を引く・発動させる" },
+  { word: "tweak", meaning: "微調整する" },
+  { word: "typo", meaning: "入力ミス" },
+  { word: "unauthorized", meaning: "権限のない" },
+  { word: "unavailable", meaning: "利用できない" },
+  { word: "undefined", meaning: "未定義の" },
+  { word: "unexpected", meaning: "予期しない" },
+  { word: "unique", meaning: "一意の・固有の" },
+  { word: "unknown", meaning: "不明の" },
+  { word: "unnecessary", meaning: "不要な" },
+  { word: "unresolved", meaning: "未解決の" },
+  { word: "unsupported", meaning: "非対応の" },
+  { word: "usage", meaning: "利用・使用法" },
+  { word: "username", meaning: "利用者名" },
+  { word: "valid", meaning: "有効な・妥当な" },
+  { word: "validate", meaning: "妥当性を確認する" },
+  { word: "validation", meaning: "妥当性検証" },
+  { word: "verbose", meaning: "詳細な" },
+  { word: "verify", meaning: "正しいことを確認する" },
+  { word: "virtual", meaning: "仮想の" },
+  { word: "visibility", meaning: "可視性・可視範囲" },
+  { word: "visible", meaning: "可視の・表示できる" },
+  { word: "wrap", meaning: "折り返す・包む" },
+  { word: "zip", meaning: "圧縮する" },
+];
+
+// 略語: 「○○の略は何か？」 (英単語を英単語で答える)
+DATA.abbr = [
+  { word: "addr", full: "address" },
+  { word: "admin", full: "administrator" },
+  { word: "app", full: "application" },
+  { word: "arg", full: "argument" },
+  { word: "args", full: "arguments" },
+  { word: "async", full: "asynchronization" },
+  { word: "attr", full: "attribute" },
+  { word: "attrs", full: "attributes" },
+  { word: "auth", full: "authentication" },
+  { word: "auto", full: "automatic" },
+  { word: "cert", full: "certificate" },
+  { word: "char", full: "character" },
+  { word: "cmd", full: "command" },
+  { word: "config", full: "configuration" },
+  { word: "conn", full: "connection" },
+  { word: "cur", full: "current" },
+  { word: "db", full: "database" },
+  { word: "deps", full: "dependencies" },
+  { word: "dest", full: "destination" },
+  { word: "dev", full: "developer" },
+  { word: "dict", full: "dictionary" },
+  { word: "diff", full: "difference" },
+  { word: "dir", full: "directory" },
+  { word: "doc", full: "document" },
+  { word: "enum", full: "enumeration" },
+  { word: "env", full: "environment" },
+  { word: "err", full: "error" },
+  { word: "exec", full: "execution" },
+  { word: "fn", full: "function" },
+  { word: "gen", full: "generation" },
+  { word: "id", full: "identifier" },
+  { word: "idx", full: "index" },
+  { word: "impl", full: "implementation" },
+  { word: "info", full: "information" },
+  { word: "init", full: "initialization" },
+  { word: "int", full: "integer" },
+  { word: "lib", full: "library" },
+  { word: "max", full: "maximum" },
+  { word: "min", full: "minimum" },
+  { word: "msg", full: "message" },
+  { word: "num", full: "number" },
+  { word: "obj", full: "object" },
+  { word: "op", full: "operation" },
+  { word: "opts", full: "options" },
+  { word: "param", full: "parameter" },
+  { word: "params", full: "parameters" },
+  { word: "pos", full: "position" },
+  { word: "prev", full: "previous" },
+  { word: "prop", full: "property" },
+  { word: "props", full: "properties" },
+  { word: "ref", full: "reference" },
+  { word: "refs", full: "references" },
+  { word: "regex", full: "regular expression" },
+  { word: "repo", full: "repository" },
+  { word: "req", full: "request" },
+  { word: "res", full: "response" },
+  { word: "resp", full: "response" },
+  { word: "ret", full: "return" },
+  { word: "spec", full: "specification" },
+  { word: "src", full: "source" },
+  { word: "str", full: "string" },
+  { word: "sync", full: "synchronization" },
+  { word: "temp", full: "temporary" },
+  { word: "tmp", full: "temporary" },
+  { word: "usr", full: "user" },
+  { word: "utils", full: "utilities" },
+  { word: "val", full: "value" },
+  { word: "var", full: "variable" },
+  { word: "vars", full: "variables" },
+];
+
+// 頭字語: 「○○の正式名称は何か？」
+DATA.acronym = [
+  { word: "API", full: "Application Programming Interface" },
+  { word: "CI", full: "Continuous Integration" },
+  { word: "CLI", full: "Command Line Interface" },
+  { word: "CPU", full: "Central Processing Unit" },
+  { word: "CSS", full: "Cascading Style Sheet" },
+  { word: "DNS", full: "Domain Name System" },
+  { word: "DOM", full: "Document Object Model" },
+  { word: "HTML", full: "HyperText Markup Language" },
+  { word: "HTTP", full: "HyperText Transfer Protocol" },
+  { word: "HTTPS", full: "HyperText Transfer Protocol Secure" },
+  { word: "IDE", full: "Integrated Development Environment" },
+  { word: "IO", full: "Input/Output" },
+  { word: "IP", full: "Internet Protocol" },
+  { word: "JSON", full: "JavaScript Object Notation" },
+  { word: "NFC", full: "Near Field Communication" },
+  { word: "OS", full: "Operating System" },
+  { word: "RE", full: "Regular Expression" },
+  { word: "RGB", full: "Red Green Blue" },
+  { word: "SDK", full: "Software Development Kit" },
+  { word: "SQL", full: "Structured Query Language" },
+  { word: "SSH", full: "Secure SHell" },
+  { word: "SSL", full: "Secure Sockets Layer" },
+  { word: "UI", full: "User Interface" },
+  { word: "URI", full: "Uniform Resource Identifier" },
+  { word: "URL", full: "Uniform Resource Locator" },
+  { word: "VM", full: "Virtual Machine" },
+  { word: "WIP", full: "Work In Progress" },
+  { word: "WWW", full: "World Wide Web" },
+  { word: "XML", full: "eXtensible Markup Language" },
+];
+
+// ============================================================
+// カテゴリー定義
+// ============================================================
+const CATEGORIES = [
+  { id: "prereq",   label: "前提",       desc: "入門的な英単語",          source: "prereq",   type: "meaning" },
+  { id: "basic",    label: "ベーシック", desc: "基本・頻出",              source: "basic",    type: "meaning" },
+  { id: "advanced", label: "アドバンスト", desc: "やや高度",                source: "advanced", type: "meaning" },
+  { id: "abbr",     label: "略語",       desc: "attr / val / param など", source: "abbr",     type: "abbr" },
+  { id: "acronym",  label: "頭字語",     desc: "API / HTTP / JSON など",  source: "acronym",  type: "acronym" },
+  { id: "all",      label: "全分野",     desc: "全カテゴリーから出題",    source: "all",      type: "mixed" },
+];
+
+const STORAGE_KEY = "codeeigodojo_state_v1";
+
+// ============================================================
+// ユーティリティー
+// ============================================================
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickRandom(arr, n, exclude) {
+  const pool = arr.filter(item => !exclude.includes(item));
+  return shuffleArray(pool).slice(0, n);
+}
+
+function getCategorySource(catId) {
+  if (catId === "all") {
+    return [
+      ...DATA.prereq.map(x => ({ ...x, _kind: "meaning" })),
+      ...DATA.basic.map(x => ({ ...x, _kind: "meaning" })),
+      ...DATA.advanced.map(x => ({ ...x, _kind: "meaning" })),
+      ...DATA.abbr.map(x => ({ ...x, _kind: "abbr" })),
+      ...DATA.acronym.map(x => ({ ...x, _kind: "acronym" })),
+    ];
+  }
+  const cat = CATEGORIES.find(c => c.id === catId);
+  if (!cat) return [];
+  return DATA[cat.source].map(x => ({ ...x, _kind: cat.type }));
+}
+
+// ============================================================
+// 出題生成
+// ============================================================
+// items: クイズ対象の語のリスト
+// fullPool: 同一の_kindの全語（誤答抽出用）
+function buildQuestion(item, fullPool) {
+  const kind = item._kind;
+  let prompt, answer, distractorPool;
+
+  if (kind === "meaning") {
+    prompt = "次の単語の意味として最も適切なものは？";
+    answer = item.meaning;
+    distractorPool = fullPool
+      .filter(x => x._kind === "meaning" && x.meaning !== item.meaning)
+      .map(x => x.meaning);
+  } else if (kind === "abbr") {
+    prompt = "次の略語の元の英単語として最も適切なものは？";
+    answer = item.full;
+    distractorPool = fullPool
+      .filter(x => x._kind === "abbr" && x.full !== item.full)
+      .map(x => x.full);
+  } else if (kind === "acronym") {
+    prompt = "次の頭字語の正式名称として最も適切なものは？";
+    answer = item.full;
+    distractorPool = fullPool
+      .filter(x => x._kind === "acronym" && x.full !== item.full)
+      .map(x => x.full);
+  }
+
+  const uniquePool = Array.from(new Set(distractorPool));
+  const distractors = pickRandom(uniquePool, 3, [answer]);
+  while (distractors.length < 3) {
+    distractors.push("（候補不足）");
+  }
+  const choices = shuffleArray([answer, ...distractors]);
+  const correctIndex = choices.indexOf(answer);
+
+  return {
+    word: item.word,
+    prompt,
+    choices,
+    correctIndex,
+    answer,
+    kind,
+  };
+}
+
+// ============================================================
+// 状態管理
+// ============================================================
+const state = {
+  selectedCategory: "basic",
+  questions: [],
+  currentIdx: 0,
+  correctCount: 0,
+  answers: [],
+  awaitingNext: false,
+};
+
+function loadPersisted() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) {
+    return null;
+  }
+}
+
+function savePersisted(data) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {
+    // 無視（保存できない環境）
+  }
+}
+
+function recordHistorySession(session) {
+  const persisted = loadPersisted() || {};
+  const history = persisted.history || [];
+  history.unshift(session);
+  if (history.length > 30) history.length = 30;
+  persisted.history = history;
+  savePersisted(persisted);
+}
+
+// ============================================================
+// 画面切り替え
+// ============================================================
+function showScreen(name) {
+  document.getElementById("screen-home").classList.toggle("hidden", name !== "home");
+  document.getElementById("screen-stats").classList.toggle("hidden", name !== "home");
+  document.getElementById("screen-quiz").classList.toggle("hidden", name !== "quiz");
+  document.getElementById("screen-result").classList.toggle("hidden", name !== "result");
+}
+
+// ============================================================
+// ホーム画面: カテゴリーカード描画
+// ============================================================
+function renderCategoryGrid() {
+  const grid = document.getElementById("category-grid");
+  grid.innerHTML = "";
+  CATEGORIES.forEach(cat => {
+    const items = getCategorySource(cat.id);
+    const btn = document.createElement("button");
+    btn.className = "category-card";
+    if (cat.id === state.selectedCategory) btn.classList.add("selected");
+    btn.dataset.catId = cat.id;
+    btn.innerHTML = `
+      <div class="cat-name">${cat.label}</div>
+      <div class="cat-count">${items.length}語 · ${cat.desc}</div>
+    `;
+    btn.addEventListener("click", () => {
+      state.selectedCategory = cat.id;
+      renderCategoryGrid();
+    });
+    grid.appendChild(btn);
+  });
+}
+
+// ============================================================
+// 履歴サマリー
+// ============================================================
+function renderHistorySummary() {
+  const persisted = loadPersisted();
+  const box = document.getElementById("history-summary");
+  if (!persisted || !persisted.history || persisted.history.length === 0) {
+    box.innerHTML = `<span class="muted">まだ履歴はありません。</span>`;
+    return;
+  }
+  const h = persisted.history;
+  const recent = h.slice(0, 5);
+  const totalSessions = h.length;
+  const avg = Math.round(
+    h.reduce((s, x) => s + (x.correct / x.total * 100), 0) / h.length
+  );
+  let html = `<div class="muted" style="margin-bottom:10px;">
+    直近 ${totalSessions} セッションの平均正答率: <strong style="color:var(--text-primary);">${avg}%</strong>
+  </div>`;
+  html += `<div class="review-list">`;
+  recent.forEach(s => {
+    const rate = Math.round(s.correct / s.total * 100);
+    const dt = new Date(s.timestamp);
+    const dts = `${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,"0")}/${String(dt.getDate()).padStart(2,"0")} ${String(dt.getHours()).padStart(2,"0")}:${String(dt.getMinutes()).padStart(2,"0")}`;
+    html += `<div class="review-item">
+      <div>
+        <div><strong>${s.categoryLabel}</strong></div>
+        <div class="muted" style="font-size:12px;">${dts}</div>
+      </div>
+      <div class="review-meta">${s.correct} / ${s.total} 正解 (${rate}%)</div>
+    </div>`;
+  });
+  html += `</div>`;
+  box.innerHTML = html;
+}
+
+// ============================================================
+// 演習開始
+// ============================================================
+function startQuiz() {
+  const catId = state.selectedCategory;
+  const source = getCategorySource(catId);
+  if (source.length === 0) {
+    alert("出題できる語がありません。");
+    return;
+  }
+  const shuffle = document.getElementById("shuffle-check").checked;
+  const qcountVal = document.getElementById("qcount-select").value;
+  const ordered = shuffle ? shuffleArray(source) : source.slice();
+  const limit = qcountVal === "all" ? ordered.length : Math.min(parseInt(qcountVal, 10), ordered.length);
+  const items = ordered.slice(0, limit);
+
+  state.questions = items.map(item => buildQuestion(item, source));
+  state.currentIdx = 0;
+  state.correctCount = 0;
+  state.answers = [];
+  state.awaitingNext = false;
+
+  showScreen("quiz");
+  renderQuestion();
+}
+
+// ============================================================
+// 問題描画
+// ============================================================
+function renderQuestion() {
+  const q = state.questions[state.currentIdx];
+  document.getElementById("question-prompt").textContent = q.prompt;
+  document.getElementById("question-word").textContent = q.word;
+  document.getElementById("quiz-progress").textContent = `問題 ${state.currentIdx + 1} / ${state.questions.length}`;
+  document.getElementById("quiz-score").textContent = `正解 ${state.correctCount} / ${state.answers.length}`;
+  const pct = ((state.currentIdx) / state.questions.length) * 100;
+  document.getElementById("progress-fill").style.width = pct + "%";
+
+  const choicesEl = document.getElementById("choices");
+  choicesEl.innerHTML = "";
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.dataset.idx = i;
+    btn.innerHTML = `<span class="choice-num">${i + 1}</span><span>${c}</span>`;
+    btn.addEventListener("click", () => handleChoice(i));
+    choicesEl.appendChild(btn);
+  });
+
+  const fb = document.getElementById("feedback");
+  fb.classList.remove("show", "correct", "incorrect");
+  document.getElementById("next-btn").disabled = true;
+  state.awaitingNext = false;
+}
+
+// ============================================================
+// 解答処理
+// ============================================================
+function handleChoice(idx) {
+  if (state.awaitingNext) return;
+  const q = state.questions[state.currentIdx];
+  const isCorrect = idx === q.correctIndex;
+  if (isCorrect) state.correctCount++;
+  state.answers.push({ word: q.word, picked: idx, correct: q.correctIndex, isCorrect, answer: q.answer, choices: q.choices });
+  state.awaitingNext = true;
+
+  // 選択肢の見た目を更新
+  const choiceBtns = document.querySelectorAll("#choices .choice");
+  choiceBtns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correctIndex) btn.classList.add("correct");
+    else if (i === idx) btn.classList.add("incorrect");
+  });
+
+  // フィードバック表示
+  const fb = document.getElementById("feedback");
+  fb.classList.add("show", isCorrect ? "correct" : "incorrect");
+  document.getElementById("feedback-title").textContent = isCorrect ? "正解！" : "不正解";
+  document.getElementById("feedback-detail").textContent = `${q.word} → ${q.answer}`;
+
+  document.getElementById("quiz-score").textContent = `正解 ${state.correctCount} / ${state.answers.length}`;
+  document.getElementById("next-btn").disabled = false;
+  document.getElementById("next-btn").focus();
+}
+
+// ============================================================
+// 次へ
+// ============================================================
+function goNext() {
+  if (!state.awaitingNext) return;
+  state.currentIdx++;
+  if (state.currentIdx >= state.questions.length) {
+    finishQuiz();
+  } else {
+    renderQuestion();
+  }
+}
+
+// ============================================================
+// 終了処理
+// ============================================================
+function finishQuiz() {
+  const total = state.answers.length;
+  const correct = state.correctCount;
+  const rate = total > 0 ? Math.round(correct / total * 100) : 0;
+  document.getElementById("result-correct").textContent = correct;
+  document.getElementById("result-total").textContent = total;
+  document.getElementById("result-rate").textContent = rate + "%";
+
+  const reviewList = document.getElementById("review-list");
+  reviewList.innerHTML = "";
+  state.answers.forEach(a => {
+    const row = document.createElement("div");
+    row.className = "review-item";
+    const mark = a.isCorrect ? '<span class="review-mark ok">○</span>' : '<span class="review-mark ng">×</span>';
+    row.innerHTML = `
+      <div>
+        ${mark} <span class="review-word">${a.word}</span>
+        <div class="muted" style="font-size:12px;">→ ${a.answer}</div>
+      </div>
+      <div class="review-meta">
+        ${a.isCorrect ? "" : "選択: " + (a.choices[a.picked] || "（未回答）")}
+      </div>
+    `;
+    reviewList.appendChild(row);
+  });
+
+  // 履歴保存
+  const cat = CATEGORIES.find(c => c.id === state.selectedCategory);
+  recordHistorySession({
+    timestamp: Date.now(),
+    categoryId: state.selectedCategory,
+    categoryLabel: cat ? cat.label : state.selectedCategory,
+    total,
+    correct,
+  });
+
+  showScreen("result");
+}
+
+// ============================================================
+// テーマ
+// ============================================================
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  document.getElementById("theme-icon").textContent = theme === "dark" ? "light_mode" : "dark_mode";
+  const persisted = loadPersisted() || {};
+  persisted.theme = theme;
+  savePersisted(persisted);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute("data-theme") || "light";
+  applyTheme(current === "dark" ? "light" : "dark");
+}
+
+// ============================================================
+// 初期化
+// ============================================================
+function init() {
+  // テーマ復元
+  const persisted = loadPersisted();
+  const theme = (persisted && persisted.theme) || (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  applyTheme(theme);
+
+  renderCategoryGrid();
+  renderHistorySummary();
+  showScreen("home");
+
+  document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
+  document.getElementById("home-btn").addEventListener("click", () => {
+    renderHistorySummary();
+    showScreen("home");
+  });
+  document.getElementById("start-btn").addEventListener("click", startQuiz);
+  document.getElementById("next-btn").addEventListener("click", goNext);
+  document.getElementById("quit-btn").addEventListener("click", () => {
+    if (state.answers.length === 0 || confirm("演習を中断してトップへ戻りますか？")) {
+      renderHistorySummary();
+      showScreen("home");
+    }
+  });
+  document.getElementById("retry-btn").addEventListener("click", startQuiz);
+  document.getElementById("back-home-btn").addEventListener("click", () => {
+    renderHistorySummary();
+    showScreen("home");
+  });
+
+  // キーボードショートカット
+  document.addEventListener("keydown", (e) => {
+    const quizVisible = !document.getElementById("screen-quiz").classList.contains("hidden");
+    if (!quizVisible) return;
+    if (e.key >= "1" && e.key <= "4") {
+      const idx = parseInt(e.key, 10) - 1;
+      const btns = document.querySelectorAll("#choices .choice");
+      if (idx < btns.length && !state.awaitingNext) {
+        btns[idx].click();
+      }
+    } else if (e.key === "Enter" && state.awaitingNext) {
+      goNext();
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
