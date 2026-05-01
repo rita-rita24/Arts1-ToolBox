@@ -433,23 +433,25 @@ body {
 }
 .choice-text { flex: 1; min-width: 0; line-height: 1.4; }
 .choice.correct {
-  background: rgba(170, 206, 56, 0.10);
+  background: rgba(170, 206, 56, 0.18);
   border-color: var(--az-color-action-secondary);
+  border-width: 2px;
+  padding: 7px 11px; /* compensate for 2px border */
 }
 .choice.correct .choice-num {
   background: var(--az-color-action-secondary);
   color: var(--az-color-white);
 }
 .choice.incorrect {
-  background: var(--az-color-bg-soft);
-  border-color: var(--az-color-border-strong);
-  color: var(--az-color-text-subtle);
-  text-decoration: line-through;
+  background: rgba(235, 109, 85, 0.14);
+  border-color: var(--az-color-action-primary);
+  border-width: 2px;
+  padding: 7px 11px;
+  color: var(--az-color-text-primary);
 }
 .choice.incorrect .choice-num {
-  background: var(--az-color-warm-gray-300);
-  color: var(--az-color-text-inverse);
-  text-decoration: none;
+  background: var(--az-color-action-primary);
+  color: var(--az-color-white);
 }
 
 .feedback {
@@ -463,15 +465,17 @@ body {
 }
 .feedback.show { display: block; }
 .feedback.correct {
-  background: rgba(170, 206, 56, 0.10);
+  background: rgba(170, 206, 56, 0.16);
   border-color: var(--az-color-action-secondary);
   color: var(--az-color-text-primary);
 }
+.feedback.correct strong { color: var(--az-color-action-secondary-hover); }
 .feedback.incorrect {
-  background: var(--az-color-bg-soft);
-  border-color: var(--az-color-border-strong);
+  background: rgba(235, 109, 85, 0.12);
+  border-color: var(--az-color-action-primary);
   color: var(--az-color-text-primary);
 }
+.feedback.incorrect strong { color: var(--az-color-action-primary-hover); }
 .feedback strong { font-weight: 700; margin-right: 6px; }
 
 .quiz-actions {
@@ -545,7 +549,7 @@ body {
   text-align: center;
   color: var(--az-color-action-secondary);
 }
-.review-mark.ng { color: var(--az-color-text-subtle); }
+.review-mark.ng { color: var(--az-color-action-primary); }
 .review-row > .review-body { flex: 1; min-width: 0; }
 .review-headword {
   font-family: var(--az-font-family-en);
@@ -567,6 +571,13 @@ body {
   gap: 8px;
   justify-content: space-between;
   margin-top: 12px;
+  flex-wrap: wrap;
+}
+.sub-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 8px;
   flex-wrap: wrap;
 }
 
@@ -1685,6 +1696,103 @@ function fmtDate(ts) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
+// ============================================================
+// CSV エクスポート
+// ============================================================
+function csvEscape(v) {
+  const s = String(v == null ? "" : v);
+  if (/[",\r\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+function csvFromRows(rows) {
+  // BOM 付きで Excel が UTF-8 を正しく扱えるようにする
+  return "﻿" + rows.map(row => row.map(csvEscape).join(",")).join("\r\n");
+}
+function downloadFile(filename, content, mime) {
+  const blob = new Blob([content], { type: (mime || "text/plain") + ";charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+function fmtDateTime(ts) {
+  const d = new Date(ts);
+  const pad = n => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function fmtFileStamp(ts) {
+  const d = new Date(ts);
+  const pad = n => String(n).padStart(2, "0");
+  return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}`;
+}
+function kindLabel(kind) {
+  if (kind === "abbr") return "略語";
+  if (kind === "acronym") return "頭字語";
+  return "意味";
+}
+
+// 演習1セッションをCSVで保存
+function exportSessionCSV() {
+  if (!state.answers.length) return;
+  const cat = getCategoryById(state.selectedCategory);
+  const total = state.answers.length;
+  const correct = state.correctCount;
+  const rate = Math.round(correct / total * 100);
+  const ts = Date.now();
+  const rows = [
+    ["MustDevEigo セッション結果"],
+    ["日時", fmtDateTime(ts)],
+    ["分野", cat.label],
+    ["問題数", String(total)],
+    ["正解数", String(correct)],
+    ["正答率", rate + "%"],
+    [],
+    ["問題番号", "単語", "種別", "正解", "選択した答え", "結果"],
+  ];
+  state.answers.forEach((a, i) => {
+    const q = state.questions[i];
+    rows.push([
+      i + 1,
+      a.word,
+      kindLabel(q && q.kind),
+      a.answer,
+      a.choices[a.picked] || "",
+      a.isCorrect ? "○" : "×",
+    ]);
+  });
+  const filename = `MustDevEigo_${cat.id}_${fmtFileStamp(ts)}.csv`;
+  downloadFile(filename, csvFromRows(rows), "text/csv");
+}
+
+// 全履歴をCSVで保存
+function exportHistoryCSV() {
+  if (!dataCache.history.length) return;
+  const rows = [
+    ["MustDevEigo 学習履歴"],
+    ["出力日時", fmtDateTime(Date.now())],
+    ["セッション数", String(dataCache.history.length)],
+    [],
+    ["日時", "分野", "問題数", "正解数", "正答率"],
+  ];
+  // 古い順に並べる
+  dataCache.history.slice().sort((a, b) => a.timestamp - b.timestamp).forEach(s => {
+    const rate = Math.round(s.correct / s.total * 100);
+    rows.push([
+      fmtDateTime(s.timestamp),
+      s.categoryLabel,
+      String(s.total),
+      String(s.correct),
+      rate + "%",
+    ]);
+  });
+  const filename = `MustDevEigo_history_${fmtFileStamp(Date.now())}.csv`;
+  downloadFile(filename, csvFromRows(rows), "text/csv");
+}
+
 function getCategoryById(id) {
   return CATEGORIES.find(c => c.id === id) || CATEGORIES.find(c => c.id === "basic");
 }
@@ -1813,7 +1921,10 @@ function renderHome() {
     histCard.appendChild(list);
   }
 
-  // 削除アクション
+  // データアクション（保存・削除）
+  const exportHist = el("button", { class: "btn-link", type: "button" }, "履歴をCSVで保存");
+  exportHist.disabled = !dataCache.history.length;
+  exportHist.addEventListener("click", exportHistoryCSV);
   const delHistory = el("button", { class: "btn-link", type: "button" }, "履歴を削除");
   delHistory.disabled = !dataCache.history.length;
   delHistory.addEventListener("click", async () => {
@@ -1832,7 +1943,7 @@ function renderHome() {
     applyThemeUI(sys);
     renderHome();
   });
-  histCard.appendChild(el("div", { class: "data-actions" }, [delHistory, delAll]));
+  histCard.appendChild(el("div", { class: "data-actions" }, [exportHist, delHistory, delAll]));
   root.appendChild(histCard);
 
   // 単語帳への導線
@@ -2131,7 +2242,22 @@ function renderResult() {
       return b;
     })(),
     (() => {
-      const b = el("button", { class: "btn", type: "button" }, "単語帳で確認");
+      const b = el("button", { class: "btn btn-primary", type: "button" }, "もう一度 →");
+      b.addEventListener("click", () => startQuiz());
+      return b;
+    })(),
+  ]);
+  root.appendChild(actions);
+
+  // 補助リンク
+  const subActions = el("div", { class: "sub-actions" }, [
+    (() => {
+      const b = el("button", { class: "btn-link", type: "button" }, "結果をCSVで保存");
+      b.addEventListener("click", exportSessionCSV);
+      return b;
+    })(),
+    (() => {
+      const b = el("button", { class: "btn-link", type: "button" }, "単語帳で確認");
       b.addEventListener("click", () => {
         wbState.catId = state.selectedCategory;
         wbState.search = "";
@@ -2139,13 +2265,8 @@ function renderResult() {
       });
       return b;
     })(),
-    (() => {
-      const b = el("button", { class: "btn btn-primary", type: "button" }, "もう一度 →");
-      b.addEventListener("click", () => startQuiz());
-      return b;
-    })(),
   ]);
-  root.appendChild(actions);
+  root.appendChild(subActions);
 
   showScreen("result");
 }
