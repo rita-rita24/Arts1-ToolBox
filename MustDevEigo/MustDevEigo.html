@@ -246,6 +246,31 @@ body {
   text-overflow: ellipsis;
 }
 .cta-summary .sep { color: var(--az-color-text-subtle); font-weight: 400; margin: 0 6px; }
+.cta-summary .tk-mistake { color: var(--az-color-action-primary); }
+
+/* 苦手復習 CTA: コーラルのアウトラインで注意喚起 */
+.review-cta {
+  background: rgba(235, 109, 85, 0.06);
+  border: 1px solid var(--az-color-action-primary);
+  border-radius: var(--az-radius-md);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.review-cta .cta-info { flex: 1 1 auto; min-width: 0; }
+.review-cta .cta-eyebrow { color: var(--az-color-action-primary); }
+
+/* 結果画面の補足メッセージ */
+.result-note {
+  text-align: center;
+  font-size: 12px;
+  color: var(--az-color-text-subtle);
+  margin: 6px 0 0;
+}
 
 /* ボタン */
 .btn {
@@ -1502,7 +1527,7 @@ const DB_VERSION = 1;
 const STORE_NAME = "kv";
 
 // メモリキャッシュ: IDBは非同期のためレンダー関数を同期に保つ目的で起動時に1度ロードする
-const dataCache = { theme: null, history: [], lastSelection: null };
+const dataCache = { theme: null, history: [], lastSelection: null, wordStats: {} };
 
 // ============================================================
 // ユーティリティー
@@ -1673,14 +1698,17 @@ async function loadAllFromIDB() {
     const theme = await idbGet("theme");
     const history = await idbGet("history");
     const selection = await idbGet("selection");
+    const wordStats = await idbGet("wordStats");
     dataCache.theme = theme || null;
     dataCache.history = Array.isArray(history) ? history : [];
     dataCache.lastSelection = (selection && typeof selection === "object") ? selection : null;
+    dataCache.wordStats = (wordStats && typeof wordStats === "object" && !Array.isArray(wordStats)) ? wordStats : {};
   } catch (e) {
     console.warn("IndexedDB load failed; running without persistence:", e);
     dataCache.theme = null;
     dataCache.history = [];
     dataCache.lastSelection = null;
+    dataCache.wordStats = {};
   }
 }
 
@@ -1694,10 +1722,20 @@ async function recordHistorySession(session) {
   }
 }
 
+async function persistWordStats() {
+  try {
+    await idbSet("wordStats", dataCache.wordStats);
+  } catch (e) {
+    console.warn("Failed to persist wordStats:", e);
+  }
+}
+
 async function clearHistoryData() {
   dataCache.history = [];
+  dataCache.wordStats = {};
   try {
     await idbDelete("history");
+    await idbDelete("wordStats");
   } catch (e) {
     console.warn("Failed to clear history:", e);
   }
@@ -1706,11 +1744,46 @@ async function clearHistoryData() {
 async function clearAllData() {
   dataCache.theme = null;
   dataCache.history = [];
+  dataCache.wordStats = {};
   try {
     await idbClear();
   } catch (e) {
     console.warn("Failed to clear all data:", e);
   }
+}
+
+// ============================================================
+// 苦手復習: 単語ごとの正誤統計
+// ============================================================
+function statKey(word, kind) {
+  return (kind || "meaning") + ":" + word;
+}
+function recordAnswerStat(word, kind, isCorrect) {
+  const key = statKey(word, kind);
+  const stats = dataCache.wordStats || (dataCache.wordStats = {});
+  const cur = stats[key] || { wrong: 0, right: 0, lastResult: null };
+  if (isCorrect) {
+    cur.right++;
+    cur.lastResult = "correct";
+  } else {
+    cur.wrong++;
+    cur.lastResult = "incorrect";
+  }
+  cur.lastTs = Date.now();
+  stats[key] = cur;
+  // fire-and-forget
+  persistWordStats();
+}
+// 「直近で間違えた、または過去に間違えたことがあって今は正解している語の中でも継続フォロー中」
+// シンプル版: lastResult === "incorrect" の語を「苦手」として扱う
+function getMistakeItems() {
+  const stats = dataCache.wordStats || {};
+  const all = getCategorySource("all");
+  return all.filter(item => {
+    const key = statKey(item.word, item._kind);
+    const s = stats[key];
+    return s && s.lastResult === "incorrect";
+  });
 }
 
 // ============================================================
@@ -1979,6 +2052,25 @@ function renderHome() {
   ]);
   root.appendChild(cta);
 
+  // 苦手復習 CTA（苦手語が1件以上ある場合のみ表示）
+  const mistakes = getMistakeItems();
+  if (mistakes.length > 0) {
+    const reviewBtn = el("button", { class: "btn btn-primary", type: "button" }, "苦手だけ演習する →");
+    reviewBtn.addEventListener("click", () => startMistakeQuiz());
+    const reviewCard = el("div", { class: "review-cta" }, [
+      el("div", { class: "cta-info" }, [
+        el("p", { class: "cta-eyebrow" }, "苦手復習"),
+        el("p", { class: "cta-summary" }, [
+          el("span", { class: "tk-mistake" }, mistakes.length + " 語"),
+          el("span", { class: "sep" }, "·"),
+          "直近で間違えた語",
+        ]),
+      ]),
+      reviewBtn,
+    ]);
+    root.appendChild(reviewCard);
+  }
+
   // カテゴリー選択 + 設定
   const catCard = el("div", { class: "block" }, [
     el("p", { class: "section-title" }, "出題する分野を選ぶ"),
@@ -2203,7 +2295,29 @@ function startQuiz(override) {
   state.answers = [];
   state.awaitingNext = false;
   state.selectedCategory = sel.catId;
+  state.mistakeMode = false;
   saveLastSelection({ catId: sel.catId, count: sel.count, shuffle: sel.shuffle });
+
+  showScreen("quiz");
+  renderQuestion();
+}
+
+// 苦手だけを出題する（誤答リストから抽出）
+function startMistakeQuiz() {
+  const mistakes = getMistakeItems();
+  if (mistakes.length === 0) {
+    alert("苦手として記録された単語はありません。");
+    return;
+  }
+  const allSource = getCategorySource("all");
+  const ordered = shuffleArray(mistakes);
+  state.questions = ordered.map(item => buildQuestion(item, allSource));
+  state.currentIdx = 0;
+  state.correctCount = 0;
+  state.answers = [];
+  state.awaitingNext = false;
+  state.selectedCategory = "mistake";
+  state.mistakeMode = true;
 
   showScreen("quiz");
   renderQuestion();
@@ -2278,8 +2392,10 @@ function handleChoice(idx) {
   const q = state.questions[state.currentIdx];
   const isCorrect = idx === q.correctIndex;
   if (isCorrect) state.correctCount++;
-  state.answers.push({ word: q.word, picked: idx, correct: q.correctIndex, isCorrect, answer: q.answer, choices: q.choices });
+  state.answers.push({ word: q.word, picked: idx, correct: q.correctIndex, isCorrect, answer: q.answer, choices: q.choices, kind: q.kind });
   state.awaitingNext = true;
+  // 単語別の正誤を記録（苦手復習で利用）
+  recordAnswerStat(q.word, q.kind, isCorrect);
 
   document.querySelectorAll("#quiz-content .choice").forEach((btn, i) => {
     btn.disabled = true;
@@ -2320,17 +2436,26 @@ async function finishQuiz() {
   const total = state.answers.length;
   const correct = state.correctCount;
   const rate = total > 0 ? Math.round(correct / total * 100) : 0;
-  const cat = getCategoryById(state.selectedCategory);
+  const isMistake = state.mistakeMode === true;
+  const cat = isMistake
+    ? { id: "mistake", label: "苦手復習", desc: "" }
+    : getCategoryById(state.selectedCategory);
 
   await recordHistorySession({
     timestamp: Date.now(),
-    categoryId: state.selectedCategory,
+    categoryId: cat.id,
     categoryLabel: cat.label,
     total,
     correct,
   });
 
-  lastFinishedInfo = { total, correct, rate, cat };
+  // 苦手復習モードでの「克服した語」をカウント
+  let resolved = 0;
+  if (isMistake) {
+    state.answers.forEach(a => { if (a.isCorrect) resolved++; });
+  }
+
+  lastFinishedInfo = { total, correct, rate, cat, isMistake, resolved };
   renderResult();
 }
 
@@ -2343,6 +2468,7 @@ function renderResult() {
     el("p", { class: "result-headline" }, info.cat.label + " の結果"),
     el("p", { class: "result-rate" }, info.rate + "%"),
     el("p", { class: "result-correct" }, `${info.correct} / ${info.total} 問 正解`),
+    info.isMistake ? el("p", { class: "result-note" }, info.resolved + " 語を克服 · 残った苦手は次回も出題されます") : null,
   ]);
   root.appendChild(summary);
 
@@ -2370,8 +2496,9 @@ function renderResult() {
       return b;
     })(),
     (() => {
-      const b = el("button", { class: "btn btn-primary", type: "button" }, "もう一度 →");
-      b.addEventListener("click", () => startQuiz());
+      const isMistake = info.isMistake;
+      const b = el("button", { class: "btn btn-primary", type: "button" }, isMistake ? "苦手をもう一度 →" : "もう一度 →");
+      b.addEventListener("click", () => isMistake ? startMistakeQuiz() : startQuiz());
       return b;
     })(),
   ]);
