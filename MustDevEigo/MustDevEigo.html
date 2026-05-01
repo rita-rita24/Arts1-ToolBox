@@ -2572,12 +2572,69 @@ const SPEAKER_ICON_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="
 
 const ttsAvailable = typeof window !== "undefined" && "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
 
+// 利用可能な英語音声から最も自然なものを選ぶ。
+// 音声は OS / ブラウザ依存で品質に大きく差があり、espeak のような合成は非自然なため、
+// より自然な Google / Apple / Microsoft の声を優先して選択する。
+let selectedVoice = null;
+
+function pickBestVoice() {
+  if (!ttsAvailable) return null;
+  const voices = window.speechSynthesis.getVoices() || [];
+  if (!voices.length) return null;
+
+  // 優先順（上から順に最初に見つかったものを採用）
+  const preferences = [
+    v => v.name === "Google US English",
+    v => v.name === "Google UK English Female",
+    v => v.name === "Google UK English Male",
+    v => /^Google /.test(v.name) && /^en/i.test(v.lang),
+    v => v.name === "Samantha" && /^en/i.test(v.lang),
+    v => v.name === "Alex" && /^en/i.test(v.lang),
+    v => v.name === "Daniel" && /^en/i.test(v.lang),
+    v => v.name === "Karen" && /^en/i.test(v.lang),
+    v => /Microsoft.*(Aria|Jenny|Guy|Davis|Tony|Nancy)/i.test(v.name) && /^en/i.test(v.lang),
+    v => /Microsoft.*(Zira|David|Mark|Hazel)/i.test(v.name) && /^en/i.test(v.lang),
+    v => /^en-US/i.test(v.lang) && v.localService === false,   // クラウド合成（高品質寄り）
+    v => /^en/i.test(v.lang) && v.localService === false,
+    v => /^en-US/i.test(v.lang),
+    v => /^en-GB/i.test(v.lang),
+    v => /^en/i.test(v.lang),
+  ];
+
+  for (const pred of preferences) {
+    const match = voices.find(pred);
+    if (match) return match;
+  }
+  return null;
+}
+
+function refreshSelectedVoice() {
+  selectedVoice = pickBestVoice();
+  if (selectedVoice) {
+    console.info("[MustDevEigo] TTS voice:", selectedVoice.name, "(" + selectedVoice.lang + ")");
+  }
+}
+
+// 音声リストは非同期で読み込まれることがあるため、voiceschanged で再選択する
+if (ttsAvailable) {
+  refreshSelectedVoice();
+  if ("onvoiceschanged" in window.speechSynthesis) {
+    window.speechSynthesis.addEventListener("voiceschanged", refreshSelectedVoice);
+  }
+}
+
 function speakWord(word) {
   if (!ttsAvailable || !word) return;
   try {
     window.speechSynthesis.cancel();
+    if (!selectedVoice) refreshSelectedVoice();
     const u = new SpeechSynthesisUtterance(word);
-    u.lang = "en-US";
+    if (selectedVoice) {
+      u.voice = selectedVoice;
+      u.lang = selectedVoice.lang;
+    } else {
+      u.lang = "en-US";
+    }
     u.rate = 0.95;
     u.pitch = 1.0;
     u.volume = 1.0;
