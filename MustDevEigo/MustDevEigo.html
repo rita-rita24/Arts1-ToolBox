@@ -131,7 +131,7 @@ body {
 /* ヘッダー */
 .app-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
   flex-wrap: wrap;
@@ -154,19 +154,24 @@ body {
   font-size: 11px;
   margin-left: 6px;
 }
-.app-actions { display: inline-flex; gap: 12px; align-items: baseline; }
+.app-actions { display: inline-flex; gap: 4px; align-items: center; }
 .link-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
   background: transparent;
   border: 0;
   color: var(--az-color-text-subtle);
   font-family: inherit;
   font-size: 12px;
-  padding: 2px 0;
+  padding: 0 8px;
   cursor: pointer;
   font-weight: 500;
   white-space: nowrap;
+  border-radius: 6px;
+  line-height: 1;
 }
-.link-btn:hover { color: var(--az-color-action-primary); }
+.link-btn:hover { color: var(--az-color-action-primary); background: var(--az-color-bg-soft); }
 .link-btn.active { color: var(--az-color-text-primary); font-weight: 700; }
 
 .icon-btn {
@@ -182,11 +187,35 @@ body {
   color: var(--az-color-text-subtle);
   cursor: pointer;
   transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
 }
 .icon-btn:hover { color: var(--az-color-action-primary); background: var(--az-color-bg-soft); }
 .icon-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--az-color-focus-ring); }
-.theme-icon { display: inline-flex; align-items: center; justify-content: center; }
+.theme-icon { display: inline-flex; align-items: center; justify-content: center; line-height: 0; }
 .theme-icon svg { display: block; }
+
+/* 発音ボタン（TTS） */
+.speak-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--az-radius-full);
+  color: var(--az-color-text-subtle);
+  cursor: pointer;
+  vertical-align: middle;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+.speak-btn:hover { color: var(--az-color-action-primary); background: var(--az-color-bg-soft); }
+.speak-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--az-color-focus-ring); }
+.speak-btn svg { display: block; }
+.speak-btn-lg { width: 32px; height: 32px; }
+.speak-btn-lg svg { width: 18px; height: 18px; }
+.headword-row { display: inline-flex; align-items: center; gap: 10px; }
 
 /* ブロック */
 .block {
@@ -240,6 +269,31 @@ body {
   text-overflow: ellipsis;
 }
 .cta-summary .sep { color: var(--az-color-text-subtle); font-weight: 400; margin: 0 6px; }
+.cta-summary .tk-mistake { color: var(--az-color-action-primary); }
+
+/* 苦手復習 CTA: コーラルのアウトラインで注意喚起 */
+.review-cta {
+  background: rgba(235, 109, 85, 0.06);
+  border: 1px solid var(--az-color-action-primary);
+  border-radius: var(--az-radius-md);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.review-cta .cta-info { flex: 1 1 auto; min-width: 0; }
+.review-cta .cta-eyebrow { color: var(--az-color-action-primary); }
+
+/* 結果画面の補足メッセージ */
+.result-note {
+  text-align: center;
+  font-size: 12px;
+  color: var(--az-color-text-subtle);
+  margin: 6px 0 0;
+}
 
 /* ボタン */
 .btn {
@@ -874,8 +928,8 @@ DATA.prereq = [
 // ベーシック
 DATA.basic = [
   { word: "accept", meaning: "受諾する・受け入れる" },
-  { word: "access", meaning: "利用する・入手する" },
-  { word: "account", meaning: "口座・利用権" },
+  { word: "access", meaning: "参照する・利用する" },
+  { word: "account", meaning: "利用者情報・口座" },
   { word: "allow", meaning: "可能にする・許可する" },
   { word: "alternative", meaning: "代替の" },
   { word: "apply", meaning: "適用する" },
@@ -889,7 +943,7 @@ DATA.basic = [
   { word: "based", meaning: "〜に基づく" },
   { word: "blank", meaning: "空白の" },
   { word: "branch", meaning: "分岐" },
-  { word: "cancel", meaning: "取り消す" },
+  { word: "cancel", meaning: "取り消す・中止する" },
   { word: "capacity", meaning: "容量" },
   { word: "case", meaning: "場合・大文字小文字の区別" },
   { word: "character", meaning: "文字" },
@@ -917,7 +971,7 @@ DATA.basic = [
   { word: "current", meaning: "現在の" },
   { word: "custom", meaning: "利用者設定の" },
   { word: "customize", meaning: "利用者設定にする" },
-  { word: "damage", meaning: "損害" },
+  { word: "damage", meaning: "損害・損傷" },
   { word: "default", meaning: "既定値" },
   { word: "define", meaning: "定義する" },
   { word: "delete", meaning: "削除する" },
@@ -927,7 +981,7 @@ DATA.basic = [
   { word: "development", meaning: "開発" },
   { word: "device", meaning: "機器" },
   { word: "document", meaning: "文書・記録する" },
-  { word: "documentation", meaning: "資料" },
+  { word: "documentation", meaning: "技術資料・取扱説明書" },
   { word: "edit", meaning: "編集する" },
   { word: "element", meaning: "要素" },
   { word: "empty", meaning: "空の" },
@@ -946,11 +1000,11 @@ DATA.basic = [
   { word: "expression", meaning: "表現・式" },
   { word: "fail", meaning: "失敗する" },
   { word: "feature", meaning: "機能・特徴" },
-  { word: "field", meaning: "領域・欄" },
+  { word: "field", meaning: "項目・欄" },
   { word: "filter", meaning: "絞り込む" },
   { word: "fix", meaning: "修正する・解決する" },
-  { word: "flag", meaning: "印・標識" },
-  { word: "following", meaning: "次に述べる" },
+  { word: "flag", meaning: "目印・状態を示す印" },
+  { word: "following", meaning: "次に示す・以下の" },
   { word: "force", meaning: "強制する" },
   { word: "format", meaning: "書式・初期化する" },
   { word: "function", meaning: "機能・関数" },
@@ -973,20 +1027,20 @@ DATA.basic = [
   { word: "instance", meaning: "実例・実体" },
   { word: "instruction", meaning: "指示" },
   { word: "integer", meaning: "整数" },
-  { word: "issue", meaning: "問題点" },
+  { word: "issue", meaning: "課題・問題点" },
   { word: "item", meaning: "項目" },
-  { word: "label", meaning: "札・付箋" },
-  { word: "latest", meaning: "最近の・最新の" },
+  { word: "label", meaning: "見出し・名札" },
+  { word: "latest", meaning: "最新の" },
   { word: "layer", meaning: "層" },
   { word: "layout", meaning: "配置" },
   { word: "length", meaning: "長さ" },
-  { word: "level", meaning: "水準" },
-  { word: "license", meaning: "使用許可" },
+  { word: "level", meaning: "水準・段階" },
+  { word: "license", meaning: "使用許諾" },
   { word: "limit", meaning: "制限する・制限" },
   { word: "link", meaning: "連結・連結する" },
   { word: "local", meaning: "局所の" },
   { word: "location", meaning: "位置・場所" },
-  { word: "lock", meaning: "施錠する・施錠" },
+  { word: "lock", meaning: "排他制御する・占有する" },
   { word: "log", meaning: "記録" },
   { word: "manage", meaning: "管理する" },
   { word: "manager", meaning: "管理者" },
@@ -995,9 +1049,9 @@ DATA.basic = [
   { word: "merge", meaning: "統合する" },
   { word: "method", meaning: "方法・手続き" },
   { word: "missing", meaning: "見つからない・欠落している" },
-  { word: "module", meaning: "構成単位" },
+  { word: "module", meaning: "部品・構成単位" },
   { word: "none", meaning: "一つもなし" },
-  { word: "normal", meaning: "標準の" },
+  { word: "normal", meaning: "標準の・通常の" },
   { word: "note", meaning: "注意・覚書" },
   { word: "notice", meaning: "通知・注意" },
   { word: "null", meaning: "空の・無効値" },
@@ -1006,12 +1060,12 @@ DATA.basic = [
   { word: "option", meaning: "選択肢" },
   { word: "optional", meaning: "任意の" },
   { word: "output", meaning: "出力" },
-  { word: "override", meaning: "優先する・上書きする" },
+  { word: "override", meaning: "上書きする・優先する" },
   { word: "owner", meaning: "所有者" },
   { word: "parameter", meaning: "仮引数" },
   { word: "pass", meaning: "渡す" },
-  { word: "patch", meaning: "修正プログラム" },
-  { word: "path", meaning: "経路" },
+  { word: "patch", meaning: "修正・修正プログラム" },
+  { word: "path", meaning: "経路・道筋" },
   { word: "perform", meaning: "実行する" },
   { word: "performance", meaning: "性能" },
   { word: "permission", meaning: "許可" },
@@ -1028,14 +1082,14 @@ DATA.basic = [
   { word: "public", meaning: "公開の" },
   { word: "publish", meaning: "公開する" },
   { word: "pull", meaning: "取得する・引く" },
-  { word: "push", meaning: "押す・送り込む" },
+  { word: "push", meaning: "送り出す・押す" },
   { word: "query", meaning: "問い合わせ" },
   { word: "range", meaning: "範囲" },
   { word: "real-time", meaning: "即時の" },
   { word: "receive", meaning: "受信する" },
   { word: "recommend", meaning: "推奨する" },
   { word: "record", meaning: "記録する・記録" },
-  { word: "refactor", meaning: "内部構造を再構成する" },
+  { word: "refactor", meaning: "内部構造を整理し直す" },
   { word: "refer", meaning: "参照する" },
   { word: "reference", meaning: "参照" },
   { word: "release", meaning: "公開する・解放する" },
@@ -1056,7 +1110,7 @@ DATA.basic = [
   { word: "route", meaning: "経路" },
   { word: "row", meaning: "行" },
   { word: "save", meaning: "保存する" },
-  { word: "scan", meaning: "走査する" },
+  { word: "scan", meaning: "走査する・読み取る" },
   { word: "schedule", meaning: "予定" },
   { word: "screen", meaning: "画面" },
   { word: "search", meaning: "検索する" },
@@ -1067,7 +1121,7 @@ DATA.basic = [
   { word: "share", meaning: "共有する" },
   { word: "shortcut", meaning: "近道" },
   { word: "sign", meaning: "記号・符号" },
-  { word: "skip", meaning: "とばす" },
+  { word: "skip", meaning: "省略する・とばす" },
   { word: "sort", meaning: "並び替える" },
   { word: "source", meaning: "送信元・原本" },
   { word: "specific", meaning: "特定の" },
@@ -1086,7 +1140,7 @@ DATA.basic = [
   { word: "target", meaning: "対象・〜先" },
   { word: "temporary", meaning: "一時的な" },
   { word: "throw", meaning: "投げる・例外を出す" },
-  { word: "timeout", meaning: "時間切れ" },
+  { word: "timeout", meaning: "時間超過・時間切れ" },
   { word: "touch", meaning: "触れる" },
   { word: "translate", meaning: "変換する・翻訳する" },
   { word: "type", meaning: "型・種類" },
@@ -1096,7 +1150,7 @@ DATA.basic = [
   { word: "unit", meaning: "単位" },
   { word: "unused", meaning: "未使用の" },
   { word: "update", meaning: "更新する" },
-  { word: "upgrade", meaning: "格上げする" },
+  { word: "upgrade", meaning: "格上げする・更新する" },
   { word: "value", meaning: "値" },
   { word: "variable", meaning: "変数" },
   { word: "version", meaning: "版" },
@@ -1109,7 +1163,7 @@ DATA.basic = [
 // アドバンスト
 DATA.advanced = [
   { word: "abstract", meaning: "抽象的な・抽象の" },
-  { word: "accessibility", meaning: "利用しやすさ・到達性" },
+  { word: "accessibility", meaning: "利用しやすさ" },
   { word: "accessible", meaning: "利用可能な・到達可能な" },
   { word: "activate", meaning: "有効にする" },
   { word: "active", meaning: "有効な・活動中の" },
@@ -1123,8 +1177,8 @@ DATA.advanced = [
   { word: "anonymous", meaning: "無名の・匿名の" },
   { word: "append", meaning: "末尾に追加する" },
   { word: "applicable", meaning: "該当する・適用可能な" },
-  { word: "archive", meaning: "保管・保管する" },
-  { word: "assert", meaning: "表明する" },
+  { word: "archive", meaning: "書庫・保管する" },
+  { word: "assert", meaning: "表明する・断定する" },
   { word: "asset", meaning: "資産" },
   { word: "assign", meaning: "割り当てる・代入する" },
   { word: "assignment", meaning: "割り当て・代入" },
@@ -1136,11 +1190,11 @@ DATA.advanced = [
   { word: "automatically", meaning: "自動で・自動的に" },
   { word: "availability", meaning: "可用性" },
   { word: "binary", meaning: "二進法の・二値の" },
-  { word: "bind", meaning: "束縛する・結びつける" },
+  { word: "bind", meaning: "結びつける・関連付ける" },
   { word: "boot", meaning: "起動する・起動" },
   { word: "brace", meaning: "波かっこ" },
   { word: "bracket", meaning: "角かっこ" },
-  { word: "breakpoint", meaning: "中断点" },
+  { word: "breakpoint", meaning: "中断点・停止位置" },
   { word: "browse", meaning: "閲覧する・参照する" },
   { word: "bump", meaning: "版を一つ上げる" },
   { word: "calculate", meaning: "計算する" },
@@ -1173,7 +1227,7 @@ DATA.advanced = [
   { word: "decimal", meaning: "小数の・十進法の" },
   { word: "declaration", meaning: "宣言" },
   { word: "declare", meaning: "宣言する" },
-  { word: "decode", meaning: "復号する" },
+  { word: "decode", meaning: "復号化する・復号する" },
   { word: "dedicated", meaning: "専用の" },
   { word: "delay", meaning: "遅延" },
   { word: "dependency", meaning: "依存関係" },
@@ -1189,10 +1243,10 @@ DATA.advanced = [
   { word: "display", meaning: "表示する・表示" },
   { word: "distribute", meaning: "分散する・配布する" },
   { word: "duplicate", meaning: "重複する・複製する" },
-  { word: "duration", meaning: "期間" },
+  { word: "duration", meaning: "期間・継続時間" },
   { word: "dynamic", meaning: "動的な" },
   { word: "dynamically", meaning: "動的に" },
-  { word: "emit", meaning: "発する・生成する" },
+  { word: "emit", meaning: "発する・送出する" },
   { word: "enable", meaning: "可能にする・有効にする" },
   { word: "encode", meaning: "符号化する" },
   { word: "encoding", meaning: "符号化" },
@@ -1201,8 +1255,8 @@ DATA.advanced = [
   { word: "endpoint", meaning: "端点・接続先" },
   { word: "ensure", meaning: "確実にする" },
   { word: "entity", meaning: "実体" },
-  { word: "enumeration", meaning: "列挙" },
-  { word: "escape", meaning: "特殊文字を逃がす・回避する" },
+  { word: "enumeration", meaning: "列挙・列挙型" },
+  { word: "escape", meaning: "特殊文字を変換する・回避する" },
   { word: "exclude", meaning: "除外する" },
   { word: "executable", meaning: "実行可能な・実行可能ファイル" },
   { word: "execute", meaning: "実行する" },
@@ -1213,14 +1267,14 @@ DATA.advanced = [
   { word: "external", meaning: "外部の" },
   { word: "extract", meaning: "抽出する" },
   { word: "failure", meaning: "失敗・故障" },
-  { word: "fallback", meaning: "代替手段・退避" },
-  { word: "fetch", meaning: "取得する" },
-  { word: "fire", meaning: "発火する・始動する" },
+  { word: "fallback", meaning: "代替手段・予備" },
+  { word: "fetch", meaning: "取得する・取りに行く" },
+  { word: "fire", meaning: "発火させる・引き起こす" },
   { word: "framework", meaning: "枠組み・骨組み" },
   { word: "functionality", meaning: "機能" },
   { word: "generation", meaning: "生成・世代" },
   { word: "generic", meaning: "汎用の・総称の" },
-  { word: "handle", meaning: "処理する・取っ手" },
+  { word: "handle", meaning: "処理する・操作する" },
   { word: "hierarchy", meaning: "階層" },
   { word: "identifier", meaning: "識別子" },
   { word: "implement", meaning: "実装する" },
@@ -1256,7 +1310,7 @@ DATA.advanced = [
   { word: "millisecond", meaning: "千分の一秒" },
   { word: "minimum", meaning: "最小の" },
   { word: "minor", meaning: "小さな・軽微な" },
-  { word: "mock", meaning: "模造の・代用の" },
+  { word: "mock", meaning: "模造の・代替の" },
   { word: "modification", meaning: "修正・変更" },
   { word: "modifier", meaning: "修飾子" },
   { word: "modify", meaning: "修正する・変更する" },
@@ -1280,7 +1334,7 @@ DATA.advanced = [
   { word: "parse", meaning: "解析する・構文解析する" },
   { word: "permit", meaning: "許可する" },
   { word: "persistence", meaning: "永続化" },
-  { word: "populate", meaning: "自動的に値を入れる" },
+  { word: "populate", meaning: "自動的に値を埋める" },
   { word: "preferred", meaning: "優先の" },
   { word: "prefix", meaning: "接頭辞" },
   { word: "priority", meaning: "優先順位" },
@@ -1334,12 +1388,12 @@ DATA.advanced = [
   { word: "suppress", meaning: "表示しない・抑制する" },
   { word: "synchronize", meaning: "同期する" },
   { word: "syntax", meaning: "構文" },
-  { word: "terminate", meaning: "終了する" },
-  { word: "termination", meaning: "終了" },
+  { word: "terminate", meaning: "強制終了する・終了する" },
+  { word: "termination", meaning: "強制終了・終了" },
   { word: "terms", meaning: "利用条件" },
   { word: "third party", meaning: "第三者" },
   { word: "thread", meaning: "並行処理の流れ" },
-  { word: "timestamp", meaning: "日時印" },
+  { word: "timestamp", meaning: "日時記録" },
   { word: "todo", meaning: "するべきこと" },
   { word: "toggle", meaning: "切り替える" },
   { word: "transaction", meaning: "一連の処理単位" },
@@ -1496,7 +1550,7 @@ const DB_VERSION = 1;
 const STORE_NAME = "kv";
 
 // メモリキャッシュ: IDBは非同期のためレンダー関数を同期に保つ目的で起動時に1度ロードする
-const dataCache = { theme: null, history: [], lastSelection: null };
+const dataCache = { theme: null, history: [], lastSelection: null, wordStats: {} };
 
 // ============================================================
 // ユーティリティー
@@ -1667,14 +1721,17 @@ async function loadAllFromIDB() {
     const theme = await idbGet("theme");
     const history = await idbGet("history");
     const selection = await idbGet("selection");
+    const wordStats = await idbGet("wordStats");
     dataCache.theme = theme || null;
     dataCache.history = Array.isArray(history) ? history : [];
     dataCache.lastSelection = (selection && typeof selection === "object") ? selection : null;
+    dataCache.wordStats = (wordStats && typeof wordStats === "object" && !Array.isArray(wordStats)) ? wordStats : {};
   } catch (e) {
     console.warn("IndexedDB load failed; running without persistence:", e);
     dataCache.theme = null;
     dataCache.history = [];
     dataCache.lastSelection = null;
+    dataCache.wordStats = {};
   }
 }
 
@@ -1688,10 +1745,20 @@ async function recordHistorySession(session) {
   }
 }
 
+async function persistWordStats() {
+  try {
+    await idbSet("wordStats", dataCache.wordStats);
+  } catch (e) {
+    console.warn("Failed to persist wordStats:", e);
+  }
+}
+
 async function clearHistoryData() {
   dataCache.history = [];
+  dataCache.wordStats = {};
   try {
     await idbDelete("history");
+    await idbDelete("wordStats");
   } catch (e) {
     console.warn("Failed to clear history:", e);
   }
@@ -1700,11 +1767,46 @@ async function clearHistoryData() {
 async function clearAllData() {
   dataCache.theme = null;
   dataCache.history = [];
+  dataCache.wordStats = {};
   try {
     await idbClear();
   } catch (e) {
     console.warn("Failed to clear all data:", e);
   }
+}
+
+// ============================================================
+// 苦手復習: 単語ごとの正誤統計
+// ============================================================
+function statKey(word, kind) {
+  return (kind || "meaning") + ":" + word;
+}
+function recordAnswerStat(word, kind, isCorrect) {
+  const key = statKey(word, kind);
+  const stats = dataCache.wordStats || (dataCache.wordStats = {});
+  const cur = stats[key] || { wrong: 0, right: 0, lastResult: null };
+  if (isCorrect) {
+    cur.right++;
+    cur.lastResult = "correct";
+  } else {
+    cur.wrong++;
+    cur.lastResult = "incorrect";
+  }
+  cur.lastTs = Date.now();
+  stats[key] = cur;
+  // fire-and-forget
+  persistWordStats();
+}
+// 「直近で間違えた、または過去に間違えたことがあって今は正解している語の中でも継続フォロー中」
+// シンプル版: lastResult === "incorrect" の語を「苦手」として扱う
+function getMistakeItems() {
+  const stats = dataCache.wordStats || {};
+  const all = getCategorySource("all");
+  return all.filter(item => {
+    const key = statKey(item.word, item._kind);
+    const s = stats[key];
+    return s && s.lastResult === "incorrect";
+  });
 }
 
 // ============================================================
@@ -1752,16 +1854,15 @@ function fmtDate(ts) {
 }
 
 // ============================================================
-// CSV エクスポート
+// HTML エクスポート（印刷・閲覧・共有が容易な形式）
 // ============================================================
-function csvEscape(v) {
-  const s = String(v == null ? "" : v);
-  if (/[",\r\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
-  return s;
-}
-function csvFromRows(rows) {
-  // BOM 付きで Excel が UTF-8 を正しく扱えるようにする
-  return "﻿" + rows.map(row => row.map(csvEscape).join(",")).join("\r\n");
+function htmlEscape(v) {
+  return String(v == null ? "" : v)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 function downloadFile(filename, content, mime) {
   const blob = new Blob([content], { type: (mime || "text/plain") + ";charset=utf-8" });
@@ -1790,62 +1891,130 @@ function kindLabel(kind) {
   return "意味";
 }
 
-// 演習1セッションをCSVで保存
-function exportSessionCSV() {
+// HTMLレポートで使う共通スタイル（インライン埋め込み）
+const REPORT_STYLE = `
+  body { font-family: "Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif; background:#F5F1EB; color:#252721; margin:0; padding:32px 16px; }
+  .doc { max-width:760px; margin:0 auto; background:#fff; border:1px solid #E6E8EA; border-radius:16px; padding:32px; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
+  h1 { font-size:24px; margin:0 0 4px; color:#252721; }
+  .sub { color:#7D8281; font-size:13px; margin:0 0 24px; }
+  .meta { display:grid; grid-template-columns: 100px 1fr; gap:6px 16px; font-size:14px; padding:14px 18px; background:#F9F8F0; border-radius:10px; border:1px solid #E6E8EA; margin-bottom:24px; }
+  .meta dt { color:#7D8281; margin:0; font-weight:500; }
+  .meta dd { color:#252721; margin:0; font-weight:700; font-variant-numeric:tabular-nums; }
+  .rate-big { font-family: Inter,Arial,sans-serif; font-size:40px; font-weight:700; color:#EB6D55; line-height:1; margin:0; font-variant-numeric:tabular-nums; }
+  table { border-collapse:collapse; width:100%; font-size:13px; }
+  th, td { padding:8px 10px; border-bottom:1px solid #E6E8EA; text-align:left; vertical-align:top; }
+  th { background:#FAF9F7; color:#545A59; font-weight:700; font-size:12px; }
+  td.num { font-variant-numeric:tabular-nums; color:#7D8281; }
+  td.word { font-family: Inter,Arial,monospace; font-weight:700; }
+  td.result { text-align:center; font-weight:700; font-size:14px; }
+  td.result.ok { color:#8FB82E; }
+  td.result.ng { color:#D95C47; }
+  td.picked { color:#7D8281; font-size:12px; }
+  footer { margin-top:24px; color:#7D8281; font-size:11px; text-align:center; }
+  @media print { body { background:#fff; padding:0; } .doc { box-shadow:none; border:none; max-width:100%; } }
+`;
+
+// 演習1セッションをHTMLで保存
+function exportSessionHTML() {
   if (!state.answers.length) return;
   const cat = getCategoryById(state.selectedCategory);
   const total = state.answers.length;
   const correct = state.correctCount;
   const rate = Math.round(correct / total * 100);
   const ts = Date.now();
-  const rows = [
-    ["MustDevEigo セッション結果"],
-    ["日時", fmtDateTime(ts)],
-    ["分野", cat.label],
-    ["問題数", String(total)],
-    ["正解数", String(correct)],
-    ["正答率", rate + "%"],
-    [],
-    ["問題番号", "単語", "種別", "正解", "選択した答え", "結果"],
-  ];
-  state.answers.forEach((a, i) => {
+  const tsStr = fmtDateTime(ts);
+  const rows = state.answers.map((a, i) => {
     const q = state.questions[i];
-    rows.push([
-      i + 1,
-      a.word,
-      kindLabel(q && q.kind),
-      a.answer,
-      a.choices[a.picked] || "",
-      a.isCorrect ? "○" : "×",
-    ]);
-  });
-  const filename = `MustDevEigo_${cat.id}_${fmtFileStamp(ts)}.csv`;
-  downloadFile(filename, csvFromRows(rows), "text/csv");
+    return `<tr>
+      <td class="num">${i + 1}</td>
+      <td class="word">${htmlEscape(a.word)}</td>
+      <td>${htmlEscape(kindLabel(q && q.kind))}</td>
+      <td>${htmlEscape(a.answer)}</td>
+      <td>${htmlEscape(a.choices[a.picked] || "—")}</td>
+      <td class="result ${a.isCorrect ? "ok" : "ng"}">${a.isCorrect ? "○" : "×"}</td>
+    </tr>`;
+  }).join("");
+  const html = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>MustDevEigo セッション結果 ${htmlEscape(cat.label)} ${tsStr}</title>
+<style>${REPORT_STYLE}</style>
+</head>
+<body>
+<div class="doc">
+  <h1>MustDevEigo セッション結果</h1>
+  <p class="sub">${htmlEscape(tsStr)} に出題</p>
+  <p class="rate-big">${rate}%</p>
+  <dl class="meta">
+    <dt>分野</dt><dd>${htmlEscape(cat.label)}</dd>
+    <dt>問題数</dt><dd>${total}</dd>
+    <dt>正解数</dt><dd>${correct}</dd>
+    <dt>誤答数</dt><dd>${total - correct}</dd>
+  </dl>
+  <table>
+    <thead>
+      <tr><th style="width:40px;">No.</th><th>単語</th><th style="width:60px;">種別</th><th>正解</th><th>選択した答え</th><th style="width:36px;">結果</th></tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <footer>MustDevEigo · 端末内で生成 · ${htmlEscape(tsStr)}</footer>
+</div>
+</body>
+</html>`;
+  const filename = `MustDevEigo_${cat.id}_${fmtFileStamp(ts)}.html`;
+  downloadFile(filename, html, "text/html");
 }
 
-// 全履歴をCSVで保存
-function exportHistoryCSV() {
+// 全履歴をHTMLで保存
+function exportHistoryHTML() {
   if (!dataCache.history.length) return;
-  const rows = [
-    ["MustDevEigo 学習履歴"],
-    ["出力日時", fmtDateTime(Date.now())],
-    ["セッション数", String(dataCache.history.length)],
-    [],
-    ["日時", "分野", "問題数", "正解数", "正答率"],
-  ];
-  // 古い順に並べる
-  dataCache.history.slice().sort((a, b) => a.timestamp - b.timestamp).forEach(s => {
+  const ts = Date.now();
+  const tsStr = fmtDateTime(ts);
+  const sorted = dataCache.history.slice().sort((a, b) => a.timestamp - b.timestamp);
+  const totalQuestions = sorted.reduce((s, x) => s + x.total, 0);
+  const totalCorrect   = sorted.reduce((s, x) => s + x.correct, 0);
+  const avgRate = totalQuestions ? Math.round(totalCorrect / totalQuestions * 100) : 0;
+  const rows = sorted.map(s => {
     const rate = Math.round(s.correct / s.total * 100);
-    rows.push([
-      fmtDateTime(s.timestamp),
-      s.categoryLabel,
-      String(s.total),
-      String(s.correct),
-      rate + "%",
-    ]);
-  });
-  const filename = `MustDevEigo_history_${fmtFileStamp(Date.now())}.csv`;
-  downloadFile(filename, csvFromRows(rows), "text/csv");
+    return `<tr>
+      <td>${htmlEscape(fmtDateTime(s.timestamp))}</td>
+      <td>${htmlEscape(s.categoryLabel)}</td>
+      <td class="num">${s.total}</td>
+      <td class="num">${s.correct}</td>
+      <td class="num">${rate}%</td>
+    </tr>`;
+  }).join("");
+  const html = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>MustDevEigo 学習履歴 ${tsStr}</title>
+<style>${REPORT_STYLE}</style>
+</head>
+<body>
+<div class="doc">
+  <h1>MustDevEigo 学習履歴</h1>
+  <p class="sub">${htmlEscape(tsStr)} 時点</p>
+  <p class="rate-big">${avgRate}%</p>
+  <dl class="meta">
+    <dt>セッション数</dt><dd>${sorted.length}</dd>
+    <dt>累計問題数</dt><dd>${totalQuestions}</dd>
+    <dt>累計正解数</dt><dd>${totalCorrect}</dd>
+    <dt>平均正答率</dt><dd>${avgRate}%</dd>
+  </dl>
+  <table>
+    <thead>
+      <tr><th>日時</th><th>分野</th><th style="width:80px;">問題数</th><th style="width:80px;">正解数</th><th style="width:80px;">正答率</th></tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <footer>MustDevEigo · 端末内で生成 · ${htmlEscape(tsStr)}</footer>
+</div>
+</body>
+</html>`;
+  const filename = `MustDevEigo_history_${fmtFileStamp(ts)}.html`;
+  downloadFile(filename, html, "text/html");
 }
 
 function getCategoryById(id) {
@@ -1905,6 +2074,25 @@ function renderHome() {
     startBtn,
   ]);
   root.appendChild(cta);
+
+  // 苦手復習 CTA（苦手語が1件以上ある場合のみ表示）
+  const mistakes = getMistakeItems();
+  if (mistakes.length > 0) {
+    const reviewBtn = el("button", { class: "btn btn-primary", type: "button" }, "苦手だけ演習する →");
+    reviewBtn.addEventListener("click", () => startMistakeQuiz());
+    const reviewCard = el("div", { class: "review-cta" }, [
+      el("div", { class: "cta-info" }, [
+        el("p", { class: "cta-eyebrow" }, "苦手復習"),
+        el("p", { class: "cta-summary" }, [
+          el("span", { class: "tk-mistake" }, mistakes.length + " 語"),
+          el("span", { class: "sep" }, "·"),
+          "直近で間違えた語",
+        ]),
+      ]),
+      reviewBtn,
+    ]);
+    root.appendChild(reviewCard);
+  }
 
   // カテゴリー選択 + 設定
   const catCard = el("div", { class: "block" }, [
@@ -1977,9 +2165,9 @@ function renderHome() {
   }
 
   // データアクション（保存・削除）
-  const exportHist = el("button", { class: "btn-link", type: "button" }, "履歴をCSVで保存");
+  const exportHist = el("button", { class: "btn-link", type: "button" }, "履歴をHTMLで保存");
   exportHist.disabled = !dataCache.history.length;
-  exportHist.addEventListener("click", exportHistoryCSV);
+  exportHist.addEventListener("click", exportHistoryHTML);
   const delHistory = el("button", { class: "btn-link", type: "button" }, "履歴を削除");
   delHistory.disabled = !dataCache.history.length;
   delHistory.addEventListener("click", async () => {
@@ -2104,7 +2292,12 @@ function renderWordbookList() {
 
   filtered.forEach(r => {
     listEl.appendChild(el("div", { class: "wb-row" }, [
-      el("div", { class: "wb-word" }, r.word),
+      el("div", { class: "wb-word" }, [
+        el("span", { class: "headword-row" }, [
+          el("span", null, r.word),
+          makeSpeakButton(r.word),
+        ]),
+      ]),
       el("div", { class: "wb-meaning" }, r.display),
     ]));
   });
@@ -2130,7 +2323,29 @@ function startQuiz(override) {
   state.answers = [];
   state.awaitingNext = false;
   state.selectedCategory = sel.catId;
+  state.mistakeMode = false;
   saveLastSelection({ catId: sel.catId, count: sel.count, shuffle: sel.shuffle });
+
+  showScreen("quiz");
+  renderQuestion();
+}
+
+// 苦手だけを出題する（誤答リストから抽出）
+function startMistakeQuiz() {
+  const mistakes = getMistakeItems();
+  if (mistakes.length === 0) {
+    alert("苦手として記録された単語はありません。");
+    return;
+  }
+  const allSource = getCategorySource("all");
+  const ordered = shuffleArray(mistakes);
+  state.questions = ordered.map(item => buildQuestion(item, allSource));
+  state.currentIdx = 0;
+  state.correctCount = 0;
+  state.answers = [];
+  state.awaitingNext = false;
+  state.selectedCategory = "mistake";
+  state.mistakeMode = true;
 
   showScreen("quiz");
   renderQuestion();
@@ -2154,7 +2369,12 @@ function renderQuestion() {
       el("span", null, `第 ${state.currentIdx + 1} 問 / 全 ${state.questions.length} 問`),
       el("span", { class: "score" }, `正解 ${state.correctCount} / ${state.answers.length}`),
     ]),
-    el("div", { class: "headword" }, q.word),
+    el("div", { class: "headword" }, [
+      el("span", { class: "headword-row" }, [
+        el("span", null, q.word),
+        makeSpeakButton(q.word, { size: "lg" }),
+      ]),
+    ]),
     el("p", { class: "headword-prompt" }, q.prompt),
     (() => {
       const choices = el("div", { class: "choices" });
@@ -2205,8 +2425,10 @@ function handleChoice(idx) {
   const q = state.questions[state.currentIdx];
   const isCorrect = idx === q.correctIndex;
   if (isCorrect) state.correctCount++;
-  state.answers.push({ word: q.word, picked: idx, correct: q.correctIndex, isCorrect, answer: q.answer, choices: q.choices });
+  state.answers.push({ word: q.word, picked: idx, correct: q.correctIndex, isCorrect, answer: q.answer, choices: q.choices, kind: q.kind });
   state.awaitingNext = true;
+  // 単語別の正誤を記録（苦手復習で利用）
+  recordAnswerStat(q.word, q.kind, isCorrect);
 
   document.querySelectorAll("#quiz-content .choice").forEach((btn, i) => {
     btn.disabled = true;
@@ -2247,17 +2469,26 @@ async function finishQuiz() {
   const total = state.answers.length;
   const correct = state.correctCount;
   const rate = total > 0 ? Math.round(correct / total * 100) : 0;
-  const cat = getCategoryById(state.selectedCategory);
+  const isMistake = state.mistakeMode === true;
+  const cat = isMistake
+    ? { id: "mistake", label: "苦手復習", desc: "" }
+    : getCategoryById(state.selectedCategory);
 
   await recordHistorySession({
     timestamp: Date.now(),
-    categoryId: state.selectedCategory,
+    categoryId: cat.id,
     categoryLabel: cat.label,
     total,
     correct,
   });
 
-  lastFinishedInfo = { total, correct, rate, cat };
+  // 苦手復習モードでの「克服した語」をカウント
+  let resolved = 0;
+  if (isMistake) {
+    state.answers.forEach(a => { if (a.isCorrect) resolved++; });
+  }
+
+  lastFinishedInfo = { total, correct, rate, cat, isMistake, resolved };
   renderResult();
 }
 
@@ -2270,6 +2501,7 @@ function renderResult() {
     el("p", { class: "result-headline" }, info.cat.label + " の結果"),
     el("p", { class: "result-rate" }, info.rate + "%"),
     el("p", { class: "result-correct" }, `${info.correct} / ${info.total} 問 正解`),
+    info.isMistake ? el("p", { class: "result-note" }, info.resolved + " 語を克服 · 残った苦手は次回も出題されます") : null,
   ]);
   root.appendChild(summary);
 
@@ -2297,8 +2529,9 @@ function renderResult() {
       return b;
     })(),
     (() => {
-      const b = el("button", { class: "btn btn-primary", type: "button" }, "もう一度 →");
-      b.addEventListener("click", () => startQuiz());
+      const isMistake = info.isMistake;
+      const b = el("button", { class: "btn btn-primary", type: "button" }, isMistake ? "苦手をもう一度 →" : "もう一度 →");
+      b.addEventListener("click", () => isMistake ? startMistakeQuiz() : startQuiz());
       return b;
     })(),
   ]);
@@ -2307,8 +2540,8 @@ function renderResult() {
   // 補助リンク
   const subActions = el("div", { class: "sub-actions" }, [
     (() => {
-      const b = el("button", { class: "btn-link", type: "button" }, "結果をCSVで保存");
-      b.addEventListener("click", exportSessionCSV);
+      const b = el("button", { class: "btn-link", type: "button" }, "結果をHTMLで保存");
+      b.addEventListener("click", exportSessionHTML);
       return b;
     })(),
     (() => {
@@ -2333,6 +2566,44 @@ function renderResult() {
 // - 現在 light → 月アイコン（クリックで dark に切り替え）
 // - 現在 dark  → 太陽アイコン（クリックで light に切り替え）
 const SUN_ICON_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M4.93 19.07l1.41-1.41"/><path d="M17.66 6.34l1.41-1.41"/></svg>';
+
+// 音声読み上げ（Web Speech API）
+const SPEAKER_ICON_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>';
+
+const ttsAvailable = typeof window !== "undefined" && "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
+
+function speakWord(word) {
+  if (!ttsAvailable || !word) return;
+  try {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(word);
+    u.lang = "en-US";
+    u.rate = 0.95;
+    u.pitch = 1.0;
+    u.volume = 1.0;
+    window.speechSynthesis.speak(u);
+  } catch (e) {
+    console.warn("speak failed:", e);
+  }
+}
+
+// 発音ボタンを生成（TTS未対応環境では null を返す）
+function makeSpeakButton(word, opts) {
+  if (!ttsAvailable) return null;
+  opts = opts || {};
+  const btn = el("button", {
+    class: "speak-btn" + (opts.size === "lg" ? " speak-btn-lg" : ""),
+    type: "button",
+    title: "発音を聞く",
+    "aria-label": word + " の発音を聞く",
+  });
+  btn.innerHTML = SPEAKER_ICON_SVG;
+  btn.addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    speakWord(word);
+  });
+  return btn;
+}
 const MOON_ICON_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
 
 function applyThemeUI(theme) {
