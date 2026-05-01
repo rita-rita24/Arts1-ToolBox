@@ -194,6 +194,29 @@ body {
 .theme-icon { display: inline-flex; align-items: center; justify-content: center; line-height: 0; }
 .theme-icon svg { display: block; }
 
+/* 発音ボタン（TTS） */
+.speak-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--az-radius-full);
+  color: var(--az-color-text-subtle);
+  cursor: pointer;
+  vertical-align: middle;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+.speak-btn:hover { color: var(--az-color-action-primary); background: var(--az-color-bg-soft); }
+.speak-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--az-color-focus-ring); }
+.speak-btn svg { display: block; }
+.speak-btn-lg { width: 32px; height: 32px; }
+.speak-btn-lg svg { width: 18px; height: 18px; }
+.headword-row { display: inline-flex; align-items: center; gap: 10px; }
+
 /* ブロック */
 .block {
   background: var(--az-color-bg-surface);
@@ -2269,7 +2292,12 @@ function renderWordbookList() {
 
   filtered.forEach(r => {
     listEl.appendChild(el("div", { class: "wb-row" }, [
-      el("div", { class: "wb-word" }, r.word),
+      el("div", { class: "wb-word" }, [
+        el("span", { class: "headword-row" }, [
+          el("span", null, r.word),
+          makeSpeakButton(r.word),
+        ]),
+      ]),
       el("div", { class: "wb-meaning" }, r.display),
     ]));
   });
@@ -2341,7 +2369,12 @@ function renderQuestion() {
       el("span", null, `第 ${state.currentIdx + 1} 問 / 全 ${state.questions.length} 問`),
       el("span", { class: "score" }, `正解 ${state.correctCount} / ${state.answers.length}`),
     ]),
-    el("div", { class: "headword" }, q.word),
+    el("div", { class: "headword" }, [
+      el("span", { class: "headword-row" }, [
+        el("span", null, q.word),
+        makeSpeakButton(q.word, { size: "lg" }),
+      ]),
+    ]),
     el("p", { class: "headword-prompt" }, q.prompt),
     (() => {
       const choices = el("div", { class: "choices" });
@@ -2533,6 +2566,44 @@ function renderResult() {
 // - 現在 light → 月アイコン（クリックで dark に切り替え）
 // - 現在 dark  → 太陽アイコン（クリックで light に切り替え）
 const SUN_ICON_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M4.93 19.07l1.41-1.41"/><path d="M17.66 6.34l1.41-1.41"/></svg>';
+
+// 音声読み上げ（Web Speech API）
+const SPEAKER_ICON_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>';
+
+const ttsAvailable = typeof window !== "undefined" && "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
+
+function speakWord(word) {
+  if (!ttsAvailable || !word) return;
+  try {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(word);
+    u.lang = "en-US";
+    u.rate = 0.95;
+    u.pitch = 1.0;
+    u.volume = 1.0;
+    window.speechSynthesis.speak(u);
+  } catch (e) {
+    console.warn("speak failed:", e);
+  }
+}
+
+// 発音ボタンを生成（TTS未対応環境では null を返す）
+function makeSpeakButton(word, opts) {
+  if (!ttsAvailable) return null;
+  opts = opts || {};
+  const btn = el("button", {
+    class: "speak-btn" + (opts.size === "lg" ? " speak-btn-lg" : ""),
+    type: "button",
+    title: "発音を聞く",
+    "aria-label": word + " の発音を聞く",
+  });
+  btn.innerHTML = SPEAKER_ICON_SVG;
+  btn.addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    speakWord(word);
+  });
+  return btn;
+}
 const MOON_ICON_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
 
 function applyThemeUI(theme) {
