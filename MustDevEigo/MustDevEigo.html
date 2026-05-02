@@ -902,6 +902,41 @@ body {
 .feedback.incorrect strong { color: #D95C47; }
 .feedback strong { font-weight: 700; margin-right: 6px; }
 
+/* ============================================================
+ * Explain pane (v2 解説ペイン)
+ * 解答後に「使用シーン / コード例 / 混同しやすい類語」を表示。
+ * 既存テーマトークンのみ使用、新色は追加しない。
+ * ============================================================ */
+.explain-pane {
+  margin-top: var(--space-3);
+  padding: var(--space-4) var(--space-4);
+  background: var(--bg-muted);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+}
+.explain-section-title {
+  font-family: var(--font-display);
+  margin: 0 0 var(--space-2);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.explain-section-title svg {
+  width: 14px;
+  height: 14px;
+  color: var(--color-sunshine-700);
+}
+.explain-usecase {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
 .quiz-actions {
   display: flex;
   justify-content: space-between;
@@ -1987,7 +2022,32 @@ function buildQuestion(item, fullPool) {
     correctIndex,
     answer,
     kind,
+    _source: item, // v2: 解説ペイン (Explain) で元データを参照する
   };
+}
+
+// ============================================================
+// 解説ペイン Explain（v2）
+// 解答後に「使用シーン / コード例 / 混同しやすい類語」を表示する。
+// 全フィールドが任意のため、データを持たない問題ではペイン自体を出さない。
+// ============================================================
+const LIGHTBULB_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14a5 5 0 1 0-6.18 0"/><path d="M9 18v-3"/><path d="M15 18v-3"/></svg>';
+
+function renderExplanation(item) {
+  if (!item) return null;
+  const hasUseCase = typeof item.useCase === "string" && item.useCase.trim();
+  if (!hasUseCase) return null;
+
+  const pane = el("div", { class: "explain-pane" });
+
+  // 使用シーン
+  pane.appendChild(el("p", {
+    class: "explain-section-title",
+    html: LIGHTBULB_ICON_SVG + "<span>使用シーン</span>",
+  }));
+  pane.appendChild(el("p", { class: "explain-usecase" }, item.useCase));
+
+  return pane;
 }
 
 // ============================================================
@@ -2854,6 +2914,14 @@ function handleChoice(idx) {
     fb.appendChild(el("strong", null, isCorrect ? "正解" : "不正解"));
     fb.appendChild(document.createTextNode("  "));
     fb.appendChild(document.createTextNode(q.word + " ＝ " + q.answer));
+  }
+
+  // v2: 解説ペインの差し込み（解説データを持たない語ではスキップされる）
+  if (fb && fb.parentNode) {
+    const old = fb.parentNode.querySelector(".explain-pane");
+    if (old) old.remove();
+    const explain = renderExplanation(q._source);
+    if (explain) fb.parentNode.insertBefore(explain, fb.nextSibling);
   }
 
   const meta = document.querySelector("#quiz-content .quiz-meta .score");
