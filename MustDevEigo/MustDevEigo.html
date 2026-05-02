@@ -7,72 +7,251 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%23EB6D55%22%2F%3E%3Cpath%20d%3D%22M7%2023.5V8.5h3.4l4.6%208.6%204.6-8.6h3.4v15h-2.9V13.4l-3.6%206.7h-2.9l-3.6-6.7v10.1z%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fsvg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
+/* ============================================================
+ * Design System v1.5.0 – Tokens
+ * 3層: L1 Primitive → L2 Semantic → L3 Component
+ * 暖色寄り・丸み優先・余白優先・静かさ優先
+ * ============================================================ */
 :root {
-  /* === Primitive Colors === */
-  --az-color-white: #FFFFFF;
-  --az-color-black: #0D0D0D;
-  --az-color-off-white: #F5F1EB;
-  --az-color-cream: #F9F8F0;
-  --az-color-warm-gray-50: #FAF9F7;
-  --az-color-warm-gray-100: #F0EEEA;
-  --az-color-warm-gray-200: #E6E8EA;
-  --az-color-warm-gray-300: #D0C2B9;
-  --az-color-warm-gray-400: #B7B3B3;
-  --az-color-gray-500: #7D8281;
-  --az-color-charcoal-700: #545A59;
-  --az-color-charcoal-900: #252721;
-  --az-color-coral-500: #EB6D55;
-  --az-color-coral-600: #D95C47;
-  --az-color-lime-500: #AACE38;
-  --az-color-lime-600: #8FB82E;
-  --az-color-amber-500: #F5B300;
-  --az-color-amber-600: #D99A00;
-  --az-color-navy-900: #1E2836;
-  --az-color-blue-gray-200: #B5CAE3;
+  /* === L1: Primitive Colors === */
+  /* Teal（主軸・見出し・主操作） Base #2D8FB5 */
+  --color-teal-50:  #EAF5FA;
+  --color-teal-100: #D2EAF3;
+  --color-teal-200: #A5D5E7;
+  --color-teal-300: #78BFDB;
+  --color-teal-400: #4BA9CF;
+  --color-teal-500: #2D8FB5;
+  --color-teal-600: #247495;
+  --color-teal-700: #1B5A75;
+  --color-teal-800: #134155;
+  --color-teal-900: #0B2A38;
 
-  /* === Semantic Colors === */
-  --az-color-bg-page: var(--az-color-off-white);
-  --az-color-bg-surface: var(--az-color-white);
-  --az-color-bg-soft: var(--az-color-warm-gray-50);
-  --az-color-bg-azraku: var(--az-color-cream);
-  --az-color-border-default: var(--az-color-warm-gray-200);
-  --az-color-border-strong: var(--az-color-warm-gray-300);
-  --az-color-text-primary: var(--az-color-charcoal-900);
-  --az-color-text-body: var(--az-color-charcoal-700);
-  --az-color-text-subtle: var(--az-color-gray-500);
-  --az-color-text-inverse: var(--az-color-white);
-  --az-color-action-primary: var(--az-color-coral-500);
-  --az-color-action-primary-hover: var(--az-color-coral-600);
-  --az-color-action-secondary: var(--az-color-lime-500);
-  --az-color-action-secondary-hover: var(--az-color-lime-600);
-  --az-color-attention: var(--az-color-amber-500);
-  --az-color-focus-ring: rgba(235, 109, 85, 0.32);
+  /* Peach（CTA・アクセント） Base #F87B57 */
+  --color-peach-50:  #FEF1ED;
+  --color-peach-100: #FDDFD3;
+  --color-peach-200: #FBBFA8;
+  --color-peach-300: #FA9F7C;
+  --color-peach-400: #F98F69;
+  --color-peach-500: #F87B57;
+  --color-peach-600: #E16645;
+  --color-peach-700: #BA5238;
+  --color-peach-800: #8C3E2A;
+  --color-peach-900: #5E2A1C;
 
-  /* === Typography === */
-  --az-font-family-sans: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
-  --az-font-family-en: Inter, Arial, sans-serif;
+  /* Sunshine（装飾・ハイライト） Base #FFCB47 */
+  --color-sunshine-50:  #FFF7E0;
+  --color-sunshine-100: #FFEDB8;
+  --color-sunshine-300: #FFDA7C;
+  --color-sunshine-500: #FFCB47;
+  --color-sunshine-700: #C99A2C;
+
+  /* Warm Gray（背景・テキスト・罫線） */
+  --color-warm-0:   #FFFFFF;
+  --color-warm-50:  #FBF9F7;
+  --color-warm-100: #F4F1ED;
+  --color-warm-200: #E8E3DC;
+  --color-warm-300: #D5CEC4;
+  --color-warm-400: #B6ADA1;
+  --color-warm-500: #8E847A;
+  --color-warm-600: #6B6560;
+  --color-warm-700: #4D4944;
+  --color-warm-800: #2E2C29;
+  --color-warm-900: #1F1C1A; /* 純黒の代わり */
+
+  /* Status */
+  --color-success-50:  #E6F4EA;
+  --color-success-500: #5DBB7E;
+  --color-success-700: #3E8C5C;
+  --color-success-900: #1F4F33;
+  --color-warning-50:  #FDF1DC;
+  --color-warning-500: #F0A933;
+  --color-warning-700: #B17A1F;
+  --color-warning-900: #5F3F0F;
+  --color-error-50:  #FBE6E6;
+  --color-error-500: #E36363;
+  --color-error-700: #B14040;
+  --color-error-900: #5F1F1F;
+
+  /* === L2: Semantic === */
+  --bg-canvas:        var(--color-warm-0);
+  --bg-muted:         var(--color-warm-50);
+  --bg-emphasized:    var(--color-warm-100);
+  --bg-inverse:       var(--color-warm-900);
+
+  --text-primary:     var(--color-warm-800);
+  --text-secondary:   var(--color-warm-600);
+  --text-tertiary:    var(--color-warm-400);
+  --text-disabled:    var(--color-warm-300);
+  --text-inverse:     var(--color-warm-0);
+  --text-brand:       var(--color-teal-700);
+
+  --border-default:   var(--color-warm-200);
+  --border-emphasized: var(--color-warm-300);
+
+  --action-primary:        var(--color-teal-500);
+  --action-primary-hover:  var(--color-teal-600);
+  --action-cta:            var(--color-peach-500);
+  --action-cta-hover:      var(--color-peach-600);
+  --accent-decor:          var(--color-sunshine-500);
+
+  --focus-ring:       0 0 0 3px rgba(45, 143, 181, 0.32);
+
+  /* === L3: Component === */
+  --btn-cta-bg:           var(--action-cta);
+  --btn-cta-bg-hover:     var(--action-cta-hover);
+  --btn-cta-text:         var(--text-inverse);
+
+  --btn-primary-bg:       var(--action-primary);
+  --btn-primary-bg-hover: var(--action-primary-hover);
+  --btn-primary-text:     var(--text-inverse);
+
+  --btn-outline-bg:       transparent;
+  --btn-outline-text:     var(--action-primary);
+  --btn-outline-border:   var(--action-primary);
+
+  --card-bg:              var(--bg-canvas);
+  --card-border:          var(--border-default);
+
+  --modal-bg:             var(--bg-canvas);
+
+  --input-bg:             var(--bg-canvas);
+  --input-border:         var(--border-default);
+  --input-border-focus:   var(--action-primary);
 
   /* === Radius === */
-  --az-radius-sm: 8px;
-  --az-radius-md: 12px;
-  --az-radius-lg: 16px;
-  --az-radius-xl: 20px;
-  --az-radius-full: 9999px;
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:  12px;  /* form input */
+  --radius-lg:  20px;  /* small card */
+  --radius-xl:  28px;  /* standard card ★ */
+  --radius-2xl: 40px;
+  --radius-pill: 9999px; /* button mandatory ★ */
+
+  /* === Shadow === */
+  --shadow-xs:  0 1px 2px rgba(31, 28, 26, 0.04);
+  --shadow-sm:  0 2px 6px rgba(31, 28, 26, 0.06);
+  --shadow-md:  0 6px 16px rgba(31, 28, 26, 0.08);
+  --shadow-lg:  0 12px 28px rgba(31, 28, 26, 0.10);
+  --shadow-xl:  0 20px 40px rgba(31, 28, 26, 0.14);
+  --shadow-2xl: 0 28px 56px rgba(31, 28, 26, 0.18);
+  --shadow-glow: 0 8px 24px rgba(248, 123, 87, 0.30);
+  --shadow-inset: inset 0 2px 4px rgba(31, 28, 26, 0.06);
+
+  /* === Motion === */
+  --dur-fast:  180ms;
+  --dur-base:  280ms;
+  --dur-slow:  480ms;
+  --dur-slower: 640ms;
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* === Spacing (4px grid) === */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* === Typography === */
+  --font-display: "Zen Maru Gothic", "Noto Sans JP", "Hiragino Maru Gothic ProN", system-ui, sans-serif;
+  --font-body:    "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+  --font-en:      "DM Sans", Arial, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* === 旧 --az-color-* との互換エイリアス（既存規則を壊さないため） === */
+  --az-color-white:           var(--color-warm-0);
+  --az-color-black:           var(--color-warm-900);
+  --az-color-off-white:       var(--bg-canvas);
+  --az-color-cream:           var(--color-sunshine-50);
+  --az-color-warm-gray-50:    var(--color-warm-50);
+  --az-color-warm-gray-100:   var(--color-warm-100);
+  --az-color-warm-gray-200:   var(--color-warm-200);
+  --az-color-warm-gray-300:   var(--color-warm-300);
+  --az-color-warm-gray-400:   var(--color-warm-400);
+  --az-color-gray-500:        var(--color-warm-500);
+  --az-color-charcoal-700:    var(--color-warm-700);
+  --az-color-charcoal-900:    var(--color-warm-800);
+  --az-color-coral-500:       #EB6D55; /* 不正解専用なのでリテラル */
+  --az-color-coral-600:       #D95C47;
+  --az-color-lime-500:        #AACE38; /* 正解専用なのでリテラル */
+  --az-color-lime-600:        #8FB82E;
+  --az-color-bg-page:         var(--bg-canvas);
+  --az-color-bg-surface:      var(--card-bg);
+  --az-color-bg-soft:         var(--bg-muted);
+  --az-color-bg-azraku:       var(--color-sunshine-50);
+  --az-color-border-default:  var(--border-default);
+  --az-color-border-strong:   var(--border-emphasized);
+  --az-color-text-primary:    var(--text-primary);
+  --az-color-text-body:       var(--text-secondary);
+  --az-color-text-subtle:     var(--text-tertiary);
+  --az-color-text-inverse:    var(--text-inverse);
+  /* 「アクション=peach(CTA)」の見た目になるよう旧トークンを peach に振り分け（互換目的） */
+  --az-color-action-primary:       var(--action-cta);
+  --az-color-action-primary-hover: var(--action-cta-hover);
+  --az-color-action-secondary:     var(--action-primary); /* 旧secondaryをteal主操作へ */
+  --az-color-action-secondary-hover: var(--action-primary-hover);
+  --az-color-focus-ring:           rgba(45, 143, 181, 0.32);
+  --az-font-family-sans: var(--font-body);
+  --az-font-family-en:   var(--font-en);
+  --az-radius-sm: var(--radius-sm);
+  --az-radius-md: var(--radius-md);
+  --az-radius-lg: var(--radius-lg);
+  --az-radius-xl: var(--radius-xl);
+  --az-radius-full: var(--radius-pill);
 }
 
+/* === Dark theme === */
 :root[data-theme="dark"] {
-  --az-color-bg-page: #1A1814;
-  --az-color-bg-surface: #252721;
-  --az-color-bg-soft: #2D2D26;
-  --az-color-bg-azraku: #2A2620;
-  --az-color-border-default: #3D3D33;
-  --az-color-border-strong: #5A5345;
-  --az-color-text-primary: #F5F1EB;
-  --az-color-text-body: #D0C2B9;
-  --az-color-text-subtle: #9D9080;
-  --az-color-text-inverse: #FFFFFF; /* coral/limeなど色付き面に置く文字。両モードで白を維持 */
+  --bg-canvas:      #1F1C1A;
+  --bg-muted:       #2A2624;
+  --bg-emphasized:  #34302D;
+  --bg-inverse:     var(--color-warm-50);
+
+  --text-primary:   #F1ECE5;
+  --text-secondary: #C9C0B5;
+  --text-tertiary:  #8E847A;
+  --text-disabled:  #5A524C;
+  --text-inverse:   #1F1C1A;
+  --text-brand:    var(--color-teal-300);
+
+  --border-default:    #3A3431;
+  --border-emphasized: #524A45;
+
+  --action-primary:        var(--color-teal-400);
+  --action-primary-hover:  var(--color-teal-300);
+  --action-cta:            var(--color-peach-400);
+  --action-cta-hover:      var(--color-peach-300);
+
+  --focus-ring: 0 0 0 3px rgba(120, 191, 219, 0.40);
+
+  --shadow-xs:  0 1px 2px rgba(0, 0, 0, 0.30);
+  --shadow-sm:  0 2px 6px rgba(0, 0, 0, 0.35);
+  --shadow-md:  0 6px 16px rgba(0, 0, 0, 0.40);
+  --shadow-lg:  0 12px 28px rgba(0, 0, 0, 0.45);
+  --shadow-xl:  0 20px 40px rgba(0, 0, 0, 0.50);
+  --shadow-glow: 0 8px 24px rgba(248, 123, 87, 0.40);
+
+  /* テキスト inverse は CTA(peach)上で白を維持したいので明示固定 */
+  --btn-cta-text:     #FFFFFF;
+  --btn-primary-text: #FFFFFF;
+}
+
+/* Reduced motion 対応 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* === ダークモード用のコンポーネント補正 ===
