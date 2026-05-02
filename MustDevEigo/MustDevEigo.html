@@ -267,21 +267,30 @@
   background: rgba(255, 255, 255, 0.06);
 }
 :root[data-theme="dark"] .feedback {
-  background: var(--az-color-bg-soft);
-  border-color: var(--az-color-border-default);
+  background: var(--bg-muted);
+  border-color: var(--border-default);
 }
+/* 正解/不正解の弁別性は意図的にリテラル固定（暗モード） */
 :root[data-theme="dark"] .feedback.correct {
   background: rgba(170, 206, 56, 0.18);
+  border-color: #AACE38;
 }
+:root[data-theme="dark"] .feedback.correct strong { color: #C8E060; }
 :root[data-theme="dark"] .feedback.incorrect {
   background: rgba(235, 109, 85, 0.18);
+  border-color: #EB6D55;
 }
+:root[data-theme="dark"] .feedback.incorrect strong { color: #F58A75; }
 :root[data-theme="dark"] .choice.correct {
   background: rgba(170, 206, 56, 0.16);
+  border-color: #AACE38;
 }
 :root[data-theme="dark"] .choice.incorrect {
   background: rgba(235, 109, 85, 0.16);
+  border-color: #EB6D55;
 }
+:root[data-theme="dark"] .review-mark { color: #C8E060; }
+:root[data-theme="dark"] .review-mark.ng { color: #F58A75; }
 :root[data-theme="dark"] .wb-toolbar input[type="search"]::placeholder {
   color: #6E665A;
 }
@@ -461,7 +470,7 @@ body {
   justify-content: flex-end;
   gap: 8px;
 }
-.modal-actions .btn { min-height: 40px; padding: 0 18px; }
+.modal-actions .btn { min-height: 44px; padding: 0 22px; }
 .modal-actions .btn[hidden] { display: none; }
 
 /* 発音ボタン（TTS） */
@@ -813,26 +822,27 @@ body {
   flex-shrink: 0;
 }
 .choice-text { flex: 1; min-width: 0; line-height: 1.4; }
+/* === 正解/不正解の弁別性は意図的にリテラル固定（デザインシステムから独立） === */
 .choice.correct {
   background: rgba(170, 206, 56, 0.18);
-  border-color: var(--az-color-action-secondary);
+  border-color: #AACE38;
   border-width: 2px;
-  padding: 7px 11px; /* compensate for 2px border */
+  padding: 7px 11px;
 }
 .choice.correct .choice-num {
-  background: var(--az-color-action-secondary);
-  color: var(--az-color-white);
+  background: #AACE38;
+  color: #FFFFFF;
 }
 .choice.incorrect {
   background: rgba(235, 109, 85, 0.14);
-  border-color: var(--az-color-action-primary);
+  border-color: #EB6D55;
   border-width: 2px;
   padding: 7px 11px;
-  color: var(--az-color-text-primary);
+  color: var(--text-primary);
 }
 .choice.incorrect .choice-num {
-  background: var(--az-color-action-primary);
-  color: var(--az-color-white);
+  background: #EB6D55;
+  color: #FFFFFF;
 }
 
 .feedback {
@@ -847,16 +857,16 @@ body {
 .feedback.show { display: block; }
 .feedback.correct {
   background: rgba(170, 206, 56, 0.16);
-  border-color: var(--az-color-action-secondary);
-  color: var(--az-color-text-primary);
+  border-color: #AACE38;
+  color: var(--text-primary);
 }
-.feedback.correct strong { color: var(--az-color-action-secondary-hover); }
+.feedback.correct strong { color: #8FB82E; }
 .feedback.incorrect {
   background: rgba(235, 109, 85, 0.12);
-  border-color: var(--az-color-action-primary);
-  color: var(--az-color-text-primary);
+  border-color: #EB6D55;
+  color: var(--text-primary);
 }
-.feedback.incorrect strong { color: var(--az-color-action-primary-hover); }
+.feedback.incorrect strong { color: #D95C47; }
 .feedback strong { font-weight: 700; margin-right: 6px; }
 
 .quiz-actions {
@@ -929,9 +939,9 @@ body {
   flex-shrink: 0;
   font-weight: 700;
   text-align: center;
-  color: var(--az-color-action-secondary);
+  color: #8FB82E; /* 正解の弁別色: リテラル固定 */
 }
-.review-mark.ng { color: var(--az-color-action-primary); }
+.review-mark.ng { color: #EB6D55; } /* 不正解の弁別色: リテラル固定 */
 .review-row > .review-body { flex: 1; min-width: 0; }
 .review-headword {
   font-family: var(--az-font-family-en);
