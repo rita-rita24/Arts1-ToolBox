@@ -487,6 +487,75 @@ body {
 }
 .modal-actions .btn { min-height: 44px; padding: 0 22px; }
 .modal-actions .btn[hidden] { display: none; }
+/* 解説モーダル: 幅広版 */
+.modal-wide { max-width: 640px; }
+#explain-modal-body { max-height: 60vh; overflow-y: auto; margin-bottom: var(--space-4); }
+#explain-modal-meaning { font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-3); }
+
+/* explain-pane の compact 版 (Wordbook 内に収める時) */
+.explain-pane.compact { padding: var(--space-3); margin-top: var(--space-2); }
+
+/* Wordbook の details/summary 展開 */
+.wb-row {
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+.wb-row[open] { border-color: var(--border-emphasized); }
+.wb-row > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 10px 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: var(--space-3);
+  align-items: center;
+}
+.wb-row > summary::-webkit-details-marker { display: none; }
+.wb-row > summary:focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-md); }
+.wb-row > summary:hover { background: var(--bg-muted); }
+.wb-explain-mark {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-teal-700);
+  background: var(--color-teal-50);
+  border: 1px solid var(--color-teal-200);
+  border-radius: var(--radius-pill);
+  padding: 2px 8px;
+  letter-spacing: 0.04em;
+}
+:root[data-theme="dark"] .wb-explain-mark {
+  color: var(--color-teal-200);
+  background: rgba(120, 191, 219, 0.18);
+  border-color: var(--color-teal-400);
+}
+.wb-row-detail {
+  padding: 0 14px 14px;
+  border-top: 1px solid var(--border-default);
+}
+.wb-row-detail-empty {
+  padding: 12px 14px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+/* 結果画面 解説リンク */
+.review-explain-btn {
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  color: var(--text-secondary);
+  padding: 2px 10px;
+  margin-left: 8px;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+.review-explain-btn:hover { background: var(--bg-emphasized); color: var(--text-primary); }
+.review-explain-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 
 /* 発音ボタン（TTS） */
 .speak-btn {
@@ -1325,6 +1394,17 @@ body {
     <p id="notice-modal-body" class="modal-desc"></p>
     <div class="modal-actions">
       <button class="btn btn-primary" id="notice-modal-ok" type="button">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop hidden" id="explain-modal" role="dialog" aria-modal="true" aria-labelledby="explain-modal-title">
+  <div class="modal modal-wide" role="document">
+    <h2 id="explain-modal-title" class="modal-title">解説</h2>
+    <p id="explain-modal-meaning" class="modal-desc"></p>
+    <div id="explain-modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="explain-modal-close" type="button">閉じる</button>
     </div>
   </div>
 </div>
@@ -2417,14 +2497,24 @@ function renderConfusables(list) {
   return wrap;
 }
 
-function renderExplanation(item) {
+function hasExplanation(item) {
+  if (!item) return false;
+  return !!(
+    (typeof item.useCase === "string" && item.useCase.trim()) ||
+    (item.codeExample && typeof item.codeExample.code === "string" && item.codeExample.code.trim()) ||
+    (Array.isArray(item.confusables) && item.confusables.length > 0)
+  );
+}
+
+function renderExplanation(item, opts) {
   if (!item) return null;
+  const compact = !!(opts && opts.compact);
   const hasUseCase = typeof item.useCase === "string" && item.useCase.trim();
   const codeNode = renderCodeExample(item.codeExample);
   const confNode = renderConfusables(item.confusables);
   if (!hasUseCase && !codeNode && !confNode) return null;
 
-  const pane = el("div", { class: "explain-pane" });
+  const pane = el("div", { class: "explain-pane" + (compact ? " compact" : "") });
 
   if (hasUseCase) {
     pane.appendChild(el("p", {
@@ -2451,6 +2541,38 @@ function renderExplanation(item) {
   }
 
   return pane;
+}
+
+// 任意の語の解説をモーダルで開く（結果画面の「解説」リンクなどから使用）
+function openExplainModal(item) {
+  if (!item) return;
+  const modal = document.getElementById("explain-modal");
+  const titleEl = document.getElementById("explain-modal-title");
+  const meaningEl = document.getElementById("explain-modal-meaning");
+  const bodyEl = document.getElementById("explain-modal-body");
+  if (!modal || !bodyEl) return;
+  titleEl.textContent = item.word || "";
+  let meaning = "";
+  if (typeof item.meaning === "string" && item.meaning) meaning = "＝ " + item.meaning;
+  else if (typeof item.full === "string" && item.full) meaning = "＝ " + item.full;
+  meaningEl.textContent = meaning;
+  bodyEl.innerHTML = "";
+  const pane = renderExplanation(item, { compact: true });
+  if (pane) {
+    bodyEl.appendChild(pane);
+  } else {
+    bodyEl.appendChild(el("p", { class: "wb-row-detail-empty" }, "この語の解説は順次追加予定です。"));
+  }
+  modal.classList.remove("hidden");
+  setTimeout(() => {
+    const btn = document.getElementById("explain-modal-close");
+    if (btn) btn.focus();
+  }, 30);
+}
+
+function closeExplainModal() {
+  const modal = document.getElementById("explain-modal");
+  if (modal) modal.classList.add("hidden");
 }
 
 // ============================================================
@@ -3132,13 +3254,13 @@ function renderWordbookList() {
   listEl.innerHTML = "";
 
   const source = getCategorySource(wbState.catId);
-  // 表示用の (word, displayMeaning) を作る
+  // 表示用の (word, displayMeaning) を作る。元 item は解説ペイン用に保持。
   const rows = source.map(item => {
     let display;
     if (item._kind === "abbr") display = item.full + "（の略）";
     else if (item._kind === "acronym") display = item.full;
     else display = item.meaning;
-    return { word: item.word, display };
+    return { word: item.word, display, item };
   });
 
   // 検索フィルタ
@@ -3150,12 +3272,19 @@ function renderWordbookList() {
   // 単語アルファベット順にソート
   filtered.sort((a, b) => a.word.localeCompare(b.word));
 
+  const explainAll = source.filter(item => hasExplanation(item)).length;
+
   sumEl.innerHTML = "";
   sumEl.appendChild(document.createTextNode("表示中: "));
   sumEl.appendChild(el("strong", null, String(filtered.length)));
   sumEl.appendChild(document.createTextNode(" / 全 "));
   sumEl.appendChild(el("strong", null, String(rows.length)));
   sumEl.appendChild(document.createTextNode(" 語"));
+  if (explainAll > 0) {
+    sumEl.appendChild(document.createTextNode("　・　解説あり "));
+    sumEl.appendChild(el("strong", null, String(explainAll)));
+    sumEl.appendChild(document.createTextNode(" 語"));
+  }
 
   if (filtered.length === 0) {
     listEl.appendChild(el("div", { class: "wb-empty" }, "該当する単語が見つかりません。"));
@@ -3163,15 +3292,33 @@ function renderWordbookList() {
   }
 
   filtered.forEach(r => {
-    listEl.appendChild(el("div", { class: "wb-row" }, [
-      el("div", { class: "wb-word" }, [
-        el("span", { class: "headword-row" }, [
-          el("span", null, r.word),
-          makeSpeakButton(r.word),
-        ]),
+    const row = document.createElement("details");
+    row.className = "wb-row";
+    const summary = document.createElement("summary");
+    summary.appendChild(el("div", { class: "wb-word" }, [
+      el("span", { class: "headword-row" }, [
+        el("span", null, r.word),
+        makeSpeakButton(r.word),
       ]),
-      el("div", { class: "wb-meaning" }, r.display),
     ]));
+    summary.appendChild(el("div", { class: "wb-meaning" }, r.display));
+    if (hasExplanation(r.item)) {
+      summary.appendChild(el("span", { class: "wb-explain-mark" }, "解説"));
+    } else {
+      summary.appendChild(el("span", null, ""));
+    }
+    row.appendChild(summary);
+
+    const detail = el("div", { class: "wb-row-detail" });
+    // 開いた時に遅延描画
+    row.addEventListener("toggle", () => {
+      if (!row.open || detail.hasChildNodes()) return;
+      const pane = renderExplanation(r.item, { compact: true });
+      if (pane) detail.appendChild(pane);
+      else detail.appendChild(el("p", { class: "wb-row-detail-empty" }, "この語の解説は順次追加予定です。"));
+    });
+    row.appendChild(detail);
+    listEl.appendChild(row);
   });
 }
 
@@ -3392,12 +3539,22 @@ function renderResult() {
   ]);
   const list = el("div", { class: "review-list" });
   state.answers.forEach(a => {
+    const found = findWordItem(a.word);
+    const sourceItem = found ? found.item : null;
+    const explainBtn = sourceItem && hasExplanation(sourceItem)
+      ? (() => {
+          const b = el("button", { class: "review-explain-btn", type: "button" }, "解説");
+          b.addEventListener("click", () => openExplainModal(sourceItem));
+          return b;
+        })()
+      : null;
     list.appendChild(el("div", { class: "review-row" }, [
       el("span", { class: "review-mark " + (a.isCorrect ? "ok" : "ng") }, a.isCorrect ? "○" : "×"),
       el("span", { class: "review-body" }, [
         el("span", { class: "review-headword" }, a.word),
         el("span", { class: "review-meaning" }, "＝ " + a.answer),
         a.isCorrect ? null : el("span", { class: "review-picked" }, a.choices[a.picked] || "—"),
+        explainBtn,
       ]),
     ]));
   });
@@ -3694,6 +3851,19 @@ async function init() {
     if (noticeOpen && (e.key === "Escape" || e.key === "Enter")) {
       e.preventDefault();
       closeNotice();
+    }
+  });
+
+  // 解説モーダル: 閉じる / Esc / 背景クリックで閉じる
+  document.getElementById("explain-modal-close").addEventListener("click", closeExplainModal);
+  document.getElementById("explain-modal").addEventListener("click", (e) => {
+    if (e.target.id === "explain-modal") closeExplainModal();
+  });
+  document.addEventListener("keydown", (e) => {
+    const open = !document.getElementById("explain-modal").classList.contains("hidden");
+    if (open && e.key === "Escape") {
+      e.preventDefault();
+      closeExplainModal();
     }
   });
 
