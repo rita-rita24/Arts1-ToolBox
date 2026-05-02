@@ -1411,6 +1411,14 @@ body {
 
 <script>
 // ============================================================
+// MustDevEigo v2.0
+// 全コードを単一 IIFE で囲い、グローバルへの漏出を抑える。
+// DevTools 確認用に最後に root.MustDevEigo として名前空間を公開する。
+// ============================================================
+(function (root) {
+"use strict";
+
+// ============================================================
 // データセット
 // ----------------------------------------------------------
 // 設計方針:
@@ -3896,7 +3904,88 @@ async function init() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", init);
+// ============================================================
+// データ検証 (v2)
+// 起動時に整合性チェックして DevTools コンソールへ警告を出す。
+// 主な検査:
+//  - confusables[].word が DATA に存在するか（双方向リンク切れ防止）
+//  - useCase が 80 字以内か
+//  - codeExample.code が 30 行以内か
+//  - confusables の件数が 3 以下か
+// ============================================================
+function validateDataset() {
+  const issues = [];
+  const allWords = new Set();
+  const cats = ["prereq", "basic", "advanced", "abbr", "acronym"];
+  cats.forEach(cat => {
+    if (Array.isArray(DATA[cat])) DATA[cat].forEach(item => allWords.add(item.word));
+  });
+
+  function check(item) {
+    if (typeof item.useCase === "string" && item.useCase.length > 80) {
+      issues.push(item.word + ": useCase が 80 字超 (" + item.useCase.length + ")");
+    }
+    if (item.codeExample && typeof item.codeExample.code === "string") {
+      const lines = item.codeExample.code.split("\n").length;
+      if (lines > 30) {
+        issues.push(item.word + ": codeExample.code が 30 行超 (" + lines + ")");
+      }
+    }
+    if (Array.isArray(item.confusables)) {
+      if (item.confusables.length > 3) {
+        issues.push(item.word + ": confusables が 3 件超 (" + item.confusables.length + ")");
+      }
+      item.confusables.forEach(c => {
+        if (!c || typeof c.word !== "string") return;
+        if (!allWords.has(c.word)) {
+          issues.push(item.word + " → " + c.word + ": confusable 参照先が DATA に存在しない");
+        }
+        if (typeof c.diff === "string" && c.diff.length > 40) {
+          issues.push(item.word + " → " + c.word + ": diff が 40 字超 (" + c.diff.length + ")");
+        }
+      });
+    }
+  }
+
+  cats.forEach(cat => {
+    if (Array.isArray(DATA[cat])) DATA[cat].forEach(check);
+  });
+
+  return issues;
+}
+
+function logValidationResults() {
+  try {
+    const issues = validateDataset();
+    if (issues.length > 0) {
+      console.warn("[MustDevEigo] dataset validation found " + issues.length + " issue(s):");
+      issues.forEach(msg => console.warn("  ・ " + msg));
+    } else {
+      console.info("[MustDevEigo] dataset validation: OK");
+    }
+  } catch (e) {
+    console.warn("[MustDevEigo] validateDataset failed:", e);
+  }
+}
+
+// DevTools 確認用に名前空間を公開
+root.MustDevEigo = {
+  version: "2.0.0",
+  Data: { DATA, CATEGORIES, getCategorySource, findWordItem, hasExplanation, validateDataset },
+  Quiz: { state, startQuiz, startMistakeQuiz, buildQuestion },
+  Storage: { dataCache, openDB, idbGet, idbSet, idbDelete, idbClear, loadAllFromIDB },
+  UI: { showScreen, renderHome, renderWordbook, renderQuestion },
+  Explain: { renderExplanation, renderCodeExample, renderConfusables, openExplainModal, highlightCode, showToast },
+  App: { init },
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  init();
+  // 検証はメインスレッドを邪魔しないよう次フレームで
+  setTimeout(logValidationResults, 0);
+});
+
+})(window);
 </script>
 </body>
 </html>
