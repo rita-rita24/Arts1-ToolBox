@@ -291,6 +291,21 @@
 }
 :root[data-theme="dark"] .review-mark { color: #C8E060; }
 :root[data-theme="dark"] .review-mark.ng { color: #F58A75; }
+
+/* CTA は明色の peach/sunshine 階調を使うため、暗背景では地色を半透明オーバーレイに置き換える */
+:root[data-theme="dark"] .cta {
+  background: linear-gradient(135deg, rgba(248, 123, 87, 0.22), rgba(255, 203, 71, 0.10));
+  border-color: rgba(248, 123, 87, 0.45);
+}
+:root[data-theme="dark"] .cta .cta-eyebrow { color: #FFC4A6; }
+:root[data-theme="dark"] .cta .cta-summary { color: #F8EFE6; }
+:root[data-theme="dark"] .cta .cta-summary .sep { color: #C9C0B5; }
+:root[data-theme="dark"] .review-cta {
+  background: rgba(235, 109, 85, 0.14);
+  border-color: rgba(235, 109, 85, 0.55);
+}
+:root[data-theme="dark"] .review-cta .cta-eyebrow { color: #F58A75; }
+
 :root[data-theme="dark"] .wb-toolbar input[type="search"]::placeholder {
   color: #6E665A;
 }
@@ -686,17 +701,35 @@ body {
   font-size: 13px;
 }
 .options-row label { color: var(--az-color-text-body); display: inline-flex; align-items: center; gap: 6px; }
-.options-row select {
-  background: var(--input-bg);
+/* セレクトボックス共通: ネイティブの矢印を消して自前のシェブロンを置く */
+.options-row select,
+.wb-toolbar select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: var(--input-bg);
   color: var(--text-primary);
   border: 1px solid var(--input-border);
   border-radius: var(--radius-md);
-  padding: 6px 12px;
+  padding: 6px 36px 6px 14px; /* 右側に矢印用の余白 */
   font-family: inherit;
   font-size: 13px;
   cursor: pointer;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%236B6560' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><polyline points='2,2 6,6 10,2'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px 8px;
 }
-.options-row select:focus { outline: none; border-color: var(--az-color-action-primary); box-shadow: 0 0 0 3px var(--az-color-focus-ring); }
+:root[data-theme="dark"] .options-row select,
+:root[data-theme="dark"] .wb-toolbar select {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%23C9C0B5' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><polyline points='2,2 6,6 10,2'/></svg>");
+}
+.options-row select:focus,
+.wb-toolbar select:focus {
+  outline: none;
+  border-color: var(--input-border-focus);
+  box-shadow: var(--focus-ring);
+}
 .options-row input[type="checkbox"] { accent-color: var(--az-color-action-primary); width: 14px; height: 14px; }
 
 /* 履歴 */
@@ -982,16 +1015,7 @@ body {
   align-items: center;
   font-size: 13px;
 }
-.wb-toolbar select {
-  background: var(--input-bg);
-  color: var(--text-primary);
-  border: 1px solid var(--input-border);
-  border-radius: var(--radius-md);
-  padding: 6px 12px;
-  font-family: inherit;
-  font-size: 13px;
-  cursor: pointer;
-}
+/* .wb-toolbar select の見た目は共通の select ルール（appearance:none + chevron）に任せる */
 .wb-toolbar input[type="search"] {
   background: var(--input-bg);
   color: var(--text-primary);
@@ -1004,12 +1028,11 @@ body {
   flex: 1;
   min-width: 180px;
 }
-.wb-toolbar input[type="search"]::placeholder { color: var(--az-color-warm-gray-400); }
-.wb-toolbar input[type="search"]:focus,
-.wb-toolbar select:focus {
+.wb-toolbar input[type="search"]::placeholder { color: var(--text-tertiary); }
+.wb-toolbar input[type="search"]:focus {
   outline: none;
-  border-color: var(--az-color-action-primary);
-  box-shadow: 0 0 0 3px var(--az-color-focus-ring);
+  border-color: var(--input-border-focus);
+  box-shadow: var(--focus-ring);
 }
 
 .wb-summary {
@@ -1105,6 +1128,16 @@ body {
     <div class="modal-actions">
       <button class="btn" id="user-modal-cancel" type="button">キャンセル</button>
       <button class="btn btn-primary" id="user-modal-save" type="button">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop hidden" id="notice-modal" role="alertdialog" aria-modal="true" aria-labelledby="notice-modal-title">
+  <div class="modal" role="document">
+    <h2 id="notice-modal-title" class="modal-title">お知らせ</h2>
+    <p id="notice-modal-body" class="modal-desc"></p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="notice-modal-ok" type="button">OK</button>
     </div>
   </div>
 </div>
@@ -2650,7 +2683,7 @@ function startQuiz(override) {
   const sel = override || getLastSelection();
   const source = getCategorySource(sel.catId);
   if (source.length === 0) {
-    alert("出題できる語がありません。");
+    showNotice("この分野には出題できる語がありません。別の分野を選んでください。", "出題できません");
     return;
   }
   const ordered = sel.shuffle ? shuffleArray(source) : source.slice();
@@ -2674,7 +2707,7 @@ function startQuiz(override) {
 function startMistakeQuiz() {
   const mistakes = getMistakeItems();
   if (mistakes.length === 0) {
-    alert("苦手として記録された単語はありません。");
+    showNotice("苦手として記録された単語はまだありません。演習で間違えた語が苦手リストに追加されます。", "苦手はまだありません");
     return;
   }
   const allSource = getCategorySource("all");
@@ -2750,6 +2783,8 @@ function renderQuestion() {
       "〜",
       el("span", { class: "kbd" }, "4"),
       "で選択 / ",
+      el("span", { class: "kbd" }, "5"),
+      "で発音 / ",
       el("span", { class: "kbd" }, "Enter"),
       "で次へ",
     ]),
@@ -3072,6 +3107,25 @@ function closeUserModal() {
   if (modal) modal.classList.add("hidden");
 }
 
+// 共通通知モーダル（alert() の代替）
+function showNotice(body, title) {
+  const modal = document.getElementById("notice-modal");
+  const t = document.getElementById("notice-modal-title");
+  const b = document.getElementById("notice-modal-body");
+  if (!modal || !b) { console.warn("notice modal missing"); return; }
+  t.textContent = title || "お知らせ";
+  b.textContent = body || "";
+  modal.classList.remove("hidden");
+  setTimeout(() => {
+    const ok = document.getElementById("notice-modal-ok");
+    if (ok) ok.focus();
+  }, 30);
+}
+function closeNotice() {
+  const modal = document.getElementById("notice-modal");
+  if (modal) modal.classList.add("hidden");
+}
+
 async function init() {
   // デフォルトはライト固定。OS設定は採用せず、利用者が切替を保存した場合のみその設定を適用する。
   applyThemeUI("light");
@@ -3123,6 +3177,19 @@ async function init() {
     }
   });
 
+  // 通知モーダル: OK / Esc / 背景クリックで閉じる
+  document.getElementById("notice-modal-ok").addEventListener("click", closeNotice);
+  document.getElementById("notice-modal").addEventListener("click", (e) => {
+    if (e.target.id === "notice-modal") closeNotice();
+  });
+  document.addEventListener("keydown", (e) => {
+    const noticeOpen = !document.getElementById("notice-modal").classList.contains("hidden");
+    if (noticeOpen && (e.key === "Escape" || e.key === "Enter")) {
+      e.preventDefault();
+      closeNotice();
+    }
+  });
+
   document.addEventListener("keydown", (e) => {
     const quizVisible = !document.getElementById("screen-quiz").classList.contains("hidden");
     if (!quizVisible) return;
@@ -3131,6 +3198,10 @@ async function init() {
       if (state.awaitingNext) return;
       const btns = document.querySelectorAll("#quiz-content .choice");
       if (btns[idx]) btns[idx].click();
+    } else if (e.key === "5") {
+      // 出題中の単語を発音
+      const q = state.questions[state.currentIdx];
+      if (q && q.word) speakWord(q.word);
     } else if (e.key === "Enter" && state.awaitingNext) {
       e.preventDefault();
       goNext();
