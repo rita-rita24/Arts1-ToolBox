@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded">
 <style>
 /* ============================================================
  * Design System v1.5.0 – Tokens
@@ -239,9 +240,9 @@
   --shadow-xl:  0 20px 40px rgba(0, 0, 0, 0.50);
   --shadow-glow: 0 8px 24px rgba(248, 123, 87, 0.40);
 
-  /* テキスト inverse は CTA(peach)上で白を維持したいので明示固定 */
-  --btn-cta-text:     #FFFFFF;
-  --btn-primary-text: #FFFFFF;
+  /* テキスト inverse は CTA(peach)/primary(teal) 上で純白を維持。warm-0 トークン経由で参照する */
+  --btn-cta-text:     var(--color-warm-0);
+  --btn-primary-text: var(--color-warm-0);
 }
 
 /* Reduced motion 対応 */
@@ -297,17 +298,17 @@
   background: linear-gradient(135deg, rgba(248, 123, 87, 0.22), rgba(255, 203, 71, 0.10));
   border-color: rgba(248, 123, 87, 0.45);
 }
-:root[data-theme="dark"] .cta .cta-eyebrow { color: #FFC4A6; }
-:root[data-theme="dark"] .cta .cta-summary { color: #F8EFE6; }
-:root[data-theme="dark"] .cta .cta-summary .sep { color: #C9C0B5; }
+:root[data-theme="dark"] .cta .cta-eyebrow { color: var(--color-peach-200); }
+:root[data-theme="dark"] .cta .cta-summary { color: var(--text-primary); }
+:root[data-theme="dark"] .cta .cta-summary .sep { color: var(--text-secondary); }
 :root[data-theme="dark"] .review-cta {
   background: rgba(235, 109, 85, 0.14);
   border-color: rgba(235, 109, 85, 0.55);
 }
-:root[data-theme="dark"] .review-cta .cta-eyebrow { color: #F58A75; }
+:root[data-theme="dark"] .review-cta .cta-eyebrow { color: var(--color-peach-300); }
 
 :root[data-theme="dark"] .wb-toolbar input[type="search"]::placeholder {
-  color: #6E665A;
+  color: var(--text-tertiary);
 }
 :root[data-theme="dark"] .kbd {
   background: var(--az-color-bg-soft);
@@ -421,10 +422,10 @@ body {
   max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
 .user-btn:hover { background: var(--az-color-bg-soft); border-color: var(--az-color-border-strong); color: var(--az-color-text-primary); }
-.user-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--az-color-focus-ring); }
+.user-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 
 /* モーダル */
 .modal-backdrop {
@@ -571,7 +572,7 @@ body {
   color: var(--az-color-text-subtle);
   cursor: pointer;
   vertical-align: middle;
-  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
 .speak-btn:hover { color: var(--az-color-action-primary); background: var(--az-color-bg-soft); }
 .speak-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--az-color-focus-ring); }
@@ -855,7 +856,7 @@ body {
   height: 100%;
   background: var(--az-color-action-primary);
   border-radius: var(--az-radius-full);
-  transition: width 0.3s;
+  transition: width var(--dur-base) var(--ease-out);
 }
 .quiz-meta {
   display: flex;
@@ -900,7 +901,7 @@ body {
   font-size: 14px;
   color: var(--az-color-text-primary);
   text-align: left;
-  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
   width: 100%;
 }
 .choice:hover:not(:disabled) {
@@ -1089,7 +1090,7 @@ body {
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-4);
   cursor: pointer;
-  transition: border-color 150ms ease, background 150ms ease;
+  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
 }
 .confusable-card:hover {
   border-color: var(--border-emphasized);
@@ -1154,7 +1155,7 @@ body {
   text-align: center;
   opacity: 0;
   transform: translateY(8px);
-  transition: opacity 200ms ease, transform 200ms ease;
+  transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
 }
 .toast.show { opacity: 1; transform: translateY(0); }
 
