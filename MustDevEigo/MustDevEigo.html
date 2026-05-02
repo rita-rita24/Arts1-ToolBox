@@ -654,6 +654,11 @@ body {
 .review-cta .cta-info { flex: 1 1 auto; min-width: 0; }
 .review-cta .cta-eyebrow { color: var(--az-color-action-primary); }
 
+/* ホーム画面の CTA カード内主操作ボタンは横幅を揃える
+   （苦手だけ演習する → を基準サイズとし、演習を始める → と一致させる） */
+.cta > .btn,
+.review-cta > .btn { min-width: 12em; flex-shrink: 0; }
+
 /* 結果画面の補足メッセージ */
 .result-note {
   text-align: center;
