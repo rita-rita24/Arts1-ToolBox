@@ -17,17 +17,19 @@
  * ============================================================ */
 :root {
   /* === L1: Primitive Colors === */
-  /* Teal（主軸・見出し・主操作） Base #2D8FB5 */
-  --color-teal-50:  #EAF5FA;
-  --color-teal-100: #D2EAF3;
-  --color-teal-200: #A5D5E7;
-  --color-teal-300: #78BFDB;
-  --color-teal-400: #4BA9CF;
-  --color-teal-500: #2D8FB5;
-  --color-teal-600: #247495;
-  --color-teal-700: #1B5A75;
-  --color-teal-800: #134155;
-  --color-teal-900: #0B2A38;
+  /* Blue（主軸・見出し・主操作） Base #1E5FBF
+     ※ デザインシステム v2 でカラーが Teal → Blue に変更。
+        変数名は互換性のため `--color-teal-*` のまま、値のみ Blue に差し替え。 */
+  --color-teal-50:  #EBF1FA;
+  --color-teal-100: #D0DDF2;
+  --color-teal-200: #A1BBE5;
+  --color-teal-300: #7299D8;
+  --color-teal-400: #4878CB;
+  --color-teal-500: #1E5FBF;
+  --color-teal-600: #194F9F;
+  --color-teal-700: #143F80;
+  --color-teal-800: #0F2F60;
+  --color-teal-900: #0A1F40;
 
   /* Peach（CTA・アクセント） Base #F87B57 */
   --color-peach-50:  #FEF1ED;
@@ -97,7 +99,7 @@
   --action-cta-hover:      var(--color-peach-600);
   --accent-decor:          var(--color-sunshine-500);
 
-  --focus-ring:       0 0 0 3px rgba(45, 143, 181, 0.32);
+  --focus-ring:       0 0 0 3px rgba(30, 95, 191, 0.32);  /* blue-500 */
 
   /* === L3: Component === */
   --btn-cta-bg:           var(--action-cta);
@@ -121,14 +123,14 @@
   --input-border:         var(--border-default);
   --input-border-focus:   var(--action-primary);
 
-  /* === Radius === */
-  --radius-xs:   4px;
-  --radius-sm:   6px;
-  --radius-md:  12px;  /* form input */
-  --radius-lg:  20px;  /* small card */
-  --radius-xl:  28px;  /* standard card ★ */
-  --radius-2xl: 40px;
-  --radius-pill: 9999px; /* button mandatory ★ */
+  /* === Radius === （デザインシステム v2: シャープなコーポレート角丸） */
+  --radius-xs:   0px;  /* シャープな境界線 */
+  --radius-sm:   2px;  /* Primary 系ボタン */
+  --radius-md:   4px;  /* 入力 / CTA ボタン / Tag ★ */
+  --radius-lg:   6px;  /* 小カード */
+  --radius-xl:   8px;  /* 標準カード / モーダル ★ */
+  --radius-2xl: 12px;  /* ヒーロー・大ブロック */
+  --radius-pill: 9999px; /* Avatar / Switch / Slider トラック等の円形要素のみ */
 
   /* === Shadow === */
   --shadow-xs:  0 1px 2px rgba(31, 28, 26, 0.04);
@@ -231,7 +233,7 @@
   --action-cta:            var(--color-peach-400);
   --action-cta-hover:      var(--color-peach-300);
 
-  --focus-ring: 0 0 0 3px rgba(120, 191, 219, 0.40);
+  --focus-ring: 0 0 0 3px rgba(114, 153, 216, 0.40);  /* blue-300 */
 
   --shadow-xs:  0 1px 2px rgba(0, 0, 0, 0.30);
   --shadow-sm:  0 2px 6px rgba(0, 0, 0, 0.35);
@@ -376,7 +378,7 @@ body {
   cursor: pointer;
   font-weight: 500;
   white-space: nowrap;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
   line-height: 1;
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
@@ -392,7 +394,7 @@ body {
   padding: 0;
   background: transparent;
   border: 0;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
   color: var(--text-secondary);
   cursor: pointer;
   transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
@@ -412,7 +414,7 @@ body {
   padding: 0 10px;
   background: transparent;
   border: 1px solid var(--az-color-border-default);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
   color: var(--az-color-text-body);
   font-family: inherit;
   font-size: 12px;
@@ -523,7 +525,7 @@ body {
   color: var(--color-teal-700);
   background: var(--color-teal-50);
   border: 1px solid var(--color-teal-200);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
   padding: 2px 8px;
   letter-spacing: 0.04em;
 }
@@ -547,7 +549,7 @@ body {
 .review-explain-btn {
   background: transparent;
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
   font-size: 11px;
   color: var(--text-secondary);
   padding: 2px 10px;
@@ -568,7 +570,7 @@ body {
   padding: 0;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: var(--az-radius-full);
+  border-radius: var(--radius-md);
   color: var(--az-color-text-subtle);
   cursor: pointer;
   vertical-align: middle;
@@ -668,7 +670,7 @@ body {
   min-height: 44px;
   padding: 0 22px;
   border: 1px solid var(--btn-outline-border);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
   background: var(--btn-outline-bg);
   color: var(--btn-outline-text);
   font-family: var(--font-body);
@@ -705,7 +707,7 @@ body {
   padding: 6px 10px;
   cursor: pointer;
   font-family: inherit;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
   min-height: auto;
 }
 .btn-link:hover { color: var(--action-primary-hover); background: var(--color-teal-50); }
@@ -1026,7 +1028,7 @@ body {
   padding: 2px 10px;
   background: var(--bg-emphasized);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
 }
 .code-copy-btn {
   font-family: var(--font-body);
@@ -1034,7 +1036,7 @@ body {
   color: var(--text-secondary);
   background: transparent;
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
   padding: 3px 12px;
   cursor: pointer;
   min-height: 28px;
@@ -1120,7 +1122,7 @@ body {
 .confusable-link {
   background: transparent;
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
   padding: 3px 12px;
   font-size: 12px;
   color: var(--text-secondary);
@@ -1147,7 +1149,7 @@ body {
   background: var(--bg-inverse);
   color: var(--text-inverse);
   padding: 10px 18px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
   font-size: 13px;
   box-shadow: var(--shadow-lg);
   pointer-events: auto;
@@ -1175,7 +1177,7 @@ body {
   display: inline-block;
   padding: 1px 7px;
   border: 1px solid var(--border-emphasized);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-sm);
   font-family: var(--font-mono), var(--font-en);
   font-size: 11px;
   font-weight: 500;
@@ -1277,7 +1279,7 @@ body {
   background: var(--input-bg);
   color: var(--text-primary);
   border: 1px solid var(--input-border);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
   padding: 0 16px;
   height: 40px;
   font-family: inherit;
