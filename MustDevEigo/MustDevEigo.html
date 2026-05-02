@@ -1248,9 +1248,33 @@ DATA.basic = [
   { word: "allow", meaning: "可能にする・許可する" },
   { word: "alternative", meaning: "代替の" },
   { word: "apply", meaning: "適用する" },
-  { word: "argument", meaning: "引数・実引数" },
+  {
+    word: "argument", meaning: "引数・実引数",
+    useCase: "関数を呼び出すときに実際に渡す値。「この関数を呼ぶときの引数は？」と聞かれたらこちら。",
+    codeExample: {
+      lang: "js",
+      code: "function greet(name) {\n  console.log('Hello, ' + name);\n}\n\ngreet('Yamada'); // 'Yamada' が argument",
+      caption: "'Yamada' が argument（実引数）",
+    },
+    confusables: [
+      { word: "parameter", diff: "関数定義側で受け取る変数の名前（仮引数）", linkKind: "meaning" },
+      { word: "attribute", diff: "オブジェクトやHTML要素が持つ属性。関数呼び出しとは別物", linkKind: "meaning" },
+    ],
+  },
   { word: "array", meaning: "配列" },
-  { word: "attribute", meaning: "属性" },
+  {
+    word: "attribute", meaning: "属性",
+    useCase: "オブジェクトやHTML要素が持つ性質。関数の引数とは別物で、コードレビューでは混同に注意。",
+    codeExample: {
+      lang: "html",
+      code: "<button id=\"save-btn\" disabled>\n  Save\n</button>",
+      caption: "id と disabled が button の attribute",
+    },
+    confusables: [
+      { word: "parameter", diff: "関数定義の仮引数。HTML要素の属性とは無関係", linkKind: "meaning" },
+      { word: "argument", diff: "関数呼び出し時に渡す値。属性とは別物", linkKind: "meaning" },
+    ],
+  },
   { word: "audio", meaning: "音声" },
   { word: "author", meaning: "作成者" },
   { word: "available", meaning: "利用可能な・入手可能な" },
@@ -1377,7 +1401,19 @@ DATA.basic = [
   { word: "output", meaning: "出力" },
   { word: "override", meaning: "上書きする・優先する" },
   { word: "owner", meaning: "所有者" },
-  { word: "parameter", meaning: "仮引数" },
+  {
+    word: "parameter", meaning: "仮引数",
+    useCase: "関数定義側で受け取る変数の名前。「この関数は何を引数に取りますか？」と聞かれたらこちら。",
+    codeExample: {
+      lang: "js",
+      code: "function greet(name) {\n  console.log('Hello, ' + name);\n}\n\ngreet('Yamada'); // 'Yamada' は argument",
+      caption: "name が parameter（仮引数）",
+    },
+    confusables: [
+      { word: "argument", diff: "呼び出し側で実際に渡す値（実引数）", linkKind: "meaning" },
+      { word: "attribute", diff: "オブジェクトやHTML要素が持つ属性。関数の引数とは別物", linkKind: "meaning" },
+    ],
+  },
   { word: "pass", meaning: "渡す" },
   { word: "patch", meaning: "修正・修正プログラム" },
   { word: "path", meaning: "経路・道筋" },
