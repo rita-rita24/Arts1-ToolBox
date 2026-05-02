@@ -1012,6 +1012,83 @@ body {
 :root[data-theme="dark"] .tok-ty  { color: var(--color-teal-200); }
 :root[data-theme="dark"] .tok-bi  { color: var(--color-peach-200); }
 
+/* 類語カード */
+.confusable-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.confusable-card {
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+.confusable-card:hover {
+  border-color: var(--border-emphasized);
+  background: var(--bg-muted);
+}
+.confusable-card:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.confusable-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-bottom: 4px;
+}
+.confusable-word {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-brand);
+}
+.confusable-diff {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+.confusable-actions { margin-top: 8px; }
+.confusable-link {
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  padding: 3px 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  min-height: 28px;
+  font-family: var(--font-body);
+}
+.confusable-link:hover { background: var(--bg-emphasized); color: var(--text-primary); }
+.confusable-link:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* トースト（非モーダル通知） */
+.toast-host {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  box-shadow: var(--shadow-lg);
+  pointer-events: auto;
+  max-width: min(86vw, 480px);
+  text-align: center;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
 .quiz-actions {
   display: flex;
   justify-content: space-between;
@@ -2257,11 +2334,95 @@ function renderCodeExample(ex) {
   return wrap;
 }
 
+// 任意の語を全カテゴリから検索（confusables 解決などに利用）
+function findWordItem(word) {
+  if (typeof word !== "string") return null;
+  const meaningCats = ["prereq", "basic", "advanced"];
+  for (const cat of meaningCats) {
+    if (!Array.isArray(DATA[cat])) continue;
+    const found = DATA[cat].find(x => x.word === word);
+    if (found) return { item: found, kind: "meaning" };
+  }
+  if (Array.isArray(DATA.abbr)) {
+    const found = DATA.abbr.find(x => x.word === word);
+    if (found) return { item: found, kind: "abbr" };
+  }
+  if (Array.isArray(DATA.acronym)) {
+    const found = DATA.acronym.find(x => x.word === word);
+    if (found) return { item: found, kind: "acronym" };
+  }
+  return null;
+}
+
+function meaningOfFound(found) {
+  if (!found) return "";
+  if (found.kind === "meaning") return found.item.meaning || "";
+  if (found.kind === "abbr" || found.kind === "acronym") return found.item.full || "";
+  return "";
+}
+
+// 非モーダルなトースト通知（confusables のタップ表示などで使用）
+function showToast(message) {
+  let host = document.getElementById("toast-host");
+  if (!host) {
+    host = el("div", { id: "toast-host", class: "toast-host" });
+    document.body.appendChild(host);
+  }
+  const t = el("div", { class: "toast" }, message);
+  host.appendChild(t);
+  requestAnimationFrame(() => t.classList.add("show"));
+  setTimeout(() => {
+    t.classList.remove("show");
+    setTimeout(() => { if (t.parentNode) t.parentNode.removeChild(t); }, 240);
+  }, 2400);
+}
+
+function renderConfusables(list) {
+  if (!Array.isArray(list) || list.length === 0) return null;
+  const wrap = el("div", { class: "confusable-list" });
+  list.forEach(c => {
+    if (!c || typeof c.word !== "string") return;
+    const found = findWordItem(c.word);
+    const card = el("div", { class: "confusable-card", role: "button", tabindex: "0" });
+
+    card.appendChild(el("div", { class: "confusable-card-head" }, [
+      el("span", { class: "confusable-word" }, c.word),
+    ]));
+    card.appendChild(el("p", { class: "confusable-diff" }, c.diff || ""));
+
+    const linkBtn = el("button", { class: "confusable-link", type: "button" }, "単語帳で見る");
+    linkBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      wbState.catId = "all";
+      wbState.search = c.word;
+      showScreen("wordbook");
+    });
+    card.appendChild(el("div", { class: "confusable-actions" }, [linkBtn]));
+
+    const showMeaning = () => {
+      const m = meaningOfFound(found);
+      if (m) showToast(c.word + " ＝ " + m);
+      else showToast(c.word + " はデータ未収録です");
+    };
+    card.addEventListener("click", showMeaning);
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        showMeaning();
+      }
+    });
+
+    wrap.appendChild(card);
+  });
+  return wrap;
+}
+
 function renderExplanation(item) {
   if (!item) return null;
   const hasUseCase = typeof item.useCase === "string" && item.useCase.trim();
   const codeNode = renderCodeExample(item.codeExample);
-  if (!hasUseCase && !codeNode) return null;
+  const confNode = renderConfusables(item.confusables);
+  if (!hasUseCase && !codeNode && !confNode) return null;
 
   const pane = el("div", { class: "explain-pane" });
 
@@ -2279,6 +2440,14 @@ function renderExplanation(item) {
       html: LIGHTBULB_ICON_SVG + "<span>コード例</span>",
     }));
     pane.appendChild(codeNode);
+  }
+
+  if (confNode) {
+    pane.appendChild(el("p", {
+      class: "explain-section-title",
+      html: LIGHTBULB_ICON_SVG + "<span>混同しやすい類語</span>",
+    }));
+    pane.appendChild(confNode);
   }
 
   return pane;
