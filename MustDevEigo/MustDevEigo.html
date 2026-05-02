@@ -512,7 +512,7 @@ body {
   cursor: pointer;
   padding: 10px 14px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(120px, 200px) minmax(0, 1fr) auto;
   gap: var(--space-3);
   align-items: center;
 }
@@ -1306,26 +1306,22 @@ body {
 .wb-summary strong { color: var(--az-color-text-primary); font-weight: 700; }
 
 .wb-list { margin: 0; }
-.wb-row {
-  display: flex;
-  gap: 14px;
-  padding: 4px 0;
-  border-top: 1px solid var(--az-color-border-default);
-  align-items: baseline;
-  font-size: 13px;
-}
-.wb-row:first-child { border-top: 0; padding-top: 0; }
+/* .wb-row のレイアウト本体は <details>/<summary> 構造の方で定義済み (上方の .wb-row { ... } 参照) */
 .wb-row .wb-word {
-  width: 160px;
-  flex-shrink: 0;
   font-family: var(--az-font-family-en);
   font-weight: 700;
   font-size: 13px;
   color: var(--az-color-text-primary);
   word-break: break-word;
   font-variant-numeric: tabular-nums lining-nums;
+  min-width: 0;
 }
-.wb-row .wb-meaning { flex: 1; min-width: 0; color: var(--az-color-text-body); font-size: 13px; }
+.wb-row .wb-meaning {
+  color: var(--az-color-text-body);
+  font-size: 13px;
+  word-break: break-word;
+  min-width: 0;
+}
 .wb-empty {
   color: var(--az-color-text-subtle);
   font-size: 13px;
@@ -1346,12 +1342,126 @@ body {
 
 .hidden { display: none !important; }
 
+/* ============================================================
+ * Responsive — Mobile-first overrides
+ * Breakpoints:
+ *   ≤ 768px : tablet portrait / 大型モバイル
+ *   ≤ 540px : 標準モバイル（縦持ち）
+ *   ≤ 380px : 小型モバイル (iPhone SE クラス)
+ * ============================================================ */
+
+@media (max-width: 768px) {
+  .app { padding: 12px 14px; }
+  .modal { padding: var(--space-5); max-width: min(92vw, 440px); }
+  .modal-wide { max-width: min(94vw, 640px); }
+  #explain-modal-body { max-height: 55vh; }
+  .code-block { font-size: 12px; padding: var(--space-3); }
+  .wb-row > summary { padding: 12px 14px; }
+}
+
 @media (max-width: 540px) {
+  /* レイアウト全般 */
   .app { padding: 8px 12px; }
+  .app-header {
+    gap: 6px;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+  }
+
+  /* ヘッダー縮退 */
+  .brand { font-size: 16px; }
+  .brand em { display: none; }
+  .link-btn { padding: 0 10px; font-size: 13px; height: 32px; }
+  .user-btn { max-width: 100px; font-size: 11px; }
+
+  /* クイズ画面 */
   .headword { font-size: 26px; }
+  .headword-prompt { font-size: 12px; }
+  .choice {
+    padding: 12px 14px;
+    min-height: 44px; /* WCAG 2.5.5 タッチターゲット最小 */
+  }
+  .choice-text { font-size: 14px; line-height: 1.5; }
+  .choice-num { width: 24px; height: 24px; font-size: 12px; }
+
+  /* 結果画面 */
   .result-rate { font-size: 36px; }
-  .wb-row { flex-wrap: wrap; gap: 4px; }
-  .wb-row .wb-word { width: auto; }
+
+  /* CTA カードを縦積みに */
+  .cta, .review-cta {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px;
+    gap: 10px;
+  }
+  .cta-info, .review-cta .cta-info { width: 100%; min-width: 0; }
+  .cta > .btn, .review-cta > .btn {
+    width: 100%;
+    min-width: 0; /* ホーム CTA で当てた min-width: 12em を解除 */
+  }
+  .cta-summary { white-space: normal; }
+
+  /* アクション行は 2 ボタン横並びを維持しつつ各々を等幅に */
+  .quiz-actions > .btn,
+  .result-actions > .btn,
+  .wb-actions > .btn { flex: 1 1 auto; padding: 0 12px; }
+
+  /* Wordbook ツールバー: カテゴリ + 検索を縦積み */
+  .wb-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .wb-toolbar input[type="search"] { min-width: 0; width: 100%; }
+  .wb-toolbar select { width: 100%; }
+
+  /* Wordbook 行: 単語+意味を 1 列、解説バッジを右寄せの 2 列構成に */
+  .wb-row > summary {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    padding: 12px 14px;
+    gap: 4px var(--space-2);
+  }
+  .wb-row > summary > .wb-word { grid-column: 1; grid-row: 1; }
+  .wb-row > summary > .wb-meaning { grid-column: 1 / -1; grid-row: 2; }
+  .wb-row > summary > .wb-explain-mark,
+  .wb-row > summary > span:last-child {
+    grid-column: 2; grid-row: 1; justify-self: end;
+  }
+  .wb-row-detail { padding: 0 14px 14px; }
+
+  /* モーダル */
+  .modal { padding: var(--space-5) var(--space-4); }
+  .modal-actions { flex-wrap: wrap; }
+  .modal-actions .btn { flex: 1 1 120px; }
+  #explain-modal-body { max-height: 60vh; }
+
+  /* 解説ペイン */
+  .explain-pane { padding: var(--space-3); }
+  .code-block { font-size: 11.5px; padding: var(--space-2) var(--space-3); }
+  .code-block-bar { flex-wrap: wrap; }
+}
+
+@media (max-width: 380px) {
+  /* 極小幅: フォントとパディングをさらに削減 */
+  .brand { font-size: 14px; }
+  .link-btn { padding: 0 8px; font-size: 12px; height: 30px; }
+  .icon-btn { width: 28px; height: 28px; }
+  .headword { font-size: 22px; }
+  .result-rate { font-size: 30px; }
+  .modal { padding: var(--space-4); }
+  .cta, .review-cta { padding: 12px; }
+  .cta-summary { font-size: 14px; }
+}
+
+/* ============================================================
+ * Print — エクスポートしないライブビューも印刷を想定して整える
+ * ============================================================ */
+@media print {
+  .app-header, .app-actions, .quiz-actions, .result-actions,
+  .modal-backdrop, .toast-host { display: none !important; }
+  .app { max-width: 100%; padding: 0; }
+  .block, .cta, .review-cta { box-shadow: none; border-color: #ccc; }
 }
 </style>
 </head>
