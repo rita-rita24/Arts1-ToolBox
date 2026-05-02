@@ -542,6 +542,40 @@ body {
   font-style: italic;
 }
 
+/* 類語識別モード（confusable quiz） */
+.headword-confusable {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-3) 0;
+}
+.confusable-badge {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-peach-700);
+  background: var(--color-peach-50);
+  border: 1px solid var(--color-peach-200);
+  border-radius: var(--radius-pill);
+  padding: 4px 14px;
+  letter-spacing: 0.06em;
+}
+:root[data-theme="dark"] .confusable-badge {
+  color: var(--color-peach-200);
+  background: rgba(248, 123, 87, 0.18);
+  border-color: var(--color-peach-400);
+}
+.confusable-context {
+  margin: var(--space-2) 0 var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-muted);
+  border-left: 3px solid var(--color-peach-300);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
 /* 結果画面 解説リンク */
 .review-explain-btn {
   background: transparent;
@@ -3112,6 +3146,31 @@ function renderHome() {
     root.appendChild(reviewCard);
   }
 
+  // 類語識別モード CTA（解説 useCase を持つ語が一定数あるとき表示）
+  const confGroups = buildConfusableGroups();
+  const confEligible = confGroups.reduce((acc, g) => {
+    return acc + g.filter(w => {
+      const f = findWordItem(w);
+      return f && f.item && typeof f.item.useCase === "string" && f.item.useCase.trim();
+    }).length;
+  }, 0);
+  if (confEligible >= 3) {
+    const confBtn = el("button", { class: "btn btn-primary", type: "button" }, "類語識別を試す →");
+    confBtn.addEventListener("click", () => startConfusableQuiz());
+    const confCard = el("div", { class: "review-cta" }, [
+      el("div", { class: "cta-info" }, [
+        el("p", { class: "cta-eyebrow" }, "類語識別モード（β）"),
+        el("p", { class: "cta-summary" }, [
+          el("span", null, confEligible + " 語が対象"),
+          el("span", { class: "sep" }, "·"),
+          "文脈に合う語を選ぶ",
+        ]),
+      ]),
+      confBtn,
+    ]);
+    root.appendChild(confCard);
+  }
+
   // カテゴリー選択 + 設定
   const catCard = el("div", { class: "block" }, [
     el("p", { class: "section-title" }, "出題する分野を選ぶ"),
@@ -3361,8 +3420,104 @@ function startQuiz(override) {
   state.awaitingNext = false;
   state.selectedCategory = sel.catId;
   state.mistakeMode = false;
+  state.confusableMode = false;
   saveLastSelection({ catId: sel.catId, count: sel.count, shuffle: sel.shuffle });
 
+  showScreen("quiz");
+  renderQuestion();
+}
+
+// 類語識別モード：confusables を Union-Find でグループ化
+function buildConfusableGroups() {
+  const parent = {};
+  function find(w) {
+    if (parent[w] === undefined) { parent[w] = w; return w; }
+    if (parent[w] === w) return w;
+    parent[w] = find(parent[w]);
+    return parent[w];
+  }
+  function union(a, b) {
+    const ra = find(a), rb = find(b);
+    if (ra !== rb) parent[ra] = rb;
+  }
+  const all = getCategorySource("all");
+  all.forEach(item => {
+    if (Array.isArray(item.confusables)) {
+      item.confusables.forEach(c => {
+        if (c && c.word) union(item.word, c.word);
+      });
+    }
+  });
+  const groupsMap = {};
+  Object.keys(parent).forEach(w => {
+    const r = find(w);
+    if (!groupsMap[r]) groupsMap[r] = [];
+    groupsMap[r].push(w);
+  });
+  return Object.values(groupsMap).filter(g => g.length >= 2);
+}
+
+function buildConfusableQuestion(targetWord, group) {
+  const found = findWordItem(targetWord);
+  if (!found || !found.item || typeof found.item.useCase !== "string") return null;
+  const useCase = found.item.useCase.trim();
+  if (!useCase) return null;
+  const others = group.filter(w => w !== targetWord);
+  let distractors = shuffleArray(others).slice(0, 3);
+  if (distractors.length < 3) {
+    // 類語が足りない場合はカテゴリ全体からランダムに補完（重複と正解は除外）
+    const pool = getCategorySource("all").map(x => x.word);
+    while (distractors.length < 3) {
+      const candidate = pool[Math.floor(Math.random() * pool.length)];
+      if (candidate !== targetWord && !distractors.includes(candidate)) distractors.push(candidate);
+    }
+  }
+  const choices = shuffleArray([targetWord].concat(distractors));
+  return {
+    word: targetWord,
+    prompt: useCase,
+    choices,
+    correctIndex: choices.indexOf(targetWord),
+    answer: targetWord,
+    kind: "confusable",
+    _source: found.item,
+  };
+}
+
+// 類語識別モードで出題開始（useCase を持つ語のみ対象）
+function startConfusableQuiz() {
+  const groups = buildConfusableGroups();
+  if (groups.length === 0) {
+    showNotice("類語データを持つ語がまだありません。\n解説（Wave 1）が拡充されると利用できるようになります。", "類語識別モード");
+    return;
+  }
+  const candidates = [];
+  groups.forEach(group => {
+    group.forEach(w => {
+      const found = findWordItem(w);
+      if (found && found.item && typeof found.item.useCase === "string" && found.item.useCase.trim()) {
+        candidates.push({ targetWord: w, group });
+      }
+    });
+  });
+  if (candidates.length === 0) {
+    showNotice("useCase 付きの語が必要です。Wave 1 シードを拡充するとモードが有効になります。", "類語識別モード");
+    return;
+  }
+  const ordered = shuffleArray(candidates).slice(0, Math.min(10, candidates.length));
+  const questions = ordered.map(c => buildConfusableQuestion(c.targetWord, c.group)).filter(Boolean);
+  if (questions.length === 0) {
+    showNotice("出題できる類語問題がありません。", "類語識別モード");
+    return;
+  }
+  state.questions = questions;
+  state.currentIdx = 0;
+  state.correctCount = 0;
+  state.answers = [];
+  state.awaitingNext = false;
+  state.selectedCategory = "confusable";
+  state.mistakeMode = false;
+  state.confusableMode = true;
   showScreen("quiz");
   renderQuestion();
 }
@@ -3383,6 +3538,7 @@ function startMistakeQuiz() {
   state.awaitingNext = false;
   state.selectedCategory = "mistake";
   state.mistakeMode = true;
+  state.confusableMode = false;
 
   showScreen("quiz");
   renderQuestion();
@@ -3397,6 +3553,8 @@ function renderQuestion() {
   root.innerHTML = "";
   state.awaitingNext = false;
 
+  const isConfusable = q.kind === "confusable";
+
   const pct = (state.currentIdx / state.questions.length) * 100;
   const card = el("div", { class: "block" }, [
     el("div", { class: "quiz-progress" }, [
@@ -3406,13 +3564,20 @@ function renderQuestion() {
       el("span", null, `第 ${state.currentIdx + 1} 問 / 全 ${state.questions.length} 問`),
       el("span", { class: "score" }, `正解 ${state.correctCount} / ${state.answers.length}`),
     ]),
-    el("div", { class: "headword" }, [
-      el("span", { class: "headword-row" }, [
-        el("span", null, q.word),
-        makeSpeakButton(q.word, { size: "lg" }),
-      ]),
-    ]),
-    el("p", { class: "headword-prompt" }, q.prompt),
+    isConfusable
+      ? el("div", { class: "headword headword-confusable" }, [
+          el("span", { class: "confusable-badge" }, "類語識別"),
+        ])
+      : el("div", { class: "headword" }, [
+          el("span", { class: "headword-row" }, [
+            el("span", null, q.word),
+            makeSpeakButton(q.word, { size: "lg" }),
+          ]),
+        ]),
+    isConfusable
+      ? el("p", { class: "headword-prompt" }, "次の文脈で適切な語は？")
+      : el("p", { class: "headword-prompt" }, q.prompt),
+    isConfusable ? el("p", { class: "confusable-context" }, q.prompt) : null,
     (() => {
       const choices = el("div", { class: "choices" });
       q.choices.forEach((c, i) => {
@@ -3517,9 +3682,11 @@ async function finishQuiz() {
   const correct = state.correctCount;
   const rate = total > 0 ? Math.round(correct / total * 100) : 0;
   const isMistake = state.mistakeMode === true;
-  const cat = isMistake
-    ? { id: "mistake", label: "苦手復習", desc: "" }
-    : getCategoryById(state.selectedCategory);
+  const isConfusable = state.confusableMode === true;
+  let cat;
+  if (isMistake)        cat = { id: "mistake",    label: "苦手復習",   desc: "" };
+  else if (isConfusable) cat = { id: "confusable", label: "類語識別", desc: "" };
+  else                   cat = getCategoryById(state.selectedCategory);
 
   await recordHistorySession({
     timestamp: Date.now(),
@@ -3535,7 +3702,7 @@ async function finishQuiz() {
     state.answers.forEach(a => { if (a.isCorrect) resolved++; });
   }
 
-  lastFinishedInfo = { total, correct, rate, cat, isMistake, resolved };
+  lastFinishedInfo = { total, correct, rate, cat, isMistake, isConfusable, resolved };
   renderResult();
 }
 
@@ -3587,8 +3754,14 @@ function renderResult() {
     })(),
     (() => {
       const isMistake = info.isMistake;
-      const b = el("button", { class: "btn btn-primary", type: "button" }, isMistake ? "苦手をもう一度 →" : "もう一度 →");
-      b.addEventListener("click", () => isMistake ? startMistakeQuiz() : startQuiz());
+      const isConfusable = info.isConfusable;
+      const label = isMistake ? "苦手をもう一度 →" : (isConfusable ? "類語識別をもう一度 →" : "もう一度 →");
+      const b = el("button", { class: "btn btn-primary", type: "button" }, label);
+      b.addEventListener("click", () => {
+        if (isMistake) startMistakeQuiz();
+        else if (isConfusable) startConfusableQuiz();
+        else startQuiz();
+      });
       return b;
     })(),
   ]);
@@ -3894,9 +4067,9 @@ async function init() {
       const btns = document.querySelectorAll("#quiz-content .choice");
       if (btns[idx]) btns[idx].click();
     } else if (e.key === "5") {
-      // 出題中の単語を発音
+      // 出題中の単語を発音（類語識別モードは答えを伏せるため発音不可）
       const q = state.questions[state.currentIdx];
-      if (q && q.word) speakWord(q.word);
+      if (q && q.word && q.kind !== "confusable") speakWord(q.word);
     } else if (e.key === "Enter" && state.awaitingNext) {
       e.preventDefault();
       goNext();
