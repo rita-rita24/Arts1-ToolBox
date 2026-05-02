@@ -937,6 +937,81 @@ body {
   color: var(--text-primary);
 }
 
+/* コード例 */
+.code-block-wrap { margin: var(--space-4) 0 var(--space-2); }
+.code-block-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: 6px;
+}
+.code-lang-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  padding: 2px 10px;
+  background: var(--bg-emphasized);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+}
+.code-copy-btn {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  padding: 3px 12px;
+  cursor: pointer;
+  min-height: 28px;
+}
+.code-copy-btn:hover {
+  background: var(--bg-emphasized);
+  color: var(--text-primary);
+}
+.code-copy-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.code-copy-btn.copied { color: var(--color-teal-600); border-color: var(--color-teal-300); }
+.code-block {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.65;
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  margin: 0;
+  overflow-x: auto;
+  color: var(--text-primary);
+  white-space: pre;
+}
+.code-block code { font-family: inherit; background: transparent; padding: 0; }
+.code-caption {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+/* シンタックスハイライト・トークン色 */
+.tok-kw  { color: var(--color-teal-700); font-weight: 600; }
+.tok-str { color: var(--color-peach-600); }
+.tok-cmt { color: var(--color-warm-500); font-style: italic; }
+.tok-num { color: var(--color-sunshine-700); }
+.tok-ty  { color: var(--color-teal-600); }
+.tok-bi  { color: var(--color-peach-700); }
+:root[data-theme="dark"] .tok-kw  { color: var(--color-teal-300); }
+:root[data-theme="dark"] .tok-str { color: var(--color-peach-300); }
+:root[data-theme="dark"] .tok-cmt { color: var(--color-warm-400); }
+:root[data-theme="dark"] .tok-num { color: var(--color-sunshine-300); }
+:root[data-theme="dark"] .tok-ty  { color: var(--color-teal-200); }
+:root[data-theme="dark"] .tok-bi  { color: var(--color-peach-200); }
+
 .quiz-actions {
   display: flex;
   justify-content: space-between;
@@ -2033,19 +2108,178 @@ function buildQuestion(item, fullPool) {
 // ============================================================
 const LIGHTBULB_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14a5 5 0 1 0-6.18 0"/><path d="M9 18v-3"/><path d="M15 18v-3"/></svg>';
 
+// 言語別の語彙集（Set で照合）。SQL は大文字小文字を無視するため別経路で扱う。
+const SYNTAX_LEXERS = (() => {
+  const js = {
+    master: /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|(`(?:\\.|[^`\\])*`|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*')|(\b\d+(?:\.\d+)?\b)|(\b[a-zA-Z_$][\w$]*\b)/g,
+    kw: new Set("function const let var return if else for while do switch case default break continue class extends new this super import export from as async await try catch throw finally typeof instanceof in of true false null undefined yield static void".split(" ")),
+    ty: new Set("Array Object String Number Boolean Promise Map Set Date JSON Math RegExp Error".split(" ")),
+    bi: new Set("console document window globalThis".split(" ")),
+  };
+  return {
+    js,
+    ts: js,
+    py: {
+      master: /(#[^\n]*)|("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*')|(\b\d+(?:\.\d+)?\b)|(\b[a-zA-Z_]\w*\b)/g,
+      kw: new Set("def class return if elif else for while in not and or is None True False import from as with try except finally raise pass break continue lambda yield global nonlocal".split(" ")),
+      ty: new Set("int float str list dict set tuple bool bytes".split(" ")),
+      bi: new Set("print len range type isinstance".split(" ")),
+    },
+    java: {
+      master: /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:\\.|[^"\\\n])*")|(\b\d+(?:\.\d+)?[fLdD]?\b)|(\b[a-zA-Z_$][\w$]*\b)/g,
+      kw: new Set("public private protected static final void abstract class interface extends implements new this super return if else for while do switch case default break continue try catch throw throws finally synchronized package import enum true false null instanceof".split(" ")),
+      ty: new Set("int long short byte float double boolean char String Object Integer Long Float Double Boolean".split(" ")),
+      bi: new Set("System out println".split(" ")),
+    },
+    go: {
+      master: /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|(`[^`]*`|"(?:\\.|[^"\\\n])*")|(\b\d+(?:\.\d+)?\b)|(\b[a-zA-Z_]\w*\b)/g,
+      kw: new Set("func var const type struct interface package import return if else for switch case default break continue go defer chan map range select fallthrough true false nil".split(" ")),
+      ty: new Set("int int32 int64 uint uint32 uint64 float32 float64 bool string byte rune error".split(" ")),
+      bi: new Set("fmt make len cap append new println".split(" ")),
+    },
+    rb: {
+      master: /(#[^\n]*)|("(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*')|(\b\d+(?:\.\d+)?\b)|(\b[a-zA-Z_]\w*\b)/g,
+      kw: new Set("def end class module if elsif else unless then while until do return yield begin rescue ensure raise true false nil self super require require_relative attr_reader attr_writer attr_accessor".split(" ")),
+      ty: new Set("Integer Float String Array Hash Symbol".split(" ")),
+      bi: new Set("puts print p".split(" ")),
+    },
+    sh: {
+      master: /(#[^\n]*)|("(?:\\.|[^"\\])*"|'[^']*')|(\b\d+\b)|(\b[a-zA-Z_][\w-]*\b)/g,
+      kw: new Set("if then else elif fi for in do done while until case esac function return export local readonly source".split(" ")),
+      ty: new Set(),
+      bi: new Set("echo printf cd ls cp mv rm mkdir cat grep sed awk find xargs sudo".split(" ")),
+    },
+    sql: {
+      master: /(--[^\n]*|\/\*[\s\S]*?\*\/)|('(?:''|[^'])*')|(\b\d+\b)|(\b[a-zA-Z_]\w*\b)/g,
+      // SQL は大文字小文字を区別しないため、突合は uppercase 化して行う
+      _ci: true,
+      kw: new Set("SELECT FROM WHERE INSERT INTO VALUES UPDATE SET DELETE CREATE TABLE DROP ALTER ADD COLUMN PRIMARY KEY FOREIGN REFERENCES INDEX VIEW JOIN INNER LEFT RIGHT OUTER ON AS AND OR NOT NULL TRUE FALSE GROUP BY ORDER LIMIT OFFSET HAVING DISTINCT UNION ALL EXISTS IN BETWEEN LIKE IS CASE WHEN THEN END".split(" ")),
+      ty: new Set("INT INTEGER VARCHAR CHAR TEXT DATE TIMESTAMP BOOLEAN BOOL NUMERIC DECIMAL FLOAT DOUBLE BLOB".split(" ")),
+      bi: new Set(),
+    },
+  };
+})();
+
+// HTML 専用ハイライト（タグ名・属性名・属性値・コメントを色付け）
+function highlightHtml(code) {
+  const escaped = htmlEscape(code);
+  // 衝突しないようプレースホルダ経由で順番に処理する
+  let out = escaped.replace(/&lt;!--[\s\S]*?--&gt;/g, m => `\x00CMT${m}\x00`);
+  out = out.replace(/&quot;[^&]*?&quot;|&#39;[^&]*?&#39;/g, m => `\x00STR${m}\x00`);
+  out = out.replace(/(&lt;\/?)([a-zA-Z][\w-]*)/g, "$1\x00KW$2\x00");
+  out = out.replace(/\b([a-zA-Z][\w-]*)(?=\s*=)/g, "\x00TY$1\x00");
+  out = out.replace(/\x00CMT([\s\S]*?)\x00/g, '<span class="tok-cmt">$1</span>');
+  out = out.replace(/\x00STR([\s\S]*?)\x00/g, '<span class="tok-str">$1</span>');
+  out = out.replace(/\x00KW([\s\S]*?)\x00/g, '<span class="tok-kw">$1</span>');
+  out = out.replace(/\x00TY([\s\S]*?)\x00/g, '<span class="tok-ty">$1</span>');
+  return out;
+}
+
+// 主要言語のハイライト（未知言語は等幅でプレーン表示）
+function highlightCode(code, lang) {
+  if (lang === "html") return highlightHtml(code);
+  const lex = SYNTAX_LEXERS[lang];
+  if (!lex) return htmlEscape(code);
+
+  let out = "";
+  let last = 0;
+  let m;
+  lex.master.lastIndex = 0;
+  while ((m = lex.master.exec(code)) !== null) {
+    out += htmlEscape(code.slice(last, m.index));
+    if (m[1] !== undefined)      out += `<span class="tok-cmt">${htmlEscape(m[1])}</span>`;
+    else if (m[2] !== undefined) out += `<span class="tok-str">${htmlEscape(m[2])}</span>`;
+    else if (m[3] !== undefined) out += `<span class="tok-num">${htmlEscape(m[3])}</span>`;
+    else if (m[4] !== undefined) {
+      const id = m[4];
+      const key = lex._ci ? id.toUpperCase() : id;
+      if (lex.kw.has(key))      out += `<span class="tok-kw">${id}</span>`;
+      else if (lex.ty.has(key)) out += `<span class="tok-ty">${id}</span>`;
+      else if (lex.bi.has(key)) out += `<span class="tok-bi">${id}</span>`;
+      else out += htmlEscape(id);
+    }
+    last = lex.master.lastIndex;
+  }
+  out += htmlEscape(code.slice(last));
+  return out;
+}
+
+// クリップボードへコピー（失敗時は textarea フォールバック）
+function copyToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text).then(() => true).catch(() => false);
+  }
+  return new Promise(resolve => {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      resolve(ok);
+    } catch (e) { resolve(false); }
+  });
+}
+
+function renderCodeExample(ex) {
+  if (!ex || typeof ex.code !== "string" || !ex.code.trim()) return null;
+  const lang = (ex.lang || "").toLowerCase();
+  const wrap = el("div", { class: "code-block-wrap" });
+
+  const bar = el("div", { class: "code-block-bar" });
+  bar.appendChild(el("span", { class: "code-lang-badge" }, lang || "plain"));
+  const copyBtn = el("button", { class: "code-copy-btn", type: "button" }, "コピー");
+  copyBtn.addEventListener("click", async () => {
+    const ok = await copyToClipboard(ex.code);
+    copyBtn.textContent = ok ? "コピー済み" : "失敗";
+    copyBtn.classList.toggle("copied", ok);
+    setTimeout(() => {
+      copyBtn.textContent = "コピー";
+      copyBtn.classList.remove("copied");
+    }, 1400);
+  });
+  bar.appendChild(copyBtn);
+  wrap.appendChild(bar);
+
+  const pre = el("pre", { class: "code-block" });
+  const codeEl = document.createElement("code");
+  codeEl.innerHTML = highlightCode(ex.code, lang);
+  pre.appendChild(codeEl);
+  wrap.appendChild(pre);
+
+  if (typeof ex.caption === "string" && ex.caption.trim()) {
+    wrap.appendChild(el("p", { class: "code-caption" }, ex.caption));
+  }
+  return wrap;
+}
+
 function renderExplanation(item) {
   if (!item) return null;
   const hasUseCase = typeof item.useCase === "string" && item.useCase.trim();
-  if (!hasUseCase) return null;
+  const codeNode = renderCodeExample(item.codeExample);
+  if (!hasUseCase && !codeNode) return null;
 
   const pane = el("div", { class: "explain-pane" });
 
-  // 使用シーン
-  pane.appendChild(el("p", {
-    class: "explain-section-title",
-    html: LIGHTBULB_ICON_SVG + "<span>使用シーン</span>",
-  }));
-  pane.appendChild(el("p", { class: "explain-usecase" }, item.useCase));
+  if (hasUseCase) {
+    pane.appendChild(el("p", {
+      class: "explain-section-title",
+      html: LIGHTBULB_ICON_SVG + "<span>使用シーン</span>",
+    }));
+    pane.appendChild(el("p", { class: "explain-usecase" }, item.useCase));
+  }
+
+  if (codeNode) {
+    pane.appendChild(el("p", {
+      class: "explain-section-title",
+      html: LIGHTBULB_ICON_SVG + "<span>コード例</span>",
+    }));
+    pane.appendChild(codeNode);
+  }
 
   return pane;
 }
