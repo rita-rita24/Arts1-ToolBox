@@ -2164,7 +2164,8 @@ const CATEGORIES = [
 
 const LEGACY_LS_KEY = "codeeigodojo_state_v1";
 const DB_NAME = "MustDevEigo";
-const DB_VERSION = 1;
+// v2.0 で版マーカーのみ更新（実体スキーマは未変更・解説フィールド追加は前方互換）
+const DB_VERSION = 2;
 const STORE_NAME = "kv";
 
 // メモリキャッシュ: IDBは非同期のためレンダー関数を同期に保つ目的で起動時に1度ロードする
@@ -2597,10 +2598,19 @@ function openDB() {
       return;
     }
     const req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = () => {
+    req.onupgradeneeded = (event) => {
       const db = req.result;
+      const oldVersion = (event && event.oldVersion) || 0;
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         db.createObjectStore(STORE_NAME, { keyPath: "key" });
+      }
+      // v1 → v2: 版マーカーのみ書き込む。
+      // 既存の history / wordStats / userName は保持（実体スキーマは未変更）。
+      if (oldVersion < 2) {
+        const tx = req.transaction;
+        if (tx) {
+          try { tx.objectStore(STORE_NAME).put({ key: "appSchemaVersion", value: 2 }); } catch (e) {}
+        }
       }
     };
     req.onsuccess = () => resolve(req.result);
