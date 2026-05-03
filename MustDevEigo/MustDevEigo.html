@@ -169,46 +169,6 @@
   --font-en:      "DM Sans", Arial, sans-serif;
   --font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  /* === 旧 --az-color-* との互換エイリアス（既存規則を壊さないため） === */
-  --az-color-white:           var(--color-warm-0);
-  --az-color-black:           var(--color-warm-900);
-  --az-color-off-white:       var(--bg-canvas);
-  --az-color-cream:           var(--color-sunshine-50);
-  --az-color-warm-gray-50:    var(--color-warm-50);
-  --az-color-warm-gray-100:   var(--color-warm-100);
-  --az-color-warm-gray-200:   var(--color-warm-200);
-  --az-color-warm-gray-300:   var(--color-warm-300);
-  --az-color-warm-gray-400:   var(--color-warm-400);
-  --az-color-gray-500:        var(--color-warm-500);
-  --az-color-charcoal-700:    var(--color-warm-700);
-  --az-color-charcoal-900:    var(--color-warm-800);
-  --az-color-coral-500:       #EB6D55; /* 不正解専用なのでリテラル */
-  --az-color-coral-600:       #D95C47;
-  --az-color-lime-500:        #AACE38; /* 正解専用なのでリテラル */
-  --az-color-lime-600:        #8FB82E;
-  --az-color-bg-page:         var(--bg-canvas);
-  --az-color-bg-surface:      var(--card-bg);
-  --az-color-bg-soft:         var(--bg-muted);
-  --az-color-bg-azraku:       var(--color-sunshine-50);
-  --az-color-border-default:  var(--border-default);
-  --az-color-border-strong:   var(--border-emphasized);
-  --az-color-text-primary:    var(--text-primary);
-  --az-color-text-body:       var(--text-secondary);
-  --az-color-text-subtle:     var(--text-tertiary);
-  --az-color-text-inverse:    var(--text-inverse);
-  /* 「アクション=peach(CTA)」の見た目になるよう旧トークンを peach に振り分け（互換目的） */
-  --az-color-action-primary:       var(--action-cta);
-  --az-color-action-primary-hover: var(--action-cta-hover);
-  --az-color-action-secondary:     var(--action-primary); /* 旧secondaryをteal主操作へ */
-  --az-color-action-secondary-hover: var(--action-primary-hover);
-  --az-color-focus-ring:           rgba(45, 143, 181, 0.32);
-  --az-font-family-sans: var(--font-body);
-  --az-font-family-en:   var(--font-en);
-  --az-radius-sm: var(--radius-sm);
-  --az-radius-md: var(--radius-md);
-  --az-radius-lg: var(--radius-lg);
-  --az-radius-xl: var(--radius-xl);
-  --az-radius-full: var(--radius-pill);
 }
 
 /* === Dark theme === */
@@ -264,7 +224,7 @@
 }
 :root[data-theme="dark"] .choice-num {
   background: #3D3D33;
-  color: var(--az-color-text-body);
+  color: var(--text-secondary);
 }
 :root[data-theme="dark"] .cat-row.selected {
   background: rgba(255, 255, 255, 0.06);
@@ -313,18 +273,18 @@
   color: var(--text-tertiary);
 }
 :root[data-theme="dark"] .kbd {
-  background: var(--az-color-bg-soft);
-  color: var(--az-color-text-body);
+  background: var(--bg-muted);
+  color: var(--text-secondary);
 }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 body {
-  font-family: var(--az-font-family-sans);
+  font-family: var(--font-body);
   font-size: 14px;
   line-height: 1.55;
-  background: var(--az-color-bg-page);
-  color: var(--az-color-text-body);
+  background: var(--bg-canvas);
+  color: var(--text-secondary);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
@@ -344,7 +304,7 @@ body {
   flex-wrap: wrap;
   padding-bottom: 10px;
   margin-bottom: var(--space-3);
-  border-bottom: 1px solid var(--az-color-border-default);
+  border-bottom: 1px solid var(--border-default);
 }
 .brand {
   font-family: var(--font-display);
@@ -383,7 +343,7 @@ body {
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
 .link-btn:hover { color: var(--text-brand); background: var(--bg-muted); }
-.link-btn.active { color: var(--az-color-text-primary); font-weight: 700; }
+.link-btn.active { color: var(--text-primary); font-weight: 700; }
 
 .icon-btn {
   display: inline-flex;
@@ -400,8 +360,8 @@ body {
   transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
   flex-shrink: 0;
 }
-.icon-btn:hover { color: var(--az-color-action-primary); background: var(--az-color-bg-soft); }
-.icon-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--az-color-focus-ring); }
+.icon-btn:hover { color: var(--action-cta); background: var(--bg-muted); }
+.icon-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 .theme-icon { display: inline-flex; align-items: center; justify-content: center; line-height: 0; }
 .theme-icon svg { display: block; }
 
@@ -413,9 +373,9 @@ body {
   height: 28px;
   padding: 0 10px;
   background: transparent;
-  border: 1px solid var(--az-color-border-default);
+  border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
-  color: var(--az-color-text-body);
+  color: var(--text-secondary);
   font-family: inherit;
   font-size: 12px;
   font-weight: 500;
@@ -426,7 +386,7 @@ body {
   text-overflow: ellipsis;
   transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
-.user-btn:hover { background: var(--az-color-bg-soft); border-color: var(--az-color-border-strong); color: var(--az-color-text-primary); }
+.user-btn:hover { background: var(--bg-muted); border-color: var(--border-emphasized); color: var(--text-primary); }
 .user-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 
 /* モーダル */
@@ -531,7 +491,7 @@ body {
 }
 :root[data-theme="dark"] .wb-explain-mark {
   color: var(--color-teal-200);
-  background: rgba(120, 191, 219, 0.18);
+  background: rgba(114, 153, 216, 0.18); /* blue-300 */
   border-color: var(--color-teal-400);
 }
 .wb-row-detail {
@@ -571,13 +531,13 @@ body {
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--radius-md);
-  color: var(--az-color-text-subtle);
+  color: var(--text-tertiary);
   cursor: pointer;
   vertical-align: middle;
   transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
-.speak-btn:hover { color: var(--az-color-action-primary); background: var(--az-color-bg-soft); }
-.speak-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--az-color-focus-ring); }
+.speak-btn:hover { color: var(--action-cta); background: var(--bg-muted); }
+.speak-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 .speak-btn svg { display: block; }
 .speak-btn-lg { width: 32px; height: 32px; }
 .speak-btn-lg svg { width: 18px; height: 18px; }
@@ -620,7 +580,7 @@ body {
 .cta-info { flex: 1 1 auto; min-width: 0; }
 .cta-eyebrow {
   font-size: 11px;
-  color: var(--az-color-text-subtle);
+  color: var(--text-tertiary);
   margin: 0;
   letter-spacing: 0.04em;
   font-weight: 500;
@@ -629,19 +589,19 @@ body {
   margin: 1px 0 0;
   font-size: 16px;
   font-weight: 700;
-  color: var(--az-color-text-primary);
+  color: var(--text-primary);
   line-height: 1.3;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.cta-summary .sep { color: var(--az-color-text-subtle); font-weight: 400; margin: 0 6px; }
-.cta-summary .tk-mistake { color: var(--az-color-action-primary); }
+.cta-summary .sep { color: var(--text-tertiary); font-weight: 400; margin: 0 6px; }
+.cta-summary .tk-mistake { color: var(--action-cta); }
 
 /* 苦手復習 CTA: コーラルのアウトラインで注意喚起 */
 .review-cta {
   background: rgba(235, 109, 85, 0.06);
-  border: 1px solid var(--az-color-action-primary);
+  border: 1px solid var(--action-cta);
   border-radius: var(--radius-xl);
   padding: var(--space-3) var(--space-4);
   margin-bottom: var(--space-3);
@@ -652,7 +612,7 @@ body {
   flex-wrap: wrap;
 }
 .review-cta .cta-info { flex: 1 1 auto; min-width: 0; }
-.review-cta .cta-eyebrow { color: var(--az-color-action-primary); }
+.review-cta .cta-eyebrow { color: var(--action-cta); }
 
 /* ホーム画面の CTA カード内主操作ボタンは横幅を揃える
    （苦手だけ演習する → を基準サイズとし、演習を始める → と一致させる） */
@@ -663,7 +623,7 @@ body {
 .result-note {
   text-align: center;
   font-size: 12px;
-  color: var(--az-color-text-subtle);
+  color: var(--text-tertiary);
   margin: 6px 0 0;
 }
 
@@ -729,12 +689,12 @@ body {
   cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out);
 }
-.cat-row:hover { background: var(--az-color-bg-soft); }
-.cat-row.selected { background: var(--az-color-warm-gray-100); }
+.cat-row:hover { background: var(--bg-muted); }
+.cat-row.selected { background: var(--color-warm-100); }
 .cat-mark {
   width: 14px;
   text-align: center;
-  color: var(--az-color-action-primary);
+  color: var(--action-cta);
   font-weight: 700;
   font-size: 11px;
   flex-shrink: 0;
@@ -745,20 +705,20 @@ body {
   min-width: 0;
   font-weight: 700;
   font-size: 14px;
-  color: var(--az-color-text-primary);
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .cat-name .desc {
-  color: var(--az-color-text-subtle);
+  color: var(--text-tertiary);
   font-size: 11px;
   font-weight: 400;
   margin-left: 6px;
 }
 .cat-count {
-  color: var(--az-color-text-subtle);
-  font-family: var(--az-font-family-en);
+  color: var(--text-tertiary);
+  font-family: var(--font-en);
   font-size: 12px;
   font-variant-numeric: tabular-nums lining-nums;
   white-space: nowrap;
@@ -773,10 +733,10 @@ body {
   align-items: center;
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid var(--az-color-border-default);
+  border-top: 1px solid var(--border-default);
   font-size: 13px;
 }
-.options-row label { color: var(--az-color-text-body); display: inline-flex; align-items: center; gap: 6px; }
+.options-row label { color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px; }
 /* セレクトボックス共通: ネイティブの矢印を消して自前のシェブロンを置く */
 .options-row select,
 .wb-toolbar select {
@@ -806,7 +766,7 @@ body {
   border-color: var(--input-border-focus);
   box-shadow: var(--focus-ring);
 }
-.options-row input[type="checkbox"] { accent-color: var(--az-color-action-primary); width: 14px; height: 14px; }
+.options-row input[type="checkbox"] { accent-color: var(--action-cta); width: 14px; height: 14px; }
 
 /* 履歴 */
 .history-list { margin: 0; }
@@ -814,7 +774,7 @@ body {
   display: flex;
   gap: 10px;
   padding: var(--space-1) 0;
-  border-top: 1px solid var(--az-color-border-default);
+  border-top: 1px solid var(--border-default);
   align-items: baseline;
   font-size: 13px;
 }
@@ -822,30 +782,30 @@ body {
 .history-date {
   width: 86px;
   flex-shrink: 0;
-  color: var(--az-color-text-subtle);
-  font-family: var(--az-font-family-en);
+  color: var(--text-tertiary);
+  font-family: var(--font-en);
   font-variant-numeric: tabular-nums lining-nums;
   font-size: 12px;
 }
 .history-cat {
   flex: 1;
   min-width: 0;
-  color: var(--az-color-text-primary);
+  color: var(--text-primary);
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .history-stat {
-  color: var(--az-color-action-primary);
+  color: var(--action-cta);
   font-weight: 700;
-  font-family: var(--az-font-family-en);
+  font-family: var(--font-en);
   font-variant-numeric: tabular-nums lining-nums;
   white-space: nowrap;
   flex-shrink: 0;
   font-size: 12px;
 }
-.history-empty { color: var(--az-color-text-subtle); font-size: 13px; padding: 2px 0; }
+.history-empty { color: var(--text-tertiary); font-size: 13px; padding: 2px 0; }
 
 .data-actions { margin-top: var(--space-2); display: flex; gap: 6px; flex-wrap: wrap; }
 
@@ -853,15 +813,15 @@ body {
 /* 出題画面 */
 .quiz-progress {
   height: 3px;
-  background: var(--az-color-warm-gray-100);
-  border-radius: var(--az-radius-full);
+  background: var(--color-warm-100);
+  border-radius: var(--radius-pill);
   overflow: hidden;
   margin-bottom: var(--space-2);
 }
 .quiz-progress > .fill {
   height: 100%;
-  background: var(--az-color-action-primary);
-  border-radius: var(--az-radius-full);
+  background: var(--action-cta);
+  border-radius: var(--radius-pill);
   transition: width var(--dur-base) var(--ease-out);
 }
 .quiz-meta {
@@ -869,12 +829,12 @@ body {
   justify-content: space-between;
   align-items: baseline;
   font-size: 12px;
-  color: var(--az-color-text-subtle);
+  color: var(--text-tertiary);
   margin-bottom: var(--space-2);
-  font-family: var(--az-font-family-en);
+  font-family: var(--font-en);
   font-variant-numeric: tabular-nums lining-nums;
 }
-.quiz-meta .score { color: var(--az-color-text-body); font-weight: 500; }
+.quiz-meta .score { color: var(--text-secondary); font-weight: 500; }
 .headword {
   font-family: var(--font-en);
   text-align: center;
@@ -898,23 +858,23 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--az-color-bg-surface);
-  border: 1px solid var(--az-color-border-default);
-  border-radius: var(--az-radius-sm);
+  background: var(--card-bg);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
   padding: var(--space-2) var(--space-3);
   cursor: pointer;
   font-family: inherit;
   font-size: 14px;
-  color: var(--az-color-text-primary);
+  color: var(--text-primary);
   text-align: left;
   transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
   width: 100%;
 }
 .choice:hover:not(:disabled) {
-  background: var(--az-color-bg-soft);
-  border-color: var(--az-color-action-primary);
+  background: var(--bg-muted);
+  border-color: var(--action-cta);
 }
-.choice:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--az-color-focus-ring); }
+.choice:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 .choice:disabled { cursor: not-allowed; }
 .choice-num {
   display: inline-flex;
@@ -922,10 +882,10 @@ body {
   justify-content: center;
   width: 22px;
   height: 22px;
-  border-radius: var(--az-radius-full);
-  background: var(--az-color-warm-gray-100);
-  color: var(--az-color-text-subtle);
-  font-family: var(--az-font-family-en);
+  border-radius: var(--radius-pill);
+  background: var(--color-warm-100);
+  color: var(--text-tertiary);
+  font-family: var(--font-en);
   font-weight: 700;
   font-size: 11px;
   flex-shrink: 0;
@@ -961,7 +921,7 @@ body {
   border-radius: var(--radius-md);
   font-size: 13px;
   background: var(--bg-muted);
-  border: 1px solid var(--az-color-border-default);
+  border: 1px solid var(--border-default);
 }
 .feedback.show { display: block; }
 .feedback.correct {
@@ -1174,7 +1134,7 @@ body {
 .kb-hint {
   text-align: center;
   font-size: 11px;
-  color: var(--az-color-text-subtle);
+  color: var(--text-tertiary);
   margin-top: 6px;
 }
 .kbd {
@@ -1215,9 +1175,9 @@ body {
 .result-correct {
   text-align: center;
   font-size: 12px;
-  color: var(--az-color-text-body);
+  color: var(--text-secondary);
   margin: var(--space-1) 0 0;
-  font-family: var(--az-font-family-en);
+  font-family: var(--font-en);
   font-variant-numeric: tabular-nums lining-nums;
 }
 .review-list { margin: 0; }
@@ -1225,7 +1185,7 @@ body {
   display: flex;
   gap: var(--space-2);
   padding: var(--space-1) 0;
-  border-top: 1px solid var(--az-color-border-default);
+  border-top: 1px solid var(--border-default);
   font-size: 13px;
   align-items: baseline;
 }
@@ -1240,17 +1200,17 @@ body {
 .review-mark.ng { color: #EB6D55; } /* 不正解の弁別色: リテラル固定 */
 .review-row > .review-body { flex: 1; min-width: 0; }
 .review-headword {
-  font-family: var(--az-font-family-en);
+  font-family: var(--font-en);
   font-weight: 700;
   margin-right: 6px;
-  color: var(--az-color-text-primary);
+  color: var(--text-primary);
 }
-.review-meaning { color: var(--az-color-text-body); }
+.review-meaning { color: var(--text-secondary); }
 .review-picked {
   display: block;
   margin-top: 0;
   font-size: 11px;
-  color: var(--az-color-text-subtle);
+  color: var(--text-tertiary);
 }
 .review-picked::before { content: "選んだ: "; }
 
@@ -1300,30 +1260,30 @@ body {
 
 .wb-summary {
   font-size: 11px;
-  color: var(--az-color-text-subtle);
+  color: var(--text-tertiary);
   margin: 0 0 6px;
 }
-.wb-summary strong { color: var(--az-color-text-primary); font-weight: 700; }
+.wb-summary strong { color: var(--text-primary); font-weight: 700; }
 
 .wb-list { margin: 0; }
 /* .wb-row のレイアウト本体は <details>/<summary> 構造の方で定義済み (上方の .wb-row { ... } 参照) */
 .wb-row .wb-word {
-  font-family: var(--az-font-family-en);
+  font-family: var(--font-en);
   font-weight: 700;
   font-size: 13px;
-  color: var(--az-color-text-primary);
+  color: var(--text-primary);
   word-break: break-word;
   font-variant-numeric: tabular-nums lining-nums;
   min-width: 0;
 }
 .wb-row .wb-meaning {
-  color: var(--az-color-text-body);
+  color: var(--text-secondary);
   font-size: 13px;
   word-break: break-word;
   min-width: 0;
 }
 .wb-empty {
-  color: var(--az-color-text-subtle);
+  color: var(--text-tertiary);
   font-size: 13px;
   padding: var(--space-4) 0;
   text-align: center;
@@ -1335,7 +1295,7 @@ body {
   justify-content: space-between;
   margin-top: 10px;
   padding-top: var(--space-2);
-  border-top: 1px solid var(--az-color-border-default);
+  border-top: 1px solid var(--border-default);
   flex-wrap: wrap;
 }
 
