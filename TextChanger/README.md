@@ -138,3 +138,7 @@ PGLITE_MODULE=/path/to/node_modules/@electric-sql/pglite node --test tests/postg
 ## 補足
 
 - 外部送信は行わず、変換処理はブラウザ内で完結します。
+
+## アイコンのライセンス
+
+Google Material Symbolsのライセンス・出典は [THIRD_PARTY_LICENSES.txt](THIRD_PARTY_LICENSES.txt) に記載しています。HTMLを再配布する際は、このファイルも添付してください。GYOMU-UI自体へのライセンス表記ではありません。
