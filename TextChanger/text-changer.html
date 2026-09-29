@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja" data-theme="light">
+<html lang="ja">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -25,8 +25,8 @@
       }
 
       @layer base {
-        .gm:where(:not(.gm .gm)),
-        .gm[data-mode='light'] {
+        .gm {
+          --page-gutter: var(--gm-space-5);
           --gm-on-brand: oklch(1 0 0);
           --gm-text: oklch(0.286632 0.016991 255.659);
           --gm-muted: oklch(0.487553 0.026997 252.373);
@@ -36,49 +36,16 @@
           --gm-input-border: oklch(0.605714 0.024945 254.473);
           --gm-success: oklch(0.436242 0.089513 157.983);
           --gm-success-bg: oklch(0.966985 0.013192 159.918);
-          --gm-warning: oklch(0.462612 0.096992 76.457);
-          --gm-warning-bg: oklch(0.97412 0.031623 89.136);
-          --gm-error: oklch(0.483677 0.170323 26.393);
-          --gm-error-bg: oklch(0.966944 0.016239 17.438);
-          --gm-on-error: oklch(1 0 0);
-          --gm-backdrop: oklch(0 0 0 / 0.4);
-          --gm-brand: var(--gm-light-brand, oklch(0.441853 0.155688 260.321));
-          --gm-brand-hover: var(--gm-light-brand-hover, oklch(0.385255 0.132787 260.359));
-          --gm-brand-soft: var(--gm-light-brand-soft, oklch(0.962839 0.009107 258.336));
-          --gm-focus: var(--gm-light-focus, oklch(0.441853 0.155688 260.321));
-        }
-        .gm[data-mode='dark'] {
-          --gm-on-brand: oklch(0.211693 0.020091 258.342);
-          --gm-text: oklch(0.938457 0.008003 253.855);
-          --gm-muted: oklch(0.795041 0.019706 255.553);
-          --gm-surface: oklch(0.253864 0.02155 257.281);
-          --gm-background: oklch(0.211693 0.020091 258.342);
-          --gm-border: oklch(0.416114 0.030959 255.696);
-          --gm-input-border: oklch(0.674956 0.029273 255.145);
-          --gm-success: oklch(0.80967 0.107596 157.04);
-          --gm-success-bg: oklch(0.296026 0.038217 167.705);
-          --gm-warning: oklch(0.832567 0.113907 84.145);
-          --gm-warning-bg: oklch(0.298703 0.035681 83.807);
-          --gm-error: oklch(0.820755 0.100577 19.45);
-          --gm-error-bg: oklch(0.293569 0.038567 9.274);
-          --gm-on-error: oklch(0.211693 0.020091 258.342);
-          --gm-backdrop: oklch(0 0 0 / 0.65);
-          --gm-brand: var(--gm-dark-brand, oklch(0.800117 0.050554 259.776));
-          --gm-brand-hover: var(--gm-dark-brand-hover, oklch(0.825095 0.044102 259.18));
-          --gm-brand-soft: var(--gm-dark-brand-soft, oklch(0.318743 0.04006 258.824));
-          --gm-focus: var(--gm-dark-focus, oklch(0.800117 0.050554 259.776));
-        }
-
-        .gm {
+          --gm-brand: oklch(0.441853 0.155688 260.321);
+          --gm-brand-hover: oklch(0.385255 0.132787 260.359);
+          --gm-focus: var(--gm-brand);
           --gm-font: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
           --gm-text-size: 0.875rem;
           --gm-label-size: 0.8125rem;
-          --gm-meta-size: 0.75rem;
           --gm-title-size: 1rem;
           --gm-title-line-height: 1.5rem;
           --gm-section-title-size: 0.875rem;
           --gm-section-title-line-height: 1.25rem;
-          --gm-space-1: 0.25rem;
           --gm-space-2: 0.5rem;
           --gm-space-3: 0.75rem;
           --gm-space-4: 1rem;
@@ -95,6 +62,47 @@
           line-height: 1.65;
           color: var(--gm-text);
           background: var(--gm-background);
+
+          &[data-mode='dark'] {
+            --gm-on-brand: oklch(0.211693 0.020091 258.342);
+            --gm-text: oklch(0.938457 0.008003 253.855);
+            --gm-muted: oklch(0.795041 0.019706 255.553);
+            --gm-surface: oklch(0.253864 0.02155 257.281);
+            --gm-background: oklch(0.211693 0.020091 258.342);
+            --gm-border: oklch(0.416114 0.030959 255.696);
+            --gm-input-border: oklch(0.674956 0.029273 255.145);
+            --gm-success: oklch(0.80967 0.107596 157.04);
+            --gm-success-bg: oklch(0.296026 0.038217 167.705);
+            --gm-brand: oklch(0.800117 0.050554 259.776);
+            --gm-brand-hover: oklch(0.825095 0.044102 259.18);
+          }
+
+          h1 {
+            font-size: var(--gm-title-size);
+            line-height: var(--gm-title-line-height);
+          }
+
+          h2 {
+            font-size: var(--gm-section-title-size);
+            line-height: var(--gm-section-title-line-height);
+          }
+
+          :focus-visible {
+            outline: 2px solid var(--gm-focus);
+            outline-offset: -2px;
+          }
+
+          @media (width <= 40rem) {
+            --page-gutter: var(--gm-space-3);
+          }
+
+          @media (any-pointer: coarse) {
+            --gm-control-height: 2.75rem;
+            --gm-button-height: 2.75rem;
+            --gm-button-padding-block: 0.5rem;
+            --gm-control-padding-block: 0.5rem;
+            --gm-icon-size: 1.25rem;
+          }
         }
 
         body {
@@ -114,20 +122,8 @@
         }
         h1,
         h2 {
+          font-weight: 600;
           text-wrap: balance;
-        }
-        .gm h1 {
-          font-size: var(--gm-title-size);
-          line-height: var(--gm-title-line-height);
-        }
-        .gm h2 {
-          font-size: var(--gm-section-title-size);
-          line-height: var(--gm-section-title-line-height);
-        }
-
-        .gm :focus-visible {
-          outline: 2px solid var(--gm-focus);
-          outline-offset: -2px;
         }
       }
 
@@ -142,6 +138,7 @@
           .gm-label {
             font-size: var(--gm-label-size);
             font-weight: 600;
+            line-height: var(--gm-section-title-line-height);
           }
 
           .gm-input,
@@ -163,6 +160,9 @@
             &[readonly] {
               background: var(--gm-background);
             }
+            @media (any-pointer: coarse) {
+              font-size: 1rem;
+            }
           }
 
           .gm-btn {
@@ -180,26 +180,48 @@
             line-height: 1.5;
             text-align: center;
 
-            &:hover:not(:disabled) {
+            &:hover:not(:disabled, .copied) {
               background: var(--gm-background);
             }
             &:disabled {
               cursor: not-allowed;
               opacity: 0.55;
             }
-          }
 
-          .gm-btn-primary {
-            color: var(--gm-on-brand);
-            background: var(--gm-brand);
-            border-color: var(--gm-brand);
+            &.gm-btn-primary {
+              color: var(--gm-on-brand);
+              background: var(--gm-brand);
+              border-color: var(--gm-brand);
 
-            &:hover:not(:disabled) {
-              background: var(--gm-brand-hover);
+              &:hover:not(:disabled, .copied) {
+                background: var(--gm-brand-hover);
+              }
+              &:focus-visible {
+                outline-color: var(--gm-on-brand);
+                outline-offset: -3px;
+              }
             }
-            &:focus-visible {
-              outline-color: var(--gm-on-brand);
-              outline-offset: -3px;
+
+            &.gm-icon-btn {
+              width: var(--gm-button-height);
+              min-width: var(--gm-button-height);
+              padding: 0;
+            }
+
+            &.copy-btn {
+              flex: none;
+              max-width: 100%;
+
+              &.copied {
+                color: var(--gm-success);
+                background: var(--gm-success-bg);
+                border-color: var(--gm-success);
+
+                &:focus-visible {
+                  outline-color: var(--gm-success);
+                  outline-offset: -2px;
+                }
+              }
             }
           }
 
@@ -211,89 +233,100 @@
             fill: currentColor;
           }
 
-          .gm-icon-btn {
-            width: var(--gm-button-height);
-            min-width: var(--gm-button-height);
-            padding: 0;
+          .gm-textarea {
+            padding: var(--gm-space-2);
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            resize: none;
+            tab-size: 4;
+
+            &.output-area {
+              flex: 1;
+
+              @media (width <= 61.25rem) {
+                min-height: 8.5rem;
+              }
+            }
+          }
+
+          .gm-input {
+            &.table-name-input {
+              width: 15rem;
+              max-width: 100%;
+            }
+
+            &.number-offset-input {
+              width: 7.5rem;
+              font-variant-numeric: tabular-nums;
+
+              &::-webkit-inner-spin-button {
+                margin-inline-start: var(--gm-space-2);
+              }
+            }
+
+            &:is(.table-name-input, .number-offset-input) {
+              @media (width <= 40rem) {
+                flex: 1;
+                width: 0;
+                min-width: 5rem;
+              }
+            }
           }
         }
 
-        .header {
+        .header-content {
           flex: none;
           background: var(--gm-surface);
-        }
-
-        .header-content {
-          padding: var(--gm-space-2) max(var(--gm-space-5), env(safe-area-inset-right)) var(--gm-space-2)
-            max(var(--gm-space-5), env(safe-area-inset-left));
+          padding: var(--gm-space-2) max(var(--page-gutter), env(safe-area-inset-right)) var(--gm-space-2)
+            max(var(--page-gutter), env(safe-area-inset-left));
           display: flex;
           align-items: center;
           justify-content: space-between;
           gap: var(--gm-space-4);
         }
 
-        .logo {
-          display: flex;
-          align-items: center;
-          gap: var(--gm-space-2);
-          font-weight: 600;
-
-          .logo-icon {
-            width: 1.25rem;
-            height: 1.25rem;
-            color: var(--gm-brand);
-            flex: none;
-          }
-        }
-
-        .header-actions {
-          display: flex;
-          align-items: center;
-          flex: none;
-        }
-
         .main {
           width: 100%;
-          padding: var(--gm-space-4) max(var(--gm-space-5), env(safe-area-inset-right))
-            max(var(--gm-space-5), env(safe-area-inset-bottom)) max(var(--gm-space-5), env(safe-area-inset-left));
+          padding: var(--gm-space-4) max(var(--page-gutter), env(safe-area-inset-right))
+            max(var(--gm-space-5), env(safe-area-inset-bottom)) max(var(--page-gutter), env(safe-area-inset-left));
           flex: 1;
           display: grid;
           grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
           gap: var(--gm-space-4);
+
+          @media (width <= 61.25rem) {
+            grid-template-columns: minmax(0, 1fr);
+          }
+
+          @media (width <= 40rem) {
+            gap: var(--gm-space-3);
+          }
         }
 
         .panel {
           min-width: 0;
           min-height: 0;
-        }
 
-        .panel-input {
-          padding: var(--gm-space-3);
-          display: flex;
-          flex-direction: column;
-          gap: var(--gm-space-2);
-        }
+          &.panel-input {
+            padding: var(--gm-space-3);
+            display: flex;
+            flex-direction: column;
+            gap: var(--gm-space-2);
 
-        .section-label {
-          line-height: var(--gm-section-title-line-height);
-        }
+            #input-area {
+              flex: 1;
+              min-height: 17.5rem;
+            }
+          }
 
-        .gm .gm-textarea {
-          padding: var(--gm-space-2);
-          font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-          resize: none;
-          tab-size: 4;
-        }
+          &.panel-output {
+            display: grid;
+            grid-template-rows: repeat(5, minmax(7.5rem, 1fr));
+            gap: var(--gm-space-2);
 
-        #input-area {
-          flex: 1;
-          min-height: 17.5rem;
-        }
-
-        .panel-output {
-          display: grid;
-          grid-template-rows: repeat(5, minmax(7.5rem, 1fr));
-          gap: var(--gm-space-2);
+            @media (width <= 61.25rem) {
+              grid-template-rows: none;
+            }
+          }
         }
 
         .output-card {
@@ -303,6 +336,10 @@
           gap: var(--gm-space-2);
           min-width: 0;
           min-height: 0;
+
+          @media (width <= 40rem) {
+            padding: var(--gm-space-2);
+          }
         }
 
         .card-header {
@@ -311,63 +348,81 @@
           justify-content: space-between;
           flex-wrap: wrap;
           gap: var(--gm-space-2);
+
+          .card-header-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: var(--gm-space-2);
+            min-width: 0;
+            max-width: 100%;
+            margin-inline-start: auto;
+
+            @media (width <= 40rem) {
+              width: 100%;
+              margin-inline-start: 0;
+            }
+          }
+
+          @media (width <= 40rem) {
+            &:has(.card-header-actions) {
+              align-items: flex-start;
+              flex-direction: column;
+            }
+          }
         }
 
         .card-title {
-          font-weight: 600;
           min-width: 0;
           overflow-wrap: anywhere;
-        }
-
-        .card-header-actions {
-          display: flex;
-          align-items: center;
-          justify-content: flex-end;
-          flex-wrap: wrap;
-          gap: var(--gm-space-2);
-          min-width: 0;
-          max-width: 100%;
-          margin-inline-start: auto;
-        }
-
-        .output-area {
-          flex: 1;
-          min-height: 3rem;
-        }
-
-        .gm .table-name-input {
-          width: 15rem;
-          max-width: 100%;
-        }
-        .gm .number-offset-input {
-          width: 7.5rem;
-          text-align: start;
-          font-variant-numeric: tabular-nums;
-
-          &::-webkit-inner-spin-button {
-            margin-inline-start: var(--gm-space-2);
-          }
-        }
-
-        .gm .copy-btn {
-          flex: none;
-          max-width: 100%;
-
-          &.copied {
-            color: var(--gm-success);
-            background: var(--gm-success-bg);
-            border-color: var(--gm-success);
-
-            &:focus-visible {
-              outline-color: var(--gm-success);
-              outline-offset: -2px;
-            }
-          }
         }
 
         .copy-label {
           min-width: 0;
           overflow-wrap: anywhere;
+        }
+
+        .theme-control {
+          position: relative;
+          display: flex;
+          flex: none;
+
+          .theme-tooltip {
+            position: absolute;
+            inset-block-start: 100%;
+            inset-inline-end: 0;
+            z-index: 1;
+            width: max-content;
+            max-width: calc(100vw - 2 * var(--page-gutter));
+            padding-block-start: var(--gm-space-2);
+            visibility: hidden;
+            font-size: 0.75rem;
+            line-height: 1.5;
+            text-align: start;
+            cursor: default;
+
+            span {
+              display: block;
+              padding: 0.375rem var(--gm-space-2);
+              color: var(--gm-surface);
+              background: var(--gm-text);
+              border: 1px solid var(--gm-text);
+              border-radius: var(--gm-radius);
+            }
+          }
+
+          &:not([data-tooltip-dismissed]) {
+            &:has(input:focus-visible) .theme-tooltip {
+              visibility: visible;
+            }
+
+            @media (hover: hover) {
+              &:hover .theme-tooltip {
+                visibility: visible;
+              }
+            }
+          }
         }
 
         .switch {
@@ -379,98 +434,42 @@
             inset: 0;
             width: 100%;
             height: 100%;
-            margin: 0;
             opacity: 0;
             cursor: pointer;
+
+            &:checked ~ .gm-mode-light,
+            &:not(:checked) ~ .gm-mode-dark {
+              display: none;
+            }
           }
 
           &:has(input:focus-visible) {
             outline: 2px solid var(--gm-focus);
             outline-offset: -2px;
           }
-          input:checked ~ .gm-mode-light,
-          input:not(:checked) ~ .gm-mode-dark {
-            display: none;
-          }
-        }
-
-        @media (max-width: 61.25rem) {
-          .main {
-            grid-template-columns: minmax(0, 1fr);
-          }
-          .panel-output {
-            grid-template-rows: none;
-          }
-          .gm .output-area {
-            min-height: 8.5rem;
-          }
-        }
-
-        @media (max-width: 40rem) {
-          .header-content,
-          .main {
-            padding-inline: max(var(--gm-space-3), env(safe-area-inset-left))
-              max(var(--gm-space-3), env(safe-area-inset-right));
-          }
-
-          .main {
-            gap: var(--gm-space-3);
-          }
-          .output-card {
-            padding: var(--gm-space-2);
-          }
-          .card-header:has(.card-header-actions) {
-            align-items: flex-start;
-            flex-direction: column;
-          }
-          .card-header-actions {
-            width: 100%;
-            margin-inline-start: 0;
-          }
-          .gm .table-name-input,
-          .gm .number-offset-input {
-            flex: 1;
-            width: 0;
-            min-width: 5rem;
-          }
-        }
-
-        @media (any-pointer: coarse) {
-          .gm {
-            --gm-control-height: 2.75rem;
-            --gm-button-height: 2.75rem;
-            --gm-button-padding-block: 0.5rem;
-            --gm-control-padding-block: 0.5rem;
-            --gm-icon-size: 1.25rem;
-          }
-
-          .gm .gm-input,
-          .gm .gm-textarea {
-            font-size: 1rem;
-          }
-        }
-
-        @media (forced-colors: active) {
-          .gm :focus-visible,
-          .gm .gm-btn-primary:focus-visible,
-          .gm .copy-btn.copied:focus-visible,
-          .switch:has(input:focus-visible) {
-            outline-color: Highlight;
-          }
-          .gm .gm-btn,
-          .gm .gm-input,
-          .gm .gm-textarea {
-            border-color: ButtonText;
-          }
-          .gm .gm-btn:disabled {
-            color: GrayText;
-            border-color: GrayText;
-            opacity: 1;
-          }
         }
       }
 
       @layer utility {
+        @media (forced-colors: active) {
+          .gm {
+            :focus-visible,
+            .switch:has(input:focus-visible) {
+              outline-color: Highlight;
+            }
+            .gm-btn,
+            .gm-input,
+            .gm-textarea {
+              border-color: ButtonText;
+            }
+            .gm-btn:disabled {
+              color: GrayText;
+              border-color: GrayText;
+              opacity: 1;
+            }
+          }
+        }
+
         .sr-only {
           position: absolute;
           width: 1px;
@@ -479,83 +478,59 @@
           padding: 0;
           overflow: hidden;
           border: 0;
-          clip: rect(0, 0, 0, 0);
+          clip-path: inset(50%);
           white-space: nowrap;
+        }
+
+        .icon-definitions {
+          position: absolute;
+          width: 0;
+          height: 0;
+          overflow: hidden;
         }
       }
     </style>
   </head>
   <body class="gm" data-mode="light" spellcheck="false" autocapitalize="off" autocorrect="off">
-    <header class="header">
-      <div class="header-content">
-        <h1 class="logo">
-          <svg
-            class="logo-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M5 9h11" />
-            <path d="M13 6l3 3-3 3" />
-            <path d="M19 15H8" />
-            <path d="M11 12l-3 3 3 3" />
-          </svg>
-          <span>変換ツール</span>
-        </h1>
-        <div class="header-actions">
-          <label class="switch gm-btn gm-icon-btn" for="lightModeToggle">
-            <input
-              id="lightModeToggle"
-              type="checkbox"
-              role="switch"
-              aria-label="ライト/ダークモード切り替え"
-              checked
+    <svg class="icon-definitions" aria-hidden="true">
+      <symbol id="icon-copy" viewBox="0 -960 960 960">
+        <path
+          d="M360-240q-29.7 0-50.85-21.15Q288-282.3 288-312v-480q0-29.7 21.15-50.85Q330.3-864 360-864h384q29.7 0 50.85 21.15Q816-821.7 816-792v480q0 29.7-21.15 50.85Q773.7-240 744-240H360Zm0-72h384v-480H360v480ZM216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-552h72v552h456v72H216Zm144-216v-480 480Z"
+        />
+      </symbol>
+      <symbol id="icon-check" viewBox="0 -960 960 960">
+        <path d="M389-267 195-460l51-52 143 143 325-324 51 51-376 375Z" />
+      </symbol>
+    </svg>
+    <header class="header-content">
+      <h1>変換ツール</h1>
+      <div class="theme-control">
+        <label class="switch gm-btn gm-icon-btn" for="lightModeToggle">
+          <input
+            id="lightModeToggle"
+            type="checkbox"
+            role="switch"
+            aria-label="ライト/ダークモード切り替え"
+            aria-describedby="theme-tooltip"
+            checked
+          />
+          <svg class="gm-icon gm-mode-light" viewBox="0 -960 960 960" aria-hidden="true">
+            <path
+              d="M480-360q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35Zm-.23 72Q400-288 344-344.23q-56-56.22-56-136Q288-560 344.23-616q56.22-56 136-56Q560-672 616-615.77q56 56.22 56 136Q672-400 615.77-344q-56.22 56-136 56ZM216-444H48v-72h168v72Zm696 0H744v-72h168v72ZM444-744v-168h72v168h-72Zm0 696v-168h72v168h-72ZM269-642 166-742l51-55 102 104-50 51Zm474 475L642-268l49-51 103 101-51 51ZM640-691l102-101 51 49-100 103-53-51ZM163-217l105-99 49 47-98 104-56-52Zm317-263Z"
             />
-            <span class="gm-mode-icon gm-mode-light"
-              ><svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="gm-icon"
-                data-icon="light_mode"
-                viewBox="0 -960 960 960"
-                data-size="16"
-                width="16"
-                height="16"
-                fill="currentColor"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path
-                  d="M480-360q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35Zm-.23 72Q400-288 344-344.23q-56-56.22-56-136Q288-560 344.23-616q56.22-56 136-56Q560-672 616-615.77q56 56.22 56 136Q672-400 615.77-344q-56.22 56-136 56ZM216-444H48v-72h168v72Zm696 0H744v-72h168v72ZM444-744v-168h72v168h-72Zm0 696v-168h72v168h-72ZM269-642 166-742l51-55 102 104-50 51Zm474 475L642-268l49-51 103 101-51 51ZM640-691l102-101 51 49-100 103-53-51ZM163-217l105-99 49 47-98 104-56-52Zm317-263Z"
-                /></svg
-            ></span>
-            <span class="gm-mode-icon gm-mode-dark"
-              ><svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="gm-icon"
-                data-icon="dark_mode"
-                viewBox="0 -960 960 960"
-                data-size="16"
-                width="16"
-                height="16"
-                fill="currentColor"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path
-                  d="M479.96-144Q340-144 242-242t-98-238q0-140 97.93-238t237.83-98q13.06 0 25.65 1 12.59 1 25.59 3-39 29-62 72t-23 92q0 85 58.5 143.5T648-446q49 0 92-23t72-62q2 13 3 25.59t1 25.65q0 139.9-98.04 237.83t-238 97.93Zm.04-72q82 0 148.78-47.07Q695.55-310.15 727-386q-20 5-39.67 8.5Q667.67-374 648-374q-113.86 0-193.93-80.07Q374-534.14 374-648q0-19.67 3.5-39.33Q381-707 386-727q-75.85 31.45-122.93 98.22Q216-562 216-480q0 110 77 187t187 77Zm-14-250Z"
-                /></svg
-            ></span>
-          </label>
-        </div>
+          </svg>
+          <svg class="gm-icon gm-mode-dark" viewBox="0 -960 960 960" aria-hidden="true">
+            <path
+              d="M479.96-144Q340-144 242-242t-98-238q0-140 97.93-238t237.83-98q13.06 0 25.65 1 12.59 1 25.59 3-39 29-62 72t-23 92q0 85 58.5 143.5T648-446q49 0 92-23t72-62q2 13 3 25.59t1 25.65q0 139.9-98.04 237.83t-238 97.93Zm.04-72q82 0 148.78-47.07Q695.55-310.15 727-386q-20 5-39.67 8.5Q667.67-374 648-374q-113.86 0-193.93-80.07Q374-534.14 374-648q0-19.67 3.5-39.33Q381-707 386-727q-75.85 31.45-122.93 98.22Q216-562 216-480q0 110 77 187t187 77Zm-14-250Z"
+            />
+          </svg>
+        </label>
+        <span class="theme-tooltip" id="theme-tooltip" role="tooltip"><span>テーマ切替</span></span>
       </div>
     </header>
     <main class="main" id="app-main">
       <section class="panel panel-input gm-panel" aria-labelledby="input-label">
-        <label class="section-label gm-label" id="input-label" for="input-area">入力（1行につき1つの値）</label>
+        <label class="gm-label" id="input-label" for="input-area">入力（1行につき1つの値）</label>
         <textarea
           class="gm-textarea"
           id="input-area"
@@ -567,26 +542,14 @@
           <div class="card-header">
             <h2 class="card-title" id="a5m2-title">A5M2用 Caption 変換</h2>
             <button
-              class="copy-btn gm-btn gm-btn-primary gm-copy-button"
+              class="copy-btn gm-btn gm-btn-primary"
+              type="button"
+              disabled
               data-copy-target="#output-a5m2"
-              data-default-label="コピー"
               aria-label="A5M2の結果をコピー"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="gm-icon"
-                data-icon="content_copy"
-                viewBox="0 -960 960 960"
-                data-size="16"
-                width="16"
-                height="16"
-                fill="currentColor"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path
-                  d="M360-240q-29.7 0-50.85-21.15Q288-282.3 288-312v-480q0-29.7 21.15-50.85Q330.3-864 360-864h384q29.7 0 50.85 21.15Q816-821.7 816-792v480q0 29.7-21.15 50.85Q773.7-240 744-240H360Zm0-72h384v-480H360v480ZM216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-552h72v552h456v72H216Zm144-216v-480 480Z"
-                />
+              <svg class="gm-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <use href="#icon-copy" />
               </svg>
               <span class="copy-label" id="copy-a5m2-status" role="status" aria-atomic="true">コピー</span>
             </button>
@@ -603,26 +566,14 @@
           <div class="card-header">
             <h2 class="card-title" id="tsv-title">タブ区切り変換（Excel向け）</h2>
             <button
-              class="copy-btn gm-btn gm-btn-primary gm-copy-button"
+              class="copy-btn gm-btn gm-btn-primary"
+              type="button"
+              disabled
               data-copy-target="#output-tsv"
-              data-default-label="コピー"
               aria-label="TSVの結果をコピー"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="gm-icon"
-                data-icon="content_copy"
-                viewBox="0 -960 960 960"
-                data-size="16"
-                width="16"
-                height="16"
-                fill="currentColor"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path
-                  d="M360-240q-29.7 0-50.85-21.15Q288-282.3 288-312v-480q0-29.7 21.15-50.85Q330.3-864 360-864h384q29.7 0 50.85 21.15Q816-821.7 816-792v480q0 29.7-21.15 50.85Q773.7-240 744-240H360Zm0-72h384v-480H360v480ZM216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-552h72v552h456v72H216Zm144-216v-480 480Z"
-                />
+              <svg class="gm-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <use href="#icon-copy" />
               </svg>
               <span class="copy-label" id="copy-tsv-status" role="status" aria-atomic="true">コピー</span>
             </button>
@@ -639,26 +590,14 @@
           <div class="card-header">
             <h2 class="card-title" id="sql-title">SQL の IN 句変換</h2>
             <button
-              class="copy-btn gm-btn gm-btn-primary gm-copy-button"
+              class="copy-btn gm-btn gm-btn-primary"
+              type="button"
+              disabled
               data-copy-target="#output-sql-in"
-              data-default-label="コピー"
               aria-label="SQL IN句の結果をコピー"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="gm-icon"
-                data-icon="content_copy"
-                viewBox="0 -960 960 960"
-                data-size="16"
-                width="16"
-                height="16"
-                fill="currentColor"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path
-                  d="M360-240q-29.7 0-50.85-21.15Q288-282.3 288-312v-480q0-29.7 21.15-50.85Q330.3-864 360-864h384q29.7 0 50.85 21.15Q816-821.7 816-792v480q0 29.7-21.15 50.85Q773.7-240 744-240H360Zm0-72h384v-480H360v480ZM216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-552h72v552h456v72H216Zm144-216v-480 480Z"
-                />
+              <svg class="gm-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <use href="#icon-copy" />
               </svg>
               <span class="copy-label" id="copy-sql-status" role="status" aria-atomic="true">コピー</span>
             </button>
@@ -673,39 +612,24 @@
         </article>
         <article class="output-card gm-panel" aria-labelledby="pg-sql-title">
           <div class="card-header">
-            <h2 class="card-title card-title-plain" id="pg-sql-title">PostgreSQL SELECT + INSERT + DELETE</h2>
+            <h2 class="card-title" id="pg-sql-title">PostgreSQL SELECT + INSERT + DELETE</h2>
             <div class="card-header-actions">
-              <label class="sr-only" for="pg-table-name">テーブル名</label>
+              <label class="sr-only" for="pg-table-name">PostgreSQLのテーブル名</label>
               <input
                 class="table-name-input gm-input"
                 id="pg-table-name"
-                type="text"
                 placeholder="テーブル名を入力してください"
-                aria-label="PostgreSQLのテーブル名"
                 autocomplete="off"
-                spellcheck="false"
               />
               <button
-                class="copy-btn gm-btn gm-btn-primary gm-copy-button"
+                class="copy-btn gm-btn gm-btn-primary"
+                type="button"
+                disabled
                 data-copy-target="#output-pg-sql"
-                data-default-label="コピー"
                 aria-label="PostgreSQL SELECT・INSERT・DELETEの結果をコピー"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="gm-icon"
-                  data-icon="content_copy"
-                  viewBox="0 -960 960 960"
-                  data-size="16"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  aria-hidden="true"
-                  focusable="false"
-                >
-                  <path
-                    d="M360-240q-29.7 0-50.85-21.15Q288-282.3 288-312v-480q0-29.7 21.15-50.85Q330.3-864 360-864h384q29.7 0 50.85 21.15Q816-821.7 816-792v480q0 29.7-21.15 50.85Q773.7-240 744-240H360Zm0-72h384v-480H360v480ZM216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-552h72v552h456v72H216Zm144-216v-480 480Z"
-                  />
+                <svg class="gm-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <use href="#icon-copy" />
                 </svg>
                 <span class="copy-label" id="copy-pg-status" role="status" aria-atomic="true">コピー</span>
               </button>
@@ -721,39 +645,25 @@
         </article>
         <article class="output-card gm-panel" aria-labelledby="number-adjust-title">
           <div class="card-header">
-            <h2 class="card-title card-title-plain" id="number-adjust-title">連番調整</h2>
+            <h2 class="card-title" id="number-adjust-title">連番調整</h2>
             <div class="card-header-actions">
-              <label class="sr-only" for="number-offset">増減値</label>
+              <label class="sr-only" for="number-offset">連番の増減値</label>
               <input
                 class="number-offset-input gm-input"
                 id="number-offset"
                 type="number"
-                step="1"
                 placeholder="例: 1, -2"
-                aria-label="連番の増減値"
                 autocomplete="off"
               />
               <button
-                class="copy-btn gm-btn gm-btn-primary gm-copy-button"
+                class="copy-btn gm-btn gm-btn-primary"
+                type="button"
+                disabled
                 data-copy-target="#output-number-adjust"
-                data-default-label="コピー"
                 aria-label="連番調整の結果をコピー"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="gm-icon"
-                  data-icon="content_copy"
-                  viewBox="0 -960 960 960"
-                  data-size="16"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  aria-hidden="true"
-                  focusable="false"
-                >
-                  <path
-                    d="M360-240q-29.7 0-50.85-21.15Q288-282.3 288-312v-480q0-29.7 21.15-50.85Q330.3-864 360-864h384q29.7 0 50.85 21.15Q816-821.7 816-792v480q0 29.7-21.15 50.85Q773.7-240 744-240H360Zm0-72h384v-480H360v480ZM216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-552h72v552h456v72H216Zm144-216v-480 480Z"
-                  />
+                <svg class="gm-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <use href="#icon-copy" />
                 </svg>
                 <span class="copy-label" id="copy-number-status" role="status" aria-atomic="true">コピー</span>
               </button>
@@ -775,27 +685,19 @@
       const SAVE_DELAY_MS = 500;
       const MAX_SAVE_WAIT_MS = 2000;
       const PG_IDENTIFIER_MAX_BYTES = 63;
+      const INTEGER_PATTERN = /^[+-]?\d+$/;
       const UTF8_ENCODER = new TextEncoder();
       const SETTINGS_FIELDS = ['input', 'pgTableName', 'numberOffset', 'theme'];
       const PG_TABLE_NAME_PLACEHOLDER = '???';
-      const DEFAULT_PG_TABLE_INPUT = '';
-      const DEFAULT_NUMBER_OFFSET_INPUT = '';
       const LIGHT_THEME = 'light';
       const DARK_THEME = 'dark';
       const DEFAULT_THEME = LIGHT_THEME;
       const qs = (sel, root = document) => root.querySelector(sel);
       const qsa = (sel, root = document) => [...root.querySelectorAll(sel)];
 
-      const COPY_ICON_PATHS = {
-        content_copy:
-          'M360-240q-29.7 0-50.85-21.15Q288-282.3 288-312v-480q0-29.7 21.15-50.85Q330.3-864 360-864h384q29.7 0 50.85 21.15Q816-821.7 816-792v480q0 29.7-21.15 50.85Q773.7-240 744-240H360Zm0-72h384v-480H360v480ZM216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-552h72v552h456v72H216Zm144-216v-480 480Z',
-        check: 'M389-267 195-460l51-52 143 143 325-324 51 51-376 375Z'
-      };
-      const COPY_TIMER_MAP = new WeakMap();
-      const COPY_REQUEST_MAP = new WeakMap();
-      const OUTPUT_VALUE_MAP = new Map();
       const $inputArea = qs('#input-area');
       const $lightModeToggle = qs('#lightModeToggle');
+      const $themeControl = qs('.theme-control');
       const $pgTableNameInput = qs('#pg-table-name');
       const $numberOffsetInput = qs('#number-offset');
       const $outputA5m2 = qs('#output-a5m2');
@@ -804,6 +706,19 @@
       const $outputPgSql = qs('#output-pg-sql');
       const $outputNumberAdjust = qs('#output-number-adjust');
       const $main = qs('#app-main');
+      const $inputControls = [$inputArea, $pgTableNameInput, $numberOffsetInput];
+      const COPY_CONTROL_MAP = new Map(
+        qsa('.copy-btn').map(($button) => [
+          $button,
+          {
+            $target: qs($button.dataset.copyTarget),
+            $icon: qs('use', $button),
+            $label: qs('.copy-label', $button),
+            _value: '',
+            _resetTimeout: undefined
+          }
+        ])
+      );
 
       let _saveTimeout;
       let _maxSaveTimeout;
@@ -823,7 +738,6 @@
 
       function _applyTheme(theme) {
         const _theme = _getStoredTheme(theme);
-        document.documentElement.setAttribute('data-theme', _theme);
         document.documentElement.style.colorScheme = _theme;
         document.body.dataset.mode = _theme;
         $lightModeToggle.checked = _theme === LIGHT_THEME;
@@ -833,7 +747,7 @@
         return text
           .split(/\r\n|[\r\n]/)
           .map((line) => line.trim())
-          .filter((line) => line.length > 0);
+          .filter(Boolean);
       }
 
       function _convertA5m2(lines) {
@@ -842,7 +756,6 @@
       }
 
       function _convertTsv(lines) {
-        if (lines.length === 0) return '';
         return lines.map((value) => (/["\t\r\n]/.test(value) ? `"${value.replaceAll('"', '""')}"` : value)).join('\t');
       }
 
@@ -908,7 +821,7 @@
       }
 
       function _isValidSqlText(value) {
-        return !/[\0\uD800-\uDFFF]/u.test(value);
+        return value.isWellFormed() && !value.includes('\0');
       }
 
       function _isValidPgIdentifier(value) {
@@ -943,28 +856,10 @@
         return value.replaceAll("'", "''");
       }
 
-      function _isPgNullToken(value) {
-        const _trimmed = String(value ?? '').trim();
-        return /^(?:NULL|<<\s*NULL\s*>>|<\s*NULL\s*>|«\s*NULL\s*»)$/i.test(_trimmed);
-      }
-
-      function _normalizePgWhereValue(value) {
-        const _trimmed = String(value ?? '').trim();
-        if (_trimmed.length === 0 || _isPgNullToken(_trimmed)) {
-          return null;
-        }
-        return String(value);
-      }
-
-      function _normalizePgInsertValue(value) {
-        const _trimmed = String(value ?? '').trim();
-        if (_isPgNullToken(_trimmed)) {
-          return null;
-        }
-        if (_trimmed.length === 0) {
-          return ' ';
-        }
-        return String(value);
+      function _normalizePgValue(value) {
+        const _trimmed = value.trim();
+        if (_trimmed === '') return '';
+        return /^(?:NULL|<<\s*NULL\s*>>|<\s*NULL\s*>|«\s*NULL\s*»)$/i.test(_trimmed) ? null : value;
       }
 
       function _formatPgValue(value) {
@@ -994,7 +889,7 @@
           _position = _partPattern.lastIndex;
           if (_match[2] === '.' && (_position === _tableName.length || _parts.length === 3)) return '';
         }
-        return _parts.length <= 3 ? _parts.join('.') : '';
+        return _parts.join('.');
       }
 
       function _preparePostgreSQLBlock(text) {
@@ -1009,8 +904,10 @@
         const _valueRows = _table.rows.map((row) => {
           const _conditions = [];
           const _values = row.map((value, index) => {
-            const _formatted = _formatPgValue(_normalizePgInsertValue(value));
-            if (_normalizePgWhereValue(value) !== null) {
+            const _value = _normalizePgValue(value);
+            // 空欄はINSERTで半角スペースとし、NULLとともに検索条件から除外する。
+            const _formatted = _formatPgValue(_value === '' ? ' ' : _value);
+            if (_value !== null && _value !== '') {
               _conditions.push(`${_quotedColumns[index]} = ${_formatted}`);
             }
             return _formatted;
@@ -1023,7 +920,11 @@
           _rowConditions.size > 0
             ? [..._rowConditions].map((_condition) => `(${_condition})`).join('\n   OR ')
             : '1 = 0';
-        return { columnList: _columnList, whereClause: _whereClause, valuesList: _valueRows.join(',\n') };
+        return {
+          columnList: _columnList,
+          whereClause: _whereClause,
+          valuesList: _valueRows.join(',\n')
+        };
       }
 
       function _convertPostgreSQLBlock(text, tableName) {
@@ -1059,7 +960,7 @@
 
       function _parseNumberOffset(value) {
         const _trimmed = String(value ?? '').trim();
-        return /^[+-]?\d+$/.test(_trimmed) ? BigInt(_trimmed) : 0n;
+        return INTEGER_PATTERN.test(_trimmed) ? BigInt(_trimmed) : 0n;
       }
 
       function _convertNumberAdjustment(text, offsetValue) {
@@ -1083,42 +984,39 @@
         }
         _setInvalidState(
           $numberOffsetInput,
-          $numberOffsetInput.validity.badInput || (_offset !== '' && !/^[+-]?\d+$/.test(_offset))
+          $numberOffsetInput.validity.badInput || (_offset !== '' && !INTEGER_PATTERN.test(_offset))
         );
         const _inputChanged = _input !== _lastConversion.input;
-        const _results = [];
+        const _results = new Map();
         if (_inputChanged) {
           const _lines = _getLines(_input);
-          _results.push(
-            [$outputA5m2, _convertA5m2(_lines)],
-            [$outputTsv, _convertTsv(_lines)],
-            [$outputSqlIn, _convertSqlIn(_lines)]
-          );
+          _results.set($outputA5m2, _convertA5m2(_lines));
+          _results.set($outputTsv, _convertTsv(_lines));
+          _results.set($outputSqlIn, _convertSqlIn(_lines));
         }
         if (_inputChanged || _tableName !== _lastConversion.tableName) {
-          _results.push([$outputPgSql, _convertPostgreSQLBlock(_input, _tableName)]);
+          _results.set($outputPgSql, _convertPostgreSQLBlock(_input, _tableName));
         }
         if (_inputChanged || _offset !== _lastConversion.offset) {
-          _results.push([$outputNumberAdjust, _convertNumberAdjustment(_input, _offset)]);
+          _results.set($outputNumberAdjust, _convertNumberAdjustment(_input, _offset));
         }
-        _lastConversion = { input: _input, tableName: _tableName, offset: _offset };
-        const _changedTargets = new Set();
-        _results.forEach(([$target, _value]) => OUTPUT_VALUE_MAP.set($target, _value));
-        OUTPUT_VALUE_MAP.forEach((_value, $target) => {
-          if ($target.value === _value) return;
-          $target.value = _value;
-          _changedTargets.add($target);
-        });
-
-        qsa('.copy-btn', $main).forEach(($button) => {
-          const $target = qs($button.dataset.copyTarget);
-          const _disabled = !$target?.value;
+        _lastConversion = {
+          input: _input,
+          tableName: _tableName,
+          offset: _offset
+        };
+        for (const [$button, _control] of COPY_CONTROL_MAP) {
+          const { $target } = _control;
+          _control._value = _results.get($target) ?? _control._value;
+          const _changed = $target.value !== _control._value;
+          if (_changed) $target.value = _control._value;
+          const _disabled = !_control._value;
           if ($button.disabled !== _disabled) $button.disabled = _disabled;
-          if ($button.disabled || _changedTargets.has($target)) {
-            COPY_REQUEST_MAP.delete($button);
+          if (_disabled || _changed) {
+            if (_activeCopyRequest?.$button === $button) _activeCopyRequest = undefined;
             _resetCopyState($button);
           }
-        });
+        }
       }
 
       function _saveSettings() {
@@ -1156,37 +1054,22 @@
           return {};
         }
         if (!_data || typeof _data !== 'object' || Array.isArray(_data)) return {};
-        const _settings = {};
-        SETTINGS_FIELDS.forEach((_field) => {
-          if (typeof _data[_field] === 'string') _settings[_field] = _data[_field];
-        });
+        const _settings = Object.fromEntries(
+          SETTINGS_FIELDS.filter((_field) => typeof _data[_field] === 'string').map((_field) => [_field, _data[_field]])
+        );
         if ('theme' in _settings) _settings.theme = _getStoredTheme(_settings.theme);
         return _settings;
       }
 
       function _loadSettings() {
-        let _theme = DEFAULT_THEME;
-        let _pgTableName = DEFAULT_PG_TABLE_INPUT;
-        let _numberOffset = DEFAULT_NUMBER_OFFSET_INPUT;
-
+        let _settings = {};
         try {
-          const _data = _readStoredSettings();
-          if (typeof _data.input === 'string') {
-            $inputArea.value = _data.input;
-          }
-          if (typeof _data.pgTableName === 'string') {
-            _pgTableName = _data.pgTableName;
-          }
-          if (typeof _data.numberOffset === 'string') {
-            _numberOffset = _data.numberOffset;
-          }
-
-          _theme = _getStoredTheme(_data.theme);
+          _settings = _readStoredSettings();
         } catch {}
-
-        $pgTableNameInput.value = _pgTableName;
-        $numberOffsetInput.value = _numberOffset;
-        _applyTheme(_theme);
+        if (_settings.input !== undefined) $inputArea.value = _settings.input;
+        $pgTableNameInput.value = _settings.pgTableName ?? '';
+        $numberOffsetInput.value = _settings.numberOffset ?? '';
+        _applyTheme(_settings.theme);
         _lastSavedSettings = _getCurrentSettings();
       }
 
@@ -1194,10 +1077,6 @@
         clearTimeout(_saveTimeout);
         _saveTimeout = setTimeout(_saveSettings, SAVE_DELAY_MS);
         if (_maxSaveTimeout === undefined) _maxSaveTimeout = setTimeout(_saveSettings, MAX_SAVE_WAIT_MS);
-      }
-
-      function _flushPendingSettings() {
-        _saveSettings();
       }
 
       function _restorePage() {
@@ -1208,7 +1087,10 @@
       }
 
       function _handleInput(event) {
-        if (event.target === $compositionTarget && event.isComposing === false) $compositionTarget = null;
+        if (!$inputControls.includes(event.target)) return;
+        if (event.target === $compositionTarget && (event.type === 'change' || event.isComposing === false)) {
+          $compositionTarget = null;
+        }
         if (event.isComposing && !$compositionTarget) $compositionTarget = event.target;
         if (!$compositionTarget && !event.isComposing) _convertAll();
         _autoSave();
@@ -1221,46 +1103,36 @@
         _autoSave();
       }
 
-      function _cancelPendingCopies() {
+      function _suspendPage() {
         _activeCopyRequest = undefined;
-        qsa('.copy-btn', $main).forEach(($button) => {
-          COPY_REQUEST_MAP.delete($button);
-          _resetCopyState($button);
-        });
+        for (const $button of COPY_CONTROL_MAP.keys()) _resetCopyState($button);
+        _saveSettings();
       }
 
-      function _setCopyButtonLabel($button, iconText, labelText) {
-        const $icon = qs('.gm-icon path', $button);
-        const $label = qs('.copy-label', $button);
-        if ($icon && $icon.getAttribute('d') !== COPY_ICON_PATHS[iconText])
-          $icon.setAttribute('d', COPY_ICON_PATHS[iconText]);
-        if ($label && $label.textContent !== labelText) $label.textContent = labelText;
+      function _setCopyState($button, _copied) {
+        const { $icon, $label } = COPY_CONTROL_MAP.get($button);
+        const _iconHref = _copied ? '#icon-check' : '#icon-copy';
+        const _labelText = _copied ? 'コピーしました' : 'コピー';
+        if ($icon.getAttribute('href') !== _iconHref) $icon.setAttribute('href', _iconHref);
+        if ($label.textContent !== _labelText) $label.textContent = _labelText;
+        if ($button.classList.contains('copied') !== _copied) $button.classList.toggle('copied', _copied);
+        if (_copied) $button.setAttribute('aria-describedby', $label.id);
+        else $button.removeAttribute('aria-describedby');
       }
 
       function _resetCopyState($button) {
-        clearTimeout(COPY_TIMER_MAP.get($button));
-        COPY_TIMER_MAP.delete($button);
-        if ($button.classList.contains('copied')) $button.classList.remove('copied');
-        $button.removeAttribute('aria-describedby');
-        _setCopyButtonLabel($button, 'content_copy', $button.dataset.defaultLabel || 'コピー');
+        const _control = COPY_CONTROL_MAP.get($button);
+        clearTimeout(_control._resetTimeout);
+        _control._resetTimeout = undefined;
+        _setCopyState($button, false);
       }
 
       function _showCopiedState($button) {
         if ($button.disabled) return;
-        const _existingTimer = COPY_TIMER_MAP.get($button);
-        if (_existingTimer) {
-          clearTimeout(_existingTimer);
-        }
-
-        $button.classList.add('copied');
-        _setCopyButtonLabel($button, 'check', 'コピーしました');
-        $button.setAttribute('aria-describedby', qs('.copy-label', $button).id);
-
-        const _timer = setTimeout(() => {
-          _resetCopyState($button);
-        }, COPY_RESET_MS);
-
-        COPY_TIMER_MAP.set($button, _timer);
+        const _control = COPY_CONTROL_MAP.get($button);
+        clearTimeout(_control._resetTimeout);
+        _setCopyState($button, true);
+        _control._resetTimeout = setTimeout(() => _resetCopyState($button), COPY_RESET_MS);
       }
 
       function _fallbackCopy($target, text) {
@@ -1323,26 +1195,21 @@
         _convertAll();
         _autoSave();
         if ($button.disabled) return;
-        const _targetSelector = $button.dataset.copyTarget;
-        if (!_targetSelector) return;
-
-        const $target = qs(_targetSelector);
-        if (!$target || !$target.value) return;
+        const { $target } = COPY_CONTROL_MAP.get($button);
 
         const _text = $target.value;
-        const _request = {};
+        const _request = { $button };
         _activeCopyRequest = _request;
-        COPY_REQUEST_MAP.set($button, _request);
-        qsa('.copy-btn', $main).forEach(_resetCopyState);
+        for (const $copyButton of COPY_CONTROL_MAP.keys()) _resetCopyState($copyButton);
         const _isCurrent = () => {
-          if (_activeCopyRequest !== _request || COPY_REQUEST_MAP.get($button) !== _request) return false;
+          if (_activeCopyRequest !== _request) return false;
           _convertAll();
           _autoSave();
-          return COPY_REQUEST_MAP.get($button) === _request && !$button.disabled && $target.value === _text;
+          return _activeCopyRequest === _request && !$button.disabled && $target.value === _text;
         };
         let _copied = false;
         try {
-          if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+          if (typeof navigator.clipboard?.writeText === 'function') {
             await navigator.clipboard.writeText(_text);
             _copied = true;
           } else if (_isCurrent()) {
@@ -1351,60 +1218,52 @@
         } catch {
           if (_isCurrent()) _copied = _fallbackCopy($target, _text);
         } finally {
-          if (_isCurrent()) {
-            if (_copied) _showCopiedState($button);
-          }
-          if (COPY_REQUEST_MAP.get($button) === _request) COPY_REQUEST_MAP.delete($button);
+          if (_isCurrent() && _copied) _showCopiedState($button);
           if (_activeCopyRequest === _request) _activeCopyRequest = undefined;
         }
       }
 
-      $inputArea.addEventListener('input', _handleInput);
-      $pgTableNameInput.addEventListener('input', _handleInput);
-      $numberOffsetInput.addEventListener('input', _handleInput);
+      function _init() {
+        // バブルしない合成inputイベントも従来どおり処理する。
+        $main.addEventListener('input', _handleInput, { capture: true });
+        $main.addEventListener('change', _handleInput);
+        $main.addEventListener('compositionstart', (event) => {
+          if ($inputControls.includes(event.target)) $compositionTarget = event.target;
+        });
+        $main.addEventListener('compositionend', _finishComposition);
+        $main.addEventListener('focusout', _finishComposition);
 
-      $main.addEventListener('change', (event) => {
-        if (event.target === $inputArea || event.target === $pgTableNameInput || event.target === $numberOffsetInput) {
-          _finishComposition(event);
-          _handleInput(event);
-        }
-      });
+        $lightModeToggle.addEventListener('change', () => {
+          _applyTheme(_getThemeFromToggle());
+          _saveSettings();
+        });
+        $lightModeToggle.addEventListener('focus', () => $themeControl.removeAttribute('data-tooltip-dismissed'));
+        $themeControl.addEventListener('pointerenter', () => $themeControl.removeAttribute('data-tooltip-dismissed'));
+        document.addEventListener('keydown', (_event) => {
+          if (_event.key === 'Escape' && $themeControl.matches(':hover, :focus-within')) {
+            $themeControl.setAttribute('data-tooltip-dismissed', '');
+          }
+        });
 
-      $main.addEventListener('compositionstart', (event) => {
-        if (event.target === $inputArea || event.target === $pgTableNameInput || event.target === $numberOffsetInput) {
-          $compositionTarget = event.target;
-        }
-      });
+        window.addEventListener('pagehide', _suspendPage);
+        window.addEventListener('pageshow', _restorePage);
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'hidden') {
+            _suspendPage();
+          } else if (document.visibilityState === 'visible') {
+            _restorePage();
+          }
+        });
 
-      $main.addEventListener('compositionend', _finishComposition);
-      $main.addEventListener('focusout', _finishComposition);
+        $main.addEventListener('click', (event) => {
+          const $button = event.target.closest('.copy-btn');
+          if ($button) _copyResult($button);
+        });
 
-      $lightModeToggle.addEventListener('change', () => {
-        _applyTheme(_getThemeFromToggle());
-        _saveSettings();
-      });
+        _loadSettings();
+      }
 
-      window.addEventListener('pagehide', () => {
-        _cancelPendingCopies();
-        _flushPendingSettings();
-      });
-      window.addEventListener('pageshow', _restorePage);
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden') {
-          _cancelPendingCopies();
-          _flushPendingSettings();
-        } else if (document.visibilityState === 'visible') {
-          _restorePage();
-        }
-      });
-
-      $main.addEventListener('click', (event) => {
-        const $button = event.target.closest('.copy-btn');
-        if (!$button) return;
-        _copyResult($button);
-      });
-
-      _loadSettings();
+      _init();
     </script>
   </body>
 </html>
